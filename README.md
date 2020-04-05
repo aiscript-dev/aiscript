@@ -8,7 +8,49 @@
 3. `npm start`すると実行されます
 
 ## Syntax
-coming soon
+### 変数宣言
+```
+#<variable name> = <value>
+```
+
+ex:
+```
+#answer = 42
+```
+
+### if
+```
+? <condition> {
+	<statements>
+}
+```
+
+with elseif
+```
+? <condition> {
+	<statements>
+} ...? <condition> {
+	<statements>
+}
+```
+
+with else
+```
+? <condition> {
+	<statements>
+} ... {
+	<statements>
+}
+```
+
+ex:
+```
+? eq(answer, 42) {
+	print("correct answer")
+} ... {
+	print("wrong answer")
+}
+```
 
 ## std
 ### @print(message: string): void
