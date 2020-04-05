@@ -1,13 +1,6 @@
-import { Value } from '.';
-import { valToString } from './util';
+import { Value } from '..';
 
-export const std: Record<string, Value> = {
-	print: {
-		type: 'function',
-		native(args) {
-			console.log('>>> ' + valToString(args[0]));
-		}
-	},
+export const core: Record<string, Value> = {
 	eq: {
 		type: 'function',
 		native(args) {
