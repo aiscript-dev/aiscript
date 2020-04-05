@@ -1,4 +1,4 @@
-import { Value } from './aiscript';
+import { Value } from '.';
 import { valToString } from './util';
 
 export const std: Record<string, Value> = {

@@ -1,0 +1,28 @@
+{
+  "name": "aiscript",
+  "version": "0.0.0",
+  "description": "AiScript implementation",
+  "author": "syuilo <syuilotan@yahoo.co.jp>",
+  "license": "MIT",
+  "repository": "https://github.com/syuilo/aiscript.git",
+  "bugs": "https://github.com/syuilo/aiscript/issues",
+  "main": "./built/index.js",
+  "types": "./built/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "mocha": "mocha test/index.ts",
+    "tsd": "tsd",
+    "test": "npm run mocha & npm run tsd"
+  },
+  "devDependencies": {
+    "@types/mocha": "7.0.2",
+    "@types/node": "13.11.0",
+    "mocha": "7.1.1",
+    "ts-node": "8.8.2",
+    "tsd": "0.11.0",
+    "typescript": "3.8.3"
+  },
+  "dependencies": {
+    "autobind-decorator": "2.4.0"
+  }
+}
