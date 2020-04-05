@@ -85,6 +85,7 @@ function evalExp(node: Node, scope: Scope): Result {
 				for (let i = 0; i < val.args!.length; i++) {
 					args[val.args![i]] = evalExp(node.args[i], scope).value;
 				}
+				// TODO: 関数のstatementsのスコープは、関数が呼ばれた場所じゃなく関数が定義された場所のスコープにする(クロージャ)
 				const fnScope = scope.createChildScope(args, `#${node.name}`);
 				return runBlock(val.statements!, fnScope);
 			}
