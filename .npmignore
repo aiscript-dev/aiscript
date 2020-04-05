@@ -1,0 +1,9 @@
+/node_modules
+/src
+/test
+.gitignore
+npm-debug.log
+gulpfile.js
+tsconfig.json
+.editorconfig
+.travis.yml

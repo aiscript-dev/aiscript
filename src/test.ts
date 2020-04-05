@@ -122,7 +122,3 @@ const _ = run([
 		]
  }
 ] as any, std);
-
-if (_) {
-	console.log('>>> ' + valToString(_));
-}

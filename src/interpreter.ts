@@ -3,7 +3,7 @@
  */
 
 import autobind from 'autobind-decorator';
-import { Value, Node, NULL } from './aiscript';
+import { Value, Node, NULL } from '.';
 import { nodeToString, valToString } from './util';
 
 class AiScriptError extends Error {
@@ -174,5 +174,11 @@ export function run(script: Node[], vars: Record<string, Value>, maxStep: number
 	let steps = 0;
 	const scope = new Scope([vars]);
 
-	return runBlock(script, scope);
+	const result = runBlock(script, scope);
+
+	if (result) {
+		console.log(`<- ${scope.name} : ${valToString(result)}`);
+	} else {
+		console.log(`<- ${scope.name}`);
+	}
 }

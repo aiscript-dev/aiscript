@@ -1,4 +1,4 @@
-import { Value, Node } from './aiscript';
+import { Value, Node } from '.';
 
 export function valToString(val: Value) {
 	const label =
