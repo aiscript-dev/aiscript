@@ -25,6 +25,10 @@ statement
 	/ return
 	/ fnDefinition
 	/ fnCall
+	/ numberLiteral
+	/ stringLiteral
+	/ booleanLiteral
+	/ variable
 
 expression
 	= numberLiteral
@@ -33,6 +37,7 @@ expression
 	/ fnObject
 	/ fnCall
 	/ variable
+	/ if
 
 // statement of variable definition
 varDefinition
@@ -60,8 +65,8 @@ numberLiteral
 
 // string literal
 stringLiteral
-	= "\"" vlaue:$(!"\"" .)* "\""
-{ return createNode('string', { vlaue }); }
+	= "\"" value:$(!"\"" .)* "\""
+{ return createNode('string', { value }); }
 
 // boolean literal
 booleanLiteral

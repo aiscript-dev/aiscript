@@ -31,7 +31,7 @@ class Scope {
 	}
 
 	@autobind
-	public createChildScope(states: Record<string, any> = {}, name?: Scope['name']): Scope {
+	public createChildScope(states: Record<string, Value> = {}, name?: Scope['name']): Scope {
 		const layer = [states, ...this.layerdStates];
 		return new Scope(layer, name);
 	}
@@ -65,54 +65,89 @@ class Scope {
 	}
 }
 
-function evalExp(node: Node, scope: Scope): Value {
-	console.log(` + ${nodeToString(node)}`);
+type Result = {
+	value: Value;
+	return: boolean;
+};
+
+function evalExp(node: Node, scope: Scope): Result {
+	console.log(`\t\t\t + ${nodeToString(node)}`);
 
 	switch (node.type) {
 		case 'call': {
 			const val = scope.get(node.name);
 			if (val.type !== 'function') throw new AiScriptError(`#${node.name} is not a function (${val.type})`);
 			if (val.native) {
-				const result = val.native!(node.args.map(expr => evalExp(expr, scope)));
-				return result || NULL;
+				const result = val.native!(node.args.map(expr => evalExp(expr, scope).value));
+				return { value: result || NULL, return: false };
 			} else {
 				const args = {} as Record<string, any>;
 				for (let i = 0; i < val.args!.length; i++) {
-					args[val.args![i]] = evalExp(node.args[i], scope);
+					args[val.args![i]] = evalExp(node.args[i], scope).value;
 				}
 				const fnScope = scope.createChildScope(args, `#${node.name}`);
-				return runBlock(val.statements!, fnScope) || NULL;
+				return runBlock(val.statements!, fnScope);
 			}
 		}
 
+		case 'if': {
+			const cond = evalExp(node.cond, scope).value;
+			if (cond.type !== 'boolean') throw new AiScriptError(`IF is expected boolean for cond, but got ${cond.type}`);
+			if (cond.value) {
+				return runBlock(node.then, scope.createChildScope());
+			} else {
+				if (node.elseif && node.elseif.length > 0) {
+					for (const elseif of node.elseif) {
+						const cond = evalExp(elseif.cond, scope).value;
+						if (cond.type !== 'boolean') throw new AiScriptError(`ELSE IF is expected boolean for cond, but got ${cond.type}`);
+						if (cond.value) {
+							return runBlock(elseif.then, scope.createChildScope());
+						}
+					}
+				} else if (node.else) {
+					return runBlock(node.else, scope.createChildScope());
+				}
+			}
+			return { value: NULL, return: false };
+		}
+
 		case 'def': {
-			scope.add(node.name, evalExp(node.expr, scope));
-			return NULL;
+			scope.add(node.name, evalExp(node.expr, scope).value);
+			return { value: NULL, return: false };
 		}
 
 		case 'var': {
-			return scope.get(node.name);
+			return { value: scope.get(node.name), return: false };
 		}
 
 		case 'number': {
 			return {
-				type: 'number',
-				value: node.value
+				value: {
+					type: 'number',
+					value: node.value
+				},
+				return: false
 			};
 		}
 
 		case 'string': {
 			return {
-				type: 'string',
-				value: node.value
+				value: {
+					type: 'string',
+					value: node.value
+				},
+				return: false
 			};
 		}
 
 		case 'func': {
 			return {
-				type: 'function',
-				args: node.args!,
-				statements: node.children!,
+				value: {
+					type: 'function',
+					args: node.args!,
+					statements: node.children!,
+				},
+				return: false
 			};
 		}
 	
@@ -122,8 +157,10 @@ function evalExp(node: Node, scope: Scope): Value {
 	}
 }
 
-function runBlock(program: Node[], scope: Scope): Value | null {
-	console.log(`-> ${scope.name}`);
+function runBlock(program: Node[], scope: Scope): Result {
+	console.log(`\t\t\t-> ${scope.name}`);
+
+	let v: Result = { value: NULL, return: false };
 	
 	for (let i = 0; i < program.length; i++) {
 		const node = program[i];
@@ -131,43 +168,19 @@ function runBlock(program: Node[], scope: Scope): Value | null {
 		switch (node.type) {
 			case 'return': {
 				const val = evalExp(node.expr, scope);
-				console.log(`<- ${scope.name} : ${valToString(val)}`);
-				return val;
+				console.log(`\t\t\t<- ${scope.name} : ${valToString(val.value)}`);
+				return { value: val.value, return: true };
 			}
 
-			case 'if': {
-				const cond = evalExp(node.cond, scope);
-				if (cond.type !== 'boolean') throw new AiScriptError(`IF is expected boolean for cond, but got ${cond.type}`);
-				if (cond.value) {
-					const result = runBlock(node.then, scope.createChildScope());
-					if (result) return result;
-				} else {
-					if (node.elseif && node.elseif.length > 0) {
-						for (const elseif of node.elseif) {
-							const cond = evalExp(elseif.cond, scope);
-							if (cond.type !== 'boolean') throw new AiScriptError(`ELSE IF is expected boolean for cond, but got ${cond.type}`);
-							if (cond.value) {
-								const result = runBlock(elseif.then, scope.createChildScope());
-								if (result) return result;
-								break;
-							}
-						}
-					} else if (node.else) {
-						const result = runBlock(node.else, scope.createChildScope());
-						if (result) return result;
-					}
-				}
-				break;
-			}
-		
 			default: {
-				evalExp(node, scope);
+				v = evalExp(node, scope);
+				if (v.return) return v;
 				break;
 			}
 		}
 	}
 
-	return null;
+	return { value: v.value, return: false };
 }
 
 export function run(script: Node[], vars: Record<string, Value>, maxStep: number = 1000) {
@@ -177,8 +190,8 @@ export function run(script: Node[], vars: Record<string, Value>, maxStep: number
 	const result = runBlock(script, scope);
 
 	if (result) {
-		console.log(`<- ${scope.name} : ${valToString(result)}`);
+		console.log(`\t\t\t<- ${scope.name} : ${valToString(result.value)}`);
 	} else {
-		console.log(`<- ${scope.name}`);
+		console.log(`\t\t\t<- ${scope.name}`);
 	}
 }
