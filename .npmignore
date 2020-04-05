@@ -7,3 +7,4 @@ gulpfile.js
 tsconfig.json
 .editorconfig
 .travis.yml
+test.moe
