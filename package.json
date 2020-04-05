@@ -10,6 +10,7 @@
   "types": "./built/index.d.ts",
   "scripts": {
     "start": "node ./run",
+    "parse": "node ./parse",
     "peg": "mkdirp built/parser & pegjs -o built/parser/parser.js src/parser/parser.pegjs",
     "build": "tsc & npm run peg",
     "mocha": "mocha test/index.ts",
