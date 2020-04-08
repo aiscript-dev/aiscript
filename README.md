@@ -10,53 +10,10 @@ Design of AiScript is inspired by JavaScript and Rust.
 3. `npm start`すると実行されます
 
 ## Syntax
-### 変数宣言
-```
-#<variable name> = <value>
-```
+[See here](./docs/syntax.md)
 
-ex:
-```
-#answer = 42
-```
-
-### if
-```
-? <condition> {
-	<statements>
-}
-```
-
-with elseif
-```
-? <condition> {
-	<statements>
-} ...? <condition> {
-	<statements>
-}
-```
-
-with else
-```
-? <condition> {
-	<statements>
-} ... {
-	<statements>
-}
-```
-
-ex:
-```
-? eq(answer, 42) {
-	print("correct answer")
-} ... {
-	print("wrong answer")
-}
-```
-
-## std
-### @print(message: string): void
-画面に文字列を表示します。
+## Std library reference
+[See here](./docs/std.md)
 
 ## Example programs
 ### Hello world
