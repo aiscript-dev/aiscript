@@ -1,4 +1,8 @@
 {
+	function applyParser(input, startRule) {
+		let parseFunc = peg$parse;
+		return parseFunc(input, startRule ? { startRule } : { });
+	}
 	function createNode(type, params, children) {
 		const node = { type };
 		params.children = children;
@@ -12,6 +16,31 @@
 }
 
 start
+	= preprocess
+
+//
+// preprocess parser
+//
+
+preprocess
+	= parts:preprocess_part*
+{ return applyParser(parts.join(''), 'main'); }
+
+preprocess_part
+	= comment { return ''; }
+	/ not_comment { return text(); }
+
+comment
+	= "//" (!EOL .)*
+
+not_comment
+	= (!"//" .)+
+
+//
+// core parser
+//
+
+main
 	= _ content:statements? _
 { return content; }
 
@@ -133,6 +162,9 @@ elseBlock
 // general -------------------------------------------------------------------------------
 
 NAME = [A-Za-z] [A-Za-z0-9]* { return text(); }
+
+EOL
+	= !. / "\r\n" / [\r\n]
 
 // optional spacing
 _
