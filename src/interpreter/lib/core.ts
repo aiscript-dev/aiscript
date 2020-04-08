@@ -1,4 +1,5 @@
-import { Value } from '..';
+import { Value } from '../..';
+import { Scope } from '../scope';
 
 export const core: Record<string, Value> = {
 	eq: {
@@ -8,7 +9,8 @@ export const core: Record<string, Value> = {
 				type: 'boolean',
 				value: args[0].value === args[1].value
 			};
-		}
+		},
+		scope: new Scope()
 	},
 	add: {
 		type: 'function',
@@ -17,7 +19,8 @@ export const core: Record<string, Value> = {
 				type: 'number',
 				value: args[0].value + args[1].value
 			};
-		}
+		},
+		scope: new Scope()
 	},
 	gt: {
 		type: 'function',
@@ -26,7 +29,8 @@ export const core: Record<string, Value> = {
 				type: 'boolean',
 				value: args[0].value > args[1].value
 			};
-		}
+		},
+		scope: new Scope()
 	},
 	lt: {
 		type: 'function',
@@ -35,6 +39,7 @@ export const core: Record<string, Value> = {
 				type: 'boolean',
 				value: args[0].value < args[1].value
 			};
-		}
+		},
+		scope: new Scope()
 	},
 };

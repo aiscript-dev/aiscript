@@ -2,68 +2,10 @@
  * AiScript interpreter
  */
 
-import autobind from 'autobind-decorator';
-import { Value, Node, NULL } from '.';
+import { Value, Node, NULL } from '..';
 import { nodeToString, valToString } from './util';
-
-class AiScriptError extends Error {
-	public info?: any;
-
-	constructor(message: string, info?: any) {
-		super(message);
-
-		this.info = info;
-
-		// Maintains proper stack trace for where our error was thrown (only available on V8)
-		if (Error.captureStackTrace) {
-			Error.captureStackTrace(this, AiScriptError);
-		}
-	}
-}
-
-class Scope {
-	private layerdStates: Record<string, Value>[];
-	public name: string;
-
-	constructor(layerdStates: Scope['layerdStates'], name?: Scope['name']) {
-		this.layerdStates = layerdStates;
-		this.name = name || (layerdStates.length === 1 ? '<root>' : '<anonymous>');
-	}
-
-	@autobind
-	public createChildScope(states: Record<string, Value> = {}, name?: Scope['name']): Scope {
-		const layer = [states, ...this.layerdStates];
-		return new Scope(layer, name);
-	}
-
-	/**
-	 * 指定した名前の変数を取得します
-	 * @param name 変数名
-	 */
-	@autobind
-	public get(name: string): Value {
-		for (const later of this.layerdStates) {
-			const state = later[name];
-			if (state !== undefined) {
-				return state;
-			}
-		}
-
-		throw new AiScriptError(
-			`No such variable '${name}' in scope '${this.name}'`, {
-				scope: this.layerdStates
-			});
-	}
-
-	/**
-	 * 指定した名前の変数を現在のスコープに追加します
-	 * @param name 変数名
-	 */
-	@autobind
-	public add(name: string, val: Value) {
-		this.layerdStates[0][name] = val;
-	}
-}
+import { Scope } from './scope';
+import { AiScriptError } from './error';
 
 type Result = {
 	value: Value;
@@ -85,8 +27,7 @@ function evalExp(node: Node, scope: Scope): Result {
 				for (let i = 0; i < val.args!.length; i++) {
 					args[val.args![i]] = evalExp(node.args[i], scope).value;
 				}
-				// TODO: 関数のstatementsのスコープは、関数が呼ばれた場所じゃなく関数が定義された場所のスコープにする(クロージャ)
-				const fnScope = scope.createChildScope(args, `#${node.name}`);
+				const fnScope = val.scope.createChildScope(args, `#${node.name}`);
 				return runBlock(val.statements!, fnScope);
 			}
 		}
@@ -147,6 +88,7 @@ function evalExp(node: Node, scope: Scope): Result {
 					type: 'function',
 					args: node.args!,
 					statements: node.children!,
+					scope: scope
 				},
 				return: false
 			};

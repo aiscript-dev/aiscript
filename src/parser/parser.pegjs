@@ -29,6 +29,7 @@ statement
 	/ stringLiteral
 	/ booleanLiteral
 	/ variable
+	/ fnObject
 
 expression
 	= numberLiteral

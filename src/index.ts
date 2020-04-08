@@ -27,6 +27,7 @@ type VFunction = {
 	args?: string[];
 	statements?: Node[];
 	native?: (args: Value[]) => Value | void;
+	scope: Scope;
 };
 
 export type Value = VNull | VBoolean | VNumber | VString | VFunction;
