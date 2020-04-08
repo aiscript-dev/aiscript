@@ -71,9 +71,9 @@ stringLiteral
 
 // boolean literal
 booleanLiteral
-	= "true"
+	= "yes"
 { return createNode('bool', { value: true }); }
-	/ "false"
+	/ "no"
 { return createNode('bool', { value: false }); }
 
 // function ------------------------------------------------------------------------------
