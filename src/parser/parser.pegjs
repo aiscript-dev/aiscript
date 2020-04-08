@@ -21,24 +21,24 @@ statements
 
 statement
 	= varDefinition
-	/ if
 	/ return
 	/ fnDefinition
-	/ fnCall
+	/ if
+	/ fnObject
 	/ numberLiteral
 	/ stringLiteral
 	/ booleanLiteral
-	/ variable
-	/ fnObject
-
-expression
-	= numberLiteral
-	/ stringLiteral
-	/ booleanLiteral
-	/ fnObject
 	/ fnCall
 	/ variable
-	/ if
+
+expression
+	= if
+	/ fnObject
+	/ numberLiteral
+	/ stringLiteral
+	/ booleanLiteral
+	/ fnCall
+	/ variable
 
 // statement of variable definition
 varDefinition
