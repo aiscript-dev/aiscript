@@ -1,4 +1,6 @@
 # AiScript
+AiScript is a script language run on JavaScript.
+Design of AiScript is inspired by JavaScript and Rust.
 
 ## How to run your AiScript
 ※まず最初に`npm run build`しておいてください
@@ -57,6 +59,11 @@ ex:
 画面に文字列を表示します。
 
 ## Example programs
+### Hello world
+```
+print("Hello, world!")
+```
+
 ### Fizz Buzz
 ```
 coming soon
