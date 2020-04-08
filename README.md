@@ -59,6 +59,11 @@ ex:
 画面に文字列を表示します。
 
 ## Example programs
+### Hello world
+```
+print("Hello world!")
+```
+
 ### Fizz Buzz
 ```
 coming soon
