@@ -6,6 +6,7 @@ import { Scope } from './scope';
 import { AiScriptError } from './error';
 import { core as libCore } from './lib/core';
 import { std as libStd } from './lib/std';
+import { assertNumber, assertString, assertFunction, assertBoolean } from './util';
 
 type Result = {
 	value: Value;
@@ -33,9 +34,11 @@ export class AiScript {
 			readline: {
 				type: 'function',
 				native: (args) => {
+					const q = args[0];
+					assertString(q);
 					if (this.opts.in == null) return NULL;
 					return new Promise(ok => {
-						this.opts.in!(args[0].value).then(a => {
+						this.opts.in!(q.value).then(a => {
 							ok({
 								type: 'string',
 								value: a
@@ -75,7 +78,7 @@ export class AiScript {
 		switch (node.type) {
 			case 'call': {
 				const val = scope.get(node.name);
-				if (val.type !== 'function') throw new AiScriptError(`#${node.name} is not a function (${val.type})`);
+				assertFunction(val);
 				if (val.native) {
 					const result = await Promise.resolve(val.native!(await Promise.all(node.args.map(async expr => (await this.evalExp(expr, scope)).value))));
 					return { value: result || NULL, return: false };
@@ -91,14 +94,14 @@ export class AiScript {
 
 			case 'if': {
 				const cond = (await this.evalExp(node.cond, scope)).value;
-				if (cond.type !== 'boolean') throw new AiScriptError(`IF is expected boolean for cond, but got ${cond.type}`);
+				assertBoolean(cond);
 				if (cond.value) {
 					return this.runBlock(node.then, scope.createChildScope());
 				} else {
 					if (node.elseif && node.elseif.length > 0) {
 						for (const elseif of node.elseif) {
 							const cond = (await this.evalExp(elseif.cond, scope)).value;
-							if (cond.type !== 'boolean') throw new AiScriptError(`ELSE IF is expected boolean for cond, but got ${cond.type}`);
+							assertBoolean(cond);
 							if (cond.value) {
 								return this.runBlock(elseif.then, scope.createChildScope());
 							}
@@ -106,6 +109,17 @@ export class AiScript {
 					} else if (node.else) {
 						return this.runBlock(node.else, scope.createChildScope());
 					}
+				}
+				return { value: NULL, return: false };
+			}
+
+			case 'for': {
+				const to = (await this.evalExp(node.to, scope)).value;
+				assertNumber(to);
+				for (let i = 0; i < to.value; i++) {
+					await this.runBlock(node.children, scope.createChildScope({
+						[node.var]: { type: 'number', value: i }
+					}));
 				}
 				return { value: NULL, return: false };
 			}
@@ -188,27 +202,27 @@ export class AiScript {
 	}
 }
 
-type VNull = {
+export type VNull = {
 	type: 'null';
 	value: null;
 };
 
-type VBoolean = {
+export type VBoolean = {
 	type: 'boolean';
 	value: boolean;
 };
 
-type VNumber = {
+export type VNumber = {
 	type: 'number';
 	value: number;
 };
 
-type VString = {
+export type VString = {
 	type: 'string';
 	value: string;
 };
 
-type VFunction = {
+export type VFunction = {
 	type: 'function';
 	args?: string[];
 	statements?: Node[];
@@ -273,4 +287,14 @@ export type Node = {
 export const NULL = {
 	type: 'null' as const,
 	value: null
+};
+
+export const TRUE = {
+	type: 'boolean' as const,
+	value: true
+};
+
+export const FALSE = {
+	type: 'boolean' as const,
+	value: false
 };
