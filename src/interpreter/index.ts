@@ -16,24 +16,39 @@ export class AiScript {
 	private script: Node[];
 	private vars: Record<string, Value>;
 	private opts: {
+		in?(q: string): Promise<string>;
 		out?(value: Value): void;
 		log?(type: string, params: Record<string, any>): void;
 	};
 
-	constructor(script: Node[], vars: Record<string, Value>, opts?: AiScript['opts']) {
+	constructor(script: AiScript['script'], vars: AiScript['vars'], opts?: AiScript['opts']) {
 		this.script = script;
 		this.vars = { ...vars, ...libCore, ...libStd, ...{
 			print: {
 				type: 'function',
 				native: (args) => {
-					this.out(args[0]);
+					if (this.opts.out) this.opts.out(args[0]);
+				},
+			},
+			readline: {
+				type: 'function',
+				native: (args) => {
+					if (this.opts.in == null) return NULL;
+					return new Promise(ok => {
+						this.opts.in!(args[0].value).then(a => {
+							ok({
+								type: 'string',
+								value: a
+							});
+						});
+					});
 				},
 			},
 		} };
 		this.opts = opts || {};
 	}
 
-	public exec() {
+	public async exec() {
 		let steps = 0;
 		const scope = new Scope([this.vars]);
 		scope.opts.log = (type, params) => {
@@ -45,20 +60,16 @@ export class AiScript {
 			}
 		};
 	
-		const result = this.runBlock(this.script, scope);
+		const result = await this.runBlock(this.script, scope);
 
 		this.log('end', { val: result.value });
-	}
-
-	private out(value: Value) {
-		if (this.opts.out) this.opts.out(value);
 	}
 
 	private log(type: string, params: Record<string, any>) {
 		if (this.opts.log) this.opts.log(type, params);
 	}
 
-	private evalExp(node: Node, scope: Scope): Result {
+	private async evalExp(node: Node, scope: Scope): Promise<Result> {
 		this.log('node', { node: node });
 
 		switch (node.type) {
@@ -66,12 +77,12 @@ export class AiScript {
 				const val = scope.get(node.name);
 				if (val.type !== 'function') throw new AiScriptError(`#${node.name} is not a function (${val.type})`);
 				if (val.native) {
-					const result = val.native!(node.args.map(expr => this.evalExp(expr, scope).value));
+					const result = await Promise.resolve(val.native!(await Promise.all(node.args.map(async expr => (await this.evalExp(expr, scope)).value))));
 					return { value: result || NULL, return: false };
 				} else {
 					const args = {} as Record<string, any>;
 					for (let i = 0; i < val.args!.length; i++) {
-						args[val.args![i]] = this.evalExp(node.args[i], scope).value;
+						args[val.args![i]] = (await this.evalExp(node.args[i], scope)).value;
 					}
 					const fnScope = val.scope!.createChildScope(args, `#${node.name}`);
 					return this.runBlock(val.statements!, fnScope);
@@ -79,14 +90,14 @@ export class AiScript {
 			}
 
 			case 'if': {
-				const cond = this.evalExp(node.cond, scope).value;
+				const cond = (await this.evalExp(node.cond, scope)).value;
 				if (cond.type !== 'boolean') throw new AiScriptError(`IF is expected boolean for cond, but got ${cond.type}`);
 				if (cond.value) {
 					return this.runBlock(node.then, scope.createChildScope());
 				} else {
 					if (node.elseif && node.elseif.length > 0) {
 						for (const elseif of node.elseif) {
-							const cond = this.evalExp(elseif.cond, scope).value;
+							const cond = (await this.evalExp(elseif.cond, scope)).value;
 							if (cond.type !== 'boolean') throw new AiScriptError(`ELSE IF is expected boolean for cond, but got ${cond.type}`);
 							if (cond.value) {
 								return this.runBlock(elseif.then, scope.createChildScope());
@@ -100,7 +111,7 @@ export class AiScript {
 			}
 
 			case 'def': {
-				scope.add(node.name, this.evalExp(node.expr, scope).value);
+				scope.add(node.name, (await this.evalExp(node.expr, scope)).value);
 				return { value: NULL, return: false };
 			}
 
@@ -146,7 +157,7 @@ export class AiScript {
 		}
 	}
 
-	private runBlock(program: Node[], scope: Scope): Result {
+	private async runBlock(program: Node[], scope: Scope): Promise<Result> {
 		this.log('block:enter', { scope: scope.name });
 
 		let v: Result = { value: NULL, return: false };
@@ -156,13 +167,13 @@ export class AiScript {
 
 			switch (node.type) {
 				case 'return': {
-					const val = this.evalExp(node.expr, scope);
+					const val = await this.evalExp(node.expr, scope);
 					this.log('block:return', { scope: scope.name, val: val.value });
 					return { value: val.value, return: true };
 				}
 
 				default: {
-					v = this.evalExp(node, scope);
+					v = await this.evalExp(node, scope);
 					if (v.return) {
 						this.log('block:return', { scope: scope.name, val: v.value });
 						return v;
@@ -201,7 +212,7 @@ type VFunction = {
 	type: 'function';
 	args?: string[];
 	statements?: Node[];
-	native?: (args: Value[]) => Value | void;
+	native?: (args: Value[]) => Value | Promise<Value> | void;
 	scope?: Scope;
 };
 

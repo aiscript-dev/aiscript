@@ -1,16 +1,32 @@
 const fs = require('fs');
+const readline = require('readline');
 const chalk = require('chalk');
 const parse = require('./built/parser/parser.js').parse;
 const { valToString, nodeToString } = require('./built/interpreter/util.js');
 const AiScript = require('./built/interpreter/index.js').AiScript;
 
+const i = readline.createInterface({
+	input: process.stdin,
+	output: process.stdout
+});
+
 const script = fs.readFileSync('./test.moe', 'utf8');
 const ast = parse(script);
 const aiscript = new AiScript(ast, {}, {
+	in(q) {
+		return new Promise(ok => {
+			i.question(q + ': ', ok);
+		});
+	},
 	out(value) {
-		console.log(chalk.magenta(valToString(value)));
+		if (value.type === 'string') {
+			console.log(chalk.magenta(value.value));
+		} else {
+			console.log(chalk.magenta(valToString(value)));
+		}
 	},
 	log(type, params) {
+		return;
 		switch (type) {
 			case 'node': console.log(chalk.gray(`\t\t${nodeToString(params.node)}`)); break;
 			case 'var:add': console.log(chalk.greenBright(`\t\t\t+ #${params.var} = ${valToString(params.val)}`)); break;
