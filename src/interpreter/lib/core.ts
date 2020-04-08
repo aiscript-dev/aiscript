@@ -1,7 +1,18 @@
 import { Value, FALSE } from '..';
-import { assertNumber } from '../util';
+import { assertNumber, assertBoolean } from '../util';
 
 export const core: Record<string, Value> = {
+	not: {
+		type: 'function',
+		native(args) {
+			const a = args[0];
+			assertBoolean(a);
+			return {
+				type: 'boolean',
+				value: !a.value
+			};
+		}
+	},
 	eq: {
 		type: 'function',
 		native(args) {
@@ -15,6 +26,32 @@ export const core: Record<string, Value> = {
 			};
 		}
 	},
+	and: {
+		type: 'function',
+		native(args) {
+			const a = args[0];
+			const b = args[1];
+			assertBoolean(a);
+			assertBoolean(b);
+			return {
+				type: 'boolean',
+				value: a.value && b.value
+			};
+		}
+	},
+	or: {
+		type: 'function',
+		native(args) {
+			const a = args[0];
+			const b = args[1];
+			assertBoolean(a);
+			assertBoolean(b);
+			return {
+				type: 'boolean',
+				value: a.value || b.value
+			};
+		}
+	},
 	add: {
 		type: 'function',
 		native(args) {
@@ -25,6 +62,58 @@ export const core: Record<string, Value> = {
 			return {
 				type: 'number',
 				value: a.value + b.value
+			};
+		}
+	},
+	sub: {
+		type: 'function',
+		native(args) {
+			const a = args[0];
+			const b = args[1];
+			assertNumber(a);
+			assertNumber(b);
+			return {
+				type: 'number',
+				value: a.value - b.value
+			};
+		}
+	},
+	mul: {
+		type: 'function',
+		native(args) {
+			const a = args[0];
+			const b = args[1];
+			assertNumber(a);
+			assertNumber(b);
+			return {
+				type: 'number',
+				value: a.value * b.value
+			};
+		}
+	},
+	div: {
+		type: 'function',
+		native(args) {
+			const a = args[0];
+			const b = args[1];
+			assertNumber(a);
+			assertNumber(b);
+			return {
+				type: 'number',
+				value: a.value / b.value
+			};
+		}
+	},
+	mod: {
+		type: 'function',
+		native(args) {
+			const a = args[0];
+			const b = args[1];
+			assertNumber(a);
+			assertNumber(b);
+			return {
+				type: 'number',
+				value: a.value % b.value
 			};
 		}
 	},
