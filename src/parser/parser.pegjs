@@ -84,7 +84,7 @@ fn_args
 
 // statement of function definition
 fnDefinition
-	= "@" __ name:NAME __ "(" _ args:fn_args? _ ")" _ "{" _ content:statements? _ "}"
+	= "@" name:NAME "(" _ args:fn_args? _ ")" _ "{" _ content:statements? _ "}"
 {
 	return createNode('def', {
 		name: name,
@@ -93,12 +93,12 @@ fnDefinition
 }
 
 // function object
-fnObject = "@" _ "(" _ args:fn_args? _ ")" _ "{" _ content:statements? _ "}"
+fnObject = "@(" _ args:fn_args? _ ")" _ "{" _ content:statements? _ "}"
 { return createNode('func', { args }, content); }
 
 // function call
 fnCall
-	= name:NAME _ "(" _ args:fnCall_args? _ ")"
+	= name:NAME "(" _ args:fnCall_args? _ ")"
 { return createNode('call', { name, args }); }
 
 fnCall_args
