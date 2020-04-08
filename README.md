@@ -61,7 +61,7 @@ ex:
 ## Example programs
 ### Hello world
 ```
-print("Hello world!")
+print("Hello, world!")
 ```
 
 ### Fizz Buzz
