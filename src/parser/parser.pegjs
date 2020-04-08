@@ -21,24 +21,24 @@ statements
 
 statement
 	= varDefinition
-	/ if
 	/ return
 	/ fnDefinition
-	/ fnCall
+	/ if
+	/ fnObject
 	/ numberLiteral
 	/ stringLiteral
 	/ booleanLiteral
-	/ variable
-	/ fnObject
-
-expression
-	= numberLiteral
-	/ stringLiteral
-	/ booleanLiteral
-	/ fnObject
 	/ fnCall
 	/ variable
-	/ if
+
+expression
+	= if
+	/ fnObject
+	/ numberLiteral
+	/ stringLiteral
+	/ booleanLiteral
+	/ fnCall
+	/ variable
 
 // statement of variable definition
 varDefinition
@@ -71,9 +71,9 @@ stringLiteral
 
 // boolean literal
 booleanLiteral
-	= "true"
+	= "yes"
 { return createNode('bool', { value: true }); }
-	/ "false"
+	/ "no"
 { return createNode('bool', { value: false }); }
 
 // function ------------------------------------------------------------------------------
