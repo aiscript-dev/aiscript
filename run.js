@@ -10,7 +10,7 @@ const i = readline.createInterface({
 	output: process.stdout
 });
 
-const script = fs.readFileSync('./test.moe', 'utf8');
+const script = fs.readFileSync('./test.is', 'utf8');
 const ast = parse(script);
 const aiscript = new AiScript(ast, {}, {
 	in(q) {

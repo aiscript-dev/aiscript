@@ -21,7 +21,7 @@ Design of AiScript is inspired by JavaScript and Rust.
 	</tr>
 	<tr>
 		<th>Filename extensions</th>
-		<td>`.moe`</td>
+		<td>`.is`</td>
 	</tr>
 	<tr>
 		<th>Influenced by</th>
@@ -32,7 +32,7 @@ Design of AiScript is inspired by JavaScript and Rust.
 ## How to run your AiScript
 ※まず最初に`npm run build`しておいてください
 
-1. `test.moe`という名前のファイルをこのリポジトリのルートディレクトリに作成する
+1. `test.is`という名前のファイルをこのリポジトリのルートディレクトリに作成する
 2. スクリプトをそのファイルに書く
 3. `npm start`すると実行されます
 
