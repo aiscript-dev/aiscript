@@ -133,6 +133,16 @@ export class AiScript {
 				return { value: scope.get(node.name), return: false };
 			}
 
+			case 'bool': {
+				return {
+					value: {
+						type: 'bool',
+						value: node.value
+					},
+					return: false
+				};
+			}
+
 			case 'num': {
 				return {
 					value: {

@@ -25,7 +25,13 @@ export function assertNumber(val: Value): asserts val is VNum {
 	}
 }
 
-export function valToString(val: Value) {
+export function valToString(val: Value, simple = false) {
+	if (simple) {
+		if (val.type === 'num') return val.value;
+		if (val.type === 'bool') return val.value ? 'yes' : 'no';
+		if (val.type === 'str') return val.value;
+		if (val.type === 'null') return '(null)';
+	}
 	const label =
 		val.type === 'num' ? val.value :
 		val.type === 'bool' ? val.value :

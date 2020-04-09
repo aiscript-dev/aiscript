@@ -56,9 +56,9 @@ statement
 	/ fnObject
 	/ numberLiteral
 	/ stringLiteral
-	/ booleanLiteral
 	/ fnCall
 	/ opFnCall
+	/ booleanLiteral
 	/ variable
 
 expression
@@ -66,9 +66,9 @@ expression
 	/ fnObject
 	/ numberLiteral
 	/ stringLiteral
-	/ booleanLiteral
 	/ fnCall
 	/ opFnCall
+	/ booleanLiteral
 	/ variable
 
 // statement of variable definition

@@ -27,7 +27,7 @@ const aiscript = new AiScript({}, {
 	},
 	log(type, params) {
 		switch (type) {
-			case 'end': console.log(chalk.gray(`< ${valToString(params.val)}`)); break;
+			case 'end': console.log(chalk.gray(`< ${valToString(params.val, true)}`)); break;
 			default: break;
 		}
 	}
