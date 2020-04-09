@@ -58,6 +58,7 @@ statement
 	/ stringLiteral
 	/ booleanLiteral
 	/ fnCall
+	/ opFnCall
 	/ variable
 
 expression
@@ -67,6 +68,7 @@ expression
 	/ stringLiteral
 	/ booleanLiteral
 	/ fnCall
+	/ opFnCall
 	/ variable
 
 // statement of variable definition
@@ -133,6 +135,19 @@ fnCall
 fnCall_args
 	= head:expression tails:(_ "," _ expr:expression { return expr; })*
 { return [head, ...tails]; }
+
+// syntax sugers of operator function call
+opFnCall
+	= "(" _ expr1:expression _ "=" _ expr2:expression _ ")" { return createNode('call', { name: 'eq', args: [expr1, expr2] }); }
+	/ "(" _ expr1:expression _ "&" _ expr2:expression _ ")" { return createNode('call', { name: 'and', args: [expr1, expr2] }); }
+	/ "(" _ expr1:expression _ "|" _ expr2:expression _ ")" { return createNode('call', { name: 'or', args: [expr1, expr2] }); }
+	/ "(" _ expr1:expression _ "+" _ expr2:expression _ ")" { return createNode('call', { name: 'add', args: [expr1, expr2] }); }
+	/ "(" _ expr1:expression _ "-" _ expr2:expression _ ")" { return createNode('call', { name: 'sub', args: [expr1, expr2] }); }
+	/ "(" _ expr1:expression _ "*" _ expr2:expression _ ")" { return createNode('call', { name: 'mul', args: [expr1, expr2] }); }
+	/ "(" _ expr1:expression _ "/" _ expr2:expression _ ")" { return createNode('call', { name: 'div', args: [expr1, expr2] }); }
+	/ "(" _ expr1:expression _ "%" _ expr2:expression _ ")" { return createNode('call', { name: 'mod', args: [expr1, expr2] }); }
+	/ "(" _ expr1:expression _ ">" _ expr2:expression _ ")" { return createNode('call', { name: 'gt', args: [expr1, expr2] }); }
+	/ "(" _ expr1:expression _ "<" _ expr2:expression _ ")" { return createNode('call', { name: 'lt', args: [expr1, expr2] }); }
 
 // if statement --------------------------------------------------------------------------
 
