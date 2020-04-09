@@ -41,8 +41,17 @@ function main() {
 		} catch(e) {
 			console.log(chalk.red(`Syntax Error!`));
 			main();
+			return;
 		}
-		await aiscript.exec(ast);
+
+		try {
+			await aiscript.exec(ast);
+		} catch(e) {
+			console.log(chalk.red(`${e}`));
+			main();
+			return;
+		}
+
 		main();
 	});
 }
