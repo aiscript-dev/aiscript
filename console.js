@@ -9,6 +9,9 @@ const i = readline.createInterface({
 	output: process.stdout
 });
 
+console.log('Welcome to AiScript!');
+console.log('https://github.com/syuilo/aiscript\n');
+
 const aiscript = new AiScript({}, {
 	in(q) {
 		return new Promise(ok => {
