@@ -14,7 +14,6 @@ type Result = {
 };
 
 export class AiScript {
-	private script: Node[];
 	private vars: Record<string, Value>;
 	private opts: {
 		in?(q: string): Promise<string>;
@@ -22,8 +21,7 @@ export class AiScript {
 		log?(type: string, params: Record<string, any>): void;
 	};
 
-	constructor(script: AiScript['script'], vars: AiScript['vars'], opts?: AiScript['opts']) {
-		this.script = script;
+	constructor(vars: AiScript['vars'], opts?: AiScript['opts']) {
 		this.vars = { ...vars, ...libCore, ...libStd, ...{
 			print: {
 				type: 'fn',
@@ -51,7 +49,9 @@ export class AiScript {
 		this.opts = opts || {};
 	}
 
-	public async exec() {
+	public async exec(script?: Node[]) {
+		if (script == null || script.length === 0) return;
+
 		let steps = 0;
 		const scope = new Scope([this.vars]);
 		scope.opts.log = (type, params) => {
@@ -63,7 +63,7 @@ export class AiScript {
 			}
 		};
 	
-		const result = await this.runBlock(this.script, scope);
+		const result = await this.runBlock(script, scope);
 
 		this.log('end', { val: result.value });
 	}

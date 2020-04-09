@@ -10,9 +10,7 @@ const i = readline.createInterface({
 	output: process.stdout
 });
 
-const script = fs.readFileSync('./test.is', 'utf8');
-const ast = parse(script);
-const aiscript = new AiScript(ast, {}, {
+const aiscript = new AiScript({}, {
 	in(q) {
 		return new Promise(ok => {
 			i.question(q + ': ', ok);
@@ -39,4 +37,8 @@ const aiscript = new AiScript(ast, {}, {
 		}
 	}
 });
-aiscript.exec();
+
+const script = fs.readFileSync('./test.is', 'utf8');
+const ast = parse(script);
+
+aiscript.exec(ast);
