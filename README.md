@@ -29,6 +29,11 @@ Design of AiScript is inspired by JavaScript and Rust.
 	</tr>
 </table>
 
+## How to use AiScript interpreter
+※まず最初に`npm run build`しておいてください
+
+1. ターミナルで`node console`
+
 ## How to run your AiScript
 ※まず最初に`npm run build`しておいてください
 
