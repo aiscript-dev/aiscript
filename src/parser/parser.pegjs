@@ -89,14 +89,14 @@ variable
 // number literal
 numberLiteral
 	= [+-]? [1-9] [0-9]+
-{ return createNode('number', { value: parseInt(text(), 10) }); }
+{ return createNode('num', { value: parseInt(text(), 10) }); }
 	/ [+-]? [0-9]
-{ return createNode('number', { value: parseInt(text(), 10) }); }
+{ return createNode('num', { value: parseInt(text(), 10) }); }
 
 // string literal
 stringLiteral
 	= "\"" value:$(!"\"" .)* "\""
-{ return createNode('string', { value }); }
+{ return createNode('str', { value }); }
 
 // boolean literal
 booleanLiteral
@@ -117,13 +117,13 @@ fnDefinition
 {
 	return createNode('def', {
 		name: name,
-		expr: createNode('func', { args }, content)
+		expr: createNode('fn', { args }, content)
 	});
 }
 
 // function object
 fnObject = "@(" _ args:fn_args? _ ")" _ "{" _ content:statements? _ "}"
-{ return createNode('func', { args }, content); }
+{ return createNode('fn', { args }, content); }
 
 // function call
 fnCall

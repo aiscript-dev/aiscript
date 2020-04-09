@@ -19,14 +19,13 @@ const aiscript = new AiScript(ast, {}, {
 		});
 	},
 	out(value) {
-		if (value.type === 'string') {
+		if (value.type === 'str') {
 			console.log(chalk.magenta(value.value));
 		} else {
 			console.log(chalk.magenta(valToString(value)));
 		}
 	},
 	log(type, params) {
-		return;
 		switch (type) {
 			case 'node': console.log(chalk.gray(`\t\t${nodeToString(params.node)}`)); break;
 			case 'var:add': console.log(chalk.greenBright(`\t\t\t+ #${params.var} = ${valToString(params.val)}`)); break;

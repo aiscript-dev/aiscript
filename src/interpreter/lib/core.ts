@@ -1,146 +1,92 @@
-import { Value, FALSE } from '..';
+import { Value, FALSE, TRUE, NUM } from '..';
 import { assertNumber, assertBoolean } from '../util';
 
 export const core: Record<string, Value> = {
 	not: {
-		type: 'function',
-		native(args) {
-			const a = args[0];
+		type: 'fn',
+		native([a]) {
 			assertBoolean(a);
-			return {
-				type: 'boolean',
-				value: !a.value
-			};
+			return a.value ? FALSE : TRUE;
 		}
 	},
 	eq: {
-		type: 'function',
-		native(args) {
-			const a = args[0];
-			const b = args[1];
-			if (a.type === 'function') return FALSE;
-			if (b.type === 'function') return FALSE;
-			return {
-				type: 'boolean',
-				value: a.value === b.value
-			};
+		type: 'fn',
+		native([a, b]) {
+			if (a.type === 'fn') return FALSE;
+			if (b.type === 'fn') return FALSE;
+			return (a.value === b.value) ? TRUE : FALSE;
 		}
 	},
 	and: {
-		type: 'function',
-		native(args) {
-			const a = args[0];
-			const b = args[1];
+		type: 'fn',
+		native([a, b]) {
 			assertBoolean(a);
 			assertBoolean(b);
-			return {
-				type: 'boolean',
-				value: a.value && b.value
-			};
+			return (a.value && b.value) ? TRUE : FALSE;
 		}
 	},
 	or: {
-		type: 'function',
-		native(args) {
-			const a = args[0];
-			const b = args[1];
+		type: 'fn',
+		native([a, b]) {
 			assertBoolean(a);
 			assertBoolean(b);
-			return {
-				type: 'boolean',
-				value: a.value || b.value
-			};
+			return (a.value || b.value) ? TRUE : FALSE;
 		}
 	},
 	add: {
-		type: 'function',
-		native(args) {
-			const a = args[0];
-			const b = args[1];
+		type: 'fn',
+		native([a, b]) {
 			assertNumber(a);
 			assertNumber(b);
-			return {
-				type: 'number',
-				value: a.value + b.value
-			};
+			return NUM(a.value + b.value);
 		}
 	},
 	sub: {
-		type: 'function',
-		native(args) {
-			const a = args[0];
-			const b = args[1];
+		type: 'fn',
+		native([a, b]) {
 			assertNumber(a);
 			assertNumber(b);
-			return {
-				type: 'number',
-				value: a.value - b.value
-			};
+			return NUM(a.value - b.value);
 		}
 	},
 	mul: {
-		type: 'function',
-		native(args) {
-			const a = args[0];
-			const b = args[1];
+		type: 'fn',
+		native([a, b]) {
 			assertNumber(a);
 			assertNumber(b);
-			return {
-				type: 'number',
-				value: a.value * b.value
-			};
+			return NUM(a.value * b.value);
 		}
 	},
 	div: {
-		type: 'function',
-		native(args) {
-			const a = args[0];
-			const b = args[1];
+		type: 'fn',
+		native([a, b]) {
 			assertNumber(a);
 			assertNumber(b);
-			return {
-				type: 'number',
-				value: a.value / b.value
-			};
+			return NUM(a.value / b.value);
 		}
 	},
 	mod: {
-		type: 'function',
-		native(args) {
-			const a = args[0];
-			const b = args[1];
+		type: 'fn',
+		native([a, b]) {
 			assertNumber(a);
 			assertNumber(b);
-			return {
-				type: 'number',
-				value: a.value % b.value
-			};
+			return NUM(a.value % b.value);
 		}
 	},
 	gt: {
-		type: 'function',
-		native(args) {
-			const a = args[0];
-			const b = args[1];
+		type: 'fn',
+		native([a, b]) {
 			assertNumber(a);
 			assertNumber(b);
-			return {
-				type: 'boolean',
-				value: a.value > b.value
-			};
+			return a.value > b.value ? TRUE : FALSE;
 		}
 	},
 	lt: {
-		type: 'function',
-		native(args) {
-			const a = args[0];
-			const b = args[1];
+		type: 'fn',
+		native([a, b]) {
 			assertNumber(a);
 			assertNumber(b);
-			return {
-				type: 'boolean',
-				value: a.value < b.value
-			};
+			return a.value < b.value ? TRUE : FALSE;
 		}
 	},
 };

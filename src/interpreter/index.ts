@@ -26,13 +26,13 @@ export class AiScript {
 		this.script = script;
 		this.vars = { ...vars, ...libCore, ...libStd, ...{
 			print: {
-				type: 'function',
+				type: 'fn',
 				native: (args) => {
 					if (this.opts.out) this.opts.out(args[0]);
 				},
 			},
 			readline: {
-				type: 'function',
+				type: 'fn',
 				native: (args) => {
 					const q = args[0];
 					assertString(q);
@@ -40,7 +40,7 @@ export class AiScript {
 					return new Promise(ok => {
 						this.opts.in!(q.value).then(a => {
 							ok({
-								type: 'string',
+								type: 'str',
 								value: a
 							});
 						});
@@ -118,7 +118,7 @@ export class AiScript {
 				assertNumber(to);
 				for (let i = 0; i < to.value; i++) {
 					await this.runBlock(node.children, scope.createChildScope({
-						[node.var]: { type: 'number', value: i }
+						[node.var]: { type: 'num', value: i }
 					}));
 				}
 				return { value: NULL, return: false };
@@ -133,30 +133,30 @@ export class AiScript {
 				return { value: scope.get(node.name), return: false };
 			}
 
-			case 'number': {
+			case 'num': {
 				return {
 					value: {
-						type: 'number',
+						type: 'num',
 						value: node.value
 					},
 					return: false
 				};
 			}
 
-			case 'string': {
+			case 'str': {
 				return {
 					value: {
-						type: 'string',
+						type: 'str',
 						value: node.value
 					},
 					return: false
 				};
 			}
 
-			case 'func': {
+			case 'fn': {
 				return {
 					value: {
-						type: 'function',
+						type: 'fn',
 						args: node.args!,
 						statements: node.children!,
 						scope: scope
@@ -207,30 +207,30 @@ export type VNull = {
 	value: null;
 };
 
-export type VBoolean = {
-	type: 'boolean';
+export type VBool = {
+	type: 'bool';
 	value: boolean;
 };
 
-export type VNumber = {
-	type: 'number';
+export type VNum = {
+	type: 'num';
 	value: number;
 };
 
-export type VString = {
-	type: 'string';
+export type VStr = {
+	type: 'str';
 	value: string;
 };
 
-export type VFunction = {
-	type: 'function';
+export type VFn = {
+	type: 'fn';
 	args?: string[];
 	statements?: Node[];
 	native?: (args: Value[]) => Value | Promise<Value> | void;
 	scope?: Scope;
 };
 
-export type Value = VNull | VBoolean | VNumber | VString | VFunction;
+export type Value = VNull | VBool | VNum | VStr | VFn;
 
 export type Node = {
 	type: 'def'; // 変数宣言
@@ -264,20 +264,20 @@ export type Node = {
 	type: 'null'; // nullリテラル
 	value: null; // null
 } | {
-	type: 'boolean'; // 真理値リテラル
+	type: 'bool'; // 真理値リテラル
 	value: boolean; // 真理値
 } | {
-	type: 'number'; // 数値リテラル
+	type: 'num'; // 数値リテラル
 	value: number; // 数値
 } | {
-	type: 'string'; // 文字列リテラル
+	type: 'str'; // 文字列リテラル
 	value: string; // 文字列
 } | {
-	type: 'func'; // 関数リテラル
+	type: 'fn'; // 関数リテラル
 	args: string[]; // 引数名
 	children: Node[]; // 関数の本体処理
 } | {
-	type: 'object'; // オブジェクトリテラル
+	type: 'obj'; // オブジェクトリテラル
 	object: {
 		key: string; // キー
 		value: Node; // バリュー(式)
@@ -290,11 +290,26 @@ export const NULL = {
 };
 
 export const TRUE = {
-	type: 'boolean' as const,
+	type: 'bool' as const,
 	value: true
 };
 
 export const FALSE = {
-	type: 'boolean' as const,
+	type: 'bool' as const,
 	value: false
 };
+
+export const NUM = (num: number) => ({
+	type: 'num' as const,
+	value: num
+});
+
+export const STR = (str: string) => ({
+	type: 'str' as const,
+	value: str
+});
+
+export const BOOL = (bool: boolean) => ({
+	type: 'bool' as const,
+	value: bool
+});
