@@ -35,7 +35,14 @@ const aiscript = new AiScript({}, {
 
 function main() {
 	i.question('> ', async a => {
-		await aiscript.exec(parse(a));
+		let ast;
+		try {
+			ast = parse(a);
+		} catch(e) {
+			console.log(chalk.red(`Syntax Error!`));
+			main();
+		}
+		await aiscript.exec(ast);
 		main();
 	});
 }
