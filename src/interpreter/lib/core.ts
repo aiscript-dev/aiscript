@@ -2,6 +2,10 @@ import { Value, FALSE, TRUE, NUM } from '..';
 import { assertNumber, assertBoolean } from '../util';
 
 export const core: Record<string, Value> = {
+	ai: {
+		type: 'str',
+		value: 'kawaii'
+	},
 	not: {
 		type: 'fn',
 		native([a]) {
