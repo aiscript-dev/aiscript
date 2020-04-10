@@ -56,12 +56,9 @@ print("Hello, world!")
 ### Fizz Buzz
 ```
 ~ #i, 100 {
-	#message =
-		? ((i % 15) = 0) { "FizzBuzz" }
-		...? ((i % 3) = 0) { "Fizz" }
-		...? ((i % 5) = 0) { "Buzz" }
-		... { i }
-
-	print(message)
+	<: ? ((i % 15) = 0) { "FizzBuzz" }
+	...? ((i % 3) = 0) { "Fizz" }
+	...? ((i % 5) = 0) { "Buzz" }
+	... { i }
 }
 ```

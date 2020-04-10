@@ -51,6 +51,7 @@ Statements
 Statement
 	= VarDef
 	/ Return
+	/ Out
 	/ FnDef
 	/ For
 	/ Expr
@@ -78,6 +79,11 @@ VarDef
 Return
 	= "<<" _ expr:Expr
 { return createNode('return', { expr }); }
+
+// syntax suger of print()
+Out
+	= "<:" _ expr:Expr
+{ return createNode('call', { name: 'print', args: [expr] }); }
 
 // general expression --------------------------------------------------------------------
 
