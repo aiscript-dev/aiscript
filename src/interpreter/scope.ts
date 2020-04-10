@@ -1,6 +1,6 @@
 import autobind from 'autobind-decorator';
-import { Value } from '.';
 import { AiScriptError } from './error';
+import { Value } from './value';
 
 export class Scope {
 	private parent?: Scope;

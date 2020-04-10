@@ -1,4 +1,4 @@
-import { Value, FALSE, TRUE, NUM } from '..';
+import { Value, FALSE, TRUE, NUM } from '../value';
 import { assertNumber, assertBoolean } from '../util';
 
 export const core: Record<string, Value> = {

@@ -1,4 +1,4 @@
-import { Value, NUM, STR } from '..';
+import { Value, NUM, STR } from '../value';
 
 export const std: Record<string, Value> = {
 	type: {
