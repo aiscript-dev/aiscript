@@ -112,8 +112,8 @@ booleanLiteral
 
 // array literal
 arrayLiteral
-	= "[" _ head:expression tails:(_ "," _ item:expression { return item; })* _ "]"
-{ return createNode('arr', { value: [head, ...tails] }); }
+	= "[" _ items:(item:expression _ ","? _ { return item; })* _ "]"
+{ return createNode('arr', { value: items }); }
 
 // function ------------------------------------------------------------------------------
 
