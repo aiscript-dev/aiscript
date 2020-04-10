@@ -17,13 +17,10 @@ const aiscript = new AiScript({}, {
 		});
 	},
 	out(value) {
-		if (value.type === 'str') {
-			console.log(chalk.magenta(value.value));
-		} else {
-			console.log(chalk.magenta(valToString(value)));
-		}
+		console.log(chalk.magenta(valToString(value, true)));
 	},
 	log(type, params) {
+		/*
 		switch (type) {
 			case 'node': console.log(chalk.gray(`\t\t${nodeToString(params.node)}`)); break;
 			case 'var:add': console.log(chalk.greenBright(`\t\t\t+ #${params.var} = ${valToString(params.val)}`)); break;
@@ -35,6 +32,7 @@ const aiscript = new AiScript({}, {
 			case 'end': console.log(`\t= ${valToString(params.val)}`); break;
 			default: break;
 		}
+		*/
 	}
 });
 

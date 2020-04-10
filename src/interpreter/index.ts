@@ -106,6 +106,9 @@ export class AiScript {
 								return this.runBlock(elseif.then, scope.createChildScope());
 							}
 						}
+						if (node.else) {
+							return this.runBlock(node.else, scope.createChildScope());
+						}
 					} else if (node.else) {
 						return this.runBlock(node.else, scope.createChildScope());
 					}
@@ -118,7 +121,7 @@ export class AiScript {
 				const to = (await this.evalExp(node.to, scope)).value;
 				assertNumber(from);
 				assertNumber(to);
-				for (let i = from.value; i < to.value; i++) {
+				for (let i = from.value + 1; i < to.value + 1; i++) {
 					await this.runBlock(node.s, scope.createChildScope({
 						[node.var]: { type: 'num', value: i }
 					}));
