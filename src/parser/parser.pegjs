@@ -60,6 +60,7 @@ statement
 	/ fnCall
 	/ opFnCall
 	/ booleanLiteral
+	/ arrayLiteral
 	/ variable
 
 expression
@@ -70,6 +71,7 @@ expression
 	/ fnCall
 	/ opFnCall
 	/ booleanLiteral
+	/ arrayLiteral
 	/ variable
 
 // statement of variable definition
@@ -107,6 +109,11 @@ booleanLiteral
 { return createNode('bool', { value: true }); }
 	/ "no"
 { return createNode('bool', { value: false }); }
+
+// array literal
+arrayLiteral
+	= "[" _ head:expression tails:(_ "," _ item:expression { return item; })* _ "]"
+{ return createNode('arr', { value: [head, ...tails] }); }
 
 // function ------------------------------------------------------------------------------
 

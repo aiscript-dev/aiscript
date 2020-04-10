@@ -165,6 +165,16 @@ export class AiScript {
 				};
 			}
 
+			case 'arr': {
+				return {
+					value: {
+						type: 'arr',
+						value: await Promise.all(node.value.map(async item => (await this.evalExp(item, scope)).value))
+					},
+					return: false
+				};
+			}
+
 			case 'fn': {
 				return {
 					value: {
@@ -234,6 +244,11 @@ export type VStr = {
 	value: string;
 };
 
+export type VArr = {
+	type: 'arr';
+	value: Value[];
+};
+
 export type VFn = {
 	type: 'fn';
 	args?: string[];
@@ -242,7 +257,7 @@ export type VFn = {
 	scope?: Scope;
 };
 
-export type Value = VNull | VBool | VNum | VStr | VFn;
+export type Value = VNull | VBool | VNum | VStr | VArr | VFn;
 
 export type Node = {
 	type: 'def'; // 変数宣言
@@ -285,6 +300,9 @@ export type Node = {
 } | {
 	type: 'str'; // 文字列リテラル
 	value: string; // 文字列
+} | {
+	type: 'arr'; // 配列リテラル
+	value: Node[]; // アイテム
 } | {
 	type: 'fn'; // 関数リテラル
 	args: string[]; // 引数名
