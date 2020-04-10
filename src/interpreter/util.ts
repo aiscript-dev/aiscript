@@ -1,4 +1,4 @@
-import { Value, Node, VStr, VNum, VBool, VFn, VObj } from '.';
+import { Value, Node, VStr, VNum, VBool, VFn, VObj, VArr } from '.';
 import { AiScriptError } from './error';
 
 export function assertBoolean(val: Value): asserts val is VBool {
@@ -28,6 +28,12 @@ export function assertNumber(val: Value): asserts val is VNum {
 export function assertObject(val: Value): asserts val is VObj {
 	if (val.type !== 'obj') {
 		throw new AiScriptError(`Expect object, but got ${val.type}.`);
+	}
+}
+
+export function assertArray(val: Value): asserts val is VArr {
+	if (val.type !== 'arr') {
+		throw new AiScriptError(`Expect array, but got ${val.type}.`);
 	}
 }
 

@@ -16,24 +16,24 @@
 }
 
 start
-	= preprocess
+	= Preprocess
 
 //
 // preprocess parser
 //
 
-preprocess
-	= parts:preprocess_part*
+Preprocess
+	= parts:PreprocessPart*
 { return applyParser(parts.join(''), 'main'); }
 
-preprocess_part
-	= comment { return ''; }
-	/ not_comment { return text(); }
+PreprocessPart
+	= Comment { return ''; }
+	/ NotComment { return text(); }
 
-comment
+Comment
 	= "//" (!EOL .)*
 
-not_comment
+NotComment
 	= (!"//" .)+
 
 //
@@ -41,92 +41,88 @@ not_comment
 //
 
 main
-	= _ content:statements? _
+	= _ content:Statements? _
 { return content; }
 
-statements
-	= head:statement tails:(___ s:statement { return s; })*
+Statements
+	= head:Statement tails:(___ s:Statement { return s; })*
 { return [head, ...tails]; }
 
-statement
-	= varDefinition
-	/ return
-	/ fnDefinition
-	/ propertyAccess
-	/ if
-	/ for
-	/ fnObject
-	/ numberLiteral
-	/ stringLiteral
-	/ fnCall
-	/ opFnCall
-	/ booleanLiteral
-	/ arrayLiteral
-	/ objectLiteral
-	/ variable
+Statement
+	= VarDef
+	/ Return
+	/ FnDef
+	/ For
+	/ Expr
 
-expression
-	= propertyAccess
-	/ if
-	/ fnObject
-	/ numberLiteral
-	/ stringLiteral
-	/ fnCall
-	/ opFnCall
-	/ booleanLiteral
-	/ arrayLiteral
-	/ objectLiteral
-	/ variable
+Expr
+	= PropRef
+	/ IndexRef
+	/ If
+	/ Fn
+	/ Num
+	/ Str
+	/ Call
+	/ Ops
+	/ Bool
+	/ Arr
+	/ Obj
+	/ VarRef
 
 // statement of variable definition
-varDefinition
-	= "#" [ \t]* name:NAME _ "=" _ expr:expression
+VarDef
+	= "#" [ \t]* name:NAME _ "=" _ expr:Expr
 { return createNode('def', { name, expr: expr }); }
 
 // statement of return
-return
-	= "<<" _ expr:expression
+Return
+	= "<<" _ expr:Expr
 { return createNode('return', { expr }); }
 
 // general expression --------------------------------------------------------------------
 
 // variable reference
-variable
+VarRef
 	= name:NAME
 { return createNode('var', { name }); }
 
-// property access
-propertyAccess
+// property reference
+PropRef
 	= head:NAME tails:("." name:NAME { return name; })+
 { return createNode('prop', { obj: head, path: tails }); }
 
+// index reference
+IndexRef
+	= v:NAME "[" _ i:Expr _ "]"
+{ return createNode('index', { arr: v, i: i }); }
+
 // number literal
-numberLiteral
+Num
 	= [+-]? [1-9] [0-9]+
 { return createNode('num', { value: parseInt(text(), 10) }); }
 	/ [+-]? [0-9]
 { return createNode('num', { value: parseInt(text(), 10) }); }
 
 // string literal
-stringLiteral
+Str
 	= "\"" value:$(!"\"" .)* "\""
 { return createNode('str', { value }); }
 
 // boolean literal
-booleanLiteral
+Bool
 	= "yes"
 { return createNode('bool', { value: true }); }
 	/ "no"
 { return createNode('bool', { value: false }); }
 
 // array literal
-arrayLiteral
-	= "[" _ items:(item:expression _ ","? _ { return item; })* _ "]"
+Arr
+	= "[" _ items:(item:Expr _ ","? _ { return item; })* _ "]"
 { return createNode('arr', { value: items }); }
 
 // object literal
-objectLiteral
-	= "{" _ kvs:(k:NAME _ ":" _ v:expression _ ";" _ { return { k, v }; })* "}"
+Obj
+	= "{" _ kvs:(k:NAME _ ":" _ v:Expr _ ";" _ { return { k, v }; })* "}"
 {
 	const obj = {};
 	for (const kv of kvs) {
@@ -137,13 +133,13 @@ objectLiteral
 
 // function ------------------------------------------------------------------------------
 
-fn_args
+Args
 	= head:NAME tails:(_ "," _ name:NAME { return name; })*
 { return [head, ...tails]; }
 
 // statement of function definition
-fnDefinition
-	= "@" name:NAME "(" _ args:fn_args? _ ")" _ "{" _ content:statements? _ "}"
+FnDef
+	= "@" name:NAME "(" _ args:Args? _ ")" _ "{" _ content:Statements? _ "}"
 {
 	return createNode('def', {
 		name: name,
@@ -151,36 +147,36 @@ fnDefinition
 	});
 }
 
-// function object
-fnObject = "@(" _ args:fn_args? _ ")" _ "{" _ content:statements? _ "}"
+// function
+Fn = "@(" _ args:Args? _ ")" _ "{" _ content:Statements? _ "}"
 { return createNode('fn', { args }, content); }
 
 // function call
-fnCall
-	= name:NAME "(" _ args:fnCall_args? _ ")"
+Call
+	= name:NAME "(" _ args:CallArgs? _ ")"
 { return createNode('call', { name, args }); }
 
-fnCall_args
-	= head:expression tails:(_ "," _ expr:expression { return expr; })*
+CallArgs
+	= head:Expr tails:(_ "," _ expr:Expr { return expr; })*
 { return [head, ...tails]; }
 
 // syntax sugers of operator function call
-opFnCall
-	= "(" _ expr1:expression _ "=" _ expr2:expression _ ")" { return createNode('call', { name: 'eq', args: [expr1, expr2] }); }
-	/ "(" _ expr1:expression _ "&" _ expr2:expression _ ")" { return createNode('call', { name: 'and', args: [expr1, expr2] }); }
-	/ "(" _ expr1:expression _ "|" _ expr2:expression _ ")" { return createNode('call', { name: 'or', args: [expr1, expr2] }); }
-	/ "(" _ expr1:expression _ "+" _ expr2:expression _ ")" { return createNode('call', { name: 'add', args: [expr1, expr2] }); }
-	/ "(" _ expr1:expression _ "-" _ expr2:expression _ ")" { return createNode('call', { name: 'sub', args: [expr1, expr2] }); }
-	/ "(" _ expr1:expression _ "*" _ expr2:expression _ ")" { return createNode('call', { name: 'mul', args: [expr1, expr2] }); }
-	/ "(" _ expr1:expression _ "/" _ expr2:expression _ ")" { return createNode('call', { name: 'div', args: [expr1, expr2] }); }
-	/ "(" _ expr1:expression _ "%" _ expr2:expression _ ")" { return createNode('call', { name: 'mod', args: [expr1, expr2] }); }
-	/ "(" _ expr1:expression _ ">" _ expr2:expression _ ")" { return createNode('call', { name: 'gt', args: [expr1, expr2] }); }
-	/ "(" _ expr1:expression _ "<" _ expr2:expression _ ")" { return createNode('call', { name: 'lt', args: [expr1, expr2] }); }
+Ops
+	= "(" _ expr1:Expr _ "=" _ expr2:Expr _ ")" { return createNode('call', { name: 'eq', args: [expr1, expr2] }); }
+	/ "(" _ expr1:Expr _ "&" _ expr2:Expr _ ")" { return createNode('call', { name: 'and', args: [expr1, expr2] }); }
+	/ "(" _ expr1:Expr _ "|" _ expr2:Expr _ ")" { return createNode('call', { name: 'or', args: [expr1, expr2] }); }
+	/ "(" _ expr1:Expr _ "+" _ expr2:Expr _ ")" { return createNode('call', { name: 'add', args: [expr1, expr2] }); }
+	/ "(" _ expr1:Expr _ "-" _ expr2:Expr _ ")" { return createNode('call', { name: 'sub', args: [expr1, expr2] }); }
+	/ "(" _ expr1:Expr _ "*" _ expr2:Expr _ ")" { return createNode('call', { name: 'mul', args: [expr1, expr2] }); }
+	/ "(" _ expr1:Expr _ "/" _ expr2:Expr _ ")" { return createNode('call', { name: 'div', args: [expr1, expr2] }); }
+	/ "(" _ expr1:Expr _ "%" _ expr2:Expr _ ")" { return createNode('call', { name: 'mod', args: [expr1, expr2] }); }
+	/ "(" _ expr1:Expr _ ">" _ expr2:Expr _ ")" { return createNode('call', { name: 'gt', args: [expr1, expr2] }); }
+	/ "(" _ expr1:Expr _ "<" _ expr2:Expr _ ")" { return createNode('call', { name: 'lt', args: [expr1, expr2] }); }
 
 // if statement --------------------------------------------------------------------------
 
-if
-	= "?" _ cond:expression _ "{" _ then:statements? _ "}" elseif:(_ b:elseifBlocks { return b; })? elseBlock:(_ b:elseBlock { return b; })?
+If
+	= "?" _ cond:Expr _ "{" _ then:Statements? _ "}" elseif:(_ b:ElseifBlocks { return b; })? elseBlock:(_ b:ElseBlock { return b; })?
 {
 	return createNode('if', {
 		cond: cond,
@@ -190,22 +186,22 @@ if
 	});
 }
 
-elseifBlocks
-	= head:elseifBlock tails:(_ i:elseifBlock { return i; })*
+ElseifBlocks
+	= head:ElseifBlock tails:(_ i:ElseifBlock { return i; })*
 { return [head, ...tails]; }
 
-elseifBlock
-	= "...?" _ cond:expression _ "{" _ then:statements? _ "}"
+ElseifBlock
+	= "...?" _ cond:Expr _ "{" _ then:Statements? _ "}"
 { return { cond, then }; }
 
-elseBlock
-	= "..." _ "{" _ then:statements? _ "}"
+ElseBlock
+	= "..." _ "{" _ then:Statements? _ "}"
 { return then; }
 
 // for statement -------------------------------------------------------------------------
 
-for
-	= "~" ___ "#" varn:NAME _ from:("=" _ v:expression { return v; })? "," _ to:expression ___ "{" _ s:statements _ "}"
+For
+	= "~" ___ "#" varn:NAME _ from:("=" _ v:Expr { return v; })? "," _ to:Expr ___ "{" _ s:Statements _ "}"
 {
 	return createNode('for', {
 		var: varn,

@@ -6,7 +6,7 @@ import { Scope } from './scope';
 import { AiScriptError } from './error';
 import { core as libCore } from './lib/core';
 import { std as libStd } from './lib/std';
-import { assertNumber, assertString, assertFunction, assertBoolean, assertObject } from './util';
+import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray } from './util';
 
 type Result = {
 	value: Value;
@@ -209,6 +209,17 @@ export class AiScript {
 				};
 			}
 
+			case 'index': {
+				const arr = scope.get(node.arr);
+				assertArray(arr);
+				const i = (await this.evalExp(node.i, scope)).value;
+				assertNumber(i);
+				return {
+					value: arr.value[i.value - 1], // TODO: 存在チェック
+					return: false
+				};
+			}
+
 			case 'fn': {
 				return {
 					value: {
@@ -351,8 +362,12 @@ export type Node = {
 	value: Record<string, Node>; // オブジェクト
 } | {
 	type: 'prop'; // プロパティアクセス
-	path: string[]; // プロパティパス
 	obj: string; // オブジェクト変数名
+	path: string[]; // プロパティパス
+} | {
+	type: 'index'; // 配列要素アクセス
+	arr: string; // 配列変数名
+	i: Node; // インデックス
 };
 
 export const NULL = {
