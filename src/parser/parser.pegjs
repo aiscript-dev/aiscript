@@ -54,6 +54,7 @@ Statement
 	/ Out
 	/ FnDef
 	/ For
+	/ Debug
 	/ Expr
 
 Expr
@@ -84,6 +85,10 @@ Return
 Out
 	= "<:" _ expr:Expr
 { return createNode('call', { name: 'print', args: [expr] }); }
+
+Debug
+	= "<<<" _ expr:Expr
+{ return createNode('debug', { expr }); }
 
 // general expression --------------------------------------------------------------------
 
