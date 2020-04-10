@@ -11,7 +11,7 @@
   "scripts": {
     "start": "node ./run",
     "parse": "node ./parse",
-    "peg": "mkdirp built/parser & pegjs -o built/parser/parser.js --allowed-start-rules start,main src/parser/parser.pegjs",
+    "peg": "mkdirp built/parser & pegjs -o built/parser/parser.js --allowed-start-rules entry,core --optimize size src/parser/parser.pegjs",
     "build": "tsc & npm run peg",
     "mocha": "mocha test/index.ts",
     "tsd": "tsd",
