@@ -97,7 +97,7 @@ variable
 
 // property access
 propertyAccess
-	= head:NAME tails:("." name:NAME { return name; })*
+	= head:NAME tails:("." name:NAME { return name; })+
 { return createNode('prop', { obj: head, path: tails }); }
 
 // number literal
