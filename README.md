@@ -50,7 +50,7 @@ Design of AiScript is inspired by JavaScript and Rust.
 ## Example programs
 ### Hello world
 ```
-print("Hello, world!")
+<: "Hello, world!"
 ```
 
 ### Fizz Buzz
