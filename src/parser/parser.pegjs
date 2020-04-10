@@ -53,6 +53,7 @@ statement
 	/ return
 	/ fnDefinition
 	/ if
+	/ for
 	/ fnObject
 	/ numberLiteral
 	/ stringLiteral
@@ -173,6 +174,19 @@ elseifBlock
 elseBlock
 	= "..." _ "{" _ then:statements? _ "}"
 { return then; }
+
+// for statement -------------------------------------------------------------------------
+
+for
+	= "~" ___ "#" varn:NAME _ from:("=" _ v:expression { return v; })? "," _ to:expression ___ "{" _ s:statements _ "}"
+{
+	return createNode('for', {
+		var: varn,
+		from: from || createNode('num', { value: 0 }),
+		to: to,
+		s: s,
+	});
+}
 
 // general -------------------------------------------------------------------------------
 

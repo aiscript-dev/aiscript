@@ -114,10 +114,12 @@ export class AiScript {
 			}
 
 			case 'for': {
+				const from = (await this.evalExp(node.from, scope)).value;
 				const to = (await this.evalExp(node.to, scope)).value;
+				assertNumber(from);
 				assertNumber(to);
-				for (let i = 0; i < to.value; i++) {
-					await this.runBlock(node.children, scope.createChildScope({
+				for (let i = from.value; i < to.value; i++) {
+					await this.runBlock(node.s, scope.createChildScope({
 						[node.var]: { type: 'num', value: i }
 					}));
 				}
@@ -265,8 +267,9 @@ export type Node = {
 } | {
 	type: 'for'; // for文
 	var: string; // イテレータ変数名
+	from: Node; // 開始値
 	to: Node; // 終値
-	children: Node[]; // 本体処理
+	s: Node[]; // 本体処理
 } | {
 	type: 'var'; // 変数
 	name: string; // 変数名
