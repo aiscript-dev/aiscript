@@ -52,6 +52,7 @@ statement
 	= varDefinition
 	/ return
 	/ fnDefinition
+	/ propertyAccess
 	/ if
 	/ for
 	/ fnObject
@@ -61,9 +62,23 @@ statement
 	/ opFnCall
 	/ booleanLiteral
 	/ arrayLiteral
+	/ objectLiteral
 	/ variable
 
 expression
+	= propertyAccess
+	/ if
+	/ fnObject
+	/ numberLiteral
+	/ stringLiteral
+	/ fnCall
+	/ opFnCall
+	/ booleanLiteral
+	/ arrayLiteral
+	/ objectLiteral
+	/ variable
+
+expressionWithoutPropertyAccess
 	= if
 	/ fnObject
 	/ numberLiteral
@@ -72,6 +87,7 @@ expression
 	/ opFnCall
 	/ booleanLiteral
 	/ arrayLiteral
+	/ objectLiteral
 	/ variable
 
 // statement of variable definition
@@ -90,6 +106,11 @@ return
 variable
 	= name:NAME
 { return createNode('var', { name }); }
+
+// property access
+propertyAccess
+	= obj:expressionWithoutPropertyAccess "." name:NAME
+{ return createNode('prop', { obj, name }); }
 
 // number literal
 numberLiteral
@@ -114,6 +135,17 @@ booleanLiteral
 arrayLiteral
 	= "[" _ items:(item:expression _ ","? _ { return item; })* _ "]"
 { return createNode('arr', { value: items }); }
+
+// object literal
+objectLiteral
+	= "{" _ kvs:(k:NAME _ ":" _ v:expression _ ";" { return { k, v }; })* _ "}"
+{
+	const obj = {};
+	for (const kv of kvs) {
+		obj[kv.k] = kv.v;
+	}
+	return createNode('obj', { value: obj });
+}
 
 // function ------------------------------------------------------------------------------
 

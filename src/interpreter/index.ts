@@ -6,7 +6,7 @@ import { Scope } from './scope';
 import { AiScriptError } from './error';
 import { core as libCore } from './lib/core';
 import { std as libStd } from './lib/std';
-import { assertNumber, assertString, assertFunction, assertBoolean } from './util';
+import { assertNumber, assertString, assertFunction, assertBoolean, assertObject } from './util';
 
 type Result = {
 	value: Value;
@@ -175,6 +175,29 @@ export class AiScript {
 				};
 			}
 
+			case 'obj': {
+				const obj = {} as Record<string, Value>;
+				for (const k of Object.keys(node.value)) {
+					obj[k] = (await this.evalExp(node.value[k], scope)).value;
+				}
+				return {
+					value: {
+						type: 'obj',
+						value: obj
+					},
+					return: false
+				};
+			}
+
+			case 'prop': {
+				const obj = (await this.evalExp(node.obj, scope)).value;
+				assertObject(obj);
+				return {
+					value: obj.value[node.name],
+					return: false
+				};
+			}
+
 			case 'fn': {
 				return {
 					value: {
@@ -249,6 +272,11 @@ export type VArr = {
 	value: Value[];
 };
 
+export type VObj = {
+	type: 'obj';
+	value: Record<string, Value>;
+};
+
 export type VFn = {
 	type: 'fn';
 	args?: string[];
@@ -257,7 +285,7 @@ export type VFn = {
 	scope?: Scope;
 };
 
-export type Value = VNull | VBool | VNum | VStr | VArr | VFn;
+export type Value = VNull | VBool | VNum | VStr | VArr | VObj | VFn;
 
 export type Node = {
 	type: 'def'; // 変数宣言
@@ -309,10 +337,11 @@ export type Node = {
 	children: Node[]; // 関数の本体処理
 } | {
 	type: 'obj'; // オブジェクトリテラル
-	object: {
-		key: string; // キー
-		value: Node; // バリュー(式)
-	}[]; // オブジェクト
+	value: Record<string, Node>; // オブジェクト
+} | {
+	type: 'prop'; // プロパティアクセス
+	name: string; // プロパティ名
+	obj: Node; // オブジェクト
 };
 
 export const NULL = {
