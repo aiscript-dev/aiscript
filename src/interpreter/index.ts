@@ -190,10 +190,18 @@ export class AiScript {
 			}
 
 			case 'prop': {
-				const obj = (await this.evalExp(node.obj, scope)).value;
-				assertObject(obj);
+				const obj = scope.get(node.obj);
+				let x = obj;
+				for (const prop of node.path) {
+					assertObject(x);
+					x = x.value[prop];
+					if (x === undefined) {
+						x = NULL;
+						break;
+					}
+				}
 				return {
-					value: obj.value[node.name],
+					value: x,
 					return: false
 				};
 			}
@@ -340,8 +348,8 @@ export type Node = {
 	value: Record<string, Node>; // オブジェクト
 } | {
 	type: 'prop'; // プロパティアクセス
-	name: string; // プロパティ名
-	obj: Node; // オブジェクト
+	path: string[]; // プロパティパス
+	obj: string; // オブジェクト変数名
 };
 
 export const NULL = {

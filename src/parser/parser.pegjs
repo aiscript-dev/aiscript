@@ -78,18 +78,6 @@ expression
 	/ objectLiteral
 	/ variable
 
-expressionWithoutPropertyAccess
-	= if
-	/ fnObject
-	/ numberLiteral
-	/ stringLiteral
-	/ fnCall
-	/ opFnCall
-	/ booleanLiteral
-	/ arrayLiteral
-	/ objectLiteral
-	/ variable
-
 // statement of variable definition
 varDefinition
 	= "#" [ \t]* name:NAME _ "=" _ expr:expression
@@ -109,8 +97,8 @@ variable
 
 // property access
 propertyAccess
-	= obj:expressionWithoutPropertyAccess "." name:NAME
-{ return createNode('prop', { obj, name }); }
+	= head:NAME tails:("." name:NAME { return name; })*
+{ return createNode('prop', { obj: head, path: tails }); }
 
 // number literal
 numberLiteral
@@ -138,7 +126,7 @@ arrayLiteral
 
 // object literal
 objectLiteral
-	= "{" _ kvs:(k:NAME _ ":" _ v:expression _ ";" { return { k, v }; })* _ "}"
+	= "{" _ kvs:(k:NAME _ ":" _ v:expression _ ";" _ { return { k, v }; })* "}"
 {
 	const obj = {};
 	for (const kv of kvs) {
