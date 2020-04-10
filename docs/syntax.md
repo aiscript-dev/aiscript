@@ -48,6 +48,13 @@ as expression:
 print(result)
 ```
 
+## for
+```
+~ #i, 10 {
+	print(i)
+}
+```
+
 ## Block
 ```
 #foo = {
