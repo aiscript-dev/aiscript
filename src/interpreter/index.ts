@@ -65,7 +65,7 @@ export class AiScript {
 			}
 		};
 	
-		const result = await this.runBlock(script, scope);
+		const result = await this._run(script, scope);
 
 		this.log('end', { val: result.value });
 	}
@@ -74,7 +74,7 @@ export class AiScript {
 		if (this.opts.log) this.opts.log(type, params);
 	}
 
-	private async evalExp(node: Node, scope: Scope): Promise<Result> {
+	private async _eval(node: Node, scope: Scope): Promise<Result> {
 		this.log('node', { node: node });
 
 		switch (node.type) {
@@ -82,49 +82,49 @@ export class AiScript {
 				const val = scope.get(node.name);
 				assertFunction(val);
 				if (val.native) {
-					const result = await Promise.resolve(val.native!(await Promise.all(node.args.map(async expr => (await this.evalExp(expr, scope)).value))));
+					const result = await Promise.resolve(val.native!(await Promise.all(node.args.map(async expr => (await this._eval(expr, scope)).value))));
 					return { value: result || NULL, return: false };
 				} else {
 					const args = {} as Record<string, any>;
 					for (let i = 0; i < val.args!.length; i++) {
-						args[val.args![i]] = (await this.evalExp(node.args[i], scope)).value;
+						args[val.args![i]] = (await this._eval(node.args[i], scope)).value;
 					}
 					const fnScope = val.scope!.createChildScope(args, `#${node.name}`);
-					return this.runBlock(val.statements!, fnScope);
+					return this._run(val.statements!, fnScope);
 				}
 			}
 
 			case 'if': {
-				const cond = (await this.evalExp(node.cond, scope)).value;
+				const cond = (await this._eval(node.cond, scope)).value;
 				assertBoolean(cond);
 				if (cond.value) {
-					return this.runBlock(node.then, scope.createChildScope());
+					return this._run(node.then, scope.createChildScope());
 				} else {
 					if (node.elseif && node.elseif.length > 0) {
 						for (const elseif of node.elseif) {
-							const cond = (await this.evalExp(elseif.cond, scope)).value;
+							const cond = (await this._eval(elseif.cond, scope)).value;
 							assertBoolean(cond);
 							if (cond.value) {
-								return this.runBlock(elseif.then, scope.createChildScope());
+								return this._run(elseif.then, scope.createChildScope());
 							}
 						}
 						if (node.else) {
-							return this.runBlock(node.else, scope.createChildScope());
+							return this._run(node.else, scope.createChildScope());
 						}
 					} else if (node.else) {
-						return this.runBlock(node.else, scope.createChildScope());
+						return this._run(node.else, scope.createChildScope());
 					}
 				}
 				return { value: NULL, return: false };
 			}
 
 			case 'for': {
-				const from = (await this.evalExp(node.from, scope)).value;
-				const to = (await this.evalExp(node.to, scope)).value;
+				const from = (await this._eval(node.from, scope)).value;
+				const to = (await this._eval(node.to, scope)).value;
 				assertNumber(from);
 				assertNumber(to);
 				for (let i = from.value + 1; i < to.value + 1; i++) {
-					await this.runBlock(node.s, scope.createChildScope({
+					await this._run(node.s, scope.createChildScope({
 						[node.var]: { type: 'num', value: i }
 					}));
 				}
@@ -132,7 +132,7 @@ export class AiScript {
 			}
 
 			case 'def': {
-				scope.add(node.name, (await this.evalExp(node.expr, scope)).value);
+				scope.add(node.name, (await this._eval(node.expr, scope)).value);
 				return { value: NULL, return: false };
 			}
 
@@ -174,7 +174,7 @@ export class AiScript {
 				return {
 					value: {
 						type: 'arr',
-						value: await Promise.all(node.value.map(async item => (await this.evalExp(item, scope)).value))
+						value: await Promise.all(node.value.map(async item => (await this._eval(item, scope)).value))
 					},
 					return: false
 				};
@@ -183,7 +183,7 @@ export class AiScript {
 			case 'obj': {
 				const obj = {} as Record<string, Value>;
 				for (const k of Object.keys(node.value)) {
-					obj[k] = (await this.evalExp(node.value[k], scope)).value;
+					obj[k] = (await this._eval(node.value[k], scope)).value;
 				}
 				return {
 					value: {
@@ -214,7 +214,7 @@ export class AiScript {
 			case 'index': {
 				const arr = scope.get(node.arr);
 				assertArray(arr);
-				const i = (await this.evalExp(node.i, scope)).value;
+				const i = (await this._eval(node.i, scope)).value;
 				assertNumber(i);
 				return {
 					value: arr.value[i.value - 1], // TODO: 存在チェック
@@ -240,7 +240,7 @@ export class AiScript {
 		}
 	}
 
-	private async runBlock(program: Node[], scope: Scope): Promise<Result> {
+	private async _run(program: Node[], scope: Scope): Promise<Result> {
 		this.log('block:enter', { scope: scope.name });
 
 		let v: Result = { value: NULL, return: false };
@@ -250,13 +250,13 @@ export class AiScript {
 
 			switch (node.type) {
 				case 'return': {
-					const val = await this.evalExp(node.expr, scope);
+					const val = await this._eval(node.expr, scope);
 					this.log('block:return', { scope: scope.name, val: val.value });
 					return { value: val.value, return: true };
 				}
 
 				default: {
-					v = await this.evalExp(node, scope);
+					v = await this._eval(node, scope);
 					if (v.return) {
 						this.log('block:return', { scope: scope.name, val: v.value });
 						return v;
