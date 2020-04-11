@@ -113,3 +113,14 @@ it('Block returns value', async () => {
 	`);
 	eq(res, NUM(3));
 });
+
+it('Recursion', async () => {
+	const res = await exe(`
+@fact(n) {
+	? (n = 0) { 1 } ... { (fact((n - 1)) * n) }
+}
+
+<: fact(5)
+	`);
+	eq(res, NUM(120));
+});
