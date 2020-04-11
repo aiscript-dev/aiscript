@@ -41,11 +41,8 @@ Design of AiScript is inspired by JavaScript and Rust.
 2. スクリプトをそのファイルに書く
 3. `npm start`すると実行されます
 
-## Syntax
-[See here](./docs/syntax.md)
-
-## Std library reference
-[See here](./docs/std.md)
+## Getting started
+[See here](./docs/get-started.md)
 
 ## Example programs
 ### Hello world
