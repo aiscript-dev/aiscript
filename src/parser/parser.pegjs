@@ -16,25 +16,22 @@
 }
 
 // First, comments are removed by the entry rule, then the core parser is applied to the code.
-entry
+Entry
 	= parts:PreprocessPart*
-{ return applyParser(parts.join(''), 'core'); }
+{ return applyParser(parts.join(''), 'Core'); }
 
 PreprocessPart
 	= Comment { return ''; }
-	/ NotComment { return text(); }
+	/ .
 
 Comment
 	= "//" (!EOL .)*
-
-NotComment
-	= (!"//" .)+
 
 //
 // core parser
 //
 
-core
+Core
 	= _ content:Statements? _
 { return content; }
 
