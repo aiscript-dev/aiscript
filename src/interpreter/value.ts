@@ -76,6 +76,11 @@ export const BOOL = (bool: boolean) => ({
 	value: bool
 });
 
+export const FN_NATIVE = (fn: VFn['native']) => ({
+	type: 'fn' as const,
+	native: fn
+});
+
 export const RETURN = (v: Value) => ({
 	type: 'return' as const,
 	value: v

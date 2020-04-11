@@ -7,7 +7,7 @@ import { AiScriptError } from './error';
 import { core as libCore } from './lib/core';
 import { std as libStd } from './lib/std';
 import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray } from './util';
-import { Value, NULL, RETURN, unWrapRet } from './value';
+import { Value, NULL, RETURN, unWrapRet, FN_NATIVE } from './value';
 import { Node } from './node';
 
 export class AiScript {
@@ -16,40 +16,36 @@ export class AiScript {
 		in?(q: string): Promise<string>;
 		out?(value: Value): void;
 		log?(type: string, params: Record<string, any>): void;
+		maxStep?: number;
 	};
+	private stepCount = 0;
 
 	constructor(vars: AiScript['vars'], opts?: AiScript['opts']) {
+		this.opts = opts || {};
+
 		this.vars = { ...vars, ...libCore, ...libStd, ...{
-			print: {
-				type: 'fn',
-				native: (args) => {
-					if (this.opts.out) this.opts.out(args[0]);
-				},
-			},
-			readline: {
-				type: 'fn',
-				native: (args) => {
-					const q = args[0];
-					assertString(q);
-					if (this.opts.in == null) return NULL;
-					return new Promise(ok => {
-						this.opts.in!(q.value).then(a => {
-							ok({
-								type: 'str',
-								value: a
-							});
+			print: FN_NATIVE(args => {
+				if (this.opts.out) this.opts.out(args[0]);
+			}),
+			readline: FN_NATIVE(args => {
+				const q = args[0];
+				assertString(q);
+				if (this.opts.in == null) return NULL;
+				return new Promise(ok => {
+					this.opts.in!(q.value).then(a => {
+						ok({
+							type: 'str',
+							value: a
 						});
 					});
-				},
-			},
+				});
+			})
 		} };
-		this.opts = opts || {};
 	}
 
 	public async exec(script?: Node[]) {
 		if (script == null || script.length === 0) return;
 
-		let steps = 0;
 		const scope = new Scope([this.vars]);
 		scope.opts.log = (type, params) => {
 			switch (type) {
@@ -71,6 +67,10 @@ export class AiScript {
 
 	private async _eval(node: Node, scope: Scope): Promise<Value> {
 		this.log('node', { node: node });
+		this.stepCount++;
+		if (this.opts.maxStep && this.stepCount > this.opts.maxStep) {
+			throw new AiScriptError('max step exceeded');
+		}
 
 		switch (node.type) {
 			case 'call': {
