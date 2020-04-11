@@ -47,3 +47,56 @@ it('Closure', async () => {
 	`);
 	eq(res, STR('ai'));
 });
+
+it('Early return', async () => {
+	const res = await exe(`
+@f() {
+	? yes {
+		<< "ai"
+	}
+
+	"pope"
+}
+<: f()
+	`);
+	eq(res, STR('ai'));
+});
+
+it('Early return (nested)', async () => {
+	const res = await exe(`
+@f() {
+	? yes {
+		? yes {
+			<< "ai"
+		}
+	}
+
+	"pope"
+}
+<: f()
+	`);
+	eq(res, STR('ai'));
+});
+
+it('Early return (nested) 2', async () => {
+	const res = await exe(`
+@f() {
+	? yes {
+		<< "ai"
+	}
+
+	"pope"
+}
+
+@g() {
+	? (f() = "ai") {
+		<< "kawaii"
+	}
+
+	"pope"
+}
+
+<: g()
+	`);
+	eq(res, STR('kawaii'));
+});
