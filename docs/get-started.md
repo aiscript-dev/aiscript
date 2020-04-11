@@ -85,6 +85,8 @@ add(1, 1)
 	<tr><td><code>eq</code></td><td><code>=</code></td><td>等しい</td></tr>
 	<tr><td><code>and</code></td><td><code>&</code></td><td>かつ</td></tr>
 	<tr><td><code>or</code></td><td><code>|</code></td><td>または</td></tr>
+	<tr><td><code>gt</code></td><td><code>></code></td><td>大きい</td></tr>
+	<tr><td><code>lt</code></td><td><code><</code></td><td>小さい</td></tr>
 </table>
 
 ## ブロック
@@ -100,9 +102,54 @@ add(1, 1)
 <: foo // 3
 ```
 
-## if
+## 条件分岐
+AiScriptでの条件分岐は、次のように書きます:
+```
+? (a = b) {
+	<: "a is equal to b"
+}
+```
 
-## for
+`?`の後にboolを返す式(条件)を書き、その後のブロックで条件に一致した場合の処理を書きます。
+同時に、ブロックの後に`...`を書き、さらにブロックを追加することで条件に一致しなかった場合の処理も行うことが出来ます:
+```
+? (a = b) {
+	<: "a is equal to b"
+} ... {
+	<: "a is not equal to b"
+}
+```
+
+`...?`の後に条件式を書くことで条件判定を複数行うことも出来ます:
+```
+? (a = b) {
+	<: "a is equal to b"
+} ...? (a > b) {
+	<: "a is grater than b"
+} ... {
+	<: "a is less than b"
+}
+```
+
+これらの条件分岐は式なので、ブロック内で値を返せます:
+```
+<: ? (a = b) {
+	"a is equal to b"
+} ...? (a > b) {
+	"a is grater than b"
+} ... {
+	"a is less than b"
+}
+```
+
+## 繰り返し
+AiScriptでの繰り返しは、次のように書きます:
+```
+~ #i, 100 {
+	<: i
+}
+```
+`~`の後にイテレータ変数名を書き、`,`の後に繰り返し回数を返す式を書きます。その後のブロックで繰り返す処理を書きます。
 
 ## 関数
 ### 関数定義
