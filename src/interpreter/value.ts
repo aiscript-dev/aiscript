@@ -39,7 +39,12 @@ export type VFn = {
 	scope?: Scope;
 };
 
-export type Value = VNull | VBool | VNum | VStr | VArr | VObj | VFn;
+export type VReturn = {
+	type: 'return';
+	value: Value;
+};
+
+export type Value = VNull | VBool | VNum | VStr | VArr | VObj | VFn | VReturn;
 
 export const NULL = {
 	type: 'null' as const,
@@ -70,3 +75,10 @@ export const BOOL = (bool: boolean) => ({
 	type: 'bool' as const,
 	value: bool
 });
+
+export const RETURN = (v: Value) => ({
+	type: 'return' as const,
+	value: v
+});
+
+export const unWrapRet = (v: Value) => v.type === 'return' ? v.value : v;
