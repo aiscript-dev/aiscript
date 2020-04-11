@@ -60,19 +60,19 @@ add(1, 1)
 ### 数の演算
 <table>
 	<tr><th>関数</th><th>演算子</th><th>意味</th></tr>
-	<tr><td>`add`</td><td>`+`</td><td>加算</td></tr>
-	<tr><td>`sub`</td><td>`-`</td><td>減算</td></tr>
-	<tr><td>`mul`</td><td>`*`</td><td>乗算</td></tr>
-	<tr><td>`div`</td><td>`/`</td><td>除算</td></tr>
-	<tr><td>`mod`</td><td>`%`</td><td>剰余</td></tr>
+	<tr><td><code>add</code></td><td><code>+</code></td><td>加算</td></tr>
+	<tr><td><code>sub</code></td><td><code>-</code></td><td>減算</td></tr>
+	<tr><td><code>mul</code></td><td><code>*</code></td><td>乗算</td></tr>
+	<tr><td><code>div</code></td><td><code>/</code></td><td>除算</td></tr>
+	<tr><td><code>mod</code></td><td><code>%</code></td><td>剰余</td></tr>
 </table>
 
 ### 論理演算
 <table>
 	<tr><th>関数</th><th>演算子</th><th>意味</th></tr>
-	<tr><td>`eq`</td><td>`=`</td><td>等しい</td></tr>
-	<tr><td>`and`</td><td>`&`</td><td>かつ</td></tr>
-	<tr><td>`or`</td><td>`|`</td><td>または</td></tr>
+	<tr><td><code>eq</code></td><td><code>=</code></td><td>等しい</td></tr>
+	<tr><td><code>and</code></td><td><code>&</code></td><td>かつ</td></tr>
+	<tr><td><code>or</code></td><td><code>|</code></td><td>または</td></tr>
 </table>
 
 ## ブロック
