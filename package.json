@@ -13,9 +13,9 @@
     "parse": "node ./parse",
     "peg": "mkdirp built/parser & pegjs -o built/parser/parser.js --allowed-start-rules entry,core --optimize size src/parser/parser.pegjs",
     "build": "tsc & npm run peg",
-    "mocha": "mocha test/index.ts",
+    "mocha": "mocha test/index.ts --require ts-node/register",
     "tsd": "tsd",
-    "test": "npm run mocha & npm run tsd"
+    "test": "npm run mocha"
   },
   "devDependencies": {
     "@types/mocha": "7.0.2",
