@@ -64,6 +64,7 @@ Expr
 	/ Arr
 	/ Obj
 	/ VarRef
+	/ Block
 
 // statement of variable definition
 VarDef
@@ -135,6 +136,11 @@ Obj
 	}
 	return createNode('obj', { value: obj });
 }
+
+// block
+Block
+	= "{" _ s:Statements _ "}"
+{ return createNode('block', { statements: s }); }
 
 // function ------------------------------------------------------------------------------
 

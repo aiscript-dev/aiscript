@@ -100,3 +100,16 @@ it('Early return (nested) 2', async () => {
 	`);
 	eq(res, STR('kawaii'));
 });
+
+it('Block returns value', async () => {
+	const res = await exe(`
+#foo = {
+	#a = 1
+	#b = 2
+	(a + b)
+}
+
+<: foo
+	`);
+	eq(res, NUM(3));
+});

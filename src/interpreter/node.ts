@@ -57,4 +57,7 @@ export type Node = {
 	type: 'index'; // 配列要素アクセス
 	arr: string; // 配列変数名
 	i: Node; // インデックス
+} | {
+	type: 'block'; // ブロック
+	statements: Node[]; // 処理
 };

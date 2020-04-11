@@ -204,6 +204,10 @@ export class AiScript {
 					scope: scope
 				};
 			}
+
+			case 'block': {
+				return this._run(node.statements, scope.createChildScope());
+			}
 		
 			default: {
 				throw new Error('unknown ast type: ' + node.type);
