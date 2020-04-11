@@ -29,6 +29,18 @@ AiScriptのコメントは`//`で始めます。
 // this is a comment
 ```
 
+## リテラル
+<table>
+	<tr><th>種類</th><th>型</th><th>例</th></tr>
+	<tr><td>文字列</td><td><code>str</code></td><td><code>"kawaii"</code></td></tr>
+	<tr><td>数値</td><td><code>num</code></td><td><code>42</code></td></tr>
+	<tr><td>真理値</td><td><code>bool</code></td><td><code>yes</code>/<code>no</code></td></tr>
+	<tr><td>配列</td><td><code>arr</code></td><td><code>["ai", "chan", "cute"]</code></td></tr>
+	<tr><td>オブジェクト</td><td><code>obj</code></td><td><code>{ foo: "bar"; a: 42; }</code></td></tr>
+	<tr><td>null</td><td><code>null</code></td><td><code>null</code></td></tr>
+	<tr><td>関数</td><td><code>fn</code></td><td><code>@(x) { x }</code></td></tr>
+</table>
+
 ## 変数
 ### 宣言
 変数宣言は次のように書きます:
