@@ -1,5 +1,5 @@
-import { Value, FALSE, TRUE, NUM, FN_NATIVE, STR, NULL, VStr, VArr } from '../value';
-import { assertNumber, assertBoolean, assertString } from '../util';
+import { Value, FALSE, TRUE, NUM, FN_NATIVE, STR, NULL, VStr, VArr, ARR } from '../value';
+import { assertNumber, assertBoolean, assertString, assertArray } from '../util';
 import { AiScriptError } from '../error';
 
 export const core: Record<string, Value> = {
@@ -101,5 +101,15 @@ export const core: Record<string, Value> = {
 		} else {
 			return FALSE;
 		}
+	}),
+	split: FN_NATIVE(([a, b]) => {
+		assertString(a);
+		if (b) assertString(b);
+		return ARR(a.value.split(b ? b.value : '').map(s => STR(s)));
+	}),
+	join: FN_NATIVE(([a, b]) => {
+		assertArray(a);
+		if (b) assertString(b);
+		return STR(a.value.map(i => i.type === 'str' ? i.value : '').join(b ? b.value : ''));
 	}),
 };
