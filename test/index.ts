@@ -34,6 +34,16 @@ it('(1 + 1)', async () => {
 	eq(res, NUM(2));
 });
 
+it('Fn call with no args', async () => {
+	const res = await exe(`
+@f() {
+	42
+}
+<: f()
+	`);
+	eq(res, NUM(42));
+});
+
 it('Closure', async () => {
 	const res = await exe(`
 @store(v) {
