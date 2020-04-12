@@ -60,6 +60,7 @@ Expr
 	/ Bool
 	/ Arr
 	/ Obj
+	/ Null
 	/ VarRef
 	/ Block
 
@@ -133,6 +134,11 @@ Obj
 	}
 	return createNode('obj', { value: obj });
 }
+
+// null literal
+Null
+	= "_"
+{ return createNode('null', {}); }
 
 // block
 Block

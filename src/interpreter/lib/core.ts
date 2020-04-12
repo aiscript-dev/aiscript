@@ -11,8 +11,9 @@ export const core: Record<string, Value> = {
 		return a.value ? FALSE : TRUE;
 	}),
 	eq: FN_NATIVE(([a, b]) => {
-		if (a.type === 'fn') return FALSE;
-		if (b.type === 'fn') return FALSE;
+		if (a.type === 'fn' || b.type === 'fn') return FALSE;
+		if (a.type === 'null' && b.type === 'null') return TRUE;
+		if (a.type === 'null' || b.type === 'null') return FALSE;
 		return (a.value === b.value) ? TRUE : FALSE;
 	}),
 	and: FN_NATIVE(([a, b]) => {

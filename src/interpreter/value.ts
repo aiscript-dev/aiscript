@@ -3,7 +3,6 @@ import { Node } from './node';
 
 export type VNull = {
 	type: 'null';
-	value: null;
 };
 
 export type VBool = {
@@ -48,7 +47,6 @@ export type Value = VNull | VBool | VNum | VStr | VArr | VObj | VFn | VReturn;
 
 export const NULL = {
 	type: 'null' as const,
-	value: null
 };
 
 export const TRUE = {
@@ -61,19 +59,36 @@ export const FALSE = {
 	value: false
 };
 
-export const NUM = (num: number) => ({
+export const NUM = (num: VNum['value']) => ({
 	type: 'num' as const,
 	value: num
 });
 
-export const STR = (str: string) => ({
+export const STR = (str: VStr['value']) => ({
 	type: 'str' as const,
 	value: str
 });
 
-export const BOOL = (bool: boolean) => ({
+export const BOOL = (bool: VBool['value']) => ({
 	type: 'bool' as const,
 	value: bool
+});
+
+export const OBJ = (obj: VObj['value']) => ({
+	type: 'obj' as const,
+	value: obj
+});
+
+export const ARR = (arr: VArr['value']) => ({
+	type: 'arr' as const,
+	value: arr
+});
+
+export const FN = (args: VFn['args'], statements: VFn['statements'], scope: VFn['scope']) => ({
+	type: 'fn' as const,
+	args: args,
+	statements: statements,
+	scope: scope
 });
 
 export const FN_NATIVE = (fn: VFn['native']) => ({
@@ -81,7 +96,7 @@ export const FN_NATIVE = (fn: VFn['native']) => ({
 	native: fn
 });
 
-export const RETURN = (v: Value) => ({
+export const RETURN = (v: VReturn['value']) => ({
 	type: 'return' as const,
 	value: v
 });

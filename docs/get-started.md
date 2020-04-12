@@ -37,7 +37,7 @@ AiScriptのコメントは`//`で始めます。
 	<tr><td>真理値</td><td><code>bool</code></td><td><code>yes</code>/<code>no</code></td></tr>
 	<tr><td>配列</td><td><code>arr</code></td><td><code>["ai", "chan", "cute"]</code></td></tr>
 	<tr><td>オブジェクト</td><td><code>obj</code></td><td><code>{ foo: "bar"; a: 42; }</code></td></tr>
-	<tr><td>null</td><td><code>null</code></td><td><code>null</code></td></tr>
+	<tr><td>null</td><td><code>null</code></td><td><code>_</code></td></tr>
 	<tr><td>関数</td><td><code>fn</code></td><td><code>@(x) { x }</code></td></tr>
 </table>
 

@@ -29,7 +29,6 @@ export type Node = {
 	name: string; // 変数名
 } | {
 	type: 'null'; // nullリテラル
-	value: null; // null
 } | {
 	type: 'bool'; // 真理値リテラル
 	value: boolean; // 真理値

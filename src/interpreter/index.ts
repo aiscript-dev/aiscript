@@ -7,7 +7,7 @@ import { AiScriptError } from './error';
 import { core as libCore } from './lib/core';
 import { std as libStd } from './lib/std';
 import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray } from './util';
-import { Value, NULL, RETURN, unWrapRet, FN_NATIVE } from './value';
+import { Value, NULL, RETURN, unWrapRet, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN } from './value';
 import { Node } from './node';
 
 export class AiScript {
@@ -135,43 +135,22 @@ export class AiScript {
 				return scope.get(node.name);
 			}
 
-			case 'bool': {
-				return {
-					type: 'bool',
-					value: node.value
-				};
-			}
+			case 'null': return NULL;
 
-			case 'num': {
-				return {
-					type: 'num',
-					value: node.value
-				};
-			}
+			case 'bool': return BOOL(node.value);
 
-			case 'str': {
-				return {
-					type: 'str',
-					value: node.value
-				};
-			}
+			case 'num': return NUM(node.value);
 
-			case 'arr': {
-				return {
-					type: 'arr',
-					value: await Promise.all(node.value.map(async item => await this._eval(item, scope)))
-				};
-			}
+			case 'str': return STR(node.value);
+
+			case 'arr': return ARR(await Promise.all(node.value.map(async item => await this._eval(item, scope))));
 
 			case 'obj': {
 				const obj = {} as Record<string, Value>;
 				for (const k of Object.keys(node.value)) {
 					obj[k] = await this._eval(node.value[k], scope);
 				}
-				return {
-					type: 'obj',
-					value: obj
-				};
+				return OBJ(obj);
 			}
 
 			case 'prop': {
@@ -197,12 +176,7 @@ export class AiScript {
 			}
 
 			case 'fn': {
-				return {
-					type: 'fn',
-					args: node.args!,
-					statements: node.children!,
-					scope: scope
-				};
+				return FN(node.args!, node.children!, scope);
 			}
 
 			case 'block': {
