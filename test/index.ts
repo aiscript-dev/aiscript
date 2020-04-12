@@ -163,7 +163,7 @@ it('Cannot access js native property', async () => {
 	const res = await exe(`
 #obj = {}
 
-<: obj.toString
+<: obj.constructor
 	`);
 	eq(res, NULL);
 });
