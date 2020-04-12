@@ -158,10 +158,11 @@ export class AiScript {
 				let x = obj;
 				for (const prop of node.path) {
 					assertObject(x);
-					x = x.value[prop];
-					if (x === undefined) {
+					if (!Object.keys(x.value).includes(prop)) {
 						x = NULL;
 						break;
+					} else {
+						x = x.value[prop];
 					}
 				}
 				return x;

@@ -4,7 +4,7 @@
 
 import * as assert from 'assert';
 import { AiScript } from '../src/interpreter';
-import { NUM, STR } from '../src/interpreter/value';
+import { NUM, STR, NULL } from '../src/interpreter/value';
 const parse = require('../built/parser/parser.js').parse;
 
 const exe = (program: string): Promise<any> => new Promise(ok => {
@@ -157,4 +157,13 @@ it('Array item access', async () => {
 <: arr[2]
 	`);
 	eq(res, STR('chan'));
+});
+
+it('Cannot access js native property', async () => {
+	const res = await exe(`
+#obj = {}
+
+<: obj.toString
+	`);
+	eq(res, NULL);
 });
