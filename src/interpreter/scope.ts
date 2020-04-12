@@ -8,6 +8,7 @@ export class Scope {
 	public name: string;
 	public opts: {
 		log?(type: string, params: Record<string, any>): void;
+		onUpdated?(name: string, value: Value): void;
 	} = {};
 
 	constructor(layerdStates: Scope['layerdStates'] = [], parent?: Scope, name?: Scope['name']) {
@@ -66,6 +67,7 @@ export class Scope {
 				});
 		}
 		this.layerdStates[0].set(name, val);
+		if (this.opts.onUpdated) this.opts.onUpdated(name, val);
 	}
 
 	/**
@@ -79,6 +81,7 @@ export class Scope {
 			if (layer.has(name)) {
 				layer.set(name, val);
 				this.log('assign', { var: name, val: val });
+				if (this.opts.onUpdated) this.opts.onUpdated(name, val);
 				return;
 			}
 		}

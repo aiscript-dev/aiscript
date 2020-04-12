@@ -6,7 +6,7 @@ import { Scope } from './scope';
 import { AiScriptError } from './error';
 import { std } from './lib/std';
 import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray } from './util';
-import { Value, NULL, RETURN, unWrapRet, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN } from './value';
+import { Value, NULL, RETURN, unWrapRet, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, VFn } from './value';
 import { Node } from './node';
 
 export class AiScript {
@@ -18,7 +18,7 @@ export class AiScript {
 		maxStep?: number;
 	};
 	private stepCount = 0;
-	private scope: Scope;
+	public scope: Scope;
 
 	constructor(vars: AiScript['vars'], opts?: AiScript['opts']) {
 		this.opts = opts || {};
@@ -59,6 +59,20 @@ export class AiScript {
 		const result = await this._run(script, this.scope);
 
 		this.log('end', { val: result });
+	}
+
+	public async execFn(fn: VFn, args: Value[]) {
+		if (fn.native) {
+			const result = await Promise.resolve(fn.native!(args));
+			return result || NULL;
+		} else {
+			const _args = new Map() as Map<string, any>;
+			for (let i = 0; i < (fn.args || []).length; i++) {
+				_args.set(fn.args![i], args[i]);
+			}
+			const fnScope = fn.scope!.createChildScope(_args);
+			return unWrapRet(await this._run(fn.statements!, fnScope));
+		}
 	}
 
 	private log(type: string, params: Record<string, any>) {
