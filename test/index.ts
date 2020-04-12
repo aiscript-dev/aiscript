@@ -124,3 +124,27 @@ it('Recursion', async () => {
 	`);
 	eq(res, NUM(120));
 });
+
+it('Object property access', async () => {
+	const res = await exe(`
+#obj = {
+	a: {
+		b: {
+			c: 42;
+		};
+	};
+}
+
+<: obj.a.b.c
+	`);
+	eq(res, NUM(42));
+});
+
+it('Array item access', async () => {
+	const res = await exe(`
+#arr = ["ai", "chan", "kawaii"]
+
+<: arr[2]
+	`);
+	eq(res, STR('chan'));
+});
