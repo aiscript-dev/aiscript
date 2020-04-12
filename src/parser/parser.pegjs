@@ -184,16 +184,16 @@ CallArgs
 
 // syntax sugers of operator function call
 Ops
-	= "(" _ expr1:Expr _ "=" _ expr2:Expr _ ")" { return createNode('call', { name: 'eq', args: [expr1, expr2] }); }
-	/ "(" _ expr1:Expr _ "&" _ expr2:Expr _ ")" { return createNode('call', { name: 'and', args: [expr1, expr2] }); }
-	/ "(" _ expr1:Expr _ "|" _ expr2:Expr _ ")" { return createNode('call', { name: 'or', args: [expr1, expr2] }); }
-	/ "(" _ expr1:Expr _ "+" _ expr2:Expr _ ")" { return createNode('call', { name: 'add', args: [expr1, expr2] }); }
-	/ "(" _ expr1:Expr _ "-" _ expr2:Expr _ ")" { return createNode('call', { name: 'sub', args: [expr1, expr2] }); }
-	/ "(" _ expr1:Expr _ "*" _ expr2:Expr _ ")" { return createNode('call', { name: 'mul', args: [expr1, expr2] }); }
-	/ "(" _ expr1:Expr _ "/" _ expr2:Expr _ ")" { return createNode('call', { name: 'div', args: [expr1, expr2] }); }
-	/ "(" _ expr1:Expr _ "%" _ expr2:Expr _ ")" { return createNode('call', { name: 'mod', args: [expr1, expr2] }); }
-	/ "(" _ expr1:Expr _ ">" _ expr2:Expr _ ")" { return createNode('call', { name: 'gt', args: [expr1, expr2] }); }
-	/ "(" _ expr1:Expr _ "<" _ expr2:Expr _ ")" { return createNode('call', { name: 'lt', args: [expr1, expr2] }); }
+	= "(" _ expr1:Expr _ "=" _ expr2:Expr _ ")" { return createNode('call', { name: 'Core:eq', args: [expr1, expr2] }); }
+	/ "(" _ expr1:Expr _ "&" _ expr2:Expr _ ")" { return createNode('call', { name: 'Core:and', args: [expr1, expr2] }); }
+	/ "(" _ expr1:Expr _ "|" _ expr2:Expr _ ")" { return createNode('call', { name: 'Core:or', args: [expr1, expr2] }); }
+	/ "(" _ expr1:Expr _ "+" _ expr2:Expr _ ")" { return createNode('call', { name: 'Core:add', args: [expr1, expr2] }); }
+	/ "(" _ expr1:Expr _ "-" _ expr2:Expr _ ")" { return createNode('call', { name: 'Core:sub', args: [expr1, expr2] }); }
+	/ "(" _ expr1:Expr _ "*" _ expr2:Expr _ ")" { return createNode('call', { name: 'Core:mul', args: [expr1, expr2] }); }
+	/ "(" _ expr1:Expr _ "/" _ expr2:Expr _ ")" { return createNode('call', { name: 'Core:div', args: [expr1, expr2] }); }
+	/ "(" _ expr1:Expr _ "%" _ expr2:Expr _ ")" { return createNode('call', { name: 'Core:mod', args: [expr1, expr2] }); }
+	/ "(" _ expr1:Expr _ ">" _ expr2:Expr _ ")" { return createNode('call', { name: 'Core:gt', args: [expr1, expr2] }); }
+	/ "(" _ expr1:Expr _ "<" _ expr2:Expr _ ")" { return createNode('call', { name: 'Core:lt', args: [expr1, expr2] }); }
 
 // if statement --------------------------------------------------------------------------
 

@@ -76,7 +76,7 @@ print(message)
 ```
 のように書きます。これは関数呼び出しの糖衣構文で、実際にはこのように解釈されます:
 ```
-add(1, 1)
+Core:add(1, 1)
 ```
 
 下記で列挙する関数はすべて`(1 + 1)`のような糖衣構文として使えます。
@@ -85,21 +85,21 @@ add(1, 1)
 ### 数の演算
 <table>
 	<tr><th>関数</th><th>演算子</th><th>意味</th></tr>
-	<tr><td><code>add</code></td><td><code>+</code></td><td>加算</td></tr>
-	<tr><td><code>sub</code></td><td><code>-</code></td><td>減算</td></tr>
-	<tr><td><code>mul</code></td><td><code>*</code></td><td>乗算</td></tr>
-	<tr><td><code>div</code></td><td><code>/</code></td><td>除算</td></tr>
-	<tr><td><code>mod</code></td><td><code>%</code></td><td>剰余</td></tr>
+	<tr><td><code>Core:add</code></td><td><code>+</code></td><td>加算</td></tr>
+	<tr><td><code>Core:sub</code></td><td><code>-</code></td><td>減算</td></tr>
+	<tr><td><code>Core:mul</code></td><td><code>*</code></td><td>乗算</td></tr>
+	<tr><td><code>Core:div</code></td><td><code>/</code></td><td>除算</td></tr>
+	<tr><td><code>Core:mod</code></td><td><code>%</code></td><td>剰余</td></tr>
 </table>
 
 ### 論理演算
 <table>
 	<tr><th>関数</th><th>演算子</th><th>意味</th></tr>
-	<tr><td><code>eq</code></td><td><code>=</code></td><td>等しい</td></tr>
-	<tr><td><code>and</code></td><td><code>&</code></td><td>かつ</td></tr>
-	<tr><td><code>or</code></td><td><code>|</code></td><td>または</td></tr>
-	<tr><td><code>gt</code></td><td><code>></code></td><td>大きい</td></tr>
-	<tr><td><code>lt</code></td><td><code><</code></td><td>小さい</td></tr>
+	<tr><td><code>Core:eq</code></td><td><code>=</code></td><td>等しい</td></tr>
+	<tr><td><code>Core:and</code></td><td><code>&</code></td><td>かつ</td></tr>
+	<tr><td><code>Core:or</code></td><td><code>|</code></td><td>または</td></tr>
+	<tr><td><code>Core:gt</code></td><td><code>></code></td><td>大きい</td></tr>
+	<tr><td><code>Core:lt</code></td><td><code><</code></td><td>小さい</td></tr>
 </table>
 
 ## ブロック

@@ -235,11 +235,11 @@ it('SKI', async () => {
 
 // combine
 @c(l) {
-	#L = (len(l) + 1)
+	#L = (Core:len(l) + 1)
 
 	// extract
 	@x(v) {
-		? (type(v) = "arr") { c(v) } ... { v }
+		? (Core:type(v) = "arr") { c(v) } ... { v }
 	}
 
 	// rec
@@ -248,7 +248,7 @@ it('SKI', async () => {
 			r(f(x(l[n])), (n + 1))
 		} ... { f }
 	}
-	
+
 	r(x(l[1]), 2)
 }
 

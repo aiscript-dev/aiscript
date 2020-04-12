@@ -1,6 +1,6 @@
 import { v4 as uuid } from 'uuid';
-import { Value, NUM, STR, FN_NATIVE } from '../value';
-import { assertNumber } from '../util';
+import { Value, NUM, STR, FN_NATIVE, FALSE, TRUE, VArr, ARR } from '../value';
+import { assertNumber, assertString, assertArray } from '../util';
 import { AiScriptError } from '../error';
 
 export const std: Record<string, Value> = {
@@ -72,5 +72,34 @@ export const std: Record<string, Value> = {
 			return NUM(Math.floor(Math.random() * (max - min + 1) + min));
 		}
 		return NUM(Math.random());
+	}),
+	'Str:includes': FN_NATIVE(([a, b]) => {
+		assertString(a);
+		assertString(b);
+		return a.value.includes(b.value) ? TRUE : FALSE;
+	}),
+	'Str:split': FN_NATIVE(([a, b]) => {
+		assertString(a);
+		if (b) assertString(b);
+		return ARR(a.value.split(b ? b.value : '').map(s => STR(s)));
+	}),
+	'Arr:join': FN_NATIVE(([a, b]) => {
+		assertArray(a);
+		if (b) assertString(b);
+		return STR(a.value.map(i => i.type === 'str' ? i.value : '').join(b ? b.value : ''));
+	}),
+	'Arr:includes': FN_NATIVE(([a, b]) => {
+		assertArray(a);
+		if (b.type !== 'str' && b.type !== 'num' && b.type !== 'bool' && b.type !== 'null') return FALSE;
+		const getValue = (v: VArr) => {
+			return v.value.map(i => {
+				if (i.type === 'str') return i.value;
+				if (i.type === 'num') return i.value;
+				if (i.type === 'bool') return i.value;
+				if (i.type === 'null') return null;
+				return Symbol();
+			});
+		};
+		return getValue(a).includes(b.type === 'null' ? null : b.value) ? TRUE : FALSE;
 	}),
 };
