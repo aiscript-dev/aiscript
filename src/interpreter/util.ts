@@ -90,7 +90,7 @@ export function valToJs(val: Value): any {
 }
 
 export function jsToVal(val: any): Value {
-	if (typeof val === null) return NULL;
+	if (val === null) return NULL;
 	if (typeof val === 'boolean') return BOOL(val);
 	if (typeof val === 'string') return STR(val);
 	if (typeof val === 'number') return NUM(val);
