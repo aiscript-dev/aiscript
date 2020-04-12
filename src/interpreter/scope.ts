@@ -27,6 +27,15 @@ export class Scope {
 	}
 
 	@autobind
+	private onUpdated(name: string, value: Value) {
+		if (this.parent) {
+			this.parent.onUpdated(name, value);
+		} else {
+			if (this.opts.onUpdated) this.opts.onUpdated(name, value);
+		}
+	}
+
+	@autobind
 	public createChildScope(states: Map<string, Value> = new Map(), name?: Scope['name']): Scope {
 		const layer = [states, ...this.layerdStates];
 		return new Scope(layer, this, name);
@@ -67,7 +76,7 @@ export class Scope {
 				});
 		}
 		this.layerdStates[0].set(name, val);
-		if (this.opts.onUpdated) this.opts.onUpdated(name, val);
+		if (this.parent == null) this.onUpdated(name, val);
 	}
 
 	/**
@@ -77,13 +86,15 @@ export class Scope {
 	 */
 	@autobind
 	public assign(name: string, val: Value) {
+		let i = 1;
 		for (const layer of this.layerdStates) {
 			if (layer.has(name)) {
 				layer.set(name, val);
 				this.log('assign', { var: name, val: val });
-				if (this.opts.onUpdated) this.opts.onUpdated(name, val);
+				if (i === this.layerdStates.length) this.onUpdated(name, val);
 				return;
 			}
+			i++;
 		}
 
 		throw new AiScriptError(
