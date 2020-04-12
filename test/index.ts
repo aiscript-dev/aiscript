@@ -179,3 +179,15 @@ it('Cannot access js native property via object', async () => {
 	`);
 	eq(res, NULL);
 });
+
+it('Throws error when divied by zero', async () => {
+	try {
+		await exe(`
+<: (0 / 0)
+		`);
+	} catch(e) {
+		assert.ok(true);
+		return;
+	}
+	assert.fail();
+});

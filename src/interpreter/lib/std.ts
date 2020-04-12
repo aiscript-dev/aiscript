@@ -1,6 +1,7 @@
 import { v4 as uuid } from 'uuid';
 import { Value, NUM, STR, FN_NATIVE } from '../value';
 import { assertNumber } from '../util';
+import { AiScriptError } from '../error';
 
 export const std: Record<string, Value> = {
 	'Util:uuid': FN_NATIVE(() => {
@@ -42,7 +43,9 @@ export const std: Record<string, Value> = {
 	}),
 	'Math:sqrt': FN_NATIVE(([a]) => {
 		assertNumber(a);
-		return NUM(Math.sqrt(a.value));
+		const res = Math.sqrt(a.value);
+		if (isNaN(res)) throw new AiScriptError('Invalid operation.');
+		return NUM(res);
 	}),
 	'Math:round': FN_NATIVE(([a]) => {
 		assertNumber(a);

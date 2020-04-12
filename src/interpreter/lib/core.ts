@@ -1,5 +1,6 @@
-import { Value, FALSE, TRUE, NUM, FN_NATIVE, STR } from '../value';
+import { Value, FALSE, TRUE, NUM, FN_NATIVE, STR, NULL } from '../value';
 import { assertNumber, assertBoolean } from '../util';
+import { AiScriptError } from '../error';
 
 export const core: Record<string, Value> = {
 	ai: STR('kawaii'),
@@ -41,7 +42,9 @@ export const core: Record<string, Value> = {
 	div: FN_NATIVE(([a, b]) => {
 		assertNumber(a);
 		assertNumber(b);
-		return NUM(a.value / b.value);
+		const res = a.value / b.value;
+		if (isNaN(res)) throw new AiScriptError('Invalid operation.');
+		return NUM(res);
 	}),
 	mod: FN_NATIVE(([a, b]) => {
 		assertNumber(a);
@@ -64,5 +67,19 @@ export const core: Record<string, Value> = {
 	len: FN_NATIVE(([a]) => {
 		if (a.type !== 'arr' && a.type !== 'str') return NUM(0);
 		return NUM(a.value.length);
+	}),
+	to_str: FN_NATIVE(([a]) => {
+		if (a.type === 'str') return a;
+		if (a.type === 'num') return STR(a.value.toString());
+		return STR('?');
+	}),
+	to_num: FN_NATIVE(([a]) => {
+		if (a.type === 'num') return a;
+		if (a.type === 'str') {
+			const parsed = parseInt(a.value, 10);
+			if (isNaN(parsed)) return NULL;
+			return NUM(parsed);
+		}
+		return NULL;
 	}),
 };
