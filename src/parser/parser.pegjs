@@ -128,9 +128,9 @@ Arr
 Obj
 	= "{" _ kvs:(k:NAME _ ":" _ v:Expr _ ";" _ { return { k, v }; })* "}"
 {
-	const obj = {};
+	const obj = new Map();
 	for (const kv of kvs) {
-		obj[kv.k] = kv.v;
+		obj.set(kv.k, kv.v);
 	}
 	return createNode('obj', { value: obj });
 }

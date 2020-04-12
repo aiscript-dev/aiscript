@@ -46,7 +46,7 @@ export class AiScript {
 	public async exec(script?: Node[]) {
 		if (script == null || script.length === 0) return;
 
-		const scope = new Scope([this.vars]);
+		const scope = new Scope([new Map(Object.entries(this.vars))]);
 		scope.opts.log = (type, params) => {
 			switch (type) {
 				case 'add': this.log('var:add', params); break;
@@ -80,9 +80,9 @@ export class AiScript {
 					const result = await Promise.resolve(val.native!(await Promise.all(node.args.map(async expr => await this._eval(expr, scope)))));
 					return result || NULL;
 				} else {
-					const args = {} as Record<string, any>;
+					const args = new Map() as Map<string, any>;
 					for (let i = 0; i < (val.args || []).length; i++) {
-						args[val.args![i]] = await this._eval(node.args[i], scope);
+						args.set(val.args![i], await this._eval(node.args[i], scope));
 					}
 					const fnScope = val.scope!.createChildScope(args, `#${node.name}`);
 					return unWrapRet(await this._run(val.statements!, fnScope));
@@ -119,9 +119,9 @@ export class AiScript {
 				assertNumber(from);
 				assertNumber(to);
 				for (let i = from.value + 1; i < to.value + 1; i++) {
-					await this._run(node.s, scope.createChildScope({
-						[node.var]: { type: 'num', value: i }
-					}));
+					await this._run(node.s, scope.createChildScope(new Map([
+						[node.var, { type: 'num', value: i }]
+					])));
 				}
 				return NULL;
 			}
@@ -146,9 +146,9 @@ export class AiScript {
 			case 'arr': return ARR(await Promise.all(node.value.map(async item => await this._eval(item, scope))));
 
 			case 'obj': {
-				const obj = {} as Record<string, Value>;
-				for (const k of Object.keys(node.value)) {
-					obj[k] = await this._eval(node.value[k], scope);
+				const obj = new Map() as Map<string, Value>;
+				for (const k of node.value.keys()) {
+					obj.set(k, await this._eval(node.value.get(k)!, scope));
 				}
 				return OBJ(obj);
 			}
@@ -158,11 +158,11 @@ export class AiScript {
 				let x = obj;
 				for (const prop of node.path) {
 					assertObject(x);
-					if (!Object.keys(x.value).includes(prop)) {
+					if (!x.value.has(prop)) {
 						x = NULL;
 						break;
 					} else {
-						x = x.value[prop];
+						x = x.value.get(prop)!;
 					}
 				}
 				return x;

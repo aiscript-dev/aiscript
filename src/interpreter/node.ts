@@ -47,7 +47,7 @@ export type Node = {
 	children: Node[]; // 関数の本体処理
 } | {
 	type: 'obj'; // オブジェクトリテラル
-	value: Record<string, Node>; // オブジェクト
+	value: Map<string, Node>; // オブジェクト
 } | {
 	type: 'prop'; // プロパティアクセス
 	obj: string; // オブジェクト変数名

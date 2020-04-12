@@ -27,7 +27,7 @@ export type VArr = {
 
 export type VObj = {
 	type: 'obj';
-	value: Record<string, Value>;
+	value: Map<string, Value>;
 };
 
 export type VFn = {

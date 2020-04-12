@@ -4,7 +4,7 @@ import { Value } from './value';
 
 export class Scope {
 	private parent?: Scope;
-	private layerdStates: Record<string, Value>[];
+	private layerdStates: Map<string, Value>[];
 	public name: string;
 	public opts: {
 		log?(type: string, params: Record<string, any>): void;
@@ -26,7 +26,7 @@ export class Scope {
 	}
 
 	@autobind
-	public createChildScope(states: Record<string, Value> = {}, name?: Scope['name']): Scope {
+	public createChildScope(states: Map<string, Value> = new Map(), name?: Scope['name']): Scope {
 		const layer = [states, ...this.layerdStates];
 		return new Scope(layer, this, name);
 	}
@@ -38,8 +38,8 @@ export class Scope {
 	@autobind
 	public get(name: string): Value {
 		for (const layer of this.layerdStates) {
-			if (Object.keys(layer).includes(name)) {
-				const state = layer[name];
+			if (layer.has(name)) {
+				const state = layer.get(name)!;
 				this.log('read', { var: name, val: state });
 				return state;
 			}
@@ -58,6 +58,12 @@ export class Scope {
 	@autobind
 	public add(name: string, val: Value) {
 		this.log('add', { var: name, val: val });
-		this.layerdStates[0][name] = val;
+		if (this.layerdStates[0].has(name)) {
+			throw new AiScriptError(
+				`Variable '${name}' is alerady exists in scope '${this.name}'`, {
+					scope: this.layerdStates
+				});
+		}
+		this.layerdStates[0].set(name, val);
 	}
 }
