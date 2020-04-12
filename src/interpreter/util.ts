@@ -1,4 +1,4 @@
-import { Value, VStr, VNum, VBool, VFn, VObj, VArr } from './value';
+import { Value, VStr, VNum, VBool, VFn, VObj, VArr, STR, NUM, ARR, OBJ, NULL, BOOL } from './value';
 import { Node } from './node';
 import { AiScriptError } from './error';
 
@@ -68,4 +68,39 @@ export function nodeToString(node: Node) {
 		node.type === 'call' ? node.name :
 		null;
 	return label ? `${node.type.toUpperCase()} (${label})` : node.type.toUpperCase();
+}
+
+export function valToJs(val: Value): any {
+	switch (val.type) {
+		case 'arr': return val.value.map(item => valToJs(item));
+		case 'bool': return val.value;
+		case 'null': return null;
+		case 'num': return val.value;
+		case 'obj': {
+			const obj = {};
+			for (const [k, v] of val.value.entries()) {
+				// TODO: keyが__proto__とかじゃないかチェック
+				obj[k] = valToJs(v);
+			}
+			return obj;
+		}
+		case 'str': return val.value;
+		default: return undefined;
+	}
+}
+
+export function jsToVal(val: any): Value {
+	if (typeof val === null) return NULL;
+	if (typeof val === 'boolean') return BOOL(val);
+	if (typeof val === 'string') return STR(val);
+	if (typeof val === 'number') return NUM(val);
+	if (Array.isArray(val)) return ARR(val.map(item => jsToVal(item)));
+	if (typeof val === 'object') {
+		const obj = new Map();
+		for (const [k, v] of Object.entries(val)) {
+			obj.set(k, jsToVal(v));
+		}
+		return OBJ(obj);
+	}
+	return NULL;
 }

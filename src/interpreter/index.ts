@@ -4,8 +4,7 @@
 
 import { Scope } from './scope';
 import { AiScriptError } from './error';
-import { core as libCore } from './lib/core';
-import { std as libStd } from './lib/std';
+import { std } from './lib/std';
 import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray } from './util';
 import { Value, NULL, RETURN, unWrapRet, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN } from './value';
 import { Node } from './node';
@@ -24,7 +23,7 @@ export class AiScript {
 	constructor(vars: AiScript['vars'], opts?: AiScript['opts']) {
 		this.opts = opts || {};
 
-		this.vars = { ...vars, ...libCore, ...libStd, ...{
+		this.vars = { ...vars, ...std, ...{
 			print: FN_NATIVE(args => {
 				if (this.opts.out) this.opts.out(args[0]);
 			}),
