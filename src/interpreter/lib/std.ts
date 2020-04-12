@@ -83,6 +83,27 @@ export const std: Record<string, Value> = {
 		if (b) assertString(b);
 		return ARR(a.value.split(b ? b.value : '').map(s => STR(s)));
 	}),
+	'Arr:push': FN_NATIVE(([a, b]) => {
+		assertArray(a);
+		return ARR([...a.value, b]);
+	}),
+	'Arr:unshift': FN_NATIVE(([a, b]) => {
+		assertArray(a);
+		return ARR([b, ...a.value]);
+	}),
+	'Arr:pop': FN_NATIVE(([a]) => {
+		assertArray(a);
+		return ARR(a.value.slice(0, a.value.length - 1));
+	}),
+	'Arr:shift': FN_NATIVE(([a]) => {
+		assertArray(a);
+		return ARR(a.value.slice(1, a.value.length));
+	}),
+	'Arr:concat': FN_NATIVE(([a, b]) => {
+		assertArray(a);
+		assertArray(b);
+		return ARR(a.value.concat(b.value));
+	}),
 	'Arr:join': FN_NATIVE(([a, b]) => {
 		assertArray(a);
 		if (b) assertString(b);
