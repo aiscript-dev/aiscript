@@ -19,6 +19,7 @@ export class AiScript {
 		maxStep?: number;
 	};
 	private stepCount = 0;
+	private scope: Scope;
 
 	constructor(vars: AiScript['vars'], opts?: AiScript['opts']) {
 		this.opts = opts || {};
@@ -41,13 +42,9 @@ export class AiScript {
 				});
 			})
 		} };
-	}
 
-	public async exec(script?: Node[]) {
-		if (script == null || script.length === 0) return;
-
-		const scope = new Scope([new Map(Object.entries(this.vars))]);
-		scope.opts.log = (type, params) => {
+		this.scope = new Scope([new Map(Object.entries(this.vars))]);
+		this.scope.opts.log = (type, params) => {
 			switch (type) {
 				case 'add': this.log('var:add', params); break;
 				case 'read': this.log('var:read', params); break;
@@ -55,8 +52,12 @@ export class AiScript {
 				default: break;
 			}
 		};
-	
-		const result = await this._run(script, scope);
+	}
+
+	public async exec(script?: Node[]) {
+		if (script == null || script.length === 0) return;
+
+		const result = await this._run(script, this.scope);
 
 		this.log('end', { val: result });
 	}

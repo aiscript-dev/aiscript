@@ -34,6 +34,14 @@ it('(1 + 1)', async () => {
 	eq(res, NUM(2));
 });
 
+it('var', async () => {
+	const res = await exe(`
+#a = 42
+<: a
+	`);
+	eq(res, NUM(42));
+});
+
 it('Fn call with no args', async () => {
 	const res = await exe(`
 @f() {
