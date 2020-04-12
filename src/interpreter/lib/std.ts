@@ -1,7 +1,32 @@
+import { v4 as uuid } from 'uuid';
 import { Value, NUM, STR, FN_NATIVE } from '../value';
 import { assertNumber } from '../util';
 
 export const std: Record<string, Value> = {
+	'Util:uuid': FN_NATIVE(() => {
+		return STR(uuid());
+	}),
+	'Date:now': FN_NATIVE(() => {
+		return NUM(Date.now());
+	}),
+	'Date:year': FN_NATIVE(() => {
+		return NUM(new Date().getFullYear());
+	}),
+	'Date:month': FN_NATIVE(() => {
+		return NUM(new Date().getMonth() + 1);
+	}),
+	'Date:day': FN_NATIVE(() => {
+		return NUM(new Date().getDate());
+	}),
+	'Date:hour': FN_NATIVE(() => {
+		return NUM(new Date().getHours());
+	}),
+	'Date:minute': FN_NATIVE(() => {
+		return NUM(new Date().getMinutes());
+	}),
+	'Date:second': FN_NATIVE(() => {
+		return NUM(new Date().getSeconds());
+	}),
 	'Math:PI': NUM(Math.PI),
 	'Math:sin': FN_NATIVE(([a]) => {
 		assertNumber(a);
