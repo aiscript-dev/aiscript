@@ -1,8 +1,11 @@
+const pkg = require('../../../package.json');
 import { Value, FALSE, TRUE, NUM, FN_NATIVE, STR, NULL, VStr, VArr, ARR } from '../value';
 import { assertNumber, assertBoolean, assertString, assertArray } from '../util';
 import { AiScriptError } from '../error';
 
 export const core: Record<string, Value> = {
+	'help': STR('SEE: https://github.com/syuilo/aiscript/blob/master/docs/get-started.md'),
+	'Core:v': STR(pkg.version),
 	'Core:ai': STR('kawaii'),
 	'Core:not': FN_NATIVE(([a]) => {
 		assertBoolean(a);
