@@ -37,9 +37,9 @@ export class Scope {
 	 */
 	@autobind
 	public get(name: string): Value {
-		for (const later of this.layerdStates) {
-			const state = later[name];
-			if (state !== undefined) {
+		for (const layer of this.layerdStates) {
+			if (Object.keys(layer).includes(name)) {
+				const state = layer[name];
 				this.log('read', { var: name, val: state });
 				return state;
 			}

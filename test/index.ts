@@ -7,7 +7,7 @@ import { AiScript } from '../src/interpreter';
 import { NUM, STR, NULL } from '../src/interpreter/value';
 const parse = require('../built/parser/parser.js').parse;
 
-const exe = (program: string): Promise<any> => new Promise(ok => {
+const exe = (program: string): Promise<any> => new Promise((ok, err) => {
 	const aiscript = new AiScript({}, {
 		out(value) {
 			ok(value);
@@ -16,7 +16,7 @@ const exe = (program: string): Promise<any> => new Promise(ok => {
 
 	const ast = parse(program);
 
-	aiscript.exec(ast);
+	aiscript.exec(ast).catch(err);
 });
 
 const eq = (a, b) => {
@@ -159,7 +159,19 @@ it('Array item access', async () => {
 	eq(res, STR('chan'));
 });
 
-it('Cannot access js native property', async () => {
+it('Cannot access js native property via var', async () => {
+	try {
+		await exe(`
+<: constructor
+		`);
+	} catch(e) {
+		assert.ok(true);
+		return;
+	}
+	assert.fail();
+});
+
+it('Cannot access js native property via object', async () => {
 	const res = await exe(`
 #obj = {}
 
