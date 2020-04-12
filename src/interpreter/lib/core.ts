@@ -1,11 +1,8 @@
-import { Value, FALSE, TRUE, NUM, FN_NATIVE } from '../value';
+import { Value, FALSE, TRUE, NUM, FN_NATIVE, STR } from '../value';
 import { assertNumber, assertBoolean } from '../util';
 
 export const core: Record<string, Value> = {
-	ai: {
-		type: 'str',
-		value: 'kawaii'
-	},
+	ai: STR('kawaii'),
 	not: FN_NATIVE(([a]) => {
 		assertBoolean(a);
 		return a.value ? FALSE : TRUE;
@@ -60,5 +57,12 @@ export const core: Record<string, Value> = {
 		assertNumber(a);
 		assertNumber(b);
 		return a.value < b.value ? TRUE : FALSE;
+	}),
+	type: FN_NATIVE(([a]) => {
+		return STR(a.type);
+	}),
+	len: FN_NATIVE(([a]) => {
+		if (a.type !== 'arr' && a.type !== 'str') return NUM(0);
+		return NUM(a.value.length);
 	}),
 };

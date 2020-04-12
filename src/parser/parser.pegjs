@@ -87,17 +87,17 @@ Debug
 
 // variable reference
 VarRef
-	= name:NAME
+	= name:NAME_WITH_NAMESPACE
 { return createNode('var', { name }); }
 
 // property reference
 PropRef
-	= head:NAME tails:("." name:NAME { return name; })+
+	= head:NAME_WITH_NAMESPACE tails:("." name:NAME { return name; })+
 { return createNode('prop', { obj: head, path: tails }); }
 
 // index reference
 IndexRef
-	= v:NAME "[" _ i:Expr _ "]"
+	= v:NAME_WITH_NAMESPACE "[" _ i:Expr _ "]"
 { return createNode('index', { arr: v, i: i }); }
 
 // number literal
@@ -148,7 +148,7 @@ Block
 // function ------------------------------------------------------------------------------
 
 Args
-	= head:NAME tails:(_ "," _ name:NAME { return name; })*
+	= head:NAME_WITH_NAMESPACE tails:(_ "," _ name:NAME_WITH_NAMESPACE { return name; })*
 { return [head, ...tails]; }
 
 // statement of function definition
@@ -167,8 +167,8 @@ Fn = "@(" _ args:Args? _ ")" _ "{" _ content:Statements? _ "}"
 
 // function call
 Call
-	= name:NAME "(" _ args:CallArgs? _ ")"
-{ return createNode('call', { name, args }); }
+	= name:NAME_WITH_NAMESPACE "(" _ args:CallArgs? _ ")"
+{ return createNode('call', { name, args: args || [] }); }
 
 CallArgs
 	= head:Expr tails:(_ "," _ expr:Expr { return expr; })*
@@ -227,7 +227,9 @@ For
 
 // general -------------------------------------------------------------------------------
 
-NAME = [A-Za-z] [A-Za-z0-9]* { return text(); }
+NAME = [A-Za-z_] [A-Za-z0-9_]* { return text(); }
+
+NAME_WITH_NAMESPACE = NAME (":" NAME)? { return text(); }
 
 EOL
 	= !. / "\r\n" / [\r\n]
