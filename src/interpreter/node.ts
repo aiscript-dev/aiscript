@@ -2,6 +2,11 @@ export type Node = {
 	type: 'def'; // 変数宣言
 	name: string; // 変数名
 	expr: Node; // 式
+	mut: boolean; // ミュータブルか否か
+} | {
+	type: 'assign'; // 再代入
+	name: string; // 変数名
+	expr: Node; // 式
 } | {
 	type: 'call'; // 関数呼び出し
 	name: string; // 関数名

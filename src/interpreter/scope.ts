@@ -54,6 +54,7 @@ export class Scope {
 	/**
 	 * 指定した名前の変数を現在のスコープに追加します
 	 * @param name 変数名
+	 * @param val 初期値
 	 */
 	@autobind
 	public add(name: string, val: Value) {
@@ -65,5 +66,26 @@ export class Scope {
 				});
 		}
 		this.layerdStates[0].set(name, val);
+	}
+
+	/**
+	 * 指定した名前の変数に値を再代入します
+	 * @param name 変数名
+	 * @param val 値
+	 */
+	@autobind
+	public assign(name: string, val: Value) {
+		for (const layer of this.layerdStates) {
+			if (layer.has(name)) {
+				layer.set(name, val);
+				this.log('assign', { var: name, val: val });
+				return;
+			}
+		}
+
+		throw new AiScriptError(
+			`No such variable '${name}' in scope '${this.name}'`, {
+				scope: this.layerdStates
+			});
 	}
 }

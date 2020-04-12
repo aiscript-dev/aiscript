@@ -136,6 +136,11 @@ export class AiScript {
 				return scope.get(node.name);
 			}
 
+			case 'assign': {
+				scope.assign(node.name, await this._eval(node.expr, scope));
+				return NULL;
+			}
+
 			case 'null': return NULL;
 
 			case 'bool': return BOOL(node.value);
