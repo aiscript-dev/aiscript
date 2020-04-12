@@ -66,6 +66,29 @@ it('Closure', async () => {
 	eq(res, STR('ai'));
 });
 
+it('Closure (counter)', async () => {
+	const res = await exe(`
+@create_counter() {
+	$count <- 0
+	{
+		get_count: @() { count };
+		count: @() { count <- (count + 1) };
+	}
+}
+
+#counter = create_counter()
+#get_count = counter.get_count
+#count = counter.count
+
+count()
+count()
+count()
+
+<: get_count()
+	`);
+	eq(res, NUM(3));
+});
+
 it('Early return', async () => {
 	const res = await exe(`
 @f() {
