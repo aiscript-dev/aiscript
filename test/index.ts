@@ -222,3 +222,38 @@ it('Throws error when divied by zero', async () => {
 	}
 	assert.fail();
 });
+
+it('SKI', async () => {
+	const res = await exe(`
+#s = @(x) { @(y) { @(z) {
+	//#f = x(z) f(@(a){ #g = y(z) g(a) })
+	#f = x(z)
+	f(y(z))
+}}}
+#k = @(x){ @(y) { x } }
+#i = @(x){ x }
+
+// combine
+@c(l) {
+	#L = (len(l) + 1)
+
+	// extract
+	@x(v) {
+		? (type(v) = "arr") { c(v) } ... { v }
+	}
+
+	// rec
+	@r(f, n) {
+		? (n < L) {
+			r(f(x(l[n])), (n + 1))
+		} ... { f }
+	}
+	
+	r(x(l[1]), 2)
+}
+
+#sksik = [s, [k, [s, i]], k]
+c([sksik, "foo", print])
+	`);
+	eq(res, STR('foo'));
+});
