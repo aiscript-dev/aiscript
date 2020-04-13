@@ -2,6 +2,7 @@
  * AiScript interpreter
  */
 
+import autobind from 'autobind-decorator';
 import { Scope } from './scope';
 import { AiScriptError } from './error';
 import { std } from './lib/std';
@@ -53,6 +54,7 @@ export class AiScript {
 		};
 	}
 
+	@autobind
 	public async exec(script?: Node[]) {
 		if (script == null || script.length === 0) return;
 
@@ -61,9 +63,20 @@ export class AiScript {
 		this.log('end', { val: result });
 	}
 
+	@autobind
 	public async execFn(fn: VFn, args: Value[]) {
+		return this._fn(fn, args);
+	}
+
+	@autobind
+	private log(type: string, params: Record<string, any>) {
+		if (this.opts.log) this.opts.log(type, params);
+	}
+
+	@autobind
+	private async _fn(fn: VFn, args: Value[]): Promise<Value> {
 		if (fn.native) {
-			const result = await Promise.resolve(fn.native!(args));
+			const result = await Promise.resolve(fn.native!(args, this._fn));
 			return result || NULL;
 		} else {
 			const _args = new Map() as Map<string, any>;
@@ -75,10 +88,7 @@ export class AiScript {
 		}
 	}
 
-	private log(type: string, params: Record<string, any>) {
-		if (this.opts.log) this.opts.log(type, params);
-	}
-
+	@autobind
 	private async _eval(node: Node, scope: Scope): Promise<Value> {
 		this.log('node', { node: node });
 		this.stepCount++;
@@ -90,17 +100,8 @@ export class AiScript {
 			case 'call': {
 				const val = scope.get(node.name);
 				assertFunction(val);
-				if (val.native) {
-					const result = await Promise.resolve(val.native!(await Promise.all(node.args.map(async expr => await this._eval(expr, scope)))));
-					return result || NULL;
-				} else {
-					const args = new Map() as Map<string, any>;
-					for (let i = 0; i < (val.args || []).length; i++) {
-						args.set(val.args![i], await this._eval(node.args[i], scope));
-					}
-					const fnScope = val.scope!.createChildScope(args, `#${node.name}`);
-					return unWrapRet(await this._run(val.statements!, fnScope));
-				}
+				const args = await Promise.all(node.args.map(async expr => await this._eval(expr, scope)));
+				return this._fn(val, args);
 			}
 
 			case 'if': {
@@ -209,6 +210,7 @@ export class AiScript {
 		}
 	}
 
+	@autobind
 	private async _run(program: Node[], scope: Scope): Promise<Value> {
 		this.log('block:enter', { scope: scope.name });
 

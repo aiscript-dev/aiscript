@@ -4,7 +4,7 @@
 
 import * as assert from 'assert';
 import { AiScript } from '../src/interpreter';
-import { NUM, STR, NULL } from '../src/interpreter/value';
+import { NUM, STR, NULL, ARR } from '../src/interpreter/value';
 const parse = require('../built/parser/parser.js').parse;
 
 const exe = (program: string): Promise<any> => new Promise((ok, err) => {
@@ -20,8 +20,8 @@ const exe = (program: string): Promise<any> => new Promise((ok, err) => {
 });
 
 const eq = (a, b) => {
-	assert.equal(a.type, b.type);
-	assert.equal(a.value, b.value);
+	assert.deepEqual(a.type, b.type);
+	assert.deepEqual(a.value, b.value);
 };
 
 it('Hello, world!', async () => {
@@ -256,6 +256,33 @@ it('SKI', async () => {
 	c([sksik, "foo", print])
 	`);
 	eq(res, STR('foo'));
+});
+
+it('Arr:map', async () => {
+	const res = await exe(`
+	#arr = ["ai", "chan", "kawaii"]
+
+	<: Arr:map(arr, @(item) { Arr:join([item, "!"]) })
+	`);
+	eq(res, ARR([STR('ai!'), STR('chan!'), STR('kawaii!')]));
+});
+
+it('Arr:filter', async () => {
+	const res = await exe(`
+	#arr = ["ai", "chan", "kawaii"]
+
+	<: Arr:filter(arr, @(item) { Str:incl(item, "ai") })
+	`);
+	eq(res, ARR([STR('ai'), STR('kawaii')]));
+});
+
+it('Arr:reduce', async () => {
+	const res = await exe(`
+	#arr = [1, 2, 3, 4]
+
+	<: Arr:reduce(arr, @(accumulator, currentValue) { (accumulator + currentValue) })
+	`);
+	eq(res, NUM(10));
 });
 
 describe('if', () => {

@@ -1,7 +1,7 @@
 const pkg = require('../../../package.json');
 import { v4 as uuid } from 'uuid';
 import { Value, NUM, STR, FN_NATIVE, FALSE, TRUE, VArr, ARR, NULL } from '../value';
-import { assertNumber, assertString, assertArray, assertBoolean, valToJs, jsToVal } from '../util';
+import { assertNumber, assertString, assertArray, assertBoolean, valToJs, jsToVal, assertFunction } from '../util';
 import { AiScriptError } from '../error';
 
 export const std: Record<string, Value> = {
@@ -162,7 +162,7 @@ export const std: Record<string, Value> = {
 		}
 		return NUM(Math.random());
 	}),
-	'Str:includes': FN_NATIVE(([a, b]) => {
+	'Str:incl': FN_NATIVE(([a, b]) => {
 		assertString(a);
 		assertString(b);
 		return a.value.includes(b.value) ? TRUE : FALSE;
@@ -198,7 +198,7 @@ export const std: Record<string, Value> = {
 		if (b) assertString(b);
 		return STR(a.value.map(i => i.type === 'str' ? i.value : '').join(b ? b.value : ''));
 	}),
-	'Arr:includes': FN_NATIVE(([a, b]) => {
+	'Arr:incl': FN_NATIVE(([a, b]) => {
 		assertArray(a);
 		if (b.type !== 'str' && b.type !== 'num' && b.type !== 'bool' && b.type !== 'null') return FALSE;
 		const getValue = (v: VArr) => {
@@ -211,5 +211,38 @@ export const std: Record<string, Value> = {
 			});
 		};
 		return getValue(a).includes(b.type === 'null' ? null : b.value) ? TRUE : FALSE;
+	}),
+	'Arr:map': FN_NATIVE(async ([a, b], call) => {
+		assertArray(a);
+		assertFunction(b);
+		const vals = a.value.map(async (item, i) => {
+			return await call(b, [item, NUM(i)]);
+		});
+		return ARR(await Promise.all(vals));
+	}),
+	'Arr:filter': FN_NATIVE(async ([a, b], call) => {
+		assertArray(a);
+		assertFunction(b);
+		const vals = [] as Value[];
+		for (let i = 0; i < a.value.length; i++) {
+			const item = a.value[i];
+			const res = await call(b, [item, NUM(i)]);
+			assertBoolean(res);
+			if (res.value) {
+				vals.push(item);
+			}
+		}
+		return ARR(vals);
+	}),
+	'Arr:reduce': FN_NATIVE(async ([a, b, c], call) => {
+		assertArray(a);
+		assertFunction(b);
+		const withInitialValue = c != null;
+		let accumulator = withInitialValue ? c : a.value[0];
+		for (let i = withInitialValue ? 0 : 1; i < a.value.length; i++) {
+			const item = a.value[i];
+			accumulator = await call(b, [accumulator, item, NUM(i), a]);
+		}
+		return accumulator;
 	}),
 };
