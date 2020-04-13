@@ -28,8 +28,10 @@
     "typescript": "3.8.3"
   },
   "dependencies": {
+    "@types/seedrandom": "2.4.28",
     "autobind-decorator": "2.4.0",
     "chalk": "4.0.0",
+    "seedrandom": "3.0.5",
     "uuid": "7.0.3"
   }
 }

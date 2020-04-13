@@ -235,7 +235,7 @@ it('SKI', async () => {
 
 	// combine
 	@c(l) {
-		#L = (Core:len(l) + 1)
+		#L = (Arr:len(l) + 1)
 
 		// extract
 		@x(v) {

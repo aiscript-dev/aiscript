@@ -1,8 +1,9 @@
-const pkg = require('../../../package.json');
 import { v4 as uuid } from 'uuid';
+import * as seedrandom from 'seedrandom';
 import { Value, NUM, STR, FN_NATIVE, FALSE, TRUE, VArr, ARR, NULL } from '../value';
 import { assertNumber, assertString, assertArray, assertBoolean, valToJs, jsToVal, assertFunction } from '../util';
 import { AiScriptError } from '../error';
+const pkg = require('../../../package.json');
 
 export const std: Record<string, Value> = {
 	'help': STR('SEE: https://github.com/syuilo/aiscript/blob/master/docs/get-started.md'),
@@ -83,25 +84,10 @@ export const std: Record<string, Value> = {
 		return STR(a.type);
 	}),
 
-	'Core:len': FN_NATIVE(([a]) => {
-		if (a.type !== 'arr' && a.type !== 'str') return NUM(0);
-		return NUM(a.value.length);
-	}),
-
 	'Core:to_str': FN_NATIVE(([a]) => {
 		if (a.type === 'str') return a;
 		if (a.type === 'num') return STR(a.value.toString());
 		return STR('?');
-	}),
-
-	'Core:to_num': FN_NATIVE(([a]) => {
-		if (a.type === 'num') return a;
-		if (a.type === 'str') {
-			const parsed = parseInt(a.value, 10);
-			if (isNaN(parsed)) return NULL;
-			return NUM(parsed);
-		}
-		return NULL;
 	}),
 
 	'Util:uuid': FN_NATIVE(() => {
@@ -200,6 +186,43 @@ export const std: Record<string, Value> = {
 		return NUM(Math.random());
 	}),
 
+	'Math:gen_rng': FN_NATIVE(([a]) => {
+		if (a.type !== 'num' && a.type !== 'str') return NULL;
+
+		const rng = seedrandom(a.value.toString());
+
+		return FN_NATIVE(([a, b]) => {
+			if (a && a.type === 'num' && b && b.type === 'num') {
+				const min = a.value;
+				const max = b.value;
+				return NUM(Math.floor(rng() * (max - min + 1) + min));
+			}
+			return NUM(rng());
+		});
+	}),
+
+	'Str:to_num': FN_NATIVE(([a]) => {
+		if (a.type === 'num') return a;
+		if (a.type === 'str') {
+			const parsed = parseInt(a.value, 10);
+			if (isNaN(parsed)) return NULL;
+			return NUM(parsed);
+		}
+		return NULL;
+	}),
+
+	'Str:len': FN_NATIVE(([a]) => {
+		if (a.type !== 'str') return NUM(0);
+		return NUM(a.value.length);
+	}),
+
+	'Str:pick': FN_NATIVE(([a, b]) => {
+		assertString(a);
+		assertNumber(b);
+		const char = a.value[b.value - 1];
+		return char ? STR(a.value[b.value - 1]) : NULL;
+	}),
+
 	'Str:incl': FN_NATIVE(([a, b]) => {
 		assertString(a);
 		assertString(b);
@@ -217,6 +240,11 @@ export const std: Record<string, Value> = {
 		assertString(b);
 		assertString(c);
 		return STR(a.value.split(b.value).join(c.value));
+	}),
+
+	'Arr:len': FN_NATIVE(([a]) => {
+		if (a.type !== 'arr') return NUM(0);
+		return NUM(a.value.length);
 	}),
 
 	'Arr:push': FN_NATIVE(([a, b]) => {
