@@ -19,29 +19,27 @@ export class AiScript {
 		maxStep?: number;
 	};
 	private stepCount = 0;
+	private stop = false;
 	public scope: Scope;
+	private abortHandlers: Function[] = [];
 
 	constructor(vars: AiScript['vars'], opts?: AiScript['opts']) {
 		this.opts = opts || {};
 
-		this.vars = { ...vars, ...std, ...{
+		const io = {
 			print: FN_NATIVE(args => {
 				if (this.opts.out) this.opts.out(args[0]);
 			}),
-			readline: FN_NATIVE(args => {
+			readline: FN_NATIVE(async args => {
 				const q = args[0];
 				assertString(q);
 				if (this.opts.in == null) return NULL;
-				return new Promise(ok => {
-					this.opts.in!(q.value).then(a => {
-						ok({
-							type: 'str',
-							value: a
-						});
-					});
-				});
+				const a = await this.opts.in!(q.value);
+				return STR(a);
 			})
-		} };
+		};
+
+		this.vars = { ...vars, ...std, ...io };
 
 		this.scope = new Scope([new Map(Object.entries(this.vars))]);
 		this.scope.opts.log = (type, params) => {
@@ -76,7 +74,11 @@ export class AiScript {
 	@autobind
 	private async _fn(fn: VFn, args: Value[]): Promise<Value> {
 		if (fn.native) {
-			const result = await Promise.resolve(fn.native!(args, this._fn));
+			const result = await Promise.resolve(fn.native!(args, {
+				call: this._fn,
+				registerAbortHandler: this.registerAbortHandler,
+				unregisterAbortHandler: this.unregisterAbortHandler,
+			}));
 			return result || NULL;
 		} else {
 			const _args = new Map() as Map<string, any>;
@@ -90,6 +92,7 @@ export class AiScript {
 
 	@autobind
 	private async _eval(node: Node, scope: Scope): Promise<Value> {
+		if (this.stop) return NULL;
 		this.log('node', { node: node });
 		this.stepCount++;
 		if (this.opts.maxStep && this.stepCount > this.opts.maxStep) {
@@ -239,5 +242,24 @@ export class AiScript {
 
 		this.log('block:leave', { scope: scope.name, val: v });
 		return v;
+	}
+	
+	@autobind
+	public registerAbortHandler(handler: Function) {
+		this.abortHandlers.push(handler);
+	}
+
+	@autobind
+	public unregisterAbortHandler(handler: Function) {
+		this.abortHandlers = this.abortHandlers.filter(h => h != handler);
+	}
+
+	@autobind
+	public abort() {
+		this.stop = true;
+		for (const handler of this.abortHandlers) {
+			handler();
+		}
+		this.abortHandlers = [];
 	}
 }

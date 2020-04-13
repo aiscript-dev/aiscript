@@ -294,49 +294,94 @@ export const std: Record<string, Value> = {
 		return getValue(a).includes(b.type === 'null' ? null : b.value) ? TRUE : FALSE;
 	}),
 
-	'Arr:map': FN_NATIVE(async ([a, b], call) => {
+	'Arr:map': FN_NATIVE(async ([a, b], opts) => {
 		assertArray(a);
 		assertFunction(b);
 		const vals = a.value.map(async (item, i) => {
-			return await call(b, [item, NUM(i + 1)]);
+			return await opts.call(b, [item, NUM(i + 1)]);
 		});
 		return ARR(await Promise.all(vals));
 	}),
 
-	'Arr:filter': FN_NATIVE(async ([a, b], call) => {
+	'Arr:filter': FN_NATIVE(async ([a, b], opts) => {
 		assertArray(a);
 		assertFunction(b);
 		const vals = [] as Value[];
 		for (let i = 0; i < a.value.length; i++) {
 			const item = a.value[i];
-			const res = await call(b, [item, NUM(i + 1)]);
+			const res = await opts.call(b, [item, NUM(i + 1)]);
 			assertBoolean(res);
 			if (res.value) vals.push(item);
 		}
 		return ARR(vals);
 	}),
 
-	'Arr:reduce': FN_NATIVE(async ([a, b, c], call) => {
+	'Arr:reduce': FN_NATIVE(async ([a, b, c], opts) => {
 		assertArray(a);
 		assertFunction(b);
 		const withInitialValue = c != null;
 		let accumulator = withInitialValue ? c : a.value[0];
 		for (let i = withInitialValue ? 0 : 1; i < a.value.length; i++) {
 			const item = a.value[i];
-			accumulator = await call(b, [accumulator, item, NUM(i + 1)]);
+			accumulator = await opts.call(b, [accumulator, item, NUM(i + 1)]);
 		}
 		return accumulator;
 	}),
 
-	'Arr:find': FN_NATIVE(async ([a, b], call) => {
+	'Arr:find': FN_NATIVE(async ([a, b], opts) => {
 		assertArray(a);
 		assertFunction(b);
 		for (let i = 0; i < a.value.length; i++) {
 			const item = a.value[i];
-			const res = await call(b, [item, NUM(i + 1)]);
+			const res = await opts.call(b, [item, NUM(i + 1)]);
 			assertBoolean(res);
 			if (res.value) return item;
 		}
 		return NULL;
+	}),
+
+	'Async:interval': FN_NATIVE(async ([interval, callback, immediate], opts) => {
+		assertNumber(interval);
+		assertFunction(callback);
+		if (immediate) assertBoolean(immediate);
+
+		if (immediate) opts.call(callback, []);
+
+		const id = setInterval(() => {
+			opts.call(callback, []);
+		}, interval.value);
+
+		const abortHandler = () => {
+			clearInterval(id);
+		};
+
+		opts.registerAbortHandler(abortHandler);
+
+		// stopper
+		return FN_NATIVE(([], opts) => {
+			clearInterval(id);
+			opts.unregisterAbortHandler(abortHandler);
+		});
+	}),
+
+	'Async:timeout': FN_NATIVE(async ([delay, callback], opts) => {
+		assertNumber(delay);
+		assertFunction(callback);
+
+		const id = setTimeout(() => {
+			opts.call(callback, []);
+		}, delay.value);
+
+		const abortHandler = () => {
+			clearTimeout(id);
+		};
+
+		opts.registerAbortHandler(abortHandler);
+
+		// stopper
+		return FN_NATIVE(([], opts) => {
+			clearTimeout(id);
+			opts.unregisterAbortHandler(abortHandler);
+		});
 	}),
 };
