@@ -36,156 +36,156 @@ it('(1 + 1)', async () => {
 
 it('var', async () => {
 	const res = await exe(`
-#a = 42
-<: a
+	#a = 42
+	<: a
 	`);
 	eq(res, NUM(42));
 });
 
 it('Fn call with no args', async () => {
 	const res = await exe(`
-@f() {
-	42
-}
-<: f()
+	@f() {
+		42
+	}
+	<: f()
 	`);
 	eq(res, NUM(42));
 });
 
 it('Closure', async () => {
 	const res = await exe(`
-@store(v) {
-	#state = v
-	@() {
-		state
+	@store(v) {
+		#state = v
+		@() {
+			state
+		}
 	}
-}
-#s = store("ai")
-<: s()
+	#s = store("ai")
+	<: s()
 	`);
 	eq(res, STR('ai'));
 });
 
 it('Closure (counter)', async () => {
 	const res = await exe(`
-@create_counter() {
-	$count <- 0
-	{
-		get_count: @() { count };
-		count: @() { count <- (count + 1) };
+	@create_counter() {
+		$count <- 0
+		{
+			get_count: @() { count };
+			count: @() { count <- (count + 1) };
+		}
 	}
-}
 
-#counter = create_counter()
-#get_count = counter.get_count
-#count = counter.count
+	#counter = create_counter()
+	#get_count = counter.get_count
+	#count = counter.count
 
-count()
-count()
-count()
+	count()
+	count()
+	count()
 
-<: get_count()
+	<: get_count()
 	`);
 	eq(res, NUM(3));
 });
 
 it('Early return', async () => {
 	const res = await exe(`
-@f() {
-	? yes {
-		<< "ai"
-	}
+	@f() {
+		? yes {
+			<< "ai"
+		}
 
-	"pope"
-}
-<: f()
+		"pope"
+	}
+	<: f()
 	`);
 	eq(res, STR('ai'));
 });
 
 it('Early return (nested)', async () => {
 	const res = await exe(`
-@f() {
-	? yes {
+	@f() {
 		? yes {
-			<< "ai"
+			? yes {
+				<< "ai"
+			}
 		}
-	}
 
-	"pope"
-}
-<: f()
+		"pope"
+	}
+	<: f()
 	`);
 	eq(res, STR('ai'));
 });
 
 it('Early return (nested) 2', async () => {
 	const res = await exe(`
-@f() {
-	? yes {
-		<< "ai"
+	@f() {
+		? yes {
+			<< "ai"
+		}
+
+		"pope"
 	}
 
-	"pope"
-}
+	@g() {
+		? (f() = "ai") {
+			<< "kawaii"
+		}
 
-@g() {
-	? (f() = "ai") {
-		<< "kawaii"
+		"pope"
 	}
 
-	"pope"
-}
-
-<: g()
+	<: g()
 	`);
 	eq(res, STR('kawaii'));
 });
 
 it('Block returns value', async () => {
 	const res = await exe(`
-#foo = {
-	#a = 1
-	#b = 2
-	(a + b)
-}
+	#foo = {
+		#a = 1
+		#b = 2
+		(a + b)
+	}
 
-<: foo
+	<: foo
 	`);
 	eq(res, NUM(3));
 });
 
 it('Recursion', async () => {
 	const res = await exe(`
-@fact(n) {
-	? (n = 0) { 1 } ... { (fact((n - 1)) * n) }
-}
+	@fact(n) {
+		? (n = 0) { 1 } ... { (fact((n - 1)) * n) }
+	}
 
-<: fact(5)
+	<: fact(5)
 	`);
 	eq(res, NUM(120));
 });
 
 it('Object property access', async () => {
 	const res = await exe(`
-#obj = {
-	a: {
-		b: {
-			c: 42;
+	#obj = {
+		a: {
+			b: {
+				c: 42;
+			};
 		};
-	};
-}
+	}
 
-<: obj.a.b.c
+	<: obj.a.b.c
 	`);
 	eq(res, NUM(42));
 });
 
 it('Array item access', async () => {
 	const res = await exe(`
-#arr = ["ai", "chan", "kawaii"]
+	#arr = ["ai", "chan", "kawaii"]
 
-<: arr[2]
+	<: arr[2]
 	`);
 	eq(res, STR('chan'));
 });
@@ -193,7 +193,7 @@ it('Array item access', async () => {
 it('Cannot access js native property via var', async () => {
 	try {
 		await exe(`
-<: constructor
+		<: constructor
 		`);
 	} catch(e) {
 		assert.ok(true);
@@ -204,9 +204,9 @@ it('Cannot access js native property via var', async () => {
 
 it('Cannot access js native property via object', async () => {
 	const res = await exe(`
-#obj = {}
+	#obj = {}
 
-<: obj.constructor
+	<: obj.constructor
 	`);
 	eq(res, NULL);
 });
@@ -214,7 +214,7 @@ it('Cannot access js native property via object', async () => {
 it('Throws error when divied by zero', async () => {
 	try {
 		await exe(`
-<: (0 / 0)
+		<: (0 / 0)
 		`);
 	} catch(e) {
 		assert.ok(true);
@@ -225,35 +225,133 @@ it('Throws error when divied by zero', async () => {
 
 it('SKI', async () => {
 	const res = await exe(`
-#s = @(x) { @(y) { @(z) {
-	//#f = x(z) f(@(a){ #g = y(z) g(a) })
-	#f = x(z)
-	f(y(z))
-}}}
-#k = @(x){ @(y) { x } }
-#i = @(x){ x }
+	#s = @(x) { @(y) { @(z) {
+		//#f = x(z) f(@(a){ #g = y(z) g(a) })
+		#f = x(z)
+		f(y(z))
+	}}}
+	#k = @(x){ @(y) { x } }
+	#i = @(x){ x }
 
-// combine
-@c(l) {
-	#L = (Core:len(l) + 1)
+	// combine
+	@c(l) {
+		#L = (Core:len(l) + 1)
 
-	// extract
-	@x(v) {
-		? (Core:type(v) = "arr") { c(v) } ... { v }
+		// extract
+		@x(v) {
+			? (Core:type(v) = "arr") { c(v) } ... { v }
+		}
+
+		// rec
+		@r(f, n) {
+			? (n < L) {
+				r(f(x(l[n])), (n + 1))
+			} ... { f }
+		}
+
+		r(x(l[1]), 2)
 	}
 
-	// rec
-	@r(f, n) {
-		? (n < L) {
-			r(f(x(l[n])), (n + 1))
-		} ... { f }
-	}
-
-	r(x(l[1]), 2)
-}
-
-#sksik = [s, [k, [s, i]], k]
-c([sksik, "foo", print])
+	#sksik = [s, [k, [s, i]], k]
+	c([sksik, "foo", print])
 	`);
 	eq(res, STR('foo'));
+});
+
+describe('if', () => {
+	it('?', async () => {
+		const res1 = await exe(`
+		$msg <- "ai"
+		? yes {
+			msg <- "kawaii"
+		}
+		<: msg
+		`);
+		eq(res1, STR('kawaii'));
+
+		const res2 = await exe(`
+		$msg <- "ai"
+		? no {
+			msg <- "kawaii"
+		}
+		<: msg
+		`);
+		eq(res2, STR('ai'));
+	});
+
+	it('...', async () => {
+		const res1 = await exe(`
+		$msg <- _
+		? yes {
+			msg <- "ai"
+		} ... {
+			msg <- "kawaii"
+		}
+		<: msg
+		`);
+		eq(res1, STR('ai'));
+
+		const res2 = await exe(`
+		$msg <- _
+		? no {
+			msg <- "ai"
+		} ... {
+			msg <- "kawaii"
+		}
+		<: msg
+		`);
+		eq(res2, STR('kawaii'));
+	});
+
+	it('...?', async () => {
+		const res1 = await exe(`
+		$msg <- "bebeyo"
+		? no {
+			msg <- "ai"
+		} ...? yes {
+			msg <- "kawaii"
+		}
+		<: msg
+		`);
+		eq(res1, STR('kawaii'));
+
+		const res2 = await exe(`
+		$msg <- "bebeyo"
+		? no {
+			msg <- "ai"
+		} ...? no {
+			msg <- "kawaii"
+		}
+		<: msg
+		`);
+		eq(res2, STR('bebeyo'));
+	});
+
+	it('...? ...', async () => {
+		const res1 = await exe(`
+		$msg <- _
+		? no {
+			msg <- "ai"
+		} ...? yes {
+			msg <- "chan"
+		} ... {
+			msg <- "kawaii"
+		}
+		<: msg
+		`);
+		eq(res1, STR('chan'));
+
+		const res2 = await exe(`
+		$msg <- _
+		? no {
+			msg <- "ai"
+		} ...? no {
+			msg <- "chan"
+		} ... {
+			msg <- "kawaii"
+		}
+		<: msg
+		`);
+		eq(res2, STR('kawaii'));
+	});
 });
