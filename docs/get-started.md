@@ -29,9 +29,9 @@ AiScriptのコメントは`//`で始めます。
 // this is a comment
 ```
 
-## リテラル
+## 第一級オブジェクト
 <table>
-	<tr><th>種類</th><th>型</th><th>例</th></tr>
+	<tr><th>種類</th><th>型</th><th>リテラル例</th></tr>
 	<tr><td>文字列</td><td><code>str</code></td><td><code>"kawaii"</code></td></tr>
 	<tr><td>数値</td><td><code>num</code></td><td><code>42</code></td></tr>
 	<tr><td>真理値</td><td><code>bool</code></td><td><code>yes</code>/<code>no</code></td></tr>
@@ -40,6 +40,9 @@ AiScriptのコメントは`//`で始めます。
 	<tr><td>null</td><td><code>null</code></td><td><code>_</code></td></tr>
 	<tr><td>関数</td><td><code>fn</code></td><td><code>@(x) { x }</code></td></tr>
 </table>
+
+### 配列
+インデックスは1始まりです。
 
 ## 変数
 ### 宣言
@@ -82,7 +85,6 @@ Core:add(1, 1)
 下記で列挙する関数はすべて`(1 + 1)`のような糖衣構文として使えます。
 注意点として、`(1 + 1 + 1)`のようには書けず、`(1 + (1 + 1))`のように入れ子にして使います。
 
-### 数の演算
 <table>
 	<tr><th>関数</th><th>演算子</th><th>意味</th></tr>
 	<tr><td><code>Core:add</code></td><td><code>+</code></td><td>加算</td></tr>
@@ -90,11 +92,6 @@ Core:add(1, 1)
 	<tr><td><code>Core:mul</code></td><td><code>*</code></td><td>乗算</td></tr>
 	<tr><td><code>Core:div</code></td><td><code>/</code></td><td>除算</td></tr>
 	<tr><td><code>Core:mod</code></td><td><code>%</code></td><td>剰余</td></tr>
-</table>
-
-### 論理演算
-<table>
-	<tr><th>関数</th><th>演算子</th><th>意味</th></tr>
 	<tr><td><code>Core:eq</code></td><td><code>=</code></td><td>等しい</td></tr>
 	<tr><td><code>Core:and</code></td><td><code>&</code></td><td>かつ</td></tr>
 	<tr><td><code>Core:or</code></td><td><code>|</code></td><td>または</td></tr>
