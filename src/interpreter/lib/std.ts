@@ -1,7 +1,7 @@
 import { v4 as uuid } from 'uuid';
 import * as seedrandom from 'seedrandom';
-import { Value, NUM, STR, FN_NATIVE, FALSE, TRUE, VArr, ARR, NULL } from '../value';
-import { assertNumber, assertString, assertArray, assertBoolean, valToJs, jsToVal, assertFunction } from '../util';
+import { Value, NUM, STR, FN_NATIVE, FALSE, TRUE, VArr, ARR, NULL, OBJ } from '../value';
+import { assertNumber, assertString, assertArray, assertBoolean, valToJs, jsToVal, assertFunction, assertObject } from '../util';
 import { AiScriptError } from '../error';
 const pkg = require('../../../package.json');
 
@@ -80,13 +80,13 @@ export const std: Record<string, Value> = {
 		return a.value < b.value ? TRUE : FALSE;
 	}),
 
-	'Core:type': FN_NATIVE(([a]) => {
-		return STR(a.type);
+	'Core:type': FN_NATIVE(([v]) => {
+		return STR(v.type);
 	}),
 
-	'Core:to_str': FN_NATIVE(([a]) => {
-		if (a.type === 'str') return a;
-		if (a.type === 'num') return STR(a.value.toString());
+	'Core:to_str': FN_NATIVE(([v]) => {
+		if (v.type === 'str') return v;
+		if (v.type === 'num') return STR(v.value.toString());
 		return STR('?');
 	}),
 
@@ -94,13 +94,13 @@ export const std: Record<string, Value> = {
 		return STR(uuid());
 	}),
 
-	'Json:stringify': FN_NATIVE(([a]) => {
-		return STR(JSON.stringify(valToJs(a)));
+	'Json:stringify': FN_NATIVE(([v]) => {
+		return STR(JSON.stringify(valToJs(v)));
 	}),
 
-	'Json:parse': FN_NATIVE(([a]) => {
-		assertString(a);
-		return jsToVal(JSON.parse(a.value));
+	'Json:parse': FN_NATIVE(([json]) => {
+		assertString(json);
+		return jsToVal(JSON.parse(json.value));
 	}),
 
 	'Date:now': FN_NATIVE(() => {
@@ -133,36 +133,36 @@ export const std: Record<string, Value> = {
 
 	'Math:PI': NUM(Math.PI),
 
-	'Math:sin': FN_NATIVE(([a]) => {
-		assertNumber(a);
-		return NUM(Math.sin(a.value));
+	'Math:sin': FN_NATIVE(([v]) => {
+		assertNumber(v);
+		return NUM(Math.sin(v.value));
 	}),
 
-	'Math:cos': FN_NATIVE(([a]) => {
-		assertNumber(a);
-		return NUM(Math.cos(a.value));
+	'Math:cos': FN_NATIVE(([v]) => {
+		assertNumber(v);
+		return NUM(Math.cos(v.value));
 	}),
 
-	'Math:abs': FN_NATIVE(([a]) => {
-		assertNumber(a);
-		return NUM(Math.abs(a.value));
+	'Math:abs': FN_NATIVE(([v]) => {
+		assertNumber(v);
+		return NUM(Math.abs(v.value));
 	}),
 
-	'Math:sqrt': FN_NATIVE(([a]) => {
-		assertNumber(a);
-		const res = Math.sqrt(a.value);
+	'Math:sqrt': FN_NATIVE(([v]) => {
+		assertNumber(v);
+		const res = Math.sqrt(v.value);
 		if (isNaN(res)) throw new AiScriptError('Invalid operation.');
 		return NUM(res);
 	}),
 
-	'Math:round': FN_NATIVE(([a]) => {
-		assertNumber(a);
-		return NUM(Math.round(a.value));
+	'Math:round': FN_NATIVE(([v]) => {
+		assertNumber(v);
+		return NUM(Math.round(v.value));
 	}),
 
-	'Math:floor': FN_NATIVE(([a]) => {
-		assertNumber(a);
-		return NUM(Math.floor(a.value));
+	'Math:floor': FN_NATIVE(([v]) => {
+		assertNumber(v);
+		return NUM(Math.floor(v.value));
 	}),
 
 	'Math:min': FN_NATIVE(([a, b]) => {
@@ -177,94 +177,108 @@ export const std: Record<string, Value> = {
 		return NUM(Math.max(a.value, b.value));
 	}),
 
-	'Math:rnd': FN_NATIVE(([a, b]) => {
-		if (a && a.type === 'num' && b && b.type === 'num') {
-			const min = a.value;
-			const max = b.value;
-			return NUM(Math.floor(Math.random() * (max - min + 1) + min));
+	'Math:rnd': FN_NATIVE(([min, max]) => {
+		if (min && min.type === 'num' && max && max.type === 'num') {
+			return NUM(Math.floor(Math.random() * (max.value - min.value + 1) + min.value));
 		}
 		return NUM(Math.random());
 	}),
 
-	'Math:gen_rng': FN_NATIVE(([a]) => {
-		if (a.type !== 'num' && a.type !== 'str') return NULL;
+	'Math:gen_rng': FN_NATIVE(([seed]) => {
+		if (seed.type !== 'num' && seed.type !== 'str') return NULL;
 
-		const rng = seedrandom(a.value.toString());
+		const rng = seedrandom(seed.value.toString());
 
-		return FN_NATIVE(([a, b]) => {
-			if (a && a.type === 'num' && b && b.type === 'num') {
-				const min = a.value;
-				const max = b.value;
-				return NUM(Math.floor(rng() * (max - min + 1) + min));
+		return FN_NATIVE(([min, max]) => {
+			if (min && min.type === 'num' && max && max.type === 'num') {
+				return NUM(Math.floor(rng() * (max.value - min.value + 1) + min.value));
 			}
 			return NUM(rng());
 		});
 	}),
 
-	'Str:to_num': FN_NATIVE(([a]) => {
-		if (a.type === 'num') return a;
-		if (a.type === 'str') {
-			const parsed = parseInt(a.value, 10);
+	'Str:to_num': FN_NATIVE(([v]) => {
+		if (v.type === 'num') return v;
+		if (v.type === 'str') {
+			const parsed = parseInt(v.value, 10);
 			if (isNaN(parsed)) return NULL;
 			return NUM(parsed);
 		}
 		return NULL;
 	}),
 
-	'Str:len': FN_NATIVE(([a]) => {
-		if (a.type !== 'str') return NUM(0);
-		return NUM(a.value.length);
+	'Str:len': FN_NATIVE(([v]) => {
+		if (v.type !== 'str') return NUM(0);
+		return NUM(v.value.length);
 	}),
 
-	'Str:pick': FN_NATIVE(([a, b]) => {
-		assertString(a);
-		assertNumber(b);
-		const char = a.value[b.value - 1];
-		return char ? STR(a.value[b.value - 1]) : NULL;
+	'Str:pick': FN_NATIVE(([v, i]) => {
+		assertString(v);
+		assertNumber(i);
+		const char = v.value[i.value - 1];
+		return char ? STR(v.value[i.value - 1]) : NULL;
 	}),
 
-	'Str:incl': FN_NATIVE(([a, b]) => {
+	'Str:incl': FN_NATIVE(([v, keyword]) => {
+		assertString(v);
+		assertString(keyword);
+		return v.value.includes(keyword.value) ? TRUE : FALSE;
+	}),
+
+	'Str:slice': FN_NATIVE(([v, begin, end]) => {
+		assertString(v);
+		assertNumber(begin);
+		assertNumber(end);
+		return STR(v.value.substring(begin.value - 1, end.value - 1));
+	}),
+
+	'Str:split': FN_NATIVE(([v, splitter]) => {
+		assertString(v);
+		if (splitter) assertString(splitter);
+		return ARR(v.value.split(splitter ? splitter.value : '').map(s => STR(s)));
+	}),
+
+	'Str:replace': FN_NATIVE(([v, a, b]) => {
+		assertString(v);
 		assertString(a);
 		assertString(b);
-		return a.value.includes(b.value) ? TRUE : FALSE;
+		return STR(v.value.split(a.value).join(b.value));
 	}),
 
-	'Str:split': FN_NATIVE(([a, b]) => {
-		assertString(a);
-		if (b) assertString(b);
-		return ARR(a.value.split(b ? b.value : '').map(s => STR(s)));
+	'Str:index_of': FN_NATIVE(([v, search]) => {
+		assertString(v);
+		assertString(search);
+		return NUM(v.value.indexOf(search.value) + 1);
 	}),
 
-	'Str:replace': FN_NATIVE(([a, b, c]) => {
-		assertString(a);
-		assertString(b);
-		assertString(c);
-		return STR(a.value.split(b.value).join(c.value));
+	'Str:trim': FN_NATIVE(([v]) => {
+		assertString(v);
+		return STR(v.value.trim());
 	}),
 
-	'Arr:len': FN_NATIVE(([a]) => {
-		if (a.type !== 'arr') return NUM(0);
-		return NUM(a.value.length);
+	'Arr:len': FN_NATIVE(([arr]) => {
+		if (arr.type !== 'arr') return NUM(0);
+		return NUM(arr.value.length);
 	}),
 
-	'Arr:push': FN_NATIVE(([a, b]) => {
-		assertArray(a);
-		return ARR([...a.value, b]);
+	'Arr:push': FN_NATIVE(([arr, val]) => {
+		assertArray(arr);
+		return ARR([...arr.value, val]);
 	}),
 
-	'Arr:unshift': FN_NATIVE(([a, b]) => {
-		assertArray(a);
-		return ARR([b, ...a.value]);
+	'Arr:unshift': FN_NATIVE(([arr, val]) => {
+		assertArray(arr);
+		return ARR([val, ...arr.value]);
 	}),
 
-	'Arr:pop': FN_NATIVE(([a]) => {
-		assertArray(a);
-		return ARR(a.value.slice(0, a.value.length - 1));
+	'Arr:pop': FN_NATIVE(([arr]) => {
+		assertArray(arr);
+		return ARR(arr.value.slice(0, arr.value.length - 1));
 	}),
 
-	'Arr:shift': FN_NATIVE(([a]) => {
-		assertArray(a);
-		return ARR(a.value.slice(1, a.value.length));
+	'Arr:shift': FN_NATIVE(([arr]) => {
+		assertArray(arr);
+		return ARR(arr.value.slice(1, arr.value.length));
 	}),
 
 	'Arr:concat': FN_NATIVE(([a, b]) => {
@@ -273,15 +287,22 @@ export const std: Record<string, Value> = {
 		return ARR(a.value.concat(b.value));
 	}),
 
-	'Arr:join': FN_NATIVE(([a, b]) => {
-		assertArray(a);
-		if (b) assertString(b);
-		return STR(a.value.map(i => i.type === 'str' ? i.value : '').join(b ? b.value : ''));
+	'Arr:join': FN_NATIVE(([arr, joiner]) => {
+		assertArray(arr);
+		if (joiner) assertString(joiner);
+		return STR(arr.value.map(i => i.type === 'str' ? i.value : '').join(joiner ? joiner.value : ''));
 	}),
 
-	'Arr:incl': FN_NATIVE(([a, b]) => {
-		assertArray(a);
-		if (b.type !== 'str' && b.type !== 'num' && b.type !== 'bool' && b.type !== 'null') return FALSE;
+	'Arr:slice': FN_NATIVE(([arr, begin, end]) => {
+		assertArray(arr);
+		assertNumber(begin);
+		assertNumber(end);
+		return ARR(arr.value.slice(begin.value - 1, end.value - 1));
+	}),
+
+	'Arr:incl': FN_NATIVE(([arr, val]) => {
+		assertArray(arr);
+		if (val.type !== 'str' && val.type !== 'num' && val.type !== 'bool' && val.type !== 'null') return FALSE;
 		const getValue = (v: VArr) => {
 			return v.value.map(i => {
 				if (i.type === 'str') return i.value;
@@ -291,54 +312,72 @@ export const std: Record<string, Value> = {
 				return Symbol();
 			});
 		};
-		return getValue(a).includes(b.type === 'null' ? null : b.value) ? TRUE : FALSE;
+		return getValue(arr).includes(val.type === 'null' ? null : val.value) ? TRUE : FALSE;
 	}),
 
-	'Arr:map': FN_NATIVE(async ([a, b], opts) => {
-		assertArray(a);
-		assertFunction(b);
-		const vals = a.value.map(async (item, i) => {
-			return await opts.call(b, [item, NUM(i + 1)]);
+	'Arr:map': FN_NATIVE(async ([arr, fn], opts) => {
+		assertArray(arr);
+		assertFunction(fn);
+		const vals = arr.value.map(async (item, i) => {
+			return await opts.call(fn, [item, NUM(i + 1)]);
 		});
 		return ARR(await Promise.all(vals));
 	}),
 
-	'Arr:filter': FN_NATIVE(async ([a, b], opts) => {
-		assertArray(a);
-		assertFunction(b);
+	'Arr:filter': FN_NATIVE(async ([arr, fn], opts) => {
+		assertArray(arr);
+		assertFunction(fn);
 		const vals = [] as Value[];
-		for (let i = 0; i < a.value.length; i++) {
-			const item = a.value[i];
-			const res = await opts.call(b, [item, NUM(i + 1)]);
+		for (let i = 0; i < arr.value.length; i++) {
+			const item = arr.value[i];
+			const res = await opts.call(fn, [item, NUM(i + 1)]);
 			assertBoolean(res);
 			if (res.value) vals.push(item);
 		}
 		return ARR(vals);
 	}),
 
-	'Arr:reduce': FN_NATIVE(async ([a, b, c], opts) => {
-		assertArray(a);
-		assertFunction(b);
-		const withInitialValue = c != null;
-		let accumulator = withInitialValue ? c : a.value[0];
-		for (let i = withInitialValue ? 0 : 1; i < a.value.length; i++) {
-			const item = a.value[i];
-			accumulator = await opts.call(b, [accumulator, item, NUM(i + 1)]);
+	'Arr:reduce': FN_NATIVE(async ([arr, fn, initialValue], opts) => {
+		assertArray(arr);
+		assertFunction(fn);
+		const withInitialValue = initialValue != null;
+		let accumulator = withInitialValue ? initialValue : arr.value[0];
+		for (let i = withInitialValue ? 0 : 1; i < arr.value.length; i++) {
+			const item = arr.value[i];
+			accumulator = await opts.call(fn, [accumulator, item, NUM(i + 1)]);
 		}
 		return accumulator;
 	}),
 
-	'Arr:find': FN_NATIVE(async ([a, b], opts) => {
-		assertArray(a);
-		assertFunction(b);
-		for (let i = 0; i < a.value.length; i++) {
-			const item = a.value[i];
-			const res = await opts.call(b, [item, NUM(i + 1)]);
+	'Arr:find': FN_NATIVE(async ([arr, fn], opts) => {
+		assertArray(arr);
+		assertFunction(fn);
+		for (let i = 0; i < arr.value.length; i++) {
+			const item = arr.value[i];
+			const res = await opts.call(fn, [item, NUM(i + 1)]);
 			assertBoolean(res);
 			if (res.value) return item;
 		}
 		return NULL;
 	}),
+
+	'Obj:keys': FN_NATIVE(([obj]) => {
+		assertObject(obj);
+		return ARR(Object.keys(obj.value).map(k => STR(k)));
+	}),
+
+	'Obj:kvs': FN_NATIVE(([obj]) => {
+		assertObject(obj);
+		return ARR(Object.entries(obj.value).map(([k, v]) => ARR([STR(k), v])));
+	}),
+
+	/* TODO
+	'Obj:merge': FN_NATIVE(([a, b]) => {
+		assertObject(a);
+		assertObject(b);
+		return OBJ();
+	}),
+	*/
 
 	'Async:interval': FN_NATIVE(async ([interval, callback, immediate], opts) => {
 		assertNumber(interval);

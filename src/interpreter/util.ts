@@ -51,6 +51,7 @@ export function valToString(val: Value, simple = false) {
 		val.type === 'bool' ? val.value :
 		val.type === 'str' ? `"${val.value}"` :
 		val.type === 'fn' ? '...' :
+		val.type === 'obj' ? '...' :
 		val.type === 'null' ? '' :
 		null;
 	return `${val.type}<${label}>`;
