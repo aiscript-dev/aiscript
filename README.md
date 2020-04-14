@@ -3,7 +3,7 @@ AiScript is a script language run on JavaScript.
 Not altJS.
 
 * ホストから変数や関数を提供することが出来ます
-* 外の情報にはアクセス出来ないので安全にスクリプトを実行できます
+* 外の情報にはアクセス出来ないので安全にスクリプトを実行できます(サンドボックス環境)
 
 ## How to use AiScript interpreter
 ※まず最初に`npm run build`しておいてください
