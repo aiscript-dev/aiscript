@@ -18,7 +18,7 @@ export class AiScript {
 		log?(type: string, params: Record<string, any>): void;
 		maxStep?: number;
 	};
-	private stepCount = 0;
+	public stepCount = 0;
 	private stop = false;
 	public scope: Scope;
 	private abortHandlers: Function[] = [];
