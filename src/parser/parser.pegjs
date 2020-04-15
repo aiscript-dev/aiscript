@@ -59,7 +59,7 @@ Expr
 	/ Num
 	/ Str
 	/ Call
-	/ Ops
+	/ Op
 	/ Bool
 	/ Arr
 	/ Obj
@@ -191,16 +191,19 @@ CallArgs
 
 // syntax sugers of operator function call
 Ops
-	= "(" _ expr1:Expr _ "=" _ expr2:Expr _ ")" { return createNode('call', { name: 'Core:eq', args: [expr1, expr2] }); }
-	/ "(" _ expr1:Expr _ "&" _ expr2:Expr _ ")" { return createNode('call', { name: 'Core:and', args: [expr1, expr2] }); }
-	/ "(" _ expr1:Expr _ "|" _ expr2:Expr _ ")" { return createNode('call', { name: 'Core:or', args: [expr1, expr2] }); }
-	/ "(" _ expr1:Expr _ "+" _ expr2:Expr _ ")" { return createNode('call', { name: 'Core:add', args: [expr1, expr2] }); }
-	/ "(" _ expr1:Expr _ "-" _ expr2:Expr _ ")" { return createNode('call', { name: 'Core:sub', args: [expr1, expr2] }); }
-	/ "(" _ expr1:Expr _ "*" _ expr2:Expr _ ")" { return createNode('call', { name: 'Core:mul', args: [expr1, expr2] }); }
-	/ "(" _ expr1:Expr _ "/" _ expr2:Expr _ ")" { return createNode('call', { name: 'Core:div', args: [expr1, expr2] }); }
-	/ "(" _ expr1:Expr _ "%" _ expr2:Expr _ ")" { return createNode('call', { name: 'Core:mod', args: [expr1, expr2] }); }
-	/ "(" _ expr1:Expr _ ">" _ expr2:Expr _ ")" { return createNode('call', { name: 'Core:gt', args: [expr1, expr2] }); }
-	/ "(" _ expr1:Expr _ "<" _ expr2:Expr _ ")" { return createNode('call', { name: 'Core:lt', args: [expr1, expr2] }); }
+	= "=" { return 'Core:eq'; }
+	/ "&" { return 'Core:and'; }
+	/ "|" { return 'Core:or'; }
+	/ "+" { return 'Core:add'; }
+	/ "-" { return 'Core:sub'; }
+	/ "*" { return 'Core:mul'; }
+	/ "/" { return 'Core:div'; }
+	/ "%" { return 'Core:mod'; }
+	/ ">" { return 'Core:gt'; }
+	/ "<" { return 'Core:lt'; }
+
+Op
+	= "(" _ expr1:Expr _ op:Ops _ expr2:Expr _ ")" { return createNode('call', { name: op, args: [expr1, expr2] }); }
 
 // if statement --------------------------------------------------------------------------
 
