@@ -51,7 +51,8 @@ Statement
 	/ Expr
 
 Expr
-	= PropRef
+	= PropCall
+	/ PropRef
 	/ IndexRef
 	/ If
 	/ Fn
@@ -103,6 +104,11 @@ VarRef
 PropRef
 	= head:NAME_WITH_NAMESPACE tails:("." name:NAME { return name; })+
 { return createNode('prop', { obj: head, path: tails }); }
+
+// property call
+PropCall
+	= head:NAME_WITH_NAMESPACE tails:("." name:NAME { return name; })+ "(" _ args:CallArgs? _ ")"
+{ return createNode('propCall', { obj: head, path: tails, args: args || [] }); }
 
 // index reference
 IndexRef
@@ -257,7 +263,7 @@ ForOf
 
 NAME = [A-Za-z_] [A-Za-z0-9_]* { return text(); }
 
-NAME_WITH_NAMESPACE = NAME (":" NAME)? { return text(); }
+NAME_WITH_NAMESPACE = NAME (":" NAME)* { return text(); }
 
 EOL
 	= !. / "\r\n" / [\r\n]

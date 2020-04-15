@@ -181,6 +181,23 @@ it('Object property access', async () => {
 	eq(res, NUM(42));
 });
 
+it('Object property access (fn call)', async () => {
+	const res = await exe(`
+	@fn() { 42 }
+
+	#obj = {
+		a: {
+			b: {
+				c: fn;
+			};
+		};
+	}
+
+	<: obj.a.b.c()
+	`);
+	eq(res, NUM(42));
+});
+
 it('Array item access', async () => {
 	const res = await exe(`
 	#arr = ["ai", "chan", "kawaii"]

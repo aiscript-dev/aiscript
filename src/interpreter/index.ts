@@ -210,6 +210,23 @@ export class AiScript {
 				return x;
 			}
 
+			case 'propCall': {
+				const obj = scope.get(node.obj);
+				let x = obj;
+				for (const prop of node.path) {
+					assertObject(x);
+					if (!x.value.has(prop)) {
+						x = NULL;
+						break;
+					} else {
+						x = x.value.get(prop)!;
+					}
+				}
+				assertFunction(x);
+				const args = await Promise.all(node.args.map(async expr => await this._eval(expr, scope)));
+				return this._fn(x, args);
+			}
+
 			case 'index': {
 				const arr = scope.get(node.arr);
 				assertArray(arr);

@@ -64,6 +64,11 @@ export type Node = {
 	obj: string; // オブジェクト変数名
 	path: string[]; // プロパティパス
 } | {
+	type: 'propCall'; // プロパティアクセス(関数呼び出し)
+	obj: string; // オブジェクト変数名
+	path: string[]; // プロパティパス
+	args: Node[]; // 引数(式の配列)
+} | {
 	type: 'index'; // 配列要素アクセス
 	arr: string; // 配列変数名
 	i: Node; // インデックス
