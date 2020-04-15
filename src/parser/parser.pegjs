@@ -120,9 +120,7 @@ Num
 // template literal
 Tmpl
 	= "`" items:(!"`" i:TmplEmbed { return i; })* "`"
-{
-	return createNode('tmpl', { tmpl: concatTemplate(items) });
-}
+{ return createNode('tmpl', { tmpl: concatTemplate(items) }); }
 
 TmplEmbed
 	= "{" __ expr:Expr __ "}"
