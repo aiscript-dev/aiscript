@@ -242,6 +242,20 @@ export class AiScript {
 			case 'block': {
 				return this._run(node.statements, scope.createChildScope());
 			}
+
+			case 'tmpl': {
+				let str = '';
+				for (const x of node.tmpl) {
+					if (typeof x === 'string') {
+						str += x;
+					} else {
+						const v = await this._eval(x, scope);
+						assertString(v);
+						str += v.value;
+					}
+				}
+				return STR(str);
+			}
 		
 			default: {
 				throw new Error('unknown ast type: ' + node.type);

@@ -75,4 +75,7 @@ export type Node = {
 } | {
 	type: 'block'; // ブロック
 	statements: Node[]; // 処理
+} | {
+	type: 'tmpl'; // テンプレート
+	tmpl: (string | Node)[]; // 処理
 };

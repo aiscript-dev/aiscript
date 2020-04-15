@@ -207,6 +207,13 @@ it('Array item access', async () => {
 	eq(res, STR('chan'));
 });
 
+it('Template syntax', async () => {
+	const res = await exe(`
+	<: \`1 + 1 = {Core:to_str((1 + 1))}\`
+	`);
+	eq(res, STR('1 + 1 = 2'));
+});
+
 it('Cannot access js native property via var', async () => {
 	try {
 		await exe(`
