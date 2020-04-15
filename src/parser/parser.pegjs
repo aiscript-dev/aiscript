@@ -3,16 +3,10 @@
 		let parseFunc = peg$parse;
 		return parseFunc(input, startRule ? { startRule } : { });
 	}
-	function createNode(type, params, children) {
-		const node = { type };
-		params.children = children;
-		for (const key of Object.keys(params)) {
-			if (params[key] != null) {
-				node[key] = params[key];
-			}
-		}
-		return node;
-	}
+	const {
+		createNode,
+		concatTemplate
+	} = require('./util');
 }
 
 // First, comments are removed by the entry rule, then the core parser is applied to the code.
@@ -57,6 +51,7 @@ Expr
 	/ If
 	/ Fn
 	/ Num
+	/ Tmpl
 	/ Str
 	/ Call
 	/ Ops
@@ -121,6 +116,18 @@ Num
 { return createNode('num', { value: parseInt(text(), 10) }); }
 	/ [+-]? [0-9]
 { return createNode('num', { value: parseInt(text(), 10) }); }
+
+// template literal
+Tmpl
+	= "`" items:(!"`" i:TmplEmbed { return i; })* "`"
+{
+	return createNode('tmpl', { tmpl: concatTemplate(items) });
+}
+
+TmplEmbed
+	= "{" __ expr:Expr __ "}"
+{ return expr; }
+	/ .
 
 // string literal
 Str
