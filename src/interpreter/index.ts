@@ -132,13 +132,32 @@ export class AiScript {
 			}
 
 			case 'for': {
-				const from = await this._eval(node.from, scope);
-				const to = await this._eval(node.to, scope);
-				assertNumber(from);
-				assertNumber(to);
-				for (let i = from.value + 1; i < to.value + 1; i++) {
+				if (node.times) {
+					const times = await this._eval(node.times, scope);
+					assertNumber(times);
+					for (let i = 1; i < times.value + 1; i++) {
+						await this._run(node.s, scope);
+					}
+				} else {
+					const from = await this._eval(node.from!, scope);
+					const to = await this._eval(node.to!, scope);
+					assertNumber(from);
+					assertNumber(to);
+					for (let i = from.value + 1; i < to.value + 1; i++) {
+						await this._run(node.s, scope.createChildScope(new Map([
+							[node.var!, NUM(i)]
+						])));
+					}
+				}
+				return NULL;
+			}
+
+			case 'forOf': {
+				const items = await this._eval(node.items!, scope);
+				assertArray(items);
+				for (const item of items.value) {
 					await this._run(node.s, scope.createChildScope(new Map([
-						[node.var, { type: 'num', value: i }]
+						[node.var!, item]
 					])));
 				}
 				return NULL;

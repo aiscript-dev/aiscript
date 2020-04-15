@@ -25,9 +25,15 @@ export type Node = {
 	else: Node[]; // if文のelse節
 } | {
 	type: 'for'; // for文
+	var?: string; // イテレータ変数名
+	from?: Node; // 開始値
+	to?: Node; // 終値
+	times?: Node; // 回数
+	s: Node[]; // 本体処理
+} | {
+	type: 'forOf'; // for of文
 	var: string; // イテレータ変数名
-	from: Node; // 開始値
-	to: Node; // 終値
+	items: Node; // 配列
 	s: Node[]; // 本体処理
 } | {
 	type: 'var'; // 変数

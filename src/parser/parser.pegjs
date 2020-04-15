@@ -46,6 +46,7 @@ Statement
 	/ Out
 	/ FnDef
 	/ For
+	/ ForOf
 	/ Debug
 	/ Expr
 
@@ -229,6 +230,25 @@ For
 		var: varn,
 		from: from || createNode('num', { value: 0 }),
 		to: to,
+		s: s,
+	});
+}
+	/ "~" ___ times:Expr ___ "{" _ s:Statements _ "}"
+{
+	return createNode('for', {
+		times: times,
+		s: s,
+	});
+}
+
+// for of statement -------------------------------------------------------------------------
+
+ForOf
+	= "~~" ___ "#" varn:NAME _ "," _ items:Expr ___ "{" _ s:Statements _ "}"
+{
+	return createNode('forOf', {
+		var: varn,
+		items: items,
 		s: s,
 	});
 }
