@@ -129,8 +129,12 @@ TmplEmbed
 
 // string literal
 Str
-	= "\"" value:$(!"\"" .)* "\""
-{ return createNode('str', { value }); }
+	= "\"" value:(!"\"" c:(StrEsc / .) { return c; })* "\""
+{ return createNode('str', { value: value.join('') }); }
+
+StrEsc
+	= "\\\""
+{ return '"'; }
 
 // boolean literal
 Bool

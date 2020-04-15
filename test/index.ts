@@ -29,6 +29,11 @@ it('Hello, world!', async () => {
 	eq(res, STR('Hello, world!'));
 });
 
+it('Escaped double quote', async () => {
+	const res = await exe('<: "ai saw a note \\"bebeyo\\"."');
+	eq(res, STR('ai saw a note "bebeyo".'));
+});
+
 it('(1 + 1)', async () => {
 	const res = await exe('<: (1 + 1)');
 	eq(res, NUM(2));
