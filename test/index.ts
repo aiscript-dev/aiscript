@@ -275,33 +275,6 @@ it('SKI', async () => {
 	eq(res, STR('foo'));
 });
 
-it('Arr:map', async () => {
-	const res = await exe(`
-	#arr = ["ai", "chan", "kawaii"]
-
-	<: Arr:map(arr, @(item) { Arr:join([item, "!"]) })
-	`);
-	eq(res, ARR([STR('ai!'), STR('chan!'), STR('kawaii!')]));
-});
-
-it('Arr:filter', async () => {
-	const res = await exe(`
-	#arr = ["ai", "chan", "kawaii"]
-
-	<: Arr:filter(arr, @(item) { Str:incl(item, "ai") })
-	`);
-	eq(res, ARR([STR('ai'), STR('kawaii')]));
-});
-
-it('Arr:reduce', async () => {
-	const res = await exe(`
-	#arr = [1, 2, 3, 4]
-
-	<: Arr:reduce(arr, @(accumulator, currentValue) { (accumulator + currentValue) })
-	`);
-	eq(res, NUM(10));
-});
-
 describe('if', () => {
 	it('?', async () => {
 		const res1 = await exe(`
@@ -397,5 +370,73 @@ describe('if', () => {
 		<: msg
 		`);
 		eq(res2, STR('kawaii'));
+	});
+});
+
+describe('for', () => {
+	it('standard', async () => {
+		const res = await exe(`
+		$count <- 0
+		~ #i, 10 {
+			count <- (count + i)
+		}
+		<: count
+		`);
+		eq(res, NUM(55));
+	});
+
+	it('wuthout iterator', async () => {
+		const res = await exe(`
+		$count <- 0
+		~ 10 {
+			count <- (count + 1)
+		}
+		<: count
+		`);
+		eq(res, NUM(10));
+	});
+});
+
+describe('for of', () => {
+	it('standard', async () => {
+		const res = await exe(`
+		$msgs <- []
+		~~ #item, ["ai", "chan", "kawaii"] {
+			msgs <- Arr:push(msgs, Arr:join([item, "!"]))
+		}
+		<: msgs
+		`);
+		eq(res, ARR([STR('ai!'), STR('chan!'), STR('kawaii!')]));
+	});
+});
+
+describe('std', () => {
+	describe('Arr', () => {
+		it('map', async () => {
+			const res = await exe(`
+			#arr = ["ai", "chan", "kawaii"]
+		
+			<: Arr:map(arr, @(item) { Arr:join([item, "!"]) })
+			`);
+			eq(res, ARR([STR('ai!'), STR('chan!'), STR('kawaii!')]));
+		});
+		
+		it('filter', async () => {
+			const res = await exe(`
+			#arr = ["ai", "chan", "kawaii"]
+		
+			<: Arr:filter(arr, @(item) { Str:incl(item, "ai") })
+			`);
+			eq(res, ARR([STR('ai'), STR('kawaii')]));
+		});
+		
+		it('reduce', async () => {
+			const res = await exe(`
+			#arr = [1, 2, 3, 4]
+		
+			<: Arr:reduce(arr, @(accumulator, currentValue) { (accumulator + currentValue) })
+			`);
+			eq(res, NUM(10));
+		});
 	});
 });
