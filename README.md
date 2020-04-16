@@ -1,6 +1,6 @@
 <h1><img src="./aiscript.svg" alt="AiScript" width="150"></h1>
 
-**AiScript** is a script language run on JavaScript.
+**AiScript** is a scripting language runing on JavaScript.
 Not altJS.
 
 * ホストから変数や関数を提供することが出来ます
