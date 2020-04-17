@@ -268,6 +268,16 @@ export const std: Record<string, Value> = {
 		return STR(v.value.trim());
 	}),
 
+	'Str:upper': FN_NATIVE(([v]) => {
+		assertString(v);
+		return STR(v.value.toUpperCase());
+	}),
+
+	'Str:lower': FN_NATIVE(([v]) => {
+		assertString(v);
+		return STR(v.value.toLowerCase());
+	}),
+
 	'Arr:len': FN_NATIVE(([arr]) => {
 		if (arr.type !== 'arr') return NUM(0);
 		return NUM(arr.value.length);
