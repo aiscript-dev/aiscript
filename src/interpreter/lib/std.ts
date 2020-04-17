@@ -366,6 +366,14 @@ export const std: Record<string, Value> = {
 		return ARR(arr.value.slice().reverse());
 	}),
 
+	'Arr:replace': FN_NATIVE(async ([arr, i, v]) => {
+		assertArray(arr);
+		assertNumber(i);
+		const items = arr.value.slice();
+		items[i.value - 1] = v;
+		return ARR(items);
+	}),
+
 	'Obj:keys': FN_NATIVE(([obj]) => {
 		assertObject(obj);
 		return ARR(Object.keys(obj.value).map(k => STR(k)));
