@@ -39,8 +39,6 @@ Statement
 	/ Return
 	/ Out
 	/ FnDef
-	/ For
-	/ ForOf
 	/ Debug
 	/ Expr
 
@@ -49,6 +47,8 @@ Expr
 	/ PropRef
 	/ IndexRef
 	/ If
+	/ For
+	/ ForOf
 	/ Fn
 	/ Num
 	/ Tmpl
