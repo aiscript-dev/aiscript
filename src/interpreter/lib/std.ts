@@ -197,6 +197,8 @@ export const std: Record<string, Value> = {
 		});
 	}),
 
+	'Str:lf': STR('\n'),
+
 	'Str:to_num': FN_NATIVE(([v]) => {
 		if (v.type === 'num') return v;
 		if (v.type === 'str') {
