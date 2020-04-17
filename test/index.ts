@@ -432,6 +432,32 @@ describe('for of', () => {
 	});
 });
 
+describe('namespace', () => {
+	it('standard', async () => {
+		const res = await exe(`
+		<: Foo:bar()
+
+		:: Foo {
+			@bar() { "ai" }
+		}
+		`);
+		eq(res, STR('ai'));
+	});
+
+	it('self ref', async () => {
+		const res = await exe(`
+		<: Foo:bar()
+
+		:: Foo {
+			#ai = "kawaii"
+			@bar() { ai }
+		}
+		`);
+		eq(res, STR('kawaii'));
+	});
+});
+
+
 describe('std', () => {
 	describe('Arr', () => {
 		it('map', async () => {

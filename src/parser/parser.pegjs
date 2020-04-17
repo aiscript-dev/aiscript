@@ -39,6 +39,7 @@ Statement
 	/ Return
 	/ Out
 	/ FnDef
+	/ Namespace
 	/ Debug
 	/ Expr
 
@@ -61,6 +62,19 @@ Expr
 	/ Null
 	/ VarRef
 	/ Block
+
+Namespace
+	= "::" ___ name:NAME ___ "{" _ members:NamespaceMembers? _ "}"
+{ return createNode('ns', { name, members }); }
+
+NamespaceMembers
+	= head:NamespaceMember tails:(___ s:NamespaceMember { return s; })*
+{ return [head, ...tails]; }
+
+NamespaceMember
+	= VarDef
+	/ FnDef
+	/ Namespace
 
 // statement of variable definition
 VarDef

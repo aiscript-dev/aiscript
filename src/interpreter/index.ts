@@ -8,7 +8,7 @@ import { AiScriptError } from './error';
 import { std } from './lib/std';
 import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray } from './util';
 import { Value, NULL, RETURN, unWrapRet, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, VFn } from './value';
-import { Node } from './node';
+import { Node, NNs } from './node';
 
 export class AiScript {
 	private vars: Record<string, Value>;
@@ -56,6 +56,8 @@ export class AiScript {
 	public async exec(script?: Node[]) {
 		if (script == null || script.length === 0) return;
 
+		await this.collectNs(script);
+
 		const result = await this._run(script, this.scope);
 
 		this.log('end', { val: result });
@@ -69,6 +71,46 @@ export class AiScript {
 	@autobind
 	private log(type: string, params: Record<string, any>) {
 		if (this.opts.log) this.opts.log(type, params);
+	}
+
+	@autobind
+	private async collectNs(script: Node[]) {
+		for (const node of script) {
+			switch (node.type) {
+				case 'ns': {
+					await this.collectNsMember(node);
+					break;
+				}
+			
+				default: {
+					// nop
+				}
+			}
+		}
+	}
+
+	@autobind
+	private async collectNsMember(ns: NNs) {
+		const scope = this.scope.createChildScope();
+
+		for (const node of ns.members) {
+			switch (node.type) {
+				case 'def': {
+					const v = await this._eval(node.expr, scope);
+					scope.add(node.name, v);
+					this.scope.add(ns.name + ':' + node.name, v);
+					break;
+				}
+	
+				case 'ns': {
+					break; // TODO
+				}
+			
+				default: {
+					throw new Error('invalid ns member type: ' + node.type);
+				}
+			}
+		}
 	}
 
 	@autobind
@@ -260,6 +302,10 @@ export class AiScript {
 					}
 				}
 				return STR(str);
+			}
+
+			case 'ns': {
+				return NULL; // nop
 			}
 		
 			default: {
