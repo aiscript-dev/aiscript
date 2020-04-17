@@ -197,6 +197,16 @@ export const std: Record<string, Value> = {
 		});
 	}),
 
+	'Num:to_hex': FN_NATIVE(([v]) => {
+		assertNumber(v);
+		return STR(v.value.toString(16));
+	}),
+
+	'Num:from_hex': FN_NATIVE(([v]) => {
+		assertString(v);
+		return NUM(parseInt(v.value, 16));
+	}),
+
 	'Str:lf': STR('\n'),
 
 	'Str:to_num': FN_NATIVE(([v]) => {
