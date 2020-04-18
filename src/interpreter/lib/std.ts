@@ -398,12 +398,12 @@ export const std: Record<string, Value> = {
 
 	'Obj:keys': FN_NATIVE(([obj]) => {
 		assertObject(obj);
-		return ARR(Object.keys(obj.value).map(k => STR(k)));
+		return ARR(Array.from(obj.value.keys()).map(k => STR(k)));
 	}),
 
 	'Obj:kvs': FN_NATIVE(([obj]) => {
 		assertObject(obj);
-		return ARR(Object.entries(obj.value).map(([k, v]) => ARR([STR(k), v])));
+		return ARR(Array.from(obj.value.entries()).map(([k, v]) => ARR([STR(k), v])));
 	}),
 
 	/* TODO

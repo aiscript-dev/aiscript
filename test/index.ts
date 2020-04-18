@@ -487,4 +487,28 @@ describe('std', () => {
 			eq(res, NUM(10));
 		});
 	});
+
+	describe('Obj', () => {
+		it('keys', async () => {
+			const res = await exe(`
+			#o = { a: 1; b: 2; c: 3; }
+		
+			<: Obj:keys(o)
+			`);
+			eq(res, ARR([STR('a'), STR('b'), STR('c')]));
+		});
+		
+		it('kvs', async () => {
+			const res = await exe(`
+			#o = { a: 1; b: 2; c: 3; }
+		
+			<: Obj:kvs(o)
+			`);
+			eq(res, ARR([
+				ARR([STR('a'), NUM(1)]),
+				ARR([STR('b'), NUM(2)]),
+				ARR([STR('c'), NUM(3)])
+			]));
+		});
+	});
 });
