@@ -296,9 +296,12 @@ export class AiScript {
 					if (typeof x === 'string') {
 						str += x;
 					} else {
+						// TODO: Core:to_strと処理を共通化する
 						const v = await this._eval(x, scope);
-						assertString(v);
-						str += v.value;
+						let text = '';
+						if (v.type === 'str') text = v.value;
+						else if (v.type === 'num') text = v.value.toString();
+						str += text;
 					}
 				}
 				return STR(str);
