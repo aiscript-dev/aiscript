@@ -4,7 +4,7 @@
 
 import * as assert from 'assert';
 import { AiScript } from '../src/interpreter';
-import { NUM, STR, NULL, ARR, OBJ } from '../src/interpreter/value';
+import { NUM, STR, NULL, ARR, OBJ, BOOL } from '../src/interpreter/value';
 const parse = require('../built/parser/parser.js').parse;
 
 const exe = (program: string): Promise<any> => new Promise((ok, err) => {
@@ -467,6 +467,20 @@ describe('namespace', () => {
 });
 
 describe('literal', () => {
+	it('bool (true)', async () => {
+		const res = await exe(`
+		<: yes
+		`);
+		eq(res, BOOL(true));
+	});
+
+	it('bool (false)', async () => {
+		const res = await exe(`
+		<: no
+		`);
+		eq(res, BOOL(false));
+	});
+
 	it('arr (separated by comma)', async () => {
 		const res = await exe(`
 		<: [1, 2, 3]

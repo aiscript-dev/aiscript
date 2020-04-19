@@ -152,9 +152,9 @@ StrEsc
 
 // boolean literal
 Bool
-	= "yes"
+	= "yes" !(NAME_WITH_NAMESPACE)
 { return createNode('bool', { value: true }); }
-	/ "no"
+	/ "no" !(NAME_WITH_NAMESPACE)
 { return createNode('bool', { value: false }); }
 
 // array literal
