@@ -485,6 +485,17 @@ describe('literal', () => {
 		eq(res, ARR([NUM(1), NUM(2), NUM(3)]));
 	});
 
+	it('arr (separated by line break and comma)', async () => {
+		const res = await exe(`
+		<: [
+			1,
+			2,
+			3
+		]
+		`);
+		eq(res, ARR([NUM(1), NUM(2), NUM(3)]));
+	});
+
 	/*it('obj (separated by comma)', async () => {
 		const res = await exe(`
 		<: { a: 1, b: 2, c: 3 }
@@ -510,7 +521,18 @@ describe('literal', () => {
 		eq(res, OBJ(new Map([['a', NUM(1)], ['b', NUM(2)], ['c', NUM(3)]])));
 	});
 
-	it('obj (separated by line break) (combo)', async () => {
+	it('obj (separated by line break and semicolon)', async () => {
+		const res = await exe(`
+		<: {
+			a: 1;
+			b: 2;
+			c: 3;
+		}
+		`);
+		eq(res, OBJ(new Map([['a', NUM(1)], ['b', NUM(2)], ['c', NUM(3)]])));
+	});
+
+	it('obj and arr (separated by line break)', async () => {
 		const res = await exe(`
 		<: {
 			a: 1
