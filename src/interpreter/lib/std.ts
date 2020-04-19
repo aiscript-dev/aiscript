@@ -131,6 +131,11 @@ export const std: Record<string, Value> = {
 		return NUM(new Date().getSeconds());
 	}),
 
+	'Date:parse': FN_NATIVE(([v]) => {
+		assertString(v);
+		return NUM(new Date(v.value).getTime());
+	}),
+
 	'Math:PI': NUM(Math.PI),
 
 	'Math:sin': FN_NATIVE(([v]) => {
