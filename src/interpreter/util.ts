@@ -38,6 +38,13 @@ export function assertArray(val: Value): asserts val is VArr {
 	}
 }
 
+export function eq(a: Value, b: Value) {
+	if (a.type === 'fn' || b.type === 'fn') return false;
+	if (a.type === 'null' && b.type === 'null') return true;
+	if (a.type === 'null' || b.type === 'null') return false;
+	return (a.value === b.value);
+}
+
 export function valToString(val: Value, simple = false) {
 	if (simple) {
 		if (val.type === 'num') return val.value;

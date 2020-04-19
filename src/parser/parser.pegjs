@@ -48,6 +48,7 @@ Expr
 	/ PropRef
 	/ IndexRef
 	/ If
+	/ Match
 	/ For
 	/ ForOf
 	/ Fn
@@ -252,6 +253,17 @@ ElseifBlock
 ElseBlock
 	= "..." _ "{" _ then:Statements? _ "}"
 { return then; }
+
+// match --------------------------------------------------------------------------
+
+Match
+	= "?" _ about:Expr _ "{" _ qs:(q:Expr _ "=>" _ a:Expr _ { return { q, a }; })+ _ "}"
+{
+	return createNode('match', {
+		about: about,
+		qs: qs || [],
+	});
+}
 
 // for statement -------------------------------------------------------------------------
 

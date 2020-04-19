@@ -1,7 +1,7 @@
 import { v4 as uuid } from 'uuid';
 import * as seedrandom from 'seedrandom';
 import { Value, NUM, STR, FN_NATIVE, FALSE, TRUE, VArr, ARR, NULL, OBJ } from '../value';
-import { assertNumber, assertString, assertArray, assertBoolean, valToJs, jsToVal, assertFunction, assertObject } from '../util';
+import { assertNumber, assertString, assertArray, assertBoolean, valToJs, jsToVal, assertFunction, assertObject, eq } from '../util';
 import { AiScriptError } from '../error';
 const pkg = require('../../../package.json');
 
@@ -18,10 +18,7 @@ export const std: Record<string, Value> = {
 	}),
 
 	'Core:eq': FN_NATIVE(([a, b]) => {
-		if (a.type === 'fn' || b.type === 'fn') return FALSE;
-		if (a.type === 'null' && b.type === 'null') return TRUE;
-		if (a.type === 'null' || b.type === 'null') return FALSE;
-		return (a.value === b.value) ? TRUE : FALSE;
+		return eq(a, b) ? TRUE : FALSE;
 	}),
 
 	'Core:and': FN_NATIVE(([a, b]) => {

@@ -124,4 +124,13 @@ export type NNs = {
 	members: Node[]; // メンバー
 };
 
-export type Node = NDef | NAssign | NCall | NReturn | NIf | NFor | NForOf | NVar | NNull | NBool | NNum | NStr | NArr | NFn | NObj | NProp | NPropCall | NIndex | NBlock | NTmpl | NNs;
+export type NMatch = {
+	type: 'match'; // パターンマッチ
+	about: Node; // 対象
+	qs: {
+		q: Node; // 条件
+		a: Node; // 結果
+	}[];
+};
+
+export type Node = NDef | NAssign | NCall | NReturn | NIf | NFor | NForOf | NVar | NNull | NBool | NNum | NStr | NArr | NFn | NObj | NProp | NPropCall | NIndex | NBlock | NTmpl | NNs | NMatch;

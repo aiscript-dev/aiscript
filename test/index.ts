@@ -404,8 +404,51 @@ describe('if', () => {
 	});
 });
 
+describe('match', () => {
+	it('Basic', async () => {
+		const res = await exe(`
+		<: ? 2 {
+			1 => "a"
+			2 => "b"
+			3 => "c"
+		}
+		`);
+		eq(res, STR('b'));
+	});
+
+	it('With block', async () => {
+		const res = await exe(`
+		<: ? 2 {
+			1 => 1
+			2 => {
+				#a = 1
+				#b = 2
+				(a + b)
+			}
+			3 => 3
+		}
+		`);
+		eq(res, NUM(3));
+	});
+
+	it('With return', async () => {
+		const res = await exe(`
+		@f(x) {
+			? x {
+				1 => {
+					<< "ai"
+				}
+			}
+			"foo"
+		}
+		<: f(1)
+		`);
+		eq(res, STR('ai'));
+	});
+});
+
 describe('for', () => {
-	it('standard', async () => {
+	it('Basic', async () => {
 		const res = await exe(`
 		$count <- 0
 		~ #i, 10 {

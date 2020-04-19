@@ -6,7 +6,7 @@ import autobind from 'autobind-decorator';
 import { Scope } from './scope';
 import { AiScriptError } from './error';
 import { std } from './lib/std';
-import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray } from './util';
+import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray, eq } from './util';
 import { Value, NULL, RETURN, unWrapRet, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, VFn } from './value';
 import { Node, NNs } from './node';
 
@@ -168,6 +168,17 @@ export class AiScript {
 						}
 					} else if (node.else) {
 						return this._run(node.else, scope.createChildScope());
+					}
+				}
+				return NULL;
+			}
+
+			case 'match': {
+				const about = await this._eval(node.about, scope);
+				for (const qa of node.qs) {
+					const q = await this._eval(qa.q, scope);
+					if (eq(about, q)) {
+						return await this._eval(qa.a, scope);
 					}
 				}
 				return NULL;
