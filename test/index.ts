@@ -4,7 +4,7 @@
 
 import * as assert from 'assert';
 import { AiScript } from '../src/interpreter';
-import { NUM, STR, NULL, ARR } from '../src/interpreter/value';
+import { NUM, STR, NULL, ARR, OBJ } from '../src/interpreter/value';
 const parse = require('../built/parser/parser.js').parse;
 
 const exe = (program: string): Promise<any> => new Promise((ok, err) => {
@@ -466,6 +466,69 @@ describe('namespace', () => {
 	});
 });
 
+describe('literal', () => {
+	it('arr (separated by comma)', async () => {
+		const res = await exe(`
+		<: [1, 2, 3]
+		`);
+		eq(res, ARR([NUM(1), NUM(2), NUM(3)]));
+	});
+
+	it('arr (separated by line break)', async () => {
+		const res = await exe(`
+		<: [
+			1
+			2
+			3
+		]
+		`);
+		eq(res, ARR([NUM(1), NUM(2), NUM(3)]));
+	});
+
+	/*it('obj (separated by comma)', async () => {
+		const res = await exe(`
+		<: { a: 1, b: 2, c: 3 }
+		`);
+		eq(res, OBJ(new Map([['a', NUM(1)], ['b', NUM(2)], ['c', NUM(3)]])));
+	})*/
+
+	it('obj (separated by semicolon)', async () => {
+		const res = await exe(`
+		<: { a: 1; b: 2; c: 3; }
+		`);
+		eq(res, OBJ(new Map([['a', NUM(1)], ['b', NUM(2)], ['c', NUM(3)]])));
+	});
+
+	it('obj (separated by line break)', async () => {
+		const res = await exe(`
+		<: {
+			a: 1
+			b: 2
+			c: 3
+		}
+		`);
+		eq(res, OBJ(new Map([['a', NUM(1)], ['b', NUM(2)], ['c', NUM(3)]])));
+	});
+
+	it('obj (separated by line break) (combo)', async () => {
+		const res = await exe(`
+		<: {
+			a: 1
+			b: [
+				1
+				2
+				3
+			]
+			c: 3
+		}
+		`);
+		eq(res, OBJ(new Map<string, any>([
+			['a', NUM(1)],
+			['b', ARR([NUM(1), NUM(2), NUM(3)])],
+			['c', NUM(3)]
+		])));
+	});
+});
 
 describe('std', () => {
 	describe('Arr', () => {
