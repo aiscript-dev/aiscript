@@ -159,12 +159,12 @@ Bool
 
 // array literal
 Arr
-	= "[" _ items:(item:Expr _ ","? _ { return item; })* _ "]"
+	= "[" _ items:(item:Expr _ ("," / EOL)? _ { return item; })* _ "]"
 { return createNode('arr', { value: items }); }
 
 // object literal
 Obj
-	= "{" _ kvs:(k:NAME _ ":" _ v:Expr _ ";" _ { return { k, v }; })* "}"
+	= "{" _ kvs:(k:NAME _ ":" _ v:Expr _ ("," / ";" / EOL) _ { return { k, v }; })* "}"
 {
 	const obj = new Map();
 	for (const kv of kvs) {
