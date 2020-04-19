@@ -488,6 +488,13 @@ describe('literal', () => {
 		eq(res, ARR([NUM(1), NUM(2), NUM(3)]));
 	});
 
+	it('arr (separated by comma) (with trailing comma)', async () => {
+		const res = await exe(`
+		<: [1, 2, 3,]
+		`);
+		eq(res, ARR([NUM(1), NUM(2), NUM(3)]));
+	});
+
 	it('arr (separated by line break)', async () => {
 		const res = await exe(`
 		<: [
@@ -510,14 +517,39 @@ describe('literal', () => {
 		eq(res, ARR([NUM(1), NUM(2), NUM(3)]));
 	});
 
-	/*it('obj (separated by comma)', async () => {
+	it('arr (separated by line break and comma) (with trailing comma)', async () => {
+		const res = await exe(`
+		<: [
+			1,
+			2,
+			3,
+		]
+		`);
+		eq(res, ARR([NUM(1), NUM(2), NUM(3)]));
+	});
+
+	it('obj (separated by comma)', async () => {
 		const res = await exe(`
 		<: { a: 1, b: 2, c: 3 }
 		`);
 		eq(res, OBJ(new Map([['a', NUM(1)], ['b', NUM(2)], ['c', NUM(3)]])));
-	})*/
+	})
+
+	it('obj (separated by comma) (with trailing comma)', async () => {
+		const res = await exe(`
+		<: { a: 1, b: 2, c: 3, }
+		`);
+		eq(res, OBJ(new Map([['a', NUM(1)], ['b', NUM(2)], ['c', NUM(3)]])));
+	})
 
 	it('obj (separated by semicolon)', async () => {
+		const res = await exe(`
+		<: { a: 1; b: 2; c: 3 }
+		`);
+		eq(res, OBJ(new Map([['a', NUM(1)], ['b', NUM(2)], ['c', NUM(3)]])));
+	});
+
+	it('obj (separated by semicolon) (with trailing semicolon)', async () => {
 		const res = await exe(`
 		<: { a: 1; b: 2; c: 3; }
 		`);
@@ -536,6 +568,17 @@ describe('literal', () => {
 	});
 
 	it('obj (separated by line break and semicolon)', async () => {
+		const res = await exe(`
+		<: {
+			a: 1;
+			b: 2;
+			c: 3
+		}
+		`);
+		eq(res, OBJ(new Map([['a', NUM(1)], ['b', NUM(2)], ['c', NUM(3)]])));
+	});
+
+	it('obj (separated by line break and semicolon) (with trailing semicolon)', async () => {
 		const res = await exe(`
 		<: {
 			a: 1;
