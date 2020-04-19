@@ -131,6 +131,7 @@ export type NMatch = {
 		q: Node; // 条件
 		a: Node; // 結果
 	}[];
+	default?: Node; // デフォルト値
 };
 
 export type Node = NDef | NAssign | NCall | NReturn | NIf | NFor | NForOf | NVar | NNull | NBool | NNum | NStr | NArr | NFn | NObj | NProp | NPropCall | NIndex | NBlock | NTmpl | NNs | NMatch;

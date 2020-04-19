@@ -416,6 +416,29 @@ describe('match', () => {
 		eq(res, STR('b'));
 	});
 
+	it('When default not provided, returns null', async () => {
+		const res = await exe(`
+		<: ? 42 {
+			1 => "a"
+			2 => "b"
+			3 => "c"
+		}
+		`);
+		eq(res, NULL);
+	});
+
+	it('With default', async () => {
+		const res = await exe(`
+		<: ? 42 {
+			1 => "a"
+			2 => "b"
+			3 => "c"
+			* => "d"
+		}
+		`);
+		eq(res, STR('d'));
+	});
+
 	it('With block', async () => {
 		const res = await exe(`
 		<: ? 2 {

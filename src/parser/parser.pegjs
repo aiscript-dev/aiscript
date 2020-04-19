@@ -257,18 +257,19 @@ ElseBlock
 // match --------------------------------------------------------------------------
 
 Match
-	= "?" _ about:Expr _ "{" _ qs:(q:Expr _ "=>" _ a:Expr _ { return { q, a }; })+ _ "}"
+	= "?" _ about:Expr _ "{" _ qs:(q:Expr _ "=>" _ a:Expr _ { return { q, a }; })+ x:("*" _ "=>" _ v:Expr _ { return v; })? _ "}"
 {
 	return createNode('match', {
 		about: about,
 		qs: qs || [],
+		default: x
 	});
 }
 
 // for statement -------------------------------------------------------------------------
 
 For
-	= "~" ___ "#" varn:NAME _ from:("=" _ v:Expr { return v; })? "," _ to:Expr ___ "{" _ s:Statements _ "}"
+	= "~" ___ "#" varn:NAME _ from:("=" _ v:Expr { return v; })? ","? _ to:Expr ___ "{" _ s:Statements _ "}"
 {
 	return createNode('for', {
 		var: varn,
@@ -288,7 +289,7 @@ For
 // for of statement -------------------------------------------------------------------------
 
 ForOf
-	= "~~" ___ "#" varn:NAME _ "," _ items:Expr ___ "{" _ s:Statements _ "}"
+	= "~~" ___ "#" varn:NAME _ ","? _ items:Expr ___ "{" _ s:Statements _ "}"
 {
 	return createNode('forOf', {
 		var: varn,

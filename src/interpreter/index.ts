@@ -181,6 +181,9 @@ export class AiScript {
 						return await this._eval(qa.a, scope);
 					}
 				}
+				if (node.default) {
+					return await this._eval(node.default, scope);
+				}
 				return NULL;
 			}
 
