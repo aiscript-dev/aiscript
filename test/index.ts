@@ -171,6 +171,15 @@ it('Recursion', async () => {
 	eq(res, NUM(120));
 });
 
+it('Var name starts with \'no\'', async () => {
+	const res = await exe(`
+	#note = "ai"
+
+	<: note
+	`);
+	eq(res, STR('ai'));
+});
+
 it('Object property access', async () => {
 	const res = await exe(`
 	#obj = {
