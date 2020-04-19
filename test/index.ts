@@ -221,11 +221,21 @@ it('Array item access', async () => {
 	eq(res, STR('chan'));
 });
 
-it('Template syntax', async () => {
-	const res = await exe(`
-	<: \`1 + 1 = {Core:to_str((1 + 1))}\`
-	`);
-	eq(res, STR('1 + 1 = 2'));
+describe('Template syntax', () => {
+	it('Basic', async () => {
+		const res = await exe(`
+		#attr = "kawaii"
+		<: \`Ai is {attr}!\`
+		`);
+		eq(res, STR('Ai is kawaii!'));
+	});
+
+	it('convert to str', async () => {
+		const res = await exe(`
+		<: \`1 + 1 = {(1 + 1)}\`
+		`);
+		eq(res, STR('1 + 1 = 2'));
+	});
 });
 
 it('Cannot access js native property via var', async () => {
