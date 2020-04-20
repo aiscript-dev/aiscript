@@ -39,14 +39,14 @@ export type NFor = {
 	from?: Node; // 開始値
 	to?: Node; // 終値
 	times?: Node; // 回数
-	s: Node[]; // 本体処理
+	for: Node; // 本体処理
 };
 
 export type NForOf = {
 	type: 'forOf'; // for of文
 	var: string; // イテレータ変数名
 	items: Node; // 配列
-	s: Node[]; // 本体処理
+	for: Node; // 本体処理
 };
 
 export type NVar = {
@@ -134,4 +134,26 @@ export type NMatch = {
 	default?: Node; // デフォルト値
 };
 
-export type Node = NDef | NAssign | NCall | NReturn | NIf | NFor | NForOf | NVar | NNull | NBool | NNum | NStr | NArr | NFn | NObj | NProp | NPropCall | NIndex | NBlock | NTmpl | NNs | NMatch;
+export type Node =
+	NDef |
+	NAssign |
+	NCall |
+	NReturn |
+	NIf |
+	NFor |
+	NForOf |
+	NVar |
+	NNull |
+	NBool |
+	NNum |
+	NStr |
+	NArr |
+	NFn |
+	NObj |
+	NProp |
+	NPropCall |
+	NIndex |
+	NBlock |
+	NTmpl |
+	NNs |
+	NMatch;

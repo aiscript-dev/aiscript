@@ -530,6 +530,14 @@ describe('for', () => {
 		`);
 		eq(res, ARR([NUM(1), NUM(2), NUM(3), NUM(4), NUM(5)]));
 	});
+
+	it('returns value (without block)', async () => {
+		const res = await exe(`
+		#items = ~ #i, 5 i
+		<: items
+		`);
+		eq(res, ARR([NUM(1), NUM(2), NUM(3), NUM(4), NUM(5)]));
+	});
 });
 
 describe('for of', () => {

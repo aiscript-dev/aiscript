@@ -193,7 +193,7 @@ export class AiScript {
 					const times = await this._eval(node.times, scope);
 					assertNumber(times);
 					for (let i = 1; i < times.value + 1; i++) {
-						const v = await this._run(node.s, scope);
+						const v = await this._eval(node.for, scope);
 						result.push(v);
 					}
 				} else {
@@ -202,7 +202,7 @@ export class AiScript {
 					assertNumber(from);
 					assertNumber(to);
 					for (let i = from.value + 1; i < to.value + 1; i++) {
-						const v = await this._run(node.s, scope.createChildScope(new Map([
+						const v = await this._eval(node.for, scope.createChildScope(new Map([
 							[node.var!, NUM(i)]
 						])));
 						result.push(v);
@@ -216,7 +216,7 @@ export class AiScript {
 				const items = await this._eval(node.items!, scope);
 				assertArray(items);
 				for (const item of items.value) {
-					const v = await this._run(node.s, scope.createChildScope(new Map([
+					const v = await this._eval(node.for, scope.createChildScope(new Map([
 						[node.var!, item]
 					])));
 					result.push(v);
