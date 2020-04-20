@@ -35,7 +35,7 @@ AiScriptのコメントは`//`で始めます。
 	<tr><td>文字列</td><td><code>str</code></td><td><code>"kawaii"</code></td></tr>
 	<tr><td>数値</td><td><code>num</code></td><td><code>42</code></td></tr>
 	<tr><td>真理値</td><td><code>bool</code></td><td><code>yes</code>/<code>no</code></td></tr>
-	<tr><td>配列</td><td><code>arr</code></td><td><code>["ai", "chan", "cute"]</code></td></tr>
+	<tr><td>配列</td><td><code>arr</code></td><td><code>["ai" "chan" "cute"]</code></td></tr>
 	<tr><td>オブジェクト</td><td><code>obj</code></td><td><code>{ foo: "bar"; a: 42; }</code></td></tr>
 	<tr><td>null</td><td><code>null</code></td><td><code>_</code></td></tr>
 	<tr><td>関数</td><td><code>fn</code></td><td><code>@(x) { x }</code></td></tr>
@@ -112,6 +112,8 @@ Core:add(1, 1)
 <: foo // 3
 ```
 
+ブロック自体も式です。
+
 ## 条件分岐
 AiScriptでの条件分岐は、次のように書きます:
 ```
@@ -120,8 +122,8 @@ AiScriptでの条件分岐は、次のように書きます:
 }
 ```
 
-`?`の後にboolを返す式(条件)を書き、その後のブロックで条件に一致した場合の処理を書きます。
-同時に、ブロックの後に`.`を書き、さらにブロックを追加することで条件に一致しなかった場合の処理も行うことが出来ます:
+`?`の後にboolを返す式(条件)を書き、その後に条件に一致した場合に評価される式(then節)を書きます。
+then節の後に`.`を書き、さらに式を追加することで条件に一致しなかった場合の処理も行うことが出来ます:
 ```
 ? (a = b) {
 	<: "a is equal to b"
@@ -155,14 +157,14 @@ AiScriptでの条件分岐は、次のように書きます:
 ## 繰り返し
 AiScriptでの繰り返しは、次のように書きます:
 ```
-~ #i, 100 {
+~ (#i, 100) {
 	<: i
 }
 ```
 `~`の後にイテレータ変数名を書き、`,`の後に繰り返し回数を返す式を書きます。その後のブロックで繰り返す処理を書きます。
 イテレータ変数は省略することも出来ます:
 ```
-~ 100 {
+~ (100) {
 	<: "yo"
 }
 ```
@@ -171,7 +173,7 @@ AiScriptでの繰り返しは、次のように書きます:
 `~~`を使うと、配列のアイテムを繰り返すことができます:
 ```
 #items = ["a", "b", "c"]
-~~ #item, #items {
+~~ (#item, #items) {
 	<: item
 }
 ```
@@ -200,7 +202,7 @@ AiScriptでの繰り返しは、次のように書きます:
 # Examples
 ## FizzBuzz
 ```
-~ #i, 100 {
+~ (#i, 100) {
 	<: ? ((i % 15) = 0) "FizzBuzz"
 		.? ((i % 3) = 0) "Fizz"
 		.? ((i % 5) = 0) "Buzz"

@@ -269,7 +269,8 @@ Match
 // for statement -------------------------------------------------------------------------
 
 For
-	= "~" ___ "#" varn:NAME _ from:("=" _ v:Expr { return v; })? ","? _ to:Expr ___ x:Expr
+	= "~" _ "(" "#" varn:NAME _ from:("=" _ v:Expr { return v; })? ","? _ to:Expr ")" ___ x:Expr
+	/ "~" ___ "#" varn:NAME _ from:("=" _ v:Expr { return v; })? ","? _ to:Expr ___ x:Expr
 {
 	return createNode('for', {
 		var: varn,
@@ -278,6 +279,7 @@ For
 		for: x,
 	});
 }
+	/ "~" _ "(" times:Expr ")" ___ x:Expr
 	/ "~" ___ times:Expr ___ x:Expr
 {
 	return createNode('for', {
@@ -289,7 +291,8 @@ For
 // for of statement -------------------------------------------------------------------------
 
 ForOf
-	= "~~" ___ "#" varn:NAME _ ","? _ items:Expr ___ x:Expr
+	= "~~" _ "(" "#" varn:NAME _ ","? _ items:Expr ")" ___ x:Expr
+	/ "~~" ___ "#" varn:NAME _ ","? _ items:Expr ___ x:Expr
 {
 	return createNode('forOf', {
 		var: varn,

@@ -29,7 +29,7 @@ Not altJS.
 
 ### Fizz Buzz
 ```
-~ #i, 100 {
+~ (#i, 100) {
 	<: ? ((i % 15) = 0) "FizzBuzz"
 		.? ((i % 3) = 0) "Fizz"
 		.? ((i % 5) = 0) "Buzz"
