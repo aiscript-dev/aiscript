@@ -153,9 +153,9 @@ StrEsc
 
 // boolean literal
 Bool
-	= "yes" !(NAME_WITH_NAMESPACE)
+	= "yes" ![A-Z0-9_]i
 { return createNode('bool', { value: true }); }
-	/ "no" !(NAME_WITH_NAMESPACE)
+	/ "no" ![A-Z0-9_]i
 { return createNode('bool', { value: false }); }
 
 // array literal
@@ -176,7 +176,7 @@ Obj
 
 // null literal
 Null
-	= "_"
+	= "_" ![A-Z0-9_]i
 { return createNode('null', {}); }
 
 // block
@@ -300,9 +300,18 @@ ForOf
 
 // general -------------------------------------------------------------------------------
 
-NAME = [A-Za-z_] [A-Za-z0-9_]* { return text(); }
+IgnoredName
+	= "_"
+	/ "yes"
+	/ "no"
 
-NAME_WITH_NAMESPACE = NAME (":" NAME)* { return text(); }
+NAME
+	= !(IgnoredName ![A-Z0-9_]i) [A-Z_]i [A-Z0-9_]i*
+{ return text(); }
+
+NAME_WITH_NAMESPACE
+	= NAME (":" NAME)*
+{ return text(); }
 
 EOL
 	= !. / "\r\n" / [\r\n]
