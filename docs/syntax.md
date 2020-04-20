@@ -22,7 +22,7 @@ else:
 ```
 ? eq(answer, 42) {
 	print("correct answer")
-} ... {
+} . {
 	print("wrong answer")
 }
 ```
@@ -31,9 +31,9 @@ else if:
 ```
 ? eq(answer, "bebeyo") {
 	print("correct answer")
-} ...? eq(answer, "ai") {
+} .? eq(answer, "ai") {
 	print("kawaii")
-} ... {
+} . {
 	print("wrong answer")
 }
 ```
@@ -42,8 +42,8 @@ as expression:
 ```
 #result =
 	? eq(answer, "bebeyo") { "correct answer" }
-	...? eq(answer, "ai") { "kawaii" }
-	... { "wrong answer" }
+	.? eq(answer, "ai") { "kawaii" }
+	. { "wrong answer" }
 
 print(result)
 ```

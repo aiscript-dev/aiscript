@@ -232,13 +232,13 @@ Op
 // if statement --------------------------------------------------------------------------
 
 If
-	= "?" _ cond:Expr _ "{" _ then:Statements? _ "}" elseif:(_ b:ElseifBlocks { return b; })? elseBlock:(_ b:ElseBlock { return b; })?
+	= "?" ___ cond:Expr ___ then:(Expr / Return) elseif:(_ b:ElseifBlocks { return b; })? elseBlock:(_ b:ElseBlock { return b; })?
 {
 	return createNode('if', {
 		cond: cond,
-		then: then || [],
+		then: then,
 		elseif: elseif || [],
-		else: elseBlock || []
+		else: elseBlock
 	});
 }
 
@@ -247,11 +247,11 @@ ElseifBlocks
 { return [head, ...tails]; }
 
 ElseifBlock
-	= "...?" _ cond:Expr _ "{" _ then:Statements? _ "}"
+	= "."+ "?" _ cond:Expr _ then:(Expr / Return)
 { return { cond, then }; }
 
 ElseBlock
-	= "..." _ "{" _ then:Statements? _ "}"
+	= "."+ _ then:(Expr / Return)
 { return then; }
 
 // match --------------------------------------------------------------------------

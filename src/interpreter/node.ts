@@ -25,12 +25,12 @@ export type NReturn = {
 export type NIf = {
 	type: 'if'; // if文
 	cond: Node; // 条件式
-	then: Node[]; // if文のthen節
+	then: Node; // then節
 	elseif: {
 		cond: Node;
-		then: Node[];
-	}[]; // if文のelseif節
-	else: Node[]; // if文のelse節
+		then: Node;
+	}[]; // elseif節
+	else: Node; // else節
 };
 
 export type NFor = {
