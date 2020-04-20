@@ -1,6 +1,6 @@
 import { v4 as uuid } from 'uuid';
 import * as seedrandom from 'seedrandom';
-import { Value, NUM, STR, FN_NATIVE, FALSE, TRUE, VArr, ARR, NULL, OBJ } from '../value';
+import { Value, NUM, STR, FN_NATIVE, FALSE, TRUE, VArr, ARR, NULL, OBJ, BOOL } from '../value';
 import { assertNumber, assertString, assertArray, assertBoolean, valToJs, jsToVal, assertFunction, assertObject, eq } from '../util';
 import { AiScriptError } from '../error';
 const pkg = require('../../../package.json');
@@ -407,6 +407,19 @@ export const std: Record<string, Value> = {
 		assertObject(obj);
 		return ARR(Array.from(obj.value.entries()).map(([k, v]) => ARR([STR(k), v])));
 	}),
+
+	'Obj:get': FN_NATIVE(([obj, key]) => {
+		assertObject(obj);
+		assertString(key);
+		return obj.value.get(key.value) || NULL;
+	}),
+
+	'Obj:has': FN_NATIVE(([obj, key]) => {
+		assertObject(obj);
+		assertString(key);
+		return BOOL(obj.value.has(key.value));
+	}),
+
 
 	/* TODO
 	'Obj:merge': FN_NATIVE(([a, b]) => {
