@@ -232,7 +232,7 @@ Op
 // if statement --------------------------------------------------------------------------
 
 If
-	= "?" ___ cond:Expr ___ then:Expr elseif:(_ b:ElseifBlocks { return b; })? elseBlock:(_ b:ElseBlock { return b; })?
+	= "?" ___ cond:Expr ___ then:Expr elseif:(___ b:ElseifBlocks { return b; })? elseBlock:(___ b:ElseBlock { return b; })?
 {
 	return createNode('if', {
 		cond: cond,
