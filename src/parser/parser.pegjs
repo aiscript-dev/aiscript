@@ -143,9 +143,9 @@ StrEsc
 
 // boolean literal
 Bool
-	= "yes" ![A-Z0-9_]i
+	= ("yes" / "+") ![A-Z0-9_]i
 { return createNode('bool', { value: true }); }
-	/ "no" ![A-Z0-9_]i
+	/ ("no" / "-") ![A-Z0-9_]i
 { return createNode('bool', { value: false }); }
 
 // array literal

@@ -625,6 +625,20 @@ describe('literal', () => {
 		eq(res, BOOL(false));
 	});
 
+	it('bool (true) +', async () => {
+		const res = await exe(`
+		<: +
+		`);
+		eq(res, BOOL(true));
+	});
+
+	it('bool (false) -', async () => {
+		const res = await exe(`
+		<: -
+		`);
+		eq(res, BOOL(false));
+	});
+
 	it('arr (separated by comma)', async () => {
 		const res = await exe(`
 		<: [1, 2, 3]
