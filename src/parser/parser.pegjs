@@ -187,7 +187,7 @@ Out
 // function ------------------------------------------------------------------------------
 
 Args
-	= head:NAME_WITH_NAMESPACE tails:(_ "," _ name:NAME_WITH_NAMESPACE { return name; })*
+	= head:NAME_WITH_NAMESPACE tails:(","? ___ name:NAME_WITH_NAMESPACE { return name; })*
 { return [head, ...tails]; }
 
 // statement of function definition
@@ -210,7 +210,7 @@ Call
 { return createNode('call', { name, args: args || [] }); }
 
 CallArgs
-	= head:Expr tails:(_ "," _ expr:Expr { return expr; })*
+	= head:Expr tails:(","? ___ expr:Expr { return expr; })*
 { return [head, ...tails]; }
 
 // syntax sugers of operator function call

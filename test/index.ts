@@ -47,16 +47,6 @@ it('var', async () => {
 	eq(res, NUM(42));
 });
 
-it('Fn call with no args', async () => {
-	const res = await exe(`
-	@f() {
-		42
-	}
-	<: f()
-	`);
-	eq(res, NUM(42));
-});
-
 it('Closure', async () => {
 	const res = await exe(`
 	@store(v) {
@@ -238,6 +228,48 @@ it('SKI', async () => {
 	c([sksik, "foo", print])
 	`);
 	eq(res, STR('foo'));
+});
+
+describe('Function call', () => {
+	it('without args', async () => {
+		const res = await exe(`
+		@f() {
+			42
+		}
+		<: f()
+		`);
+		eq(res, NUM(42));
+	});
+
+	it('with args', async () => {
+		const res = await exe(`
+		@f(x) {
+			x
+		}
+		<: f(42)
+		`);
+		eq(res, NUM(42));
+	});
+
+	it('with args (separated by comma)', async () => {
+		const res = await exe(`
+		@f(x, y) {
+			(x + y)
+		}
+		<: f(1, 1)
+		`);
+		eq(res, NUM(2));
+	});
+
+	it('with args (separated by space)', async () => {
+		const res = await exe(`
+		@f(x y) {
+			(x + y)
+		}
+		<: f(1 1)
+		`);
+		eq(res, NUM(2));
+	});
 });
 
 describe('Return', () => {
