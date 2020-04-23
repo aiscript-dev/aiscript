@@ -1,0 +1,14 @@
+version: 2.1
+orbs:
+  node: circleci/node@2.0.3
+jobs:
+  build:
+    executor:
+      name: node/default
+      tag: '14.0'
+    steps:
+      - checkout
+      - node/with-cache:
+          steps:
+            - run: npm install
+      - run: npm run test
