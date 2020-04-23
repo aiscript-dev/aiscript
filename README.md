@@ -1,4 +1,4 @@
-<h1><img src="./aiscript.svg" alt="AiScript" width="150"></h1>
+<h1><img src="./aiscript.svg" alt="AiScript" width="300"></h1>
 
 **AiScript** is a scripting language runing on JavaScript.
 Not altJS.
