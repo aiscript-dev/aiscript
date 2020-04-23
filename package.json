@@ -20,6 +20,7 @@
   "devDependencies": {
     "@types/mocha": "7.0.2",
     "@types/node": "13.11.0",
+    "@types/seedrandom": "2.4.28",
     "mkdirp": "1.0.4",
     "mocha": "7.1.1",
     "pegjs": "0.10.0",
@@ -28,10 +29,10 @@
     "typescript": "3.8.3"
   },
   "dependencies": {
-    "@types/seedrandom": "2.4.28",
     "autobind-decorator": "2.4.0",
     "chalk": "4.0.0",
     "seedrandom": "3.0.5",
+    "stringz": "2.1.0",
     "uuid": "7.0.3"
   }
 }

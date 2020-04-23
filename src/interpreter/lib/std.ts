@@ -1,6 +1,7 @@
 import { v4 as uuid } from 'uuid';
+import { substring, length, indexOf, toArray } from 'stringz';
 import * as seedrandom from 'seedrandom';
-import { Value, NUM, STR, FN_NATIVE, FALSE, TRUE, VArr, ARR, NULL, OBJ, BOOL } from '../value';
+import { Value, NUM, STR, FN_NATIVE, FALSE, TRUE, VArr, ARR, NULL, BOOL } from '../value';
 import { assertNumber, assertString, assertArray, assertBoolean, valToJs, jsToVal, assertFunction, assertObject, eq } from '../util';
 import { AiScriptError } from '../error';
 const pkg = require('../../../package.json');
@@ -223,14 +224,15 @@ export const std: Record<string, Value> = {
 
 	'Str:len': FN_NATIVE(([v]) => {
 		if (v.type !== 'str') return NUM(0);
-		return NUM(v.value.length);
+		return NUM(length(v.value));
 	}),
 
 	'Str:pick': FN_NATIVE(([v, i]) => {
 		assertString(v);
 		assertNumber(i);
-		const char = v.value[i.value - 1];
-		return char ? STR(v.value[i.value - 1]) : NULL;
+		const chars = toArray(v.value);
+		const char = chars[i.value - 1];
+		return char ? STR(char) : NULL;
 	}),
 
 	'Str:incl': FN_NATIVE(([v, keyword]) => {
@@ -243,13 +245,17 @@ export const std: Record<string, Value> = {
 		assertString(v);
 		assertNumber(begin);
 		assertNumber(end);
-		return STR(v.value.substring(begin.value - 1, end.value - 1));
+		return STR(substring(v.value, begin.value - 1, end.value - 1));
 	}),
 
 	'Str:split': FN_NATIVE(([v, splitter]) => {
 		assertString(v);
 		if (splitter) assertString(splitter);
-		return ARR(v.value.split(splitter ? splitter.value : '').map(s => STR(s)));
+		if (splitter) {
+			return ARR(v.value.split(splitter ? splitter.value : '').map(s => STR(s)));
+		} else {
+			return ARR(toArray(v.value).map(s => STR(s)));
+		}
 	}),
 
 	'Str:replace': FN_NATIVE(([v, a, b]) => {
@@ -262,7 +268,7 @@ export const std: Record<string, Value> = {
 	'Str:index_of': FN_NATIVE(([v, search]) => {
 		assertString(v);
 		assertString(search);
-		return NUM(v.value.indexOf(search.value) + 1);
+		return NUM(indexOf(v.value, search.value) + 1);
 	}),
 
 	'Str:trim': FN_NATIVE(([v]) => {

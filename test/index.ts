@@ -820,4 +820,27 @@ describe('std', () => {
 			]));
 		});
 	});
+
+	describe('Str', () => {
+		it('len', async () => {
+			const res = await exe(`
+			<: Str:len("👍🏽🍆🌮")
+			`);
+			eq(res, NUM(3));
+		});
+
+		it('pick', async () => {
+			const res = await exe(`
+			<: Str:pick("👍🏽🍆🌮", 2)
+			`);
+			eq(res, STR('🍆'));
+		});
+		
+		it('split', async () => {
+			const res = await exe(`
+			<: Str:split("👍🏽🍆🌮")
+			`);
+			eq(res, ARR([STR('👍🏽'), STR('🍆'), STR('🌮')]));
+		});
+	});
 });
