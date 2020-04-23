@@ -1,9 +1,9 @@
 <h1><img src="./aiscript.svg" alt="AiScript" width="300"></h1>
 
-[![][npm-badge]][npm-link]
-[![][ci-badge]][ci-link]
-[![][mit-badge]][mit]
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square&logo=github)](http://makeapullrequest.com)
+[![](https://img.shields.io/npm/v/@syuilo/aiscript.svg?style=flat-square)](https://www.npmjs.com/package/@syuilo/aiscript)
+![](https://github.com/syuilo/aiscript/workflows/ci/badge.svg)
+[![](https://img.shields.io/badge/license-MIT-444444.svg?style=flat-square)](http://opensource.org/licenses/MIT)
+[![](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square&logo=github)](http://makeapullrequest.com)
 
 > **AiScript** is a scripting language runing on JavaScript. Not altJS.
 
@@ -39,10 +39,3 @@ AiScriptはJavaScript上で動作し、外の情報にはアクセス出来な�
 
 ## License
 [MIT](LICENSE)
-
-[npm-link]:   https://www.npmjs.com/package/@syuilo/aiscript
-[npm-badge]:  https://img.shields.io/npm/v/@syuilo/aiscript.svg?style=flat-square
-[mit]:        http://opensource.org/licenses/MIT
-[mit-badge]:  https://img.shields.io/badge/license-MIT-444444.svg?style=flat-square
-[ci-link]:    https://circleci.com/gh/syuilo/aiscript
-[ci-badge]:   https://img.shields.io/circleci/project/github/syuilo/aiscript.svg?style=flat-square&logo=circleci
