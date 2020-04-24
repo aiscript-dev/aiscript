@@ -270,6 +270,14 @@ Match
 
 For
 	= "~" _ "(" "#" varn:NAME _ from:("=" _ v:Expr { return v; })? ","? _ to:Expr ")" ___ x:Expr
+{
+	return createNode('for', {
+		var: varn,
+		from: from || createNode('num', { value: 0 }),
+		to: to,
+		for: x,
+	});
+}
 	/ "~" ___ "#" varn:NAME _ from:("=" _ v:Expr { return v; })? ","? _ to:Expr ___ x:Expr
 {
 	return createNode('for', {
@@ -280,6 +288,12 @@ For
 	});
 }
 	/ "~" _ "(" times:Expr ")" ___ x:Expr
+{
+	return createNode('for', {
+		times: times,
+		for: x,
+	});
+}
 	/ "~" ___ times:Expr ___ x:Expr
 {
 	return createNode('for', {
@@ -292,6 +306,13 @@ For
 
 ForOf
 	= "~~" _ "(" "#" varn:NAME _ ","? _ items:Expr ")" ___ x:Expr
+{
+	return createNode('forOf', {
+		var: varn,
+		items: items,
+		for: x,
+	});
+}
 	/ "~~" ___ "#" varn:NAME _ ","? _ items:Expr ___ x:Expr
 {
 	return createNode('forOf', {
