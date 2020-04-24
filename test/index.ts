@@ -878,6 +878,13 @@ describe('std', () => {
 			`);
 			eq(res, STR('🍆'));
 		});
+
+		it('slice', async () => {
+			const res = await exe(`
+			<: Str:slice("Emojis 👍🏽 are 🍆 poison. 🌮s are bad.", 8, 15)
+			`);
+			eq(res, STR('👍🏽 are 🍆'));
+		});
 		
 		it('split', async () => {
 			const res = await exe(`
