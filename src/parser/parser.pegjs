@@ -80,9 +80,9 @@ NamespaceMember
 
 // statement of variable definition
 VarDef
-	= "#" [ \t]* name:NAME _ "=" _ expr:Expr
+	= "#" name:NAME _ "=" _ expr:Expr
 { return createNode('def', { name, expr, mut: false }); }
-	/ "$" [ \t]* name:NAME _ "<-" _ expr:Expr
+	/ "$" name:NAME _ "<-" _ expr:Expr
 { return createNode('def', { name, expr, mut: true }); }
 
 // var reassign
