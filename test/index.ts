@@ -825,13 +825,80 @@ describe('literal', () => {
 });
 
 describe('meta', () => {
+	describe('String', () => {
+		it('valid', async () => {
+			const res = getMeta(`
+			### x "hoge"
+			`);
+			eq(res, new Map([
+				['x', 'hoge']
+			]));
+		});
+	});
+
+	describe('Number', () => {
+		it('valid', async () => {
+			const res = getMeta(`
+			### x 42
+			`);
+			eq(res, new Map([
+				['x', 42]
+			]));
+		});
+	});
+
+	describe('Boolean', () => {
+		it('valid', async () => {
+			const res = getMeta(`
+			### x yes
+			`);
+			eq(res, new Map([
+				['x', true]
+			]));
+		});
+	});
+
+	describe('Null', () => {
+		it('valid', async () => {
+			const res = getMeta(`
+			### x _
+			`);
+			eq(res, new Map([
+				['x', null]
+			]));
+		});
+	});
+
+	describe('Array', () => {
+		it('valid', async () => {
+			const res = getMeta(`
+			### x [1 2 3]
+			`);
+			eq(res, new Map([
+				['x', [1, 2, 3]]
+			]));
+		});
+
+		it('invalid', async () => {
+			try {
+				getMeta(`
+				### x [1 (2 + 2) 3]
+				`);
+			} catch(e) {
+				assert.ok(true);
+				return;
+			}
+			assert.fail();
+		});
+	});
+
 	describe('Object', () => {
 		it('valid', async () => {
 			const res = getMeta(`
-			### o { a: 1; b: 2; c: 3; }
+			### x { a: 1; b: 2; c: 3; }
 			`);
 			eq(res, new Map([
-				['o', {
+				['x', {
 					a: 1,
 					b: 2,
 					c: 3,
@@ -842,7 +909,35 @@ describe('meta', () => {
 		it('invalid', async () => {
 			try {
 				getMeta(`
-				### o { a: 1; b: (2 + 2); c: 3; }
+				### x { a: 1; b: (2 + 2); c: 3; }
+				`);
+			} catch(e) {
+				assert.ok(true);
+				return;
+			}
+			assert.fail();
+		});
+	});
+
+	describe('Template', () => {
+		it('invalid', async () => {
+			try {
+				getMeta(`
+				### x \`foo {bar} baz\`
+				`);
+			} catch(e) {
+				assert.ok(true);
+				return;
+			}
+			assert.fail();
+		});
+	});
+
+	describe('Expression', () => {
+		it('invalid', async () => {
+			try {
+				getMeta(`
+				### x (1 + 1)
 				`);
 			} catch(e) {
 				assert.ok(true);
