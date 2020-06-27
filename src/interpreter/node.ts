@@ -134,6 +134,12 @@ export type NMatch = {
 	default?: Node; // デフォルト値
 };
 
+export type NMeta = {
+	type: 'meta'; // メタデータ定義
+	name: string; // 名
+	value: Node; // 値
+};
+
 export type Node =
 	NDef |
 	NAssign |
@@ -155,5 +161,6 @@ export type Node =
 	NIndex |
 	NBlock |
 	NTmpl |
+	NMatch |
 	NNs |
-	NMatch;
+	NMeta;

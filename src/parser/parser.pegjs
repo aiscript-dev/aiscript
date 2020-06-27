@@ -38,6 +38,7 @@ Statement
 	/ Assign
 	/ FnDef
 	/ Namespace
+	/ Meta
 	/ Debug
 	/ Expr
 
@@ -321,6 +322,34 @@ ForOf
 		for: x,
 	});
 }
+
+// meta -------------------------------------------------------------------------------
+
+StaticLiteral
+	= Num
+	/ Str
+	/ Bool
+	/ StaticArr
+	/ StaticObj
+	/ Null
+
+StaticArr
+	= "[" _ items:(item:StaticLiteral _ ","? _ { return item; })* _ "]"
+{ return createNode('arr', { value: items }); }
+
+StaticObj
+	= "{" _ kvs:(k:NAME _ ":" _ v:StaticLiteral _ ("," / ";")? _ { return { k, v }; })* "}"
+{
+	const obj = new Map();
+	for (const kv of kvs) {
+		obj.set(kv.k, kv.v);
+	}
+	return createNode('obj', { value: obj });
+}
+
+Meta
+	= "###" __ name:NAME _ value:StaticLiteral
+{ return createNode('meta', { name, value }); }
 
 // general -------------------------------------------------------------------------------
 

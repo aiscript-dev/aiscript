@@ -19,6 +19,20 @@ const exe = (program: string): Promise<any> => new Promise((ok, err) => {
 	aiscript.exec(ast).catch(err);
 });
 
+const getMeta = (program: string) => {
+	const aiscript = new AiScript({}, {
+		out(value) {
+			// nop
+		},
+	});
+
+	const ast = parse(program);
+
+	const metadata = aiscript.collectMetadata(ast);
+
+	return metadata;
+};
+
 const eq = (a, b) => {
 	assert.deepEqual(a.type, b.type);
 	assert.deepEqual(a.value, b.value);
@@ -807,6 +821,35 @@ describe('literal', () => {
 			['b', ARR([NUM(1), NUM(2), NUM(3)])],
 			['c', NUM(3)]
 		])));
+	});
+});
+
+describe('meta', () => {
+	describe('Object', () => {
+		it('valid', async () => {
+			const res = getMeta(`
+			### o { a: 1; b: 2; c: 3; }
+			`);
+			eq(res, new Map([
+				['o', {
+					a: 1,
+					b: 2,
+					c: 3,
+				}]
+			]));
+		});
+
+		it('invalid', async () => {
+			try {
+				getMeta(`
+				### o { a: 1; b: (2 + 2); c: 3; }
+				`);
+			} catch(e) {
+				assert.ok(true);
+				return;
+			}
+			assert.fail();
+		});
 	});
 });
 

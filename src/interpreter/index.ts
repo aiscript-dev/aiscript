@@ -69,6 +69,46 @@ export class AiScript {
 	}
 
 	@autobind
+	public collectMetadata(script?: Node[]) {
+		if (script == null || script.length === 0) return;
+
+		function nodeToJs(node: Node): any {
+			switch (node.type) {
+				case 'arr': return node.value.map(item => nodeToJs(item));
+				case 'bool': return node.value;
+				case 'null': return null;
+				case 'num': return node.value;
+				case 'obj': {
+					const obj = {};
+					for (const [k, v] of node.value.entries()) {
+						// TODO: keyが__proto__とかじゃないかチェック
+						obj[k] = nodeToJs(v);
+					}
+					return obj;
+				}
+				case 'str': return node.value;
+			}
+		}
+
+		const meta = new Map();
+
+		for (const node of script) {
+			switch (node.type) {
+				case 'meta': {
+					meta.set(node.name, nodeToJs(node.value));
+					break;
+				}
+			
+				default: {
+					// nop
+				}
+			}
+		}
+
+		return meta;
+	}
+
+	@autobind
 	private log(type: string, params: Record<string, any>) {
 		if (this.opts.log) this.opts.log(type, params);
 	}
@@ -328,6 +368,10 @@ export class AiScript {
 			}
 
 			case 'ns': {
+				return NULL; // nop
+			}
+
+			case 'meta': {
 				return NULL; // nop
 			}
 		}
