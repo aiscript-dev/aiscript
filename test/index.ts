@@ -825,6 +825,19 @@ describe('literal', () => {
 });
 
 describe('meta', () => {
+	it('default meta', async () => {
+		const res = getMeta(`
+		### { a: 1; b: 2; c: 3; }
+		`);
+		eq(res, new Map([
+			[null, {
+				a: 1,
+				b: 2,
+				c: 3,
+			}]
+		]));
+	});
+
 	describe('String', () => {
 		it('valid', async () => {
 			const res = getMeta(`

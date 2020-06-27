@@ -350,6 +350,8 @@ StaticObj
 Meta
 	= "###" __ name:NAME _ value:StaticLiteral
 { return createNode('meta', { name, value }); }
+	/ "###" __ value:StaticLiteral
+{ return createNode('meta', { name: null, value }); }
 
 // general -------------------------------------------------------------------------------
 
