@@ -219,6 +219,16 @@ AiScriptでの繰り返しは、次のように書きます:
 <: `Hello, {ai} world!`
 ```
 
+## メタデータ
+AiScriptファイルにメタデータを埋め込める機能です。
+```
+### {
+	name: "example"
+	version: 42
+	keywords: ["foo" "bar" "baz"]
+}
+```
+
 # Examples
 ## FizzBuzz
 ```
