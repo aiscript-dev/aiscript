@@ -7,13 +7,17 @@
 
 > **AiScript** is a scripting language runing on JavaScript. Not altJS.
 
-AiScriptは、JavaScript上で動作するマルチパラダイムプログラミング言語です。
+AiScriptは、JavaScript上で動作するマルチパラダイムプログラミング言語です。AltJSではありません(1)。
 
 * 配列、オブジェクト、関数等をファーストクラスでサポート
 * 条件分岐やブロックも式として扱えるなどの柔軟さ
 * セミコロンやカンマは不要で書きやすい
-* セキュアなサンドボックス環境で実行される
+* セキュア(2)なサンドボックス環境で実行される
 * ホストから変数や関数を提供可能
+
+> (1) ... JavaScript「上で動作」するのであって、JavaScriptに「変換される」のではありません。したがってAltJSではありません。
+
+> (2) ... ホストの情報にアクセスできないこと。
 
 ## Getting started
 [See here](./docs/get-started.md)
