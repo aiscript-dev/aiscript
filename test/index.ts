@@ -20,15 +20,9 @@ const exe = (program: string): Promise<any> => new Promise((ok, err) => {
 });
 
 const getMeta = (program: string) => {
-	const aiscript = new AiScript({}, {
-		out(value) {
-			// nop
-		},
-	});
-
 	const ast = parse(program);
 
-	const metadata = aiscript.collectMetadata(ast);
+	const metadata = AiScript.collectMetadata(ast);
 
 	return metadata;
 };

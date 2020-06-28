@@ -69,7 +69,7 @@ export class AiScript {
 	}
 
 	@autobind
-	public collectMetadata(script?: Node[]) {
+	public static collectMetadata(script?: Node[]) {
 		if (script == null || script.length === 0) return;
 
 		function nodeToJs(node: Node): any {
