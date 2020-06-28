@@ -830,6 +830,11 @@ describe('meta', () => {
 				c: 3,
 			}]
 		]));
+		eq(res!.get(null), {
+			a: 1,
+			b: 2,
+			c: 3,
+		});
 	});
 
 	describe('String', () => {

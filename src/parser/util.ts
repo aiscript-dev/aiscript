@@ -2,7 +2,7 @@ export function createNode(type: string, params: Record<string, any>, children?:
 	const node = { type };
 	params.children = children;
 	for (const key of Object.keys(params)) {
-		if (params[key] != null) {
+		if (params[key] !== undefined) {
 			node[key] = params[key];
 		}
 	}

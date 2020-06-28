@@ -136,7 +136,7 @@ export type NMatch = {
 
 export type NMeta = {
 	type: 'meta'; // メタデータ定義
-	name: string; // 名
+	name: string | null; // 名
 	value: Node; // 値
 };
 
