@@ -1,5 +1,5 @@
 import { Scope } from './scope';
-import { Node } from './node';
+import { Node } from '../node';
 
 export type VNull = {
 	type: 'null';
