@@ -162,9 +162,17 @@ it('Object property assign', async () => {
 	obj.a <- 24
 	obj.b.d.e <- 42
 
-	<: [obj.a obj.b.c obj.b.d.e]
+	<: obj
 	`);
-	eq(res, ARR([NUM(24), NUM(2), NUM(42)]));
+	eq(res, OBJ(new Map<string, any>([
+		['a', NUM(24)],
+		['b', OBJ(new Map<string, any>([
+			['c', NUM(2)],
+			['d', OBJ(new Map<string, any>([
+				['e', NUM(42)],
+			]))],
+		]))],
+	])));
 });
 
 it('Array item access', async () => {
