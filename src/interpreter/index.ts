@@ -296,6 +296,15 @@ export class AiScript {
 				return NULL;
 			}
 
+			case 'indexAssign': {
+				const arr = scope.get(node.arr);
+				assertArray(arr);
+				const i = await this._eval(node.i, scope);
+				assertNumber(i);
+				arr.value[i.value - 1] = await this._eval(node.expr, scope); // TODO: 存在チェック
+				return NULL;
+			}
+
 			case 'null': return NULL;
 
 			case 'bool': return BOOL(node.value);

@@ -176,6 +176,17 @@ it('Array item access', async () => {
 	eq(res, STR('chan'));
 });
 
+it('Array item assign', async () => {
+	const res = await exe(`
+	#arr = ["ai", "chan", "kawaii"]
+
+	arr[2] <- "taso"
+
+	<: arr
+	`);
+	eq(res, ARR([STR('ai'), STR('taso'), STR('kawaii')]));
+});
+
 describe('Template syntax', () => {
 	it('Basic', async () => {
 		const res = await exe(`

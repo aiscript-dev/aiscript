@@ -18,6 +18,13 @@ export type NPropAssign = {
 	expr: Node; // 式
 };
 
+export type NIndexAssign = {
+	type: 'indexAssign'; // 配列要素再代入
+	arr: string; // 配列変数名
+	i: Node; // インデックス
+	expr: Node; // 式
+};
+
 export type NCall = {
 	type: 'call'; // 関数呼び出し
 	name: string; // 関数名
@@ -151,6 +158,7 @@ export type Node =
 	NDef |
 	NAssign |
 	NPropAssign |
+	NIndexAssign |
 	NCall |
 	NReturn |
 	NIf |

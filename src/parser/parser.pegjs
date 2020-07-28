@@ -37,6 +37,7 @@ Statement
 	= VarDef
 	/ Assign
 	/ PropAssign
+	/ IndexAssign
 	/ FnDef
 	/ Namespace
 	/ Meta
@@ -95,6 +96,11 @@ Assign
 PropAssign
 	= head:NAME_WITH_NAMESPACE tails:("." name:NAME { return name; })+ _ "<-" _ expr:Expr
 { return createNode('propAssign', { obj: head, path: tails, expr }); }
+
+// array index assign
+IndexAssign
+	= v:NAME_WITH_NAMESPACE "[" _ i:Expr _ "]" _ "<-" _ expr:Expr
+{ return createNode('indexAssign', { arr: v, i: i, expr }); }
 
 Debug
 	= "<<<" _ expr:Expr

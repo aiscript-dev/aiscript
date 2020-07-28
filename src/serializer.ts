@@ -1,4 +1,4 @@
-import { Node, NDef, NAssign, NCall, NReturn, NIf, NFor, NForOf, NVar, NNull, NBool, NNum, NStr, NArr, NFn, NObj, NProp, NPropCall, NIndex, NBlock, NTmpl, NNs, NMatch, NMeta, NPropAssign } from './node';
+import { Node, NDef, NAssign, NCall, NReturn, NIf, NFor, NForOf, NVar, NNull, NBool, NNum, NStr, NArr, NFn, NObj, NProp, NPropCall, NIndex, NBlock, NTmpl, NNs, NMatch, NMeta, NPropAssign, NIndexAssign } from './node';
 
 const types = {
 	def: 0,
@@ -25,6 +25,7 @@ const types = {
 	match: 21,
 	meta: 22,
 	propAssign: 23,
+	indexAssign: 24,
 };
 
 type Bin = any[];
@@ -56,6 +57,7 @@ export function serializeOne(node: Node | null | undefined): Bin | null {
 		case 'match': return [types[node.type], serializeOne(node.about), node.qs.map(x => [serializeOne(x.q), serializeOne(x.a)]), serializeOne(node.default)];
 		case 'meta': return [types[node.type], node.name, serializeOne(node.value)];
 		case 'propAssign': return [types[node.type], node.obj, node.path, serializeOne(node.expr)];
+		case 'indexAssign': return [types[node.type], node.arr, serializeOne(node.i), serializeOne(node.expr)];
 	}
 }
 
@@ -91,6 +93,7 @@ export function deserializeOne(bin: Bin | null): Node | undefined {
 		case types.match: return { type, about: deserializeOne(bin[1]), qs: bin[2].map(x => ({ q: deserializeOne(x[0]), a: deserializeOne(x[1]) })), default: deserializeOne(bin[3]), } as NMatch;
 		case types.meta: return { type, name: bin[1], value: deserializeOne(bin[2]), } as NMeta;
 		case types.propAssign: return { type, obj: bin[1], path: bin[2], expr: deserializeOne(bin[3]), } as NPropAssign;
+		case types.indexAssign: return { type, arr: bin[1], i: deserializeOne(bin[2]), expr: deserializeOne(bin[3]), } as NIndexAssign;
 	}
 	throw new Error("deserialization failed");
 }
