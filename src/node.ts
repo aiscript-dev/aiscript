@@ -11,6 +11,13 @@ export type NAssign = {
 	expr: Node; // 式
 };
 
+export type NPropAssign = {
+	type: 'propAssign'; // プロパティ再代入
+	obj: string; // オブジェクト変数名
+	path: string[]; // プロパティパス
+	expr: Node; // 式
+};
+
 export type NCall = {
 	type: 'call'; // 関数呼び出し
 	name: string; // 関数名
@@ -143,6 +150,7 @@ export type NMeta = {
 export type Node =
 	NDef |
 	NAssign |
+	NPropAssign |
 	NCall |
 	NReturn |
 	NIf |

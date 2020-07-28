@@ -278,6 +278,24 @@ export class AiScript {
 				return NULL;
 			}
 
+			case 'propAssign': {
+				const obj = scope.get(node.obj);
+				let x = obj;
+				const lastProp = node.path[node.path.length - 1];
+				for (const prop of node.path.slice(0, node.path.length - 1)) {
+					assertObject(x);
+					if (!x.value.has(prop)) {
+						x = NULL;
+						break;
+					} else {
+						x = x.value.get(prop)!;
+					}
+				}
+				assertObject(x);
+				x.value.set(lastProp, await this._eval(node.expr, scope));
+				return NULL;
+			}
+
 			case 'null': return NULL;
 
 			case 'bool': return BOOL(node.value);

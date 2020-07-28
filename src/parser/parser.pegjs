@@ -36,6 +36,7 @@ Statements
 Statement
 	= VarDef
 	/ Assign
+	/ PropAssign
 	/ FnDef
 	/ Namespace
 	/ Meta
@@ -89,6 +90,11 @@ VarDef
 Assign
 	= name:NAME _ "<-" _ expr:Expr
 { return createNode('assign', { name, expr }); }
+
+// property assign
+PropAssign
+	= head:NAME_WITH_NAMESPACE tails:("." name:NAME { return name; })+ _ "<-" _ expr:Expr
+{ return createNode('propAssign', { obj: head, path: tails, expr }); }
 
 Debug
 	= "<<<" _ expr:Expr
