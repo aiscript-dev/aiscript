@@ -115,6 +115,11 @@ it('Escaped double quote', async () => {
 	eq(res, STR('ai saw a note "bebeyo".'));
 });
 
+it('//', async () => {
+	const res = await exe('<: "//"');
+	eq(res, STR('//'));
+});
+
 it('var', async () => {
 	const res = await exe(`
 	#a = 42
