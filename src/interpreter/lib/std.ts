@@ -22,6 +22,10 @@ export const std: Record<string, Value> = {
 		return eq(a, b) ? TRUE : FALSE;
 	}),
 
+	'Core:neq': FN_NATIVE(([a, b]) => {
+		return eq(a, b) ? FALSE : TRUE;
+	}),
+
 	'Core:and': FN_NATIVE(([a, b]) => {
 		assertBoolean(a);
 		assertBoolean(b);
@@ -76,6 +80,18 @@ export const std: Record<string, Value> = {
 		assertNumber(a);
 		assertNumber(b);
 		return a.value < b.value ? TRUE : FALSE;
+	}),
+
+	'Core:gteq': FN_NATIVE(([a, b]) => {
+		assertNumber(a);
+		assertNumber(b);
+		return a.value >= b.value ? TRUE : FALSE;
+	}),
+
+	'Core:lteq': FN_NATIVE(([a, b]) => {
+		assertNumber(a);
+		assertNumber(b);
+		return a.value <= b.value ? TRUE : FALSE;
 	}),
 
 	'Core:type': FN_NATIVE(([v]) => {

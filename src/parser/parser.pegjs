@@ -229,6 +229,7 @@ CallArgs
 // syntax sugers of operator function call
 Ops
 	= "=" { return 'Core:eq'; }
+	/ "!=" { return 'Core:neq'; }
 	/ "&" { return 'Core:and'; }
 	/ "|" { return 'Core:or'; }
 	/ "+" { return 'Core:add'; }
@@ -236,6 +237,8 @@ Ops
 	/ "*" { return 'Core:mul'; }
 	/ "/" { return 'Core:div'; }
 	/ "%" { return 'Core:mod'; }
+	/ ">=" { return 'Core:gteq'; }
+	/ "<=" { return 'Core:lteq'; }
 	/ ">" { return 'Core:gt'; }
 	/ "<" { return 'Core:lt'; }
 

@@ -40,14 +40,79 @@ it('Hello, world!', async () => {
 	eq(res, STR('Hello, world!'));
 });
 
+describe('ops', () => {
+	it('=', async () => {
+		eq(await exe('<: (1 = 1)'), BOOL(true));
+		eq(await exe('<: (1 = 2)'), BOOL(false));
+	});
+
+	it('!=', async () => {
+		eq(await exe('<: (1 != 2)'), BOOL(true));
+		eq(await exe('<: (1 != 1)'), BOOL(false));
+	});
+
+	it('&', async () => {
+		eq(await exe('<: (yes & yes)'), BOOL(true));
+		eq(await exe('<: (yes & no)'), BOOL(false));
+		eq(await exe('<: (no & yes)'), BOOL(false));
+		eq(await exe('<: (no & no)'), BOOL(false));
+	});
+
+	it('|', async () => {
+		eq(await exe('<: (yes | yes)'), BOOL(true));
+		eq(await exe('<: (yes | no)'), BOOL(true));
+		eq(await exe('<: (no | yes)'), BOOL(true));
+		eq(await exe('<: (no | no)'), BOOL(false));
+	});
+
+	it('+', async () => {
+		eq(await exe('<: (1 + 1)'), NUM(2));
+	});
+
+	it('-', async () => {
+		eq(await exe('<: (1 - 1)'), NUM(0));
+	});
+
+	it('*', async () => {
+		eq(await exe('<: (1 * 1)'), NUM(1));
+	});
+
+	it('/', async () => {
+		eq(await exe('<: (1 / 1)'), NUM(1));
+	});
+
+	it('%', async () => {
+		eq(await exe('<: (1 % 1)'), NUM(0));
+	});
+
+	it('>', async () => {
+		eq(await exe('<: (2 > 1)'), BOOL(true));
+		eq(await exe('<: (1 > 1)'), BOOL(false));
+		eq(await exe('<: (0 > 1)'), BOOL(false));
+	});
+
+	it('<', async () => {
+		eq(await exe('<: (2 < 1)'), BOOL(false));
+		eq(await exe('<: (1 < 1)'), BOOL(false));
+		eq(await exe('<: (0 < 1)'), BOOL(true));
+	});
+
+	it('>=', async () => {
+		eq(await exe('<: (2 >= 1)'), BOOL(true));
+		eq(await exe('<: (1 >= 1)'), BOOL(true));
+		eq(await exe('<: (0 >= 1)'), BOOL(false));
+	});
+
+	it('<=', async () => {
+		eq(await exe('<: (2 <= 1)'), BOOL(false));
+		eq(await exe('<: (1 <= 1)'), BOOL(true));
+		eq(await exe('<: (0 <= 1)'), BOOL(true));
+	});
+});
+
 it('Escaped double quote', async () => {
 	const res = await exe('<: "ai saw a note \\"bebeyo\\"."');
 	eq(res, STR('ai saw a note "bebeyo".'));
-});
-
-it('(1 + 1)', async () => {
-	const res = await exe('<: (1 + 1)');
-	eq(res, NUM(2));
 });
 
 it('var', async () => {
