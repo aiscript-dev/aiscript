@@ -15,7 +15,9 @@ Entry
 { return applyParser(parts.join(''), 'Core'); }
 
 PreprocessPart
-	= Comment { return ''; }
+	= Tmpl { return text(); }
+	/ Str { return text(); }
+	/ Comment { return ''; }
 	/ .
 
 Comment
