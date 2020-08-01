@@ -280,6 +280,14 @@ describe('Template syntax', () => {
 		`);
 		eq(res, STR('1 + 1 = 2'));
 	});
+
+	it('Escape', async () => {
+		const res = await exe(`
+		#message = "Hello"
+		<: \`\\\`a\\{b\\}c\\\`\`
+		`);
+		eq(res, STR('`a{b}c`'));
+	});
 });
 
 it('Cannot access js native property via var', async () => {
