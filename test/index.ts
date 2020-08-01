@@ -325,14 +325,14 @@ it('Throws error when divied by zero', async () => {
 
 it('Fizz Buzz', async () => {
 	const res = await exe(`
-	$res <- []
+	#res = []
 	~ (#i, 15) {
 		#msg =
 			? ((i % 15) = 0) "FizzBuzz"
 			.? ((i % 3) = 0) "Fizz"
 			.? ((i % 5) = 0) "Buzz"
 			. i
-		res <- Arr:push(res msg)
+		Arr:push(res msg)
 	}
 	<: res
 	`);
@@ -746,9 +746,9 @@ describe('for', () => {
 describe('for of', () => {
 	it('standard', async () => {
 		const res = await exe(`
-		$msgs <- []
+		#msgs = []
 		~~ #item, ["ai", "chan", "kawaii"] {
-			msgs <- Arr:push(msgs, Arr:join([item, "!"]))
+			Arr:push(msgs, Arr:join([item, "!"]))
 		}
 		<: msgs
 		`);
