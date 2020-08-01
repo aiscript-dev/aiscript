@@ -120,6 +120,15 @@ it('//', async () => {
 	eq(res, STR('//'));
 });
 
+it('式にコロンがあってもオブジェクトと判定されない', async () => {
+	const res = await exe(`
+	<: {
+		Str:incl("ai", "a")
+	}
+	`);
+	eq(res, BOOL(true));
+});
+
 it('var', async () => {
 	const res = await exe(`
 	#a = 42
