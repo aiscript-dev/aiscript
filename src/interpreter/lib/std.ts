@@ -9,6 +9,7 @@ const pkg = require('../../../package.json');
 export const std: Record<string, Value> = {
 	'help': STR('SEE: https://github.com/syuilo/aiscript/blob/master/docs/get-started.md'),
 
+	//#region Core
 	'Core:v': STR(pkg.version),
 
 	'Core:ai': STR('kawaii'),
@@ -103,11 +104,15 @@ export const std: Record<string, Value> = {
 		if (v.type === 'num') return STR(v.value.toString());
 		return STR('?');
 	}),
+	//#endregion
 
+	//#region Util
 	'Util:uuid': FN_NATIVE(() => {
 		return STR(uuid());
 	}),
+	//#endregion
 
+	//#region Json
 	'Json:stringify': FN_NATIVE(([v]) => {
 		return STR(JSON.stringify(valToJs(v)));
 	}),
@@ -116,7 +121,9 @@ export const std: Record<string, Value> = {
 		assertString(json);
 		return jsToVal(JSON.parse(json.value));
 	}),
+	//#endregion
 
+	//#region Date
 	'Date:now': FN_NATIVE(() => {
 		return NUM(Date.now());
 	}),
@@ -149,7 +156,9 @@ export const std: Record<string, Value> = {
 		assertString(v);
 		return NUM(new Date(v.value).getTime());
 	}),
+	//#endregion
 
+	//#region Math
 	'Math:PI': NUM(Math.PI),
 
 	'Math:sin': FN_NATIVE(([v]) => {
@@ -215,7 +224,9 @@ export const std: Record<string, Value> = {
 			return NUM(rng());
 		});
 	}),
+	//#endregion
 
+	//#region Num
 	'Num:to_hex': FN_NATIVE(([v]) => {
 		assertNumber(v);
 		return STR(v.value.toString(16));
@@ -225,7 +236,9 @@ export const std: Record<string, Value> = {
 		assertString(v);
 		return NUM(parseInt(v.value, 16));
 	}),
+	//#endregion
 
+	//#region Str
 	'Str:lf': STR('\n'),
 
 	'Str:to_num': FN_NATIVE(([v]) => {
@@ -301,7 +314,9 @@ export const std: Record<string, Value> = {
 		assertString(v);
 		return STR(v.value.toLowerCase());
 	}),
+	//#endregion
 
+	//#region Arr
 	'Arr:len': FN_NATIVE(([arr]) => {
 		if (arr.type !== 'arr') return NUM(0);
 		return NUM(arr.value.length);
@@ -419,7 +434,9 @@ export const std: Record<string, Value> = {
 		items[i.value - 1] = v;
 		return ARR(items);
 	}),
+	//#endregion
 
+	//#region Obj
 	'Obj:keys': FN_NATIVE(([obj]) => {
 		assertObject(obj);
 		return ARR(Array.from(obj.value.keys()).map(k => STR(k)));
@@ -442,7 +459,6 @@ export const std: Record<string, Value> = {
 		return BOOL(obj.value.has(key.value));
 	}),
 
-
 	/* TODO
 	'Obj:merge': FN_NATIVE(([a, b]) => {
 		assertObject(a);
@@ -450,7 +466,9 @@ export const std: Record<string, Value> = {
 		return OBJ();
 	}),
 	*/
+	//#endregion
 
+	//#region Async
 	'Async:interval': FN_NATIVE(async ([interval, callback, immediate], opts) => {
 		assertNumber(interval);
 		assertFunction(callback);
@@ -495,4 +513,5 @@ export const std: Record<string, Value> = {
 			opts.unregisterAbortHandler(abortHandler);
 		});
 	}),
+	//#endregion
 };
