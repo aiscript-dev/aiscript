@@ -143,9 +143,15 @@ Tmpl
 { return createNode('tmpl', { tmpl: concatTemplate(items) }); }
 
 TmplEmbed
-	= "{" __ expr:Expr __ "}"
+	= TmplEsc
+	/ "{" __ expr:Expr __ "}"
 { return expr; }
 	/ .
+
+TmplEsc
+	= "\\{" { return text()[1]; } // avoid syntax error of PEG.js (bug?)
+	/ "\\}" { return text()[1]; } // avoid syntax error of PEG.js (bug?)
+	/ "\\`" { return '`'; }
 
 // string literal
 Str
