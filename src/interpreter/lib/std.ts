@@ -1,7 +1,7 @@
 import { v4 as uuid } from 'uuid';
 import { substring, length, indexOf, toArray } from 'stringz';
 import * as seedrandom from 'seedrandom';
-import { Value, NUM, STR, FN_NATIVE, FALSE, TRUE, VArr, ARR, NULL, BOOL } from '../value';
+import { Value, NUM, STR, FN_NATIVE, FALSE, TRUE, VArr, ARR, NULL, BOOL, OBJ } from '../value';
 import { assertNumber, assertString, assertArray, assertBoolean, valToJs, jsToVal, assertFunction, assertObject, eq } from '../util';
 import { AiScriptError } from '../error';
 const pkg = require('../../../package.json');
@@ -324,22 +324,24 @@ export const std: Record<string, Value> = {
 
 	'Arr:push': FN_NATIVE(([arr, val]) => {
 		assertArray(arr);
-		return ARR([...arr.value, val]);
+		arr.value.push(val);
+		return NULL;
 	}),
 
 	'Arr:unshift': FN_NATIVE(([arr, val]) => {
 		assertArray(arr);
-		return ARR([val, ...arr.value]);
+		arr.value.unshift(val);
+		return NULL;
 	}),
 
 	'Arr:pop': FN_NATIVE(([arr]) => {
 		assertArray(arr);
-		return ARR(arr.value.slice(0, arr.value.length - 1));
+		return arr.value.pop();
 	}),
 
 	'Arr:shift': FN_NATIVE(([arr]) => {
 		assertArray(arr);
-		return ARR(arr.value.slice(1, arr.value.length));
+		return arr.value.shift();
 	}),
 
 	'Arr:concat': FN_NATIVE(([a, b]) => {
@@ -424,15 +426,13 @@ export const std: Record<string, Value> = {
 
 	'Arr:reverse': FN_NATIVE(([arr]) => {
 		assertArray(arr);
-		return ARR(arr.value.slice().reverse());
+		arr.value.reverse();
+		return NULL;
 	}),
 
-	'Arr:replace': FN_NATIVE(async ([arr, i, v]) => {
+	'Arr:copy': FN_NATIVE(async ([arr]) => {
 		assertArray(arr);
-		assertNumber(i);
-		const items = arr.value.slice();
-		items[i.value - 1] = v;
-		return ARR(items);
+		return ARR([...arr.value]);
 	}),
 	//#endregion
 
@@ -453,10 +453,22 @@ export const std: Record<string, Value> = {
 		return obj.value.get(key.value) || NULL;
 	}),
 
+	'Obj:set': FN_NATIVE(([obj, key, value]) => {
+		assertObject(obj);
+		assertString(key);
+		obj.value.set(key.value, value);
+		return NULL;
+	}),
+
 	'Obj:has': FN_NATIVE(([obj, key]) => {
 		assertObject(obj);
 		assertString(key);
 		return BOOL(obj.value.has(key.value));
+	}),
+	
+	'Obj:copy': FN_NATIVE(([obj]) => {
+		assertObject(obj);
+		return OBJ(new Map(obj.value));
 	}),
 
 	/* TODO
