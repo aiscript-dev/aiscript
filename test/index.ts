@@ -129,6 +129,28 @@ it('式にコロンがあってもオブジェクトと判定されない', asyn
 	eq(res, BOOL(true));
 });
 
+it('inc', async () => {
+	const res = await exe(`
+	$a <- 0
+	a +<- 1
+	a +<- 2
+	a +<- 3
+	<: a
+	`);
+	eq(res, NUM(6));
+});
+
+it('dec', async () => {
+	const res = await exe(`
+	$a <- 0
+	a -<- 1
+	a -<- 2
+	a -<- 3
+	<: a
+	`);
+	eq(res, NUM(-6));
+});
+
 it('var', async () => {
 	const res = await exe(`
 	#a = 42

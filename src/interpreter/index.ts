@@ -305,6 +305,24 @@ export class AiScript {
 				return NULL;
 			}
 
+			case 'inc': {
+				const target = scope.get(node.name);
+				assertNumber(target);
+				const v = await this._eval(node.expr, scope);
+				assertNumber(v);
+				target.value += v.value;
+				return NULL;
+			}
+
+			case 'dec': {
+				const target = scope.get(node.name);
+				assertNumber(target);
+				const v = await this._eval(node.expr, scope);
+				assertNumber(v);
+				target.value -= v.value;
+				return NULL;
+			}
+
 			case 'null': return NULL;
 
 			case 'bool': return BOOL(node.value);

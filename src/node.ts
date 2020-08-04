@@ -25,6 +25,18 @@ export type NIndexAssign = {
 	expr: Node; // 式
 };
 
+export type NInc = {
+	type: 'inc'; // インクリメント
+	name: string; // 変数名
+	expr: Node; // 式
+};
+
+export type NDec = {
+	type: 'dec'; // デクリメント
+	name: string; // 変数名
+	expr: Node; // 式
+};
+
 export type NCall = {
 	type: 'call'; // 関数呼び出し
 	name: string; // 関数名
@@ -159,6 +171,8 @@ export type Node =
 	NAssign |
 	NPropAssign |
 	NIndexAssign |
+	NInc |
+	NDec |
 	NCall |
 	NReturn |
 	NIf |

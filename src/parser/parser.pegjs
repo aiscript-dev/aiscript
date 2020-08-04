@@ -40,6 +40,8 @@ Statement
 	/ Assign
 	/ PropAssign
 	/ IndexAssign
+	/ Inc
+	/ Dec
 	/ FnDef
 	/ Namespace
 	/ Meta
@@ -103,6 +105,16 @@ PropAssign
 IndexAssign
 	= v:NAME_WITH_NAMESPACE "[" _ i:Expr _ "]" _ "<-" _ expr:Expr
 { return createNode('indexAssign', { arr: v, i: i, expr }); }
+
+// increment
+Inc
+	= name:NAME _ "+<-" _ expr:Expr
+{ return createNode('inc', { name, expr }); }
+
+// decrement
+Dec
+	= name:NAME _ "-<-" _ expr:Expr
+{ return createNode('dec', { name, expr }); }
 
 Debug
 	= "<<<" _ expr:Expr
