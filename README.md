@@ -21,6 +21,8 @@ AiScriptは、JavaScript上で動作するマルチパラダイムプログラ�
 
 このリポジトリには、JavaScriptで実装されたパーサーと処理系が含まれます。
 
+Note: AiScript and [Misskey](https://github.com/syuilo/misskey) are completely independent projects. AiScript does not prescribe any specific host, but Misskey is the largest user of AiScript (today!)
+
 ## Getting started
 [See here](./docs/get-started.md)
 
