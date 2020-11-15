@@ -419,6 +419,10 @@ export class AiScript {
 			case 'meta': {
 				return NULL; // nop
 			}
+
+			default: {
+				throw new Error('invalid node type');
+			}
 		}
 	}
 

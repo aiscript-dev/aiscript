@@ -1,7 +1,7 @@
 const fs = require('fs');
 const readline = require('readline');
 const chalk = require('chalk');
-const parse = require('./built/parser/parser.js').parse;
+const parse = require('./built/parser/index.js').parse;
 const { valToString, nodeToString } = require('./built/interpreter/util.js');
 const AiScript = require('./built/interpreter/index.js').AiScript;
 

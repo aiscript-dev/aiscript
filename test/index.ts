@@ -6,7 +6,7 @@ import * as assert from 'assert';
 import { AiScript } from '../src/interpreter';
 import { NUM, STR, NULL, ARR, OBJ, BOOL } from '../src/interpreter/value';
 import { serialize, deserialize } from '../src/serializer';
-const parse = require('../built/parser/parser.js').parse;
+const parse = require('../built/parser/index.js').parse;
 
 const exe = (program: string): Promise<any> => new Promise((ok, err) => {
 	const aiscript = new AiScript({}, {
