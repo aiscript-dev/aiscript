@@ -3,6 +3,7 @@ export type NDef = {
 	name: string; // 変数名
 	expr: Node; // 式
 	mut: boolean; // ミュータブルか否か
+	attr: Map<string, Node>; // 付加された属性
 };
 
 export type NAssign = {

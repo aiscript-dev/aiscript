@@ -46,6 +46,7 @@ Statement
 	/ Namespace
 	/ Meta
 	/ Debug
+	/ Attr
 	/ Expr
 
 Expr
@@ -87,9 +88,9 @@ NamespaceMember
 // statement of variable definition
 VarDef
 	= "#" name:NAME _ "=" _ expr:Expr
-{ return createNode('def', { name, expr, mut: false }); }
+{ return createNode('def', { name, expr, mut: false, attr: new Map() }); }
 	/ "$" name:NAME _ "<-" _ expr:Expr
-{ return createNode('def', { name, expr, mut: true }); }
+{ return createNode('def', { name, expr, mut: true, attr: new Map() }); }
 
 // var reassign
 Assign
@@ -229,7 +230,9 @@ FnDef
 {
 	return createNode('def', {
 		name: name,
-		expr: createNode('fn', { args }, content)
+		expr: createNode('fn', { args }, content),
+		mut: false,
+		attr: new Map()
 	});
 }
 
@@ -358,7 +361,7 @@ ForOf
 	});
 }
 
-// meta -------------------------------------------------------------------------------
+// meta, attribute -----------------------------------------------------------------------
 
 StaticLiteral
 	= Num
@@ -387,6 +390,11 @@ Meta
 { return createNode('meta', { name, value }); }
 	/ "###" __ value:StaticLiteral
 { return createNode('meta', { name: null, value }); }
+
+// Note: Attribute will be combined with def node when parsing is complete.
+Attr
+	= "+" __ name:NAME _ value:StaticLiteral
+{ return createNode('attr', { name, value }); }
 
 // general -------------------------------------------------------------------------------
 
