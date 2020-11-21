@@ -14,8 +14,7 @@ function applyAttr(nodes: (Node | NAttr)[]): Node[] {
 	for (const node of nodes) {
 		if (node.type == 'attr') {
 			stockedAttrs.push(node);
-		}
-		else if (node.type == 'def') {
+		} else if (node.type == 'def') {
 			const kvp = stockedAttrs.map(attr => { return { k: attr.name, v: attr.value }; });
 			for (const kv of kvp) {
 				node.attr.set(kv.k, kv.v);
@@ -26,8 +25,7 @@ function applyAttr(nodes: (Node | NAttr)[]): Node[] {
 				node.expr.children = applyAttr(node.expr.children);
 			}
 			result.push(node);
-		}
-		else if (stockedAttrs.length == 0) {
+		} else if (stockedAttrs.length == 0) {
 			switch (node.type) {
 				case 'fn': {
 					node.children = applyAttr(node.children);
@@ -39,8 +37,7 @@ function applyAttr(nodes: (Node | NAttr)[]): Node[] {
 				}
 			}
 			result.push(node);
-		}
-		else {
+		} else {
 			throw new Error('invalid attribute');
 		}
 	}
