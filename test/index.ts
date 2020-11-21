@@ -1111,6 +1111,44 @@ describe('meta', () => {
 	});
 });
 
+describe('Attribute', () => {
+	it('single attribute with function (str)', async () => {
+		const ast: any[] = parse(`
+		+ Event "Recieved"
+		@onRecieved(data) {
+			data
+		}
+		`);
+		assert.equal(ast.length, 1);
+		assert.equal(ast[0].type, 'def');
+		assert.equal(ast[0].name, 'onRecieved');
+		const attr = new Map([
+			['Event', STR('Recieved')]
+		]);
+		assert.deepEqual(ast[0].attr, attr);
+	});
+
+	it('multiple attributes with function (obj, str, bool)', async () => {
+		const ast: any[] = parse(`
+		+ Endpoint { path: "/notes/create"; }
+		+ Desc "Create a note."
+		+ Cat yes
+		@createNote(text) {
+			<: text
+		}
+		`);
+		assert.equal(ast.length, 1);
+		assert.equal(ast[0].type, 'def');
+		assert.equal(ast[0].name, 'createNote');
+		const attr = new Map<string, any>([
+			['Endpoint', OBJ(new Map([['path', STR('/notes/create')]]))],
+			['Desc', STR('Create a note.')],
+			['Cat', BOOL(true)]
+		]);
+		assert.deepEqual(ast[0].attr, attr);
+	});
+});
+
 describe('std', () => {
 	describe('Arr', () => {
 		it('map', async () => {
