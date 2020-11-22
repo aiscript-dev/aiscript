@@ -1,14 +1,3 @@
-export function createNode(type: string, params: Record<string, any>, children?: any[]) {
-	const node = { type };
-	params.children = children;
-	for (const key of Object.keys(params)) {
-		if (params[key] !== undefined) {
-			node[key] = params[key];
-		}
-	}
-	return node;
-}
-
 export function group<T>(arr: T[], predicate: (prev: T, current: T) => boolean): T[][] {
 	const dest: any[][] = [];
 
