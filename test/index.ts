@@ -1122,10 +1122,12 @@ describe('Attribute', () => {
 		assert.equal(ast.length, 1);
 		assert.equal(ast[0].type, 'def');
 		assert.equal(ast[0].name, 'onRecieved');
-		const attr = new Map([
-			['Event', STR('Recieved')]
-		]);
-		assert.deepEqual(ast[0].attr, attr);
+		assert.equal(ast[0].attr.length, 1);
+
+		assert.equal(ast[0].attr[0].type, 'attr');
+		assert.equal(ast[0].attr[0].name, 'Event');
+		assert.equal(ast[0].attr[0].value.type, 'str');
+		assert.equal(ast[0].attr[0].value.value, 'Recieved');
 	});
 
 	it('multiple attributes with function (obj, str, bool)', async () => {
@@ -1140,12 +1142,31 @@ describe('Attribute', () => {
 		assert.equal(ast.length, 1);
 		assert.equal(ast[0].type, 'def');
 		assert.equal(ast[0].name, 'createNote');
-		const attr = new Map<string, any>([
-			['Endpoint', OBJ(new Map([['path', STR('/notes/create')]]))],
-			['Desc', STR('Create a note.')],
-			['Cat', BOOL(true)]
-		]);
-		assert.deepEqual(ast[0].attr, attr);
+		assert.equal(ast[0].attr.length, 3);
+
+		assert.equal(ast[0].attr[0].type, 'attr');
+		assert.equal(ast[0].attr[0].name, 'Endpoint');
+		assert.equal(ast[0].attr[0].value.type, 'obj');
+		assert.equal(ast[0].attr[0].value.value.size, 1);
+		for (const [k, v] of (ast[0].attr[0].value.value as Map<string, any>)) {
+			if (k == 'path') {
+				assert.equal(v.type, 'str');
+				assert.equal(v.value, '/notes/create');
+			}
+			else {
+				assert.throws(() => 'incorrect object property');
+			}
+		}
+
+		assert.equal(ast[0].attr[1].type, 'attr');
+		assert.equal(ast[0].attr[1].name, 'Desc');
+		assert.equal(ast[0].attr[1].value.type, 'str');
+		assert.equal(ast[0].attr[1].value.value, 'Create a note.');
+
+		assert.equal(ast[0].attr[2].type, 'attr');
+		assert.equal(ast[0].attr[2].name, 'Cat');
+		assert.equal(ast[0].attr[2].value.type, 'bool');
+		assert.equal(ast[0].attr[2].value.value, true);
 	});
 });
 
