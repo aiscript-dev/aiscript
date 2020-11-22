@@ -99,9 +99,9 @@ NamespaceMember
 // statement of variable definition
 VarDef
 	= "#" name:NAME _ "=" _ expr:Expr
-{ return createNode('def', { name, expr, mut: false, attr: new Map() }); }
+{ return createNode('def', { name, expr, mut: false, attr: [] }); }
 	/ "$" name:NAME _ "<-" _ expr:Expr
-{ return createNode('def', { name, expr, mut: true, attr: new Map() }); }
+{ return createNode('def', { name, expr, mut: true, attr: [] }); }
 
 // var reassign
 Assign
@@ -243,7 +243,7 @@ FnDef
 		name: name,
 		expr: createNode('fn', { args }, content),
 		mut: false,
-		attr: new Map()
+		attr: []
 	});
 }
 
