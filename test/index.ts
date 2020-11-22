@@ -7,7 +7,7 @@ import { AiScript } from '../src/interpreter';
 import { NUM, STR, NULL, ARR, OBJ, BOOL } from '../src/interpreter/value';
 import { serialize, deserialize } from '../src/serializer';
 import { parse } from '../src/parser';
-import { NAttr } from '../src/node';
+import { NAttr, Node } from '../src/node';
 
 const exe = (program: string): Promise<any> => new Promise((ok, err) => {
 	const aiscript = new AiScript({}, {
@@ -1114,19 +1114,21 @@ describe('meta', () => {
 
 describe('Attribute', () => {
 	it('single attribute with function (str)', async () => {
+		let node: Node;
 		let attr: NAttr;
-		const ast = parse(`
+		const nodes = parse(`
 		+ Event "Recieved"
 		@onRecieved(data) {
 			data
 		}
 		`);
-		assert.equal(ast.length, 1);
-		if (ast[0].type != 'def') assert.fail();
-		assert.equal(ast[0].name, 'onRecieved');
-		assert.equal(ast[0].attr.length, 1);
+		assert.equal(nodes.length, 1);
+		node = nodes[0];
+		if (node.type != 'def') assert.fail();
+		assert.equal(node.name, 'onRecieved');
+		assert.equal(node.attr.length, 1);
 		// attribute 1
-		attr = ast[0].attr[0];
+		attr = node.attr[0];
 		if (attr.type != 'attr') assert.fail();
 		assert.equal(attr.name, 'Event');
 		if (attr.value.type != 'str') assert.fail();
@@ -1134,8 +1136,9 @@ describe('Attribute', () => {
 	});
 
 	it('multiple attributes with function (obj, str, bool)', async () => {
+		let node: Node;
 		let attr: NAttr;
-		const ast = parse(`
+		const nodes = parse(`
 		+ Endpoint { path: "/notes/create"; }
 		+ Desc "Create a note."
 		+ Cat yes
@@ -1143,12 +1146,13 @@ describe('Attribute', () => {
 			<: text
 		}
 		`);
-		assert.equal(ast.length, 1);
-		if (ast[0].type != 'def') assert.fail();
-		assert.equal(ast[0].name, 'createNote');
-		assert.equal(ast[0].attr.length, 3);
+		assert.equal(nodes.length, 1);
+		node = nodes[0];
+		if (node.type != 'def') assert.fail();
+		assert.equal(node.name, 'createNote');
+		assert.equal(node.attr.length, 3);
 		// attribute 1
-		attr = ast[0].attr[0];
+		attr = node.attr[0];
 		if (attr.type != 'attr') assert.fail();
 		assert.equal(attr.name, 'Endpoint');
 		if (attr.value.type != 'obj') assert.fail();
@@ -1163,13 +1167,13 @@ describe('Attribute', () => {
 			}
 		}
 		// attribute 2
-		attr = ast[0].attr[1];
+		attr = node.attr[1];
 		if (attr.type != 'attr') assert.fail();
 		assert.equal(attr.name, 'Desc');
 		if (attr.value.type != 'str') assert.fail();
 		assert.equal(attr.value.value, 'Create a note.');
 		// attribute 3
-		attr = ast[0].attr[2];
+		attr = node.attr[2];
 		if (attr.type != 'attr') assert.fail();
 		assert.equal(attr.name, 'Cat');
 		if (attr.value.type != 'bool') assert.fail();
@@ -1179,12 +1183,14 @@ describe('Attribute', () => {
 
 describe('Location', () => {
 	it('function', async () => {
-		const ast = parse(`
+		let node: Node;
+		const nodes = parse(`
 		@f(a) { a }
 		`);
-		assert.equal(ast.length, 1);
-		if (!ast[0].loc) assert.fail();
-		assert.deepEqual(ast[0].loc, { start: 3, end: 13 });
+		assert.equal(nodes.length, 1);
+		node = nodes[0];
+		if (!node.loc) assert.fail();
+		assert.deepEqual(node.loc, { start: 3, end: 13 });
 	});
 });
 
