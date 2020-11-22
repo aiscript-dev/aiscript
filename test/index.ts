@@ -6,7 +6,8 @@ import * as assert from 'assert';
 import { AiScript } from '../src/interpreter';
 import { NUM, STR, NULL, ARR, OBJ, BOOL } from '../src/interpreter/value';
 import { serialize, deserialize } from '../src/serializer';
-const parse = require('../built/parser/index.js').parse;
+import { parse } from '../src/parser';
+import { NAttr } from '../src/node';
 
 const exe = (program: string): Promise<any> => new Promise((ok, err) => {
 	const aiscript = new AiScript({}, {
@@ -1113,25 +1114,28 @@ describe('meta', () => {
 
 describe('Attribute', () => {
 	it('single attribute with function (str)', async () => {
-		const ast: any[] = parse(`
+		let attr: NAttr;
+		const ast = parse(`
 		+ Event "Recieved"
 		@onRecieved(data) {
 			data
 		}
 		`);
 		assert.equal(ast.length, 1);
-		assert.equal(ast[0].type, 'def');
+		if (ast[0].type != 'def') assert.fail();
 		assert.equal(ast[0].name, 'onRecieved');
 		assert.equal(ast[0].attr.length, 1);
-
-		assert.equal(ast[0].attr[0].type, 'attr');
-		assert.equal(ast[0].attr[0].name, 'Event');
-		assert.equal(ast[0].attr[0].value.type, 'str');
-		assert.equal(ast[0].attr[0].value.value, 'Recieved');
+		// attribute 1
+		attr = ast[0].attr[0];
+		if (attr.type != 'attr') assert.fail();
+		assert.equal(attr.name, 'Event');
+		if (attr.value.type != 'str') assert.fail();
+		assert.equal(attr.value.value, 'Recieved');
 	});
 
 	it('multiple attributes with function (obj, str, bool)', async () => {
-		const ast: any[] = parse(`
+		let attr: NAttr;
+		const ast = parse(`
 		+ Endpoint { path: "/notes/create"; }
 		+ Desc "Create a note."
 		+ Cat yes
@@ -1140,42 +1144,46 @@ describe('Attribute', () => {
 		}
 		`);
 		assert.equal(ast.length, 1);
-		assert.equal(ast[0].type, 'def');
+		if (ast[0].type != 'def') assert.fail();
 		assert.equal(ast[0].name, 'createNote');
 		assert.equal(ast[0].attr.length, 3);
-
-		assert.equal(ast[0].attr[0].type, 'attr');
-		assert.equal(ast[0].attr[0].name, 'Endpoint');
-		assert.equal(ast[0].attr[0].value.type, 'obj');
-		assert.equal(ast[0].attr[0].value.value.size, 1);
-		for (const [k, v] of (ast[0].attr[0].value.value as Map<string, any>)) {
+		// attribute 1
+		attr = ast[0].attr[0];
+		if (attr.type != 'attr') assert.fail();
+		assert.equal(attr.name, 'Endpoint');
+		if (attr.value.type != 'obj') assert.fail();
+		assert.equal(attr.value.value.size, 1);
+		for (const [k, v] of attr.value.value) {
 			if (k == 'path') {
-				assert.equal(v.type, 'str');
+				if (v.type != 'str') assert.fail();
 				assert.equal(v.value, '/notes/create');
 			}
 			else {
-				assert.throws(() => 'incorrect object property');
+				assert.fail();
 			}
 		}
-
-		assert.equal(ast[0].attr[1].type, 'attr');
-		assert.equal(ast[0].attr[1].name, 'Desc');
-		assert.equal(ast[0].attr[1].value.type, 'str');
-		assert.equal(ast[0].attr[1].value.value, 'Create a note.');
-
-		assert.equal(ast[0].attr[2].type, 'attr');
-		assert.equal(ast[0].attr[2].name, 'Cat');
-		assert.equal(ast[0].attr[2].value.type, 'bool');
-		assert.equal(ast[0].attr[2].value.value, true);
+		// attribute 2
+		attr = ast[0].attr[1];
+		if (attr.type != 'attr') assert.fail();
+		assert.equal(attr.name, 'Desc');
+		if (attr.value.type != 'str') assert.fail();
+		assert.equal(attr.value.value, 'Create a note.');
+		// attribute 3
+		attr = ast[0].attr[2];
+		if (attr.type != 'attr') assert.fail();
+		assert.equal(attr.name, 'Cat');
+		if (attr.value.type != 'bool') assert.fail();
+		assert.equal(attr.value.value, true);
 	});
 });
 
 describe('Location', () => {
 	it('function', async () => {
-		const ast: any[] = parse(`
+		const ast = parse(`
 		@f(a) { a }
 		`);
 		assert.equal(ast.length, 1);
+		if (!ast[0].loc) assert.fail();
 		assert.deepEqual(ast[0].loc, { start: 3, end: 13 });
 	});
 });

@@ -1,5 +1,5 @@
-import { Node, NAttr } from "../node";
-const parseInternal = require('./parser.js').parse;
+import { Node, NAttr } from '../node';
+const parseInternal = require('../../built/parser/parser.js').parse;
 
 function applyAttr(nodes: Node[]): Node[] {
 	const result: Node[] = [];
