@@ -1170,6 +1170,16 @@ describe('Attribute', () => {
 	});
 });
 
+describe('Location', () => {
+	it('function', async () => {
+		const ast: any[] = parse(`
+		@f(a) { a }
+		`);
+		assert.equal(ast.length, 1);
+		assert.deepEqual(ast[0].loc, { start: 3, end: 13 });
+	});
+});
+
 describe('std', () => {
 	describe('Arr', () => {
 		it('map', async () => {
