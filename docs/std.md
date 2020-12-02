@@ -8,11 +8,14 @@
 
 ## :: Core
 
+### #Core:v {str}
+AiScriptのバージョンです。
+
 ### @Core:type(v: value): str
-型名を取得します。
+値の型名を取得します。
 
 ### @Core:to_str(v: value): str
-表す文字列を取得します。
+値を表す文字列を取得します。
 
 ## :: Util
 
@@ -47,6 +50,9 @@ JSONをパースします。
 
 ## :: Math
 
+### #Math:PI {num}
+円周率です。
+
 ### @Math:sin(x: num): num
 正弦を計算します。
 
@@ -80,6 +86,9 @@ JSONをパースします。
 16進数の文字列から数値を生成します。
 
 ## :: Str
+
+### #Str:lf {str}
+改行コード(LF)です。
 
 ### @Str:to_num()
 
@@ -152,7 +161,10 @@ JSONをパースします。
 
 ## :: Async
 
-### @Async:interval()
+### @Async:interval(interval: num, callback: fn, immediate?: bool): fn
+指定した周期でコールバック関数を呼び出します。
+戻り値として停止関数を返します。
 
-### @Async:timeout()
-
+### @Async:timeout(delay: num, callback: fn):
+指定した時間経過後にコールバック関数を呼び出します。
+戻り値として停止関数を返します。
