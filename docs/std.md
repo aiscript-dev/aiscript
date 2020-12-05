@@ -8,7 +8,8 @@
 
 ## :: Core
 
-### #Core:v {str}
+### #Core:v
+型: `str`  
 AiScriptのバージョンです。
 
 ### @Core:type(v: value): str
@@ -50,20 +51,21 @@ JSONをパースします。
 
 ## :: Math
 
-### #Math:PI {num}
-円周率です。
+### #Math:PI
+型: `num`  
+円周率です。  
 
 ### @Math:sin(x: num): num
-正弦を計算します。
+正弦を計算します。  
 
 ### @Math:cos(x: num): num
-余弦を計算します。
+余弦を計算します。  
 
 ### @Math:abs(x: num): num
-絶対値を計算します。
+絶対値を計算します。  
 
 ### @Math:sqrt(x: num): num
-平方根を計算します。
+平方根を計算します。  
 
 ### @Math:round(x: num): num
 
@@ -80,15 +82,16 @@ JSONをパースします。
 ## :: Num
 
 ### @Num:to_hex(x: num): str
-数値から16進数の文字列を生成します。
+数値から16進数の文字列を生成します。  
 
 ### @Num:from_hex(hex: str): num
-16進数の文字列から数値を生成します。
+16進数の文字列から数値を生成します。  
 
 ## :: Str
 
-### #Str:lf {str}
-改行コード(LF)です。
+### #Str:lf
+型: `str`  
+改行コード(LF)です。  
 
 ### @Str:to_num(v: num | str): num | _
 
