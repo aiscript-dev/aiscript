@@ -34,18 +34,25 @@ JSONをパースします。
 ## :: Date
 
 ### @Date:now(): num
+現在時刻を取得します。  
 
 ### @Date:year(): num
+現在時刻の年を取得します。  
 
 ### @Date:month(): num
+現在時刻の月を取得します。  
 
 ### @Date:day(): num
+現在時刻の日を取得します。  
 
 ### @Date:hour(): num
+現在時刻の時を取得します。  
 
 ### @Date:minute(): num
+現在時刻の分を取得します。  
 
 ### @Date:second(): num
+現在時刻の秒を取得します。  
 
 ### @Date:parse(date: str): num
 
@@ -72,10 +79,13 @@ JSONをパースします。
 ### @Math:floor(x: num): num
 
 ### @Math:min(a: num, b: num): num
+小さい方の値を取得します。  
 
 ### @Math:max(a: num, b: num): num
+大きい方の値を取得します。  
 
-### @Math:rnd(x: num): num
+### @Math:rnd(min?: num, max?: num): num
+乱数を生成します。  
 
 ### @Math:gen_rng(seed: num | str): fn
 
@@ -120,22 +130,28 @@ JSONをパースします。
 ## :: Arr
 
 ### @Arr:len(v: arr): num
+配列の要素数を取得します。  
 
 ### @Arr:push(v: arr, i: value): _
+配列の最後に要素を追加します。  
 
 ### @Arr:unshift(v: arr, i: value): _
 
 ### @Arr:pop(v: arr): value
+配列の最後の要素を取り出します。  
 
 ### @Arr:shift(v: arr): value
 
 ### @Arr:concat(a: arr, b: arr): arr
+配列を連結します。  
 
 ### @Arr:join(v: arr<str>, joiner?: str): str
+文字列の配列を結合して一つの文字列として返します。  
 
 ### @Arr:slice(v: arr, begin: num, end: num): arr
 
-### @Arr:incl(v: arr, i: str | num | bool | _): bool
+### @Arr:incl(v: arr, i: str | num | bool | \_): bool
+配列に指定した値が含まれているかどうかを返します。  
 
 ### @Arr:map(v: arr, f: fn): arr
 
@@ -144,8 +160,10 @@ JSONをパースします。
 ### @Arr:reduce(v: arr, f: @(acm: value, item: value, index: num) { value }, initial: value): value
 
 ### @Arr:find(v: arr, f: @(item: value, index: num) { bool }): value
+配列から要素を探します。  
 
 ### @Arr:reverse(v: arr): _
+配列を反転させます。  
 
 ### @Arr:copy(v: arr): arr
 配列のコピーを生成します。  
