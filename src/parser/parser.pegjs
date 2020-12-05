@@ -3,8 +3,19 @@
 		let parseFunc = peg$parse;
 		return parseFunc(input, startRule ? { startRule } : { });
 	}
+	function createNode(type, params, children) {
+		const node = { type };
+		params.children = children;
+		for (const key of Object.keys(params)) {
+			if (params[key] !== undefined) {
+				node[key] = params[key];
+			}
+		}
+		const loc = location();
+		node.loc = { start: loc.start.offset, end: loc.end.offset - 1 };
+		return node;
+	}
 	const {
-		createNode,
 		concatTemplate
 	} = require('./util');
 }
@@ -88,9 +99,9 @@ NamespaceMember
 // statement of variable definition
 VarDef
 	= "#" name:NAME _ "=" _ expr:Expr
-{ return createNode('def', { name, expr, mut: false, attr: new Map() }); }
+{ return createNode('def', { name, expr, mut: false, attr: [] }); }
 	/ "$" name:NAME _ "<-" _ expr:Expr
-{ return createNode('def', { name, expr, mut: true, attr: new Map() }); }
+{ return createNode('def', { name, expr, mut: true, attr: [] }); }
 
 // var reassign
 Assign
@@ -232,7 +243,7 @@ FnDef
 		name: name,
 		expr: createNode('fn', { args }, content),
 		mut: false,
-		attr: new Map()
+		attr: []
 	});
 }
 
