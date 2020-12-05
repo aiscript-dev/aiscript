@@ -116,49 +116,51 @@ JSONをパースします。
 
 ## :: Arr
 
-### @Arr:len()
+### @Arr:len(v: arr): num
 
-### @Arr:push()
+### @Arr:push(v: arr, i: value): _
 
-### @Arr:unshift()
+### @Arr:unshift(v: arr, i: value): _
 
-### @Arr:pop()
+### @Arr:pop(v: arr): value
 
-### @Arr:shift()
+### @Arr:shift(v: arr): value
 
-### @Arr:concat()
+### @Arr:concat(a: arr, b: arr): arr
 
-### @Arr:join()
+### @Arr:join(v: arr<str>, joiner?: str): str
 
-### @Arr:slice()
+### @Arr:slice(v: arr, begin: num, end: num): arr
 
-### @Arr:incl()
+### @Arr:incl(v: arr, i: str | num | bool | _): bool
 
-### @Arr:map()
+### @Arr:map(v: arr, f: fn): arr
 
-### @Arr:filter()
+### @Arr:filter(v: arr, f: fn): arr
 
-### @Arr:reduce()
+### @Arr:reduce(v: arr, f: @(acm: value, item: value, index: num) { value }, initial: value): value
 
-### @Arr:find()
+### @Arr:find(v: arr, f: @(item: value, index: num) { bool }): value
 
-### @Arr:reverse()
+### @Arr:reverse(v: arr): _
 
-### @Arr:copy()
+### @Arr:copy(v: arr): arr
+配列のコピーを生成します。
 
 ## :: Obj
 
-### @Obj:keys()
+### @Obj:keys(v: obj): arr
 
-### @Obj:kvs()
+### @Obj:kvs(v: obj): arr
 
-### @Obj:get()
+### @Obj:get(v: obj, key: str): value
 
-### @Obj:set()
+### @Obj:set(v: obj, key: str, val: value): _
 
-### @Obj:has()
+### @Obj:has(v: obj, key: str): bool
 
-### @Obj:copy()
+### @Obj:copy(v: obj): obj
+オブジェクトのコピーを生成します。
 
 ## :: Async
 
