@@ -1,35 +1,35 @@
 ## std
 
 ### @print(message: str): void
-画面に文字列を表示します。
+画面に文字列を表示します。  
 
 ### @readline(message: str): str
-文字列の入力を受け付けます。
+文字列の入力を受け付けます。  
 
 ## :: Core
 
 ### #Core:v
 型: `str`  
-AiScriptのバージョンです。
+AiScriptのバージョンです。  
 
 ### @Core:type(v: value): str
-値の型名を取得します。
+値の型名を取得します。  
 
 ### @Core:to_str(v: value): str
-値を表す文字列を取得します。
+値を表す文字列を取得します。  
 
 ## :: Util
 
 ### @Util:uuid(): str
-新しいUUIDを生成します。
+新しいUUIDを生成します。  
 
 ## :: Json
 
 ### @Json:stringify(v: value): str
-JSONを生成します。
+JSONを生成します。  
 
 ### @Json:parse(json: str): value
-JSONをパースします。
+JSONをパースします。  
 
 ## :: Date
 
@@ -96,14 +96,14 @@ JSONをパースします。
 ### @Str:to_num(v: num | str): num | _
 
 ### @Str:len(v: str): num
-文字列の長さを取得します。
+文字列の長さを取得します。  
 
 ### @Str:pick(v: str, i: num): str | _
 
 ### @Str:incl(v: str, keyword: str): bool
 
 ### @Str:slice(v: str, begin: num, end: num): str
-文字列の指定した部分を取得します。
+文字列の指定した部分を取得します。  
 
 ### @Str:split(v: str, splitter?: str): arr<str>
 
@@ -148,7 +148,7 @@ JSONをパースします。
 ### @Arr:reverse(v: arr): _
 
 ### @Arr:copy(v: arr): arr
-配列のコピーを生成します。
+配列のコピーを生成します。  
 
 ## :: Obj
 
@@ -163,14 +163,14 @@ JSONをパースします。
 ### @Obj:has(v: obj, key: str): bool
 
 ### @Obj:copy(v: obj): obj
-オブジェクトのコピーを生成します。
+オブジェクトのコピーを生成します。  
 
 ## :: Async
 
 ### @Async:interval(interval: num, callback: fn, immediate?: bool): fn
-指定した周期でコールバック関数を呼び出します。
-戻り値として停止関数を返します。
+指定した周期でコールバック関数を呼び出します。  
+戻り値として停止関数を返します。  
 
 ### @Async:timeout(delay: num, callback: fn):
-指定した時間経過後にコールバック関数を呼び出します。
-戻り値として停止関数を返します。
+指定した時間経過後にコールバック関数を呼び出します。  
+戻り値として停止関数を返します。  
