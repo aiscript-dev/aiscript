@@ -90,28 +90,29 @@ JSONをパースします。
 ### #Str:lf {str}
 改行コード(LF)です。
 
-### @Str:to_num()
+### @Str:to_num(v: num | str): num | _
 
-### @Str:len()
+### @Str:len(v: str): num
 文字列の長さを取得します。
 
-### @Str:pick()
+### @Str:pick(v: str, i: num): str | _
 
-### @Str:incl()
+### @Str:incl(v: str, keyword: str): bool
 
-### @Str:slice()
+### @Str:slice(v: str, begin: num, end: num): str
+文字列の指定した部分を取得します。
 
-### @Str:split()
+### @Str:split(v: str, splitter?: str): arr<str>
 
-### @Str:replace()
+### @Str:replace(v: str, old: str, new: str): str
 
-### @Str:index_of()
+### @Str:index_of(v: str, search: str): num
 
-### @Str:trim()
+### @Str:trim(v: str): str
 
-### @Str:upper()
+### @Str:upper(v: str): str
 
-### @Str:lower()
+### @Str:lower(v: str): str
 
 ## :: Arr
 
