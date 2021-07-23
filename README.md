@@ -34,7 +34,7 @@ Note: AiScript and [Misskey](https://github.com/syuilo/misskey) are completely i
 
 ### Fizz Buzz
 ```
-~ (#i, 100) {
+for (#i, 100) {
   <: ? ((i % 15) = 0) "FizzBuzz"
     .? ((i % 3) = 0) "Fizz"
     .? ((i % 5) = 0) "Buzz"
