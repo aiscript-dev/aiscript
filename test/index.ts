@@ -358,7 +358,7 @@ it('Throws error when divied by zero', async () => {
 it('Fizz Buzz', async () => {
 	const res = await exe(`
 	#res = []
-	~ (#i, 15) {
+	for (#i, 15) {
 		#msg =
 			? ((i % 15) = 0) "FizzBuzz"
 			.? ((i % 3) = 0) "Fizz"
@@ -726,7 +726,7 @@ describe('for', () => {
 	it('Basic', async () => {
 		const res = await exe(`
 		$count <- 0
-		~ (#i, 10) {
+		for (#i, 10) {
 			count <- (count + i)
 		}
 		<: count
@@ -737,7 +737,7 @@ describe('for', () => {
 	it('wuthout iterator', async () => {
 		const res = await exe(`
 		$count <- 0
-		~ (10) {
+		for (10) {
 			count <- (count + 1)
 		}
 		<: count
@@ -747,7 +747,7 @@ describe('for', () => {
 
 	it('returns value', async () => {
 		const res = await exe(`
-		#items = ~ (#i, 5) {
+		#items = for (#i, 5) {
 			i
 		}
 		<: items
@@ -757,7 +757,7 @@ describe('for', () => {
 
 	it('returns value (without block)', async () => {
 		const res = await exe(`
-		#items = ~ (#i, 5) i
+		#items = for (#i, 5) i
 		<: items
 		`);
 		eq(res, ARR([NUM(1), NUM(2), NUM(3), NUM(4), NUM(5)]));
@@ -766,7 +766,7 @@ describe('for', () => {
 	it('without brackets', async () => {
 		const res = await exe(`
 		$count <- 0
-		~ #i, 10 {
+		for #i, 10 {
 			count <- (count + i)
 		}
 		<: count
@@ -779,7 +779,7 @@ describe('for of', () => {
 	it('standard', async () => {
 		const res = await exe(`
 		#msgs = []
-		~~ #item, ["ai", "chan", "kawaii"] {
+		each #item, ["ai", "chan", "kawaii"] {
 			Arr:push(msgs, Arr:join([item, "!"]))
 		}
 		<: msgs
