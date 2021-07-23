@@ -228,13 +228,11 @@ export class AiScript {
 			}
 
 			case 'for': {
-				let result: Value[] = [];
 				if (node.times) {
 					const times = await this._eval(node.times, scope);
 					assertNumber(times);
 					for (let i = 1; i < times.value + 1; i++) {
-						const v = await this._eval(node.for, scope);
-						result.push(v);
+						await this._eval(node.for, scope);
 					}
 				} else {
 					const from = await this._eval(node.from!, scope);
@@ -242,26 +240,23 @@ export class AiScript {
 					assertNumber(from);
 					assertNumber(to);
 					for (let i = from.value + 1; i < to.value + 1; i++) {
-						const v = await this._eval(node.for, scope.createChildScope(new Map([
+						await this._eval(node.for, scope.createChildScope(new Map([
 							[node.var!, NUM(i)]
 						])));
-						result.push(v);
 					}
 				}
-				return ARR(result);
+				return NULL;
 			}
 
 			case 'forOf': {
-				let result: Value[] = [];
 				const items = await this._eval(node.items!, scope);
 				assertArray(items);
 				for (const item of items.value) {
-					const v = await this._eval(node.for, scope.createChildScope(new Map([
+					await this._eval(node.for, scope.createChildScope(new Map([
 						[node.var!, item]
 					])));
-					result.push(v);
 				}
-				return ARR(result);
+				return NULL;
 			}
 
 			case 'def': {

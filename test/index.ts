@@ -745,24 +745,6 @@ describe('for', () => {
 		eq(res, NUM(10));
 	});
 
-	it('returns value', async () => {
-		const res = await exe(`
-		#items = for (#i, 5) {
-			i
-		}
-		<: items
-		`);
-		eq(res, ARR([NUM(1), NUM(2), NUM(3), NUM(4), NUM(5)]));
-	});
-
-	it('returns value (without block)', async () => {
-		const res = await exe(`
-		#items = for (#i, 5) i
-		<: items
-		`);
-		eq(res, ARR([NUM(1), NUM(2), NUM(3), NUM(4), NUM(5)]));
-	});
-
 	it('without brackets', async () => {
 		const res = await exe(`
 		$count <- 0
