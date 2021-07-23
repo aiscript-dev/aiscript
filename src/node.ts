@@ -62,6 +62,11 @@ export type NReturn = {
 	expr: Node; // 式
 };
 
+export type NBreak = {
+	type: 'break'; // break
+	loc?: Loc; // コード位置
+};
+
 export type NIf = {
 	type: 'if'; // if文
 	loc?: Loc; // コード位置
@@ -215,6 +220,7 @@ export type Node =
 	NDec |
 	NCall |
 	NReturn |
+	NBreak |
 	NIf |
 	NFor |
 	NForOf |

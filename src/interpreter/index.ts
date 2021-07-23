@@ -7,7 +7,7 @@ import { Scope } from './scope';
 import { AiScriptError } from './error';
 import { std } from './lib/std';
 import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray, eq } from './util';
-import { Value, NULL, RETURN, unWrapRet, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, VFn } from './value';
+import { Value, NULL, RETURN, unWrapRet, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, VFn, BREAK } from './value';
 import { Node, NNs } from '../node';
 
 export class AiScript {
@@ -232,7 +232,10 @@ export class AiScript {
 					const times = await this._eval(node.times, scope);
 					assertNumber(times);
 					for (let i = 1; i < times.value + 1; i++) {
-						await this._eval(node.for, scope);
+						const v = await this._eval(node.for, scope);
+						if (v.type === 'break') {
+							break;
+						}
 					}
 				} else {
 					const from = await this._eval(node.from!, scope);
@@ -240,9 +243,12 @@ export class AiScript {
 					assertNumber(from);
 					assertNumber(to);
 					for (let i = from.value + 1; i < to.value + 1; i++) {
-						await this._eval(node.for, scope.createChildScope(new Map([
+						const v = await this._eval(node.for, scope.createChildScope(new Map([
 							[node.var!, NUM(i)]
 						])));
+						if (v.type === 'break') {
+							break;
+						}
 					}
 				}
 				return NULL;
@@ -407,6 +413,11 @@ export class AiScript {
 				return RETURN(val);
 			}
 
+			case 'break': {
+				this.log('block:break', { scope: scope.name });
+				return BREAK();
+			}
+
 			case 'ns': {
 				return NULL; // nop
 			}
@@ -433,6 +444,9 @@ export class AiScript {
 			v = await this._eval(node, scope);
 			if (v.type === 'return') {
 				this.log('block:return', { scope: scope.name, val: v.value });
+				return v;
+			} else if (v.type === 'break') {
+				this.log('block:break', { scope: scope.name });
 				return v;
 			}
 		}

@@ -755,6 +755,18 @@ describe('for', () => {
 		`);
 		eq(res, NUM(55));
 	});
+
+	it('Break', async () => {
+		const res = await exe(`
+		$count <- 0
+		for (#i, 20) {
+			? (i = 11) break
+			count <- (count + i)
+		}
+		<: count
+		`);
+		eq(res, NUM(55));
+	});
 });
 
 describe('for of', () => {
@@ -767,6 +779,18 @@ describe('for of', () => {
 		<: msgs
 		`);
 		eq(res, ARR([STR('ai!'), STR('chan!'), STR('kawaii!')]));
+	});
+
+	it('Break', async () => {
+		const res = await exe(`
+		#msgs = []
+		each #item, ["ai", "chan", "kawaii"] {
+			? (item = "kawaii") break
+			Arr:push(msgs, Arr:join([item, "!"]))
+		}
+		<: msgs
+		`);
+		eq(res, ARR([STR('ai!'), STR('chan!')]));
 	});
 });
 

@@ -65,6 +65,7 @@ Expr
 	/ PropRef
 	/ IndexRef
 	/ Return
+	/ Break
 	/ Out
 	/ If
 	/ Match
@@ -223,6 +224,11 @@ Block
 Return
 	= "<<" _ expr:Expr
 { return createNode('return', { expr }); }
+
+// break
+Break
+	= "break"
+{ return createNode('break', {}); }
 
 // syntax suger of print()
 Out

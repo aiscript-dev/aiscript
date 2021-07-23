@@ -47,7 +47,12 @@ export type VReturn = {
 	value: Value;
 };
 
-export type Value = VNull | VBool | VNum | VStr | VArr | VObj | VFn | VReturn;
+export type VBreak = {
+	type: 'break';
+	value: null;
+};
+
+export type Value = VNull | VBool | VNum | VStr | VArr | VObj | VFn | VReturn | VBreak;
 
 export const NULL = {
 	type: 'null' as const,
@@ -100,9 +105,15 @@ export const FN_NATIVE = (fn: VFn['native']) => ({
 	native: fn
 });
 
+// Return文で値が返されたことを示すためのラッパー
 export const RETURN = (v: VReturn['value']) => ({
 	type: 'return' as const,
 	value: v
+});
+
+export const BREAK = () => ({
+	type: 'break' as const,
+	value: null
 });
 
 export const unWrapRet = (v: Value) => v.type === 'return' ? v.value : v;
