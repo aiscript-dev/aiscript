@@ -69,6 +69,7 @@ Expr
 	/ Out
 	/ If
 	/ Match
+	/ Loop
 	/ For
 	/ ForOf
 	/ Fn
@@ -321,6 +322,12 @@ Match
 		default: x
 	});
 }
+
+// loop statement ------------------------------------------------------------------------
+
+Loop
+	= "loop" _ "{" _ s:Statements _ "}"
+{ return createNode('loop', { statements: s }); }
 
 // for statement -------------------------------------------------------------------------
 

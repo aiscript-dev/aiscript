@@ -79,6 +79,12 @@ export type NIf = {
 	else: Node; // else節
 };
 
+export type NLoop = {
+	type: 'loop'; // loop文
+	loc?: Loc; // コード位置
+	statements: Node[]; // 処理
+};
+
 export type NFor = {
 	type: 'for'; // for文
 	loc?: Loc; // コード位置
@@ -222,6 +228,7 @@ export type Node =
 	NReturn |
 	NBreak |
 	NIf |
+	NLoop |
 	NFor |
 	NForOf |
 	NVar |

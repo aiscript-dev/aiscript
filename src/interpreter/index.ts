@@ -227,6 +227,16 @@ export class AiScript {
 				return NULL;
 			}
 
+			case 'loop': {
+				while (true) {
+					const v = await this._run(node.statements, scope.createChildScope());
+					if (v.type === 'break') {
+						break;
+					}
+				}
+				return NULL;
+			}
+
 			case 'for': {
 				if (node.times) {
 					const times = await this._eval(node.times, scope);

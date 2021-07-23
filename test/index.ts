@@ -722,6 +722,20 @@ describe('match', () => {
 	});
 });
 
+describe('loop', () => {
+	it('Basic', async () => {
+		const res = await exe(`
+		$count <- 0
+		loop {
+			? (count = 10) break
+			count <- (count + 1)
+		}
+		<: count
+		`);
+		eq(res, NUM(10));
+	});
+});
+
 describe('for', () => {
 	it('Basic', async () => {
 		const res = await exe(`
