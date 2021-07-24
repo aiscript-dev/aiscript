@@ -320,7 +320,7 @@ ElseBlock
 // match --------------------------------------------------------------------------
 
 Match
-	= "?" _ about:Expr _ "{" _ qs:(q:Expr _ "=>" _ a:Expr _ { return { q, a }; })+ x:("*" _ "=>" _ v:Expr _ { return v; })? _ "}"
+	= "match" _ about:Expr _ "{" _ qs:(q:Expr _ "=>" _ a:Expr _ { return { q, a }; })+ x:("*" _ "=>" _ v:Expr _ { return v; })? _ "}"
 {
 	return createNode('match', {
 		about: about,

@@ -659,7 +659,7 @@ describe('if', () => {
 describe('match', () => {
 	it('Basic', async () => {
 		const res = await exe(`
-		<: ? 2 {
+		<: match 2 {
 			1 => "a"
 			2 => "b"
 			3 => "c"
@@ -670,7 +670,7 @@ describe('match', () => {
 
 	it('When default not provided, returns null', async () => {
 		const res = await exe(`
-		<: ? 42 {
+		<: match 42 {
 			1 => "a"
 			2 => "b"
 			3 => "c"
@@ -681,7 +681,7 @@ describe('match', () => {
 
 	it('With default', async () => {
 		const res = await exe(`
-		<: ? 42 {
+		<: match 42 {
 			1 => "a"
 			2 => "b"
 			3 => "c"
@@ -693,7 +693,7 @@ describe('match', () => {
 
 	it('With block', async () => {
 		const res = await exe(`
-		<: ? 2 {
+		<: match 2 {
 			1 => 1
 			2 => {
 				#a = 1
@@ -709,7 +709,7 @@ describe('match', () => {
 	it('With return', async () => {
 		const res = await exe(`
 		@f(x) {
-			? x {
+			match x {
 				1 => {
 					<< "ai"
 				}
