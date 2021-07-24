@@ -98,7 +98,7 @@ export class AiScript {
 					meta.set(node.name, nodeToJs(node.value));
 					break;
 				}
-			
+
 				default: {
 					// nop
 				}
@@ -121,7 +121,7 @@ export class AiScript {
 					await this.collectNsMember(node);
 					break;
 				}
-			
+
 				default: {
 					// nop
 				}
@@ -141,11 +141,11 @@ export class AiScript {
 					this.scope.add(ns.name + ':' + node.name, v);
 					break;
 				}
-	
+
 				case 'ns': {
 					break; // TODO
 				}
-			
+
 				default: {
 					throw new Error('invalid ns member type: ' + node.type);
 				}
@@ -242,7 +242,7 @@ export class AiScript {
 					const times = await this._eval(node.times, scope);
 					assertNumber(times);
 					for (let i = 1; i < times.value + 1; i++) {
-						const v = await this._eval(node.for, scope);
+						const v = await this._run(node.for, scope);
 						if (v.type === 'break') {
 							break;
 						}
@@ -253,7 +253,7 @@ export class AiScript {
 					assertNumber(from);
 					assertNumber(to);
 					for (let i = from.value + 1; i < to.value + 1; i++) {
-						const v = await this._eval(node.for, scope.createChildScope(new Map([
+						const v = await this._run(node.for, scope.createChildScope(new Map([
 							[node.var!, NUM(i)]
 						])));
 						if (v.type === 'break') {
@@ -268,7 +268,7 @@ export class AiScript {
 				const items = await this._eval(node.items!, scope);
 				assertArray(items);
 				for (const item of items.value) {
-					await this._eval(node.for, scope.createChildScope(new Map([
+					await this._run(node.for, scope.createChildScope(new Map([
 						[node.var!, item]
 					])));
 				}
@@ -452,7 +452,7 @@ export class AiScript {
 		this.log('block:enter', { scope: scope.name });
 
 		let v: Value = NULL;
-		
+
 		for (let i = 0; i < program.length; i++) {
 			const node = program[i];
 
@@ -472,7 +472,7 @@ export class AiScript {
 		this.log('block:leave', { scope: scope.name, val: v });
 		return v;
 	}
-	
+
 	@autobind
 	public registerAbortHandler(handler: Function) {
 		this.abortHandlers.push(handler);

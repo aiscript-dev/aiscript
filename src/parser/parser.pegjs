@@ -339,7 +339,7 @@ Loop
 
 // TODO: ~ の方の構文は将来的に消す
 For
-	= "~" _ "(" "#" varn:NAME _ from:("=" _ v:Expr { return v; })? ","? _ to:Expr ")" ___ x:Expr
+	= "~" _ "(" "#" varn:NAME _ from:("=" _ v:Expr { return v; })? ","? _ to:Expr ")" _ "{" _ x:Statements _ "}"
 {
 	return createNode('for', {
 		var: varn,
@@ -348,7 +348,7 @@ For
 		for: x,
 	});
 }
-	/ "~" ___ "#" varn:NAME _ from:("=" _ v:Expr { return v; })? ","? _ to:Expr ___ x:Expr
+	/ "~" ___ "#" varn:NAME _ from:("=" _ v:Expr { return v; })? ","? _ to:Expr _ "{" _ x:Statements _ "}"
 {
 	return createNode('for', {
 		var: varn,
@@ -371,7 +371,7 @@ For
 		for: x,
 	});
 }
-	/ "for" _ "(" "#" varn:NAME _ from:("=" _ v:Expr { return v; })? ","? _ to:Expr ")" ___ x:Expr
+	/ "for" _ "(" "#" varn:NAME _ from:("=" _ v:Expr { return v; })? ","? _ to:Expr ")" _ "{" _ x:Statements _ "}"
 {
 	return createNode('for', {
 		var: varn,
@@ -380,7 +380,7 @@ For
 		for: x,
 	});
 }
-	/ "for" ___ "#" varn:NAME _ from:("=" _ v:Expr { return v; })? ","? _ to:Expr ___ x:Expr
+	/ "for" ___ "#" varn:NAME _ from:("=" _ v:Expr { return v; })? ","? _ to:Expr _ "{" _ x:Statements _ "}"
 {
 	return createNode('for', {
 		var: varn,
@@ -389,14 +389,14 @@ For
 		for: x,
 	});
 }
-	/ "for" _ "(" times:Expr ")" ___ x:Expr
+	/ "for" _ "(" times:Expr ")" _ "{" _ x:Statements _ "}"
 {
 	return createNode('for', {
 		times: times,
 		for: x,
 	});
 }
-	/ "for" ___ times:Expr ___ x:Expr
+	/ "for" ___ times:Expr _ "{" _ x:Statements _ "}"
 {
 	return createNode('for', {
 		times: times,
@@ -408,7 +408,7 @@ For
 
 // TODO: ~~ の方の構文は将来的に消す
 ForOf
-	= "~~" _ "(" "#" varn:NAME _ ","? _ items:Expr ")" ___ x:Expr
+	= "~~" _ "(" "#" varn:NAME _ ","? _ items:Expr ")" _ "{" _ x:Statements _ "}"
 {
 	return createNode('forOf', {
 		var: varn,
@@ -416,7 +416,7 @@ ForOf
 		for: x,
 	});
 }
-	/ "~~" ___ "#" varn:NAME _ ","? _ items:Expr ___ x:Expr
+	/ "~~" ___ "#" varn:NAME _ ","? _ items:Expr _ "{" _ x:Statements _ "}"
 {
 	return createNode('forOf', {
 		var: varn,
@@ -424,7 +424,7 @@ ForOf
 		for: x,
 	});
 }
-	/ "each" _ "(" "#" varn:NAME _ ","? _ items:Expr ")" ___ x:Expr
+	/ "each" _ "(" "#" varn:NAME _ ","? _ items:Expr ")" _ "{" _ x:Statements _ "}"
 {
 	return createNode('forOf', {
 		var: varn,
@@ -432,7 +432,7 @@ ForOf
 		for: x,
 	});
 }
-	/ "each" ___ "#" varn:NAME _ ","? _ items:Expr ___ x:Expr
+	/ "each" ___ "#" varn:NAME _ ","? _ items:Expr _ "{" _ x:Statements _ "}"
 {
 	return createNode('forOf', {
 		var: varn,
