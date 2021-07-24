@@ -97,7 +97,7 @@ export type NFor = {
 	from?: Node; // 開始値
 	to?: Node; // 終値
 	times?: Node; // 回数
-	for: Node[]; // 本体処理
+	for: Node; // 本体処理
 };
 
 export type NForOf = {
@@ -105,7 +105,7 @@ export type NForOf = {
 	loc?: Loc; // コード位置
 	var: string; // イテレータ変数名
 	items: Node; // 配列
-	for: Node[]; // 本体処理
+	for: Node; // 本体処理
 };
 
 export type NVar = {

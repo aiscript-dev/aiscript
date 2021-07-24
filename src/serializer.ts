@@ -44,8 +44,8 @@ export function serializeOne(node: Node | null | undefined): Bin | null {
 		case 'call': return [types[node.type], node.name, serialize(node.args)];
 		case 'return': return [types[node.type], serializeOne(node.expr)];
 		case 'if': return [types[node.type], serializeOne(node.cond), serializeOne(node.then), node.elseif.map(x => [serializeOne(x.cond), serializeOne(x.then)]), serializeOne(node.else)];
-		case 'for': return [types[node.type], node.var, serializeOne(node.from), serializeOne(node.to), serializeOne(node.times), serialize(node.for)];
-		case 'forOf': return [types[node.type], node.var, serializeOne(node.items), serialize(node.for)];
+		case 'for': return [types[node.type], node.var, serializeOne(node.from), serializeOne(node.to), serializeOne(node.times), serializeOne(node.for)];
+		case 'forOf': return [types[node.type], node.var, serializeOne(node.items), serializeOne(node.for)];
 		case 'var': return [types[node.type], node.name];
 		case 'null': return [types[node.type]];
 		case 'bool': return [types[node.type], node.value];
@@ -86,8 +86,8 @@ export function deserializeOne(bin: Bin | null): Node | undefined {
 		case types.call: return { type, name: bin[1], args: deserialize(bin[2]), } as NCall;
 		case types.return: return { type, expr: deserializeOne(bin[1]), } as NReturn;
 		case types.if: return { type, cond: deserializeOne(bin[1]), then: deserializeOne(bin[2]), elseif: bin[3].map(x => ({ cond: deserializeOne(x[0]), then: deserializeOne(x[1]) })), else: deserializeOne(bin[4]), } as NIf;
-		case types.for: return { type, var: bin[1] || undefined, from: deserializeOne(bin[2]), to: deserializeOne(bin[3]), times: deserializeOne(bin[4]), for: deserialize(bin[5]), } as NFor;
-		case types.forOf: return { type, var: bin[1], items: deserializeOne(bin[2]), for: deserialize(bin[3]), } as NForOf;
+		case types.for: return { type, var: bin[1] || undefined, from: deserializeOne(bin[2]), to: deserializeOne(bin[3]), times: deserializeOne(bin[4]), for: deserializeOne(bin[5]), } as NFor;
+		case types.forOf: return { type, var: bin[1], items: deserializeOne(bin[2]), for: deserializeOne(bin[3]), } as NForOf;
 		case types.var: return { type, name: bin[1], } as NVar;
 		case types.null: return { type, } as NNull;
 		case types.bool: return { type, value: bin[1], } as NBool;
