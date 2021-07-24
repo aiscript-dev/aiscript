@@ -200,7 +200,7 @@ it('Closure (counter)', async () => {
 it('Recursion', async () => {
 	const res = await exe(`
 	@fact(n) {
-		? (n = 0) { 1 } . { (fact((n - 1)) * n) }
+		if (n = 0) { 1 } else { (fact((n - 1)) * n) }
 	}
 
 	<: fact(5)
@@ -360,10 +360,10 @@ it('Fizz Buzz', async () => {
 	#res = []
 	for (#i, 15) {
 		#msg =
-			? ((i % 15) = 0) "FizzBuzz"
-			.? ((i % 3) = 0) "Fizz"
-			.? ((i % 5) = 0) "Buzz"
-			. i
+			if ((i % 15) = 0) "FizzBuzz"
+			elif ((i % 3) = 0) "Fizz"
+			elif ((i % 5) = 0) "Buzz"
+			else i
 		Arr:push(res msg)
 	}
 	<: res
@@ -403,14 +403,14 @@ it('SKI', async () => {
 
 		// extract
 		@x(v) {
-			? (Core:type(v) = "arr") { c(v) } . { v }
+			if (Core:type(v) = "arr") { c(v) } else { v }
 		}
 
 		// rec
 		@r(f, n) {
-			? (n < L) {
+			if (n < L) {
 				r(f(x(l[n])), (n + 1))
-			} . { f }
+			} else { f }
 		}
 
 		r(x(l[1]), 2)
@@ -468,7 +468,7 @@ describe('Return', () => {
 	it('Early return', async () => {
 		const res = await exe(`
 		@f() {
-			? yes {
+			if yes {
 				<< "ai"
 			}
 
@@ -482,8 +482,8 @@ describe('Return', () => {
 	it('Early return (nested)', async () => {
 		const res = await exe(`
 		@f() {
-			? yes {
-				? yes {
+			if yes {
+				if yes {
 					<< "ai"
 				}
 			}
@@ -498,7 +498,7 @@ describe('Return', () => {
 	it('Early return (nested) 2', async () => {
 		const res = await exe(`
 		@f() {
-			? yes {
+			if yes {
 				<< "ai"
 			}
 
@@ -506,7 +506,7 @@ describe('Return', () => {
 		}
 
 		@g() {
-			? (f() = "ai") {
+			if (f() = "ai") {
 				<< "kawaii"
 			}
 
@@ -521,7 +521,7 @@ describe('Return', () => {
 	it('Early return without block', async () => {
 		const res = await exe(`
 		@f() {
-			? yes << "ai"
+			if yes << "ai"
 
 			"pope"
 		}
@@ -547,10 +547,10 @@ describe('Block', () => {
 });
 
 describe('if', () => {
-	it('?', async () => {
+	it('if', async () => {
 		const res1 = await exe(`
 		$msg <- "ai"
-		? yes {
+		if yes {
 			msg <- "kawaii"
 		}
 		<: msg
@@ -559,7 +559,7 @@ describe('if', () => {
 
 		const res2 = await exe(`
 		$msg <- "ai"
-		? no {
+		if no {
 			msg <- "kawaii"
 		}
 		<: msg
@@ -567,12 +567,12 @@ describe('if', () => {
 		eq(res2, STR('ai'));
 	});
 
-	it('.', async () => {
+	it('else', async () => {
 		const res1 = await exe(`
 		$msg <- _
-		? yes {
+		if yes {
 			msg <- "ai"
-		} . {
+		} else {
 			msg <- "kawaii"
 		}
 		<: msg
@@ -581,9 +581,9 @@ describe('if', () => {
 
 		const res2 = await exe(`
 		$msg <- _
-		? no {
+		if no {
 			msg <- "ai"
-		} . {
+		} else {
 			msg <- "kawaii"
 		}
 		<: msg
@@ -591,12 +591,12 @@ describe('if', () => {
 		eq(res2, STR('kawaii'));
 	});
 
-	it('.?', async () => {
+	it('elif', async () => {
 		const res1 = await exe(`
 		$msg <- "bebeyo"
-		? no {
+		if no {
 			msg <- "ai"
-		} .? yes {
+		} elif yes {
 			msg <- "kawaii"
 		}
 		<: msg
@@ -605,9 +605,9 @@ describe('if', () => {
 
 		const res2 = await exe(`
 		$msg <- "bebeyo"
-		? no {
+		if no {
 			msg <- "ai"
-		} .? no {
+		} elif no {
 			msg <- "kawaii"
 		}
 		<: msg
@@ -615,14 +615,14 @@ describe('if', () => {
 		eq(res2, STR('bebeyo'));
 	});
 
-	it('.? .', async () => {
+	it('if ~ elif ~ else', async () => {
 		const res1 = await exe(`
 		$msg <- _
-		? no {
+		if no {
 			msg <- "ai"
-		} .? yes {
+		} elif yes {
 			msg <- "chan"
-		} . {
+		} else {
 			msg <- "kawaii"
 		}
 		<: msg
@@ -631,11 +631,11 @@ describe('if', () => {
 
 		const res2 = await exe(`
 		$msg <- _
-		? no {
+		if no {
 			msg <- "ai"
-		} .? no {
+		} elif no {
 			msg <- "chan"
-		} . {
+		} else {
 			msg <- "kawaii"
 		}
 		<: msg
@@ -645,12 +645,12 @@ describe('if', () => {
 
 	it('expr', async () => {
 		const res1 = await exe(`
-		<: ? yes "ai" . "kawaii"
+		<: if yes "ai" else "kawaii"
 		`);
 		eq(res1, STR('ai'));
 
 		const res2 = await exe(`
-		<: ? no "ai" . "kawaii"
+		<: if no "ai" else "kawaii"
 		`);
 		eq(res2, STR('kawaii'));
 	});
@@ -727,7 +727,7 @@ describe('loop', () => {
 		const res = await exe(`
 		$count <- 0
 		loop {
-			? (count = 10) break
+			if (count = 10) break
 			count <- (count + 1)
 		}
 		<: count
@@ -741,8 +741,8 @@ describe('loop', () => {
 		$b <- []
 		loop {
 			$x <- Arr:shift(a)
-			? (x = "chan") continue
-			? (x = "!") break
+			if (x = "chan") continue
+			if (x = "!") break
 			Arr:push(b, x)
 		}
 		<: b
@@ -789,7 +789,7 @@ describe('for', () => {
 		const res = await exe(`
 		$count <- 0
 		for (#i, 20) {
-			? (i = 11) break
+			if (i = 11) break
 			count <- (count + i)
 		}
 		<: count
@@ -801,7 +801,7 @@ describe('for', () => {
 		const res = await exe(`
 		$count <- 0
 		for (#i, 10) {
-			? (i = 5) continue
+			if (i = 5) continue
 			count <- (count + 1)
 		}
 		<: count
@@ -826,7 +826,7 @@ describe('for of', () => {
 		const res = await exe(`
 		#msgs = []
 		each #item, ["ai", "chan", "kawaii"] {
-			? (item = "kawaii") break
+			if (item = "kawaii") break
 			Arr:push(msgs, Arr:join([item, "!"]))
 		}
 		<: msgs

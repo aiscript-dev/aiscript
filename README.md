@@ -35,10 +35,10 @@ Note: AiScript and [Misskey](https://github.com/syuilo/misskey) are completely i
 ### Fizz Buzz
 ```
 for (#i, 100) {
-  <: ? ((i % 15) = 0) "FizzBuzz"
-    .? ((i % 3) = 0) "Fizz"
-    .? ((i % 5) = 0) "Buzz"
-    . i
+  <: if ((i % 15) = 0) "FizzBuzz"
+    else if ((i % 3) = 0) "Fizz"
+    else if ((i % 5) = 0) "Buzz"
+    else i
 }
 ```
 
