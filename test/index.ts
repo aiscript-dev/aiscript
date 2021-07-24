@@ -842,6 +842,15 @@ describe('for of', () => {
 		`);
 		eq(res, ARR([STR('ai!'), STR('chan!')]));
 	});
+
+	it('single statement', async () => {
+		const res = await exe(`
+		#msgs = []
+		each #item, ["ai", "chan", "kawaii"] Arr:push(msgs, Arr:join([item, "!"]))
+		<: msgs
+		`);
+		eq(res, ARR([STR('ai!'), STR('chan!'), STR('kawaii!')]));
+	})
 });
 
 describe('namespace', () => {
