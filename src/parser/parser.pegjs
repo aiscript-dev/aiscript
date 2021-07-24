@@ -54,8 +54,12 @@ Statement
 	/ Inc
 	/ Dec
 	/ FnDef
+	/ For
+	/ ForOf
+	/ Loop
 	/ Namespace
 	/ Meta
+	/ Out
 	/ Debug
 	/ Attr
 	/ Expr
@@ -67,12 +71,8 @@ Expr
 	/ Return
 	/ Break
 	/ Continue
-	/ Out
 	/ If
 	/ Match
-	/ Loop
-	/ For
-	/ ForOf
 	/ Fn
 	/ Num
 	/ Tmpl
@@ -130,6 +130,11 @@ Inc
 Dec
 	= name:NAME _ "-<-" _ expr:Expr
 { return createNode('dec', { name, expr }); }
+
+// syntax suger of print()
+Out
+	= "<:" _ expr:Expr
+{ return createNode('call', { name: 'print', args: [expr] }); }
 
 Debug
 	= "<<<" _ expr:Expr
@@ -236,11 +241,6 @@ Break
 Continue
 	= "continue"
 { return createNode('continue', {}); }
-
-// syntax suger of print()
-Out
-	= "<:" _ expr:Expr
-{ return createNode('call', { name: 'print', args: [expr] }); }
 
 // function ------------------------------------------------------------------------------
 
