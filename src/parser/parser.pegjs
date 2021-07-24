@@ -348,6 +348,15 @@ For
 		for: x,
 	});
 }
+	/ "~" _ "(" "#" varn:NAME _ from:("=" _ v:Expr { return v; })? ","? _ to:Expr ")" ___ x:Statement
+{
+	return createNode('for', {
+		var: varn,
+		from: from || createNode('num', { value: 0 }),
+		to: to,
+		for: [x],
+	});
+}
 	/ "~" ___ "#" varn:NAME _ from:("=" _ v:Expr { return v; })? ","? _ to:Expr _ "{" _ x:Statements _ "}"
 {
 	return createNode('for', {
@@ -357,18 +366,41 @@ For
 		for: x,
 	});
 }
-	/ "~" _ "(" times:Expr ")" ___ x:Expr
+	/ "~" ___ "#" varn:NAME _ from:("=" _ v:Expr { return v; })? ","? _ to:Expr ___ x:Statement
+{
+	return createNode('for', {
+		var: varn,
+		from: from || createNode('num', { value: 0 }),
+		to: to,
+		for: [x],
+	});
+}
+	/ "~" _ "(" times:Expr ")" _ "{" _ x:Statements _ "}"
 {
 	return createNode('for', {
 		times: times,
 		for: x,
 	});
 }
-	/ "~" ___ times:Expr ___ x:Expr
+	/ "~" _ "(" times:Expr ")" ___ x:Statement
+{
+	return createNode('for', {
+		times: times,
+		for: [x],
+	});
+}
+	/ "~" ___ times:Expr _ "{" _ x:Statements _ "}"
 {
 	return createNode('for', {
 		times: times,
 		for: x,
+	});
+}
+	/ "~" ___ times:Expr ___ x:Statement
+{
+	return createNode('for', {
+		times: times,
+		for: [x],
 	});
 }
 	/ "for" _ "(" "#" varn:NAME _ from:("=" _ v:Expr { return v; })? ","? _ to:Expr ")" _ "{" _ x:Statements _ "}"
@@ -380,6 +412,15 @@ For
 		for: x,
 	});
 }
+	/ "for" _ "(" "#" varn:NAME _ from:("=" _ v:Expr { return v; })? ","? _ to:Expr ")" ___ x:Statement
+{
+	return createNode('for', {
+		var: varn,
+		from: from || createNode('num', { value: 0 }),
+		to: to,
+		for: [x],
+	});
+}
 	/ "for" ___ "#" varn:NAME _ from:("=" _ v:Expr { return v; })? ","? _ to:Expr _ "{" _ x:Statements _ "}"
 {
 	return createNode('for', {
@@ -389,6 +430,15 @@ For
 		for: x,
 	});
 }
+	/ "for" ___ "#" varn:NAME _ from:("=" _ v:Expr { return v; })? ","? _ to:Expr ___ x:Statement
+{
+	return createNode('for', {
+		var: varn,
+		from: from || createNode('num', { value: 0 }),
+		to: to,
+		for: [x],
+	});
+}
 	/ "for" _ "(" times:Expr ")" _ "{" _ x:Statements _ "}"
 {
 	return createNode('for', {
@@ -396,11 +446,25 @@ For
 		for: x,
 	});
 }
+	/ "for" _ "(" times:Expr ")" ___ x:Statement
+{
+	return createNode('for', {
+		times: times,
+		for: [x],
+	});
+}
 	/ "for" ___ times:Expr _ "{" _ x:Statements _ "}"
 {
 	return createNode('for', {
 		times: times,
 		for: x,
+	});
+}
+	/ "for" ___ times:Expr ___ x:Statement
+{
+	return createNode('for', {
+		times: times,
+		for: [x],
 	});
 }
 
@@ -416,12 +480,28 @@ ForOf
 		for: x,
 	});
 }
+	/ "~~" _ "(" "#" varn:NAME _ ","? _ items:Expr ")" ___ x:Statement
+{
+	return createNode('forOf', {
+		var: varn,
+		items: items,
+		for: [x],
+	});
+}
 	/ "~~" ___ "#" varn:NAME _ ","? _ items:Expr _ "{" _ x:Statements _ "}"
 {
 	return createNode('forOf', {
 		var: varn,
 		items: items,
 		for: x,
+	});
+}
+	/ "~~" ___ "#" varn:NAME _ ","? _ items:Expr ___ x:Statement
+{
+	return createNode('forOf', {
+		var: varn,
+		items: items,
+		for: [x],
 	});
 }
 	/ "each" _ "(" "#" varn:NAME _ ","? _ items:Expr ")" _ "{" _ x:Statements _ "}"
@@ -432,12 +512,28 @@ ForOf
 		for: x,
 	});
 }
+	/ "each" _ "(" "#" varn:NAME _ ","? _ items:Expr ")" ___ x:Statement
+{
+	return createNode('forOf', {
+		var: varn,
+		items: items,
+		for: [x],
+	});
+}
 	/ "each" ___ "#" varn:NAME _ ","? _ items:Expr _ "{" _ x:Statements _ "}"
 {
 	return createNode('forOf', {
 		var: varn,
 		items: items,
 		for: x,
+	});
+}
+	/ "each" ___ "#" varn:NAME _ ","? _ items:Expr ___ x:Statement
+{
+	return createNode('forOf', {
+		var: varn,
+		items: items,
+		for: [x],
 	});
 }
 
