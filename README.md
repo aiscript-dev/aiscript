@@ -36,8 +36,8 @@ Note: AiScript and [Misskey](https://github.com/syuilo/misskey) are completely i
 ```
 for (#i, 100) {
   <: if ((i % 15) = 0) "FizzBuzz"
-    else if ((i % 3) = 0) "Fizz"
-    else if ((i % 5) = 0) "Buzz"
+    elif ((i % 3) = 0) "Fizz"
+    elif ((i % 5) = 0) "Buzz"
     else i
 }
 ```
