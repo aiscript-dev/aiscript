@@ -66,6 +66,7 @@ Expr
 	/ IndexRef
 	/ Return
 	/ Break
+	/ Continue
 	/ Out
 	/ If
 	/ Match
@@ -230,6 +231,11 @@ Return
 Break
 	= "break"
 { return createNode('break', {}); }
+
+// continue
+Continue
+	= "continue"
+{ return createNode('continue', {}); }
 
 // syntax suger of print()
 Out

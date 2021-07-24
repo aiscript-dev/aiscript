@@ -734,6 +734,21 @@ describe('loop', () => {
 		`);
 		eq(res, NUM(10));
 	});
+
+	it('with continue', async () => {
+		const res = await exe(`
+		$a <- ["ai" "chan" "kawaii" "!"]
+		$b <- []
+		loop {
+			$x <- Arr:shift(a)
+			? (x = "chan") continue
+			? (x = "!") break
+			Arr:push(b, x)
+		}
+		<: b
+		`);
+		eq(res, ARR([STR('ai'), STR('kawaii')]));
+	});
 });
 
 describe('for', () => {
@@ -780,6 +795,18 @@ describe('for', () => {
 		<: count
 		`);
 		eq(res, NUM(55));
+	});
+
+	it('continue', async () => {
+		const res = await exe(`
+		$count <- 0
+		for (#i, 10) {
+			? (i = 5) continue
+			count <- (count + 1)
+		}
+		<: count
+		`);
+		eq(res, NUM(9));
 	});
 });
 

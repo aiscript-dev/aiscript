@@ -7,7 +7,7 @@ import { Scope } from './scope';
 import { AiScriptError } from './error';
 import { std } from './lib/std';
 import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray, eq } from './util';
-import { Value, NULL, RETURN, unWrapRet, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, VFn, BREAK } from './value';
+import { Value, NULL, RETURN, unWrapRet, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, VFn, BREAK, CONTINUE } from './value';
 import { Node, NNs } from '../node';
 
 export class AiScript {
@@ -428,6 +428,11 @@ export class AiScript {
 				return BREAK();
 			}
 
+			case 'continue': {
+				this.log('block:continue', { scope: scope.name });
+				return CONTINUE();
+			}
+
 			case 'ns': {
 				return NULL; // nop
 			}
@@ -457,6 +462,9 @@ export class AiScript {
 				return v;
 			} else if (v.type === 'break') {
 				this.log('block:break', { scope: scope.name });
+				return v;
+			} else if (v.type === 'continue') {
+				this.log('block:continue', { scope: scope.name });
 				return v;
 			}
 		}

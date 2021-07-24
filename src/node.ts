@@ -67,6 +67,11 @@ export type NBreak = {
 	loc?: Loc; // コード位置
 };
 
+export type NContinue = {
+	type: 'continue'; // continue
+	loc?: Loc; // コード位置
+};
+
 export type NIf = {
 	type: 'if'; // if文
 	loc?: Loc; // コード位置
@@ -227,6 +232,7 @@ export type Node =
 	NCall |
 	NReturn |
 	NBreak |
+	NContinue |
 	NIf |
 	NLoop |
 	NFor |

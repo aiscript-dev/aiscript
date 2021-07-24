@@ -52,7 +52,12 @@ export type VBreak = {
 	value: null;
 };
 
-export type Value = VNull | VBool | VNum | VStr | VArr | VObj | VFn | VReturn | VBreak;
+export type VContinue = {
+	type: 'continue';
+	value: null;
+};
+
+export type Value = VNull | VBool | VNum | VStr | VArr | VObj | VFn | VReturn | VBreak | VContinue;
 
 export const NULL = {
 	type: 'null' as const,
@@ -113,6 +118,11 @@ export const RETURN = (v: VReturn['value']) => ({
 
 export const BREAK = () => ({
 	type: 'break' as const,
+	value: null
+});
+
+export const CONTINUE = () => ({
+	type: 'continue' as const,
 	value: null
 });
 
