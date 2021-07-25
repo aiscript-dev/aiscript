@@ -98,7 +98,7 @@ export class AiScript {
 					meta.set(node.name, nodeToJs(node.value));
 					break;
 				}
-			
+
 				default: {
 					// nop
 				}
@@ -121,7 +121,7 @@ export class AiScript {
 					await this.collectNsMember(node);
 					break;
 				}
-			
+
 				default: {
 					// nop
 				}
@@ -141,11 +141,11 @@ export class AiScript {
 					this.scope.add(ns.name + ':' + node.name, v);
 					break;
 				}
-	
+
 				case 'ns': {
 					break; // TODO
 				}
-			
+
 				default: {
 					throw new Error('invalid ns member type: ' + node.type);
 				}
@@ -452,7 +452,7 @@ export class AiScript {
 		this.log('block:enter', { scope: scope.name });
 
 		let v: Value = NULL;
-		
+
 		for (let i = 0; i < program.length; i++) {
 			const node = program[i];
 
@@ -472,7 +472,7 @@ export class AiScript {
 		this.log('block:leave', { scope: scope.name, val: v });
 		return v;
 	}
-	
+
 	@autobind
 	public registerAbortHandler(handler: Function) {
 		this.abortHandlers.push(handler);
