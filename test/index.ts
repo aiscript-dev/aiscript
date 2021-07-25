@@ -890,6 +890,19 @@ describe('namespace', () => {
 		`);
 		eq(res, STR('hello'));
 	});
+
+	it('increment', async () => {
+		const res = await exe(`
+		Foo:value +<- 10
+		Foo:value -<- 5
+		<: Foo:value
+
+		:: Foo {
+			$value <- 0
+		}
+		`);
+		eq(res, NUM(5));
+	});
 });
 
 describe('literal', () => {
