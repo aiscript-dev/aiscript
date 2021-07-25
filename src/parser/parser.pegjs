@@ -123,12 +123,12 @@ IndexAssign
 
 // increment
 Inc
-	= name:NAME _ "+<-" _ expr:Expr
+	= name:NAME_WITH_NAMESPACE _ "+<-" _ expr:Expr
 { return createNode('inc', { name, expr }); }
 
 // decrement
 Dec
-	= name:NAME _ "-<-" _ expr:Expr
+	= name:NAME_WITH_NAMESPACE _ "-<-" _ expr:Expr
 { return createNode('dec', { name, expr }); }
 
 // syntax suger of print()
