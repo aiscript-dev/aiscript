@@ -137,39 +137,39 @@ Core:add(1, 1)
 ## 条件分岐
 AiScriptでの条件分岐は、次のように書きます:
 ```
-? (a = b) {
+if (a = b) {
 	<: "a is equal to b"
 }
 ```
 
-`?`の後にboolを返す式(条件)を書き、その後に条件に一致した場合に評価される式(then節)を書きます。
-then節の後に`.`を書き、さらに式を追加することで条件に一致しなかった場合の処理も行うことが出来ます:
+`if`の後にboolを返す式(条件)を書き、その後に条件に一致した場合に評価される式(then節)を書きます。
+then節の後に`else`を書き、さらに式を追加することで条件に一致しなかった場合の処理も行うことが出来ます:
 ```
-? (a = b) {
+if (a = b) {
 	<: "a is equal to b"
-} . {
+} else {
 	<: "a is not equal to b"
 }
 ```
 
-`.?`の後に条件式を書くことで条件判定を複数行うことも出来ます:
+`elif`の後に条件式を書くことで条件判定を複数行うことも出来ます:
 ```
-? (a = b) {
+if (a = b) {
 	<: "a is equal to b"
-} .? (a > b) {
+} elif (a > b) {
 	<: "a is grater than b"
-} . {
+} else {
 	<: "a is less than b"
 }
 ```
 
 これらの条件分岐は式なので、ブロック内で値を返せます:
 ```
-<: ? (a = b) {
+<: if (a = b) {
 	"a is equal to b"
-} .? (a > b) {
+} elif (a > b) {
 	"a is grater than b"
-} . {
+} else {
 	"a is less than b"
 }
 ```
