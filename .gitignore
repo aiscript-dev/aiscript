@@ -1,6 +1,7 @@
 /node_modules
 /built
 /.vscode
+/coverage
 npm-debug.log
 package-lock.json
 test.is

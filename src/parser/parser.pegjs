@@ -295,7 +295,17 @@ Op
 // if statement --------------------------------------------------------------------------
 
 If
-	= "?" ___ cond:Expr ___ then:Expr elseif:(___ b:ElseifBlocks { return b; })? elseBlock:(___ b:ElseBlock { return b; })?
+	= "if" ___ cond:Expr ___ then:Expr elseif:(___ b:ElseifBlocks { return b; })? elseBlock:(___ b:ElseBlock { return b; })?
+{
+	return createNode('if', {
+		cond: cond,
+		then: then,
+		elseif: elseif || [],
+		else: elseBlock
+	});
+}
+// TODO: 将来的に削除
+	/ "?" ___ cond:Expr ___ then:Expr elseif:(___ b:ElseifBlocks { return b; })? elseBlock:(___ b:ElseBlock { return b; })?
 {
 	return createNode('if', {
 		cond: cond,
@@ -310,17 +320,23 @@ ElseifBlocks
 { return [head, ...tails]; }
 
 ElseifBlock
-	= "."+ "?" _ cond:Expr _ then:Expr
+	= "elif" _ cond:Expr _ then:Expr
+{ return { cond, then }; }
+// TODO: 将来的に削除
+	/ "."+ "?" _ cond:Expr _ then:Expr
 { return { cond, then }; }
 
 ElseBlock
-	= "."+ _ then:Expr
+	= "else" _ then:Expr
+{ return then; }
+// TODO: 将来的に削除
+	/ "."+ _ then:Expr
 { return then; }
 
 // match --------------------------------------------------------------------------
 
 Match
-	= "?" _ about:Expr _ "{" _ qs:(q:Expr _ "=>" _ a:Expr _ { return { q, a }; })+ x:("*" _ "=>" _ v:Expr _ { return v; })? _ "}"
+	= "match" _ about:Expr _ "{" _ qs:(q:Expr _ "=>" _ a:Expr _ { return { q, a }; })+ x:("*" _ "=>" _ v:Expr _ { return v; })? _ "}"
 {
 	return createNode('match', {
 		about: about,

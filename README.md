@@ -2,6 +2,7 @@
 
 [![](https://img.shields.io/npm/v/@syuilo/aiscript.svg?style=flat-square)](https://www.npmjs.com/package/@syuilo/aiscript)
 ![](https://github.com/syuilo/aiscript/workflows/ci/badge.svg)
+[![codecov](https://codecov.io/gh/syuilo/aiscript/branch/master/graph/badge.svg?token=R6IQZ3QJOL)](https://codecov.io/gh/syuilo/aiscript)
 [![](https://img.shields.io/badge/license-MIT-444444.svg?style=flat-square)](http://opensource.org/licenses/MIT)
 [![](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square&logo=github)](http://makeapullrequest.com)
 
@@ -35,10 +36,10 @@ Note: AiScript and [Misskey](https://github.com/syuilo/misskey) are completely i
 ### Fizz Buzz
 ```
 for (#i, 100) {
-  <: ? ((i % 15) = 0) "FizzBuzz"
-    .? ((i % 3) = 0) "Fizz"
-    .? ((i % 5) = 0) "Buzz"
-    . i
+  <: if ((i % 15) = 0) "FizzBuzz"
+    elif ((i % 3) = 0) "Fizz"
+    elif ((i % 5) = 0) "Buzz"
+    else i
 }
 ```
 
