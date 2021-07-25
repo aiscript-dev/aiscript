@@ -876,6 +876,20 @@ describe('namespace', () => {
 		`);
 		eq(res, STR('kawaii'));
 	});
+
+	it('assign variable', async () => {
+		const res = await exe(`
+		Foo:setMsg("hello")
+		<: Foo:getMsg()
+
+		:: Foo {
+			$msg <- "ai"
+			@setMsg(value) { Foo:msg <- value }
+			@getMsg() { Foo:msg }
+		}
+		`);
+		eq(res, STR('hello'));
+	});
 });
 
 describe('literal', () => {
