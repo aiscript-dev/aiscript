@@ -108,7 +108,7 @@ VarDef
 
 // var reassign
 Assign
-	= name:NAME _ "<-" _ expr:Expr
+	= name:NAME_WITH_NAMESPACE _ "<-" _ expr:Expr
 { return createNode('assign', { name, expr }); }
 
 // property assign
