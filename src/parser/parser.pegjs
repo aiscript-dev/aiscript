@@ -245,7 +245,7 @@ Continue
 // function ------------------------------------------------------------------------------
 
 Args
-	= head:NAME_WITH_NAMESPACE tails:(","? ___ name:NAME_WITH_NAMESPACE { return name; })*
+	= head:NAME tails:(","? ___ name:NAME { return name; })*
 { return [head, ...tails]; }
 
 // statement of function definition
