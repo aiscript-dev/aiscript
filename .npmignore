@@ -1,6 +1,7 @@
 /node_modules
 /src
 /test
+/coverage
 .gitignore
 npm-debug.log
 gulpfile.js

@@ -1,0 +1,30 @@
+name: Test and coverage
+
+on: [push, pull_request]
+
+jobs:
+  test:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [12.x]
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: Install
+      run: npm i
+    - name: Build
+      run: npm run build
+    - name: Test
+      run: npm test
+      env:
+        CI: true
+    - name: Upload Coverage
+      uses: codecov/codecov-action@v1
