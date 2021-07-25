@@ -39,52 +39,66 @@ Comment
 //
 
 Core
-	= _ content:Statements? _
+	= _ content:GlobalStatements? _
 { return content; }
+
+GlobalStatements
+	= head:GlobalStatement tails:(___ s:GlobalStatement { return s; })*
+{ return [head, ...tails]; }
+
+GlobalStatement
+	= Namespace // "::"
+	/ Meta      // "###"
+	/ Statement
 
 Statements
 	= head:Statement tails:(___ s:Statement { return s; })*
 { return [head, ...tails]; }
 
 Statement
-	= VarDef
-	/ Assign
-	/ PropAssign
-	/ IndexAssign
-	/ Inc
-	/ Dec
-	/ FnDef
-	/ For
-	/ ForOf
-	/ Loop
-	/ Namespace
-	/ Meta
-	/ Out
-	/ Debug
-	/ Attr
-	/ Expr
+	= VarDef      // "#" | "$"
+	/ FnDef       // "@"
+	/ Out         // "<:"
+	/ Debug       // "<<<"
+	/ Return      // "<<"
+	/ Attr        // "+"
+	/ ForOf       // "~~" | "each"
+	/ For         // "~" | "for"
+	/ Loop        // "loop"
+	/ Break       // "break"
+	/ Continue    // "continue"
+	/ ExprA
+	/ Assign      // NAME "<-"
+	/ PropAssign  // NAME_WITH_NAMESPACE "."
+	/ IndexAssign // NAME_WITH_NAMESPACE "["
+	/ Inc         // NAME_WITH_NAMESPACE "+<-"
+	/ Dec         // NAME_WITH_NAMESPACE "-<-"
+	/ ExprB
 
 Expr
-	= PropCall
-	/ PropRef
-	/ IndexRef
-	/ Return
-	/ Break
-	/ Continue
-	/ If
-	/ Match
-	/ Fn
-	/ Num
-	/ Tmpl
-	/ Str
-	/ Call
-	/ Op
-	/ Bool
-	/ Arr
-	/ Obj
-	/ Null
-	/ VarRef
-	/ Block
+	= ExprA
+	/ ExprB
+
+ExprA
+	= Fn          // "@("
+	/ Tmpl        // "`"
+	/ Str         // "\""
+	/ Op          // "("
+	/ Arr         // "["
+	/ Null        // "_"
+	/ Obj         // "{"
+	/ Block       // "{"
+	/ Num         // "+" | "-" | "1"~"9"
+	/ If          // "if"
+	/ Match       // "match"
+	/ Bool        // "yes" | "no" | "+" | "-"
+
+ExprB
+	= Call        // NAME_WITH_NAMESPACE "("
+	/ IndexRef    // NAME_WITH_NAMESPACE "["
+	/ PropCall    // NAME_WITH_NAMESPACE "."
+	/ PropRef     // NAME_WITH_NAMESPACE "."
+	/ VarRef      // NAME_WITH_NAMESPACE
 
 Namespace
 	= "::" ___ name:NAME ___ "{" _ members:NamespaceMembers? _ "}"
@@ -196,9 +210,9 @@ StrEsc
 
 // boolean literal
 Bool
-	= ("yes" / "+") ![A-Z0-9_]i
+	= ("yes" / "+") ![A-Z0-9_:]i
 { return createNode('bool', { value: true }); }
-	/ ("no" / "-") ![A-Z0-9_]i
+	/ ("no" / "-") ![A-Z0-9_:]i
 { return createNode('bool', { value: false }); }
 
 // array literal
@@ -234,12 +248,12 @@ Return
 
 // break
 Break
-	= "break"
+	= "break" ![A-Z0-9_:]i
 { return createNode('break', {}); }
 
 // continue
 Continue
-	= "continue"
+	= "continue" ![A-Z0-9_:]i
 { return createNode('continue', {}); }
 
 // function ------------------------------------------------------------------------------
@@ -295,7 +309,7 @@ Op
 // if statement --------------------------------------------------------------------------
 
 If
-	= "if" ___ cond:Expr ___ then:Expr elseif:(___ b:ElseifBlocks { return b; })? elseBlock:(___ b:ElseBlock { return b; })?
+	= "if" ___ cond:Expr ___ then:Statement elseif:(___ b:ElseifBlocks { return b; })? elseBlock:(___ b:ElseBlock { return b; })?
 {
 	return createNode('if', {
 		cond: cond,
@@ -320,17 +334,17 @@ ElseifBlocks
 { return [head, ...tails]; }
 
 ElseifBlock
-	= "elif" _ cond:Expr _ then:Expr
+	= "elif" _ cond:Expr _ then:Statement
 { return { cond, then }; }
 // TODO: 将来的に削除
-	/ "."+ "?" _ cond:Expr _ then:Expr
+	/ "."+ "?" _ cond:Expr _ then:Statement
 { return { cond, then }; }
 
 ElseBlock
-	= "else" _ then:Expr
+	= "else" _ then:Statement
 { return then; }
 // TODO: 将来的に削除
-	/ "."+ _ then:Expr
+	/ "."+ _ then:Statement
 { return then; }
 
 // match --------------------------------------------------------------------------
@@ -498,6 +512,14 @@ IgnoredName
 	= "_"
 	/ "yes"
 	/ "no"
+	/ "break"
+	/ "continue"
+	/ "each"
+	/ "for"
+	/ "match"
+	/ "if"
+	/ "elif"
+	/ "else"
 
 NAME
 	= !(IgnoredName ![A-Z0-9_]i) [A-Z_]i [A-Z0-9_]i*
