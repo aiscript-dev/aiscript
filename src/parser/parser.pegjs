@@ -233,7 +233,7 @@ Obj
 
 // null literal
 Null
-	= "_" ![A-Z0-9_]i
+	= "_" ![A-Z0-9_:]i
 { return createNode('null', {}); }
 
 // block
@@ -522,7 +522,7 @@ IgnoredName
 	/ "else"
 
 NAME
-	= !(IgnoredName ![A-Z0-9_]i) [A-Z_]i [A-Z0-9_]i*
+	= !(IgnoredName ![A-Z0-9_:]i) [A-Z_]i [A-Z0-9_]i*
 { return text(); }
 
 NAME_WITH_NAMESPACE
