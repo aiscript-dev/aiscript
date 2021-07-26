@@ -217,64 +217,103 @@ it('Var name starts with \'no\'', async () => {
 	eq(res, STR('ai'));
 });
 
-it('Object property access', async () => {
-	const res = await exe(`
-	#obj = {
-		a: {
-			b: {
-				c: 42;
+describe('Object', () => {
+	it('property access', async () => {
+		const res = await exe(`
+		#obj = {
+			a: {
+				b: {
+					c: 42;
+				};
 			};
-		};
-	}
+		}
 
-	<: obj.a.b.c
-	`);
-	eq(res, NUM(42));
-});
+		<: obj.a.b.c
+		`);
+		eq(res, NUM(42));
+	});
 
-it('Object property access (fn call)', async () => {
-	const res = await exe(`
-	@fn() { 42 }
+	it('property access (fn call)', async () => {
+		const res = await exe(`
+		@fn() { 42 }
 
-	#obj = {
-		a: {
-			b: {
-				c: fn;
+		#obj = {
+			a: {
+				b: {
+					c: fn;
+				};
 			};
-		};
-	}
+		}
 
-	<: obj.a.b.c()
-	`);
-	eq(res, NUM(42));
-});
+		<: obj.a.b.c()
+		`);
+		eq(res, NUM(42));
+	});
 
-it('Object property assign', async () => {
-	const res = await exe(`
-	#obj = {
-		a: 1
-		b: {
-			c: 2
-			d: {
-				e: 3
+	it('property assign', async () => {
+		const res = await exe(`
+		#obj = {
+			a: 1
+			b: {
+				c: 2
+				d: {
+					e: 3
+				}
 			}
 		}
-	}
 
-	obj.a <- 24
-	obj.b.d.e <- 42
+		obj.a <- 24
+		obj.b.d.e <- 42
 
-	<: obj
-	`);
-	eq(res, OBJ(new Map<string, any>([
-		['a', NUM(24)],
-		['b', OBJ(new Map<string, any>([
-			['c', NUM(2)],
-			['d', OBJ(new Map<string, any>([
-				['e', NUM(42)],
+		<: obj
+		`);
+		eq(res, OBJ(new Map<string, any>([
+			['a', NUM(24)],
+			['b', OBJ(new Map<string, any>([
+				['c', NUM(2)],
+				['d', OBJ(new Map<string, any>([
+					['e', NUM(42)],
+				]))],
 			]))],
-		]))],
-	])));
+		])));
+	});
+
+	/* 未実装
+	it('string key', async () => {
+		const res = await exe(`
+		#obj = {
+			"藍": 42;
+		}
+
+		<: obj."藍"
+		`);
+		eq(res, NUM(42));
+	});
+
+	it('string key including colon and period', async () => {
+		const res = await exe(`
+		#obj = {
+			":.:": 42;
+		}
+
+		<: obj.":.:"
+		`);
+		eq(res, NUM(42));
+	});
+
+	it('expression key', async () => {
+		const res = await exe(`
+		#key = "藍"
+
+		#obj = {
+			<key>: 42;
+		}
+
+		<: obj<key>
+		`);
+		eq(res, NUM(42));
+	});
+	*/
 });
 
 it('Array item access', async () => {
