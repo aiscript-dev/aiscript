@@ -19,6 +19,6 @@ If there is an issue to be resolved by this PR, please include the Issue ID in t
 <!-- なぜそうするのか？ どういう意図なのか？ -->
 <!-- Why do you do it? What are your intentions? -->
 
-# Additional info
+# Additional info (optional)
 <!-- テスト観点など -->
 <!-- Test perspective, etc -->
