@@ -3,7 +3,7 @@ PRありがとうございます！ 可能であればタイトルに、以下�
 fix / refactor / feat / enhance / perf / chore
 -->
 <!--
-Thank you for your PR! If possible, prefix the title with a keyword that identifies the type of PR, as shown below.
+Thank you for your PR! If possible, prefix the title with a keyword that identifies the type of this PR, as shown below.
 fix / refactor / feat / enhance / perf / chore
 -->
 
