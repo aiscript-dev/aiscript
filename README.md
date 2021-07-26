@@ -24,8 +24,11 @@ AiScriptは、JavaScript上で動作するマルチパラダイムプログラ�
 
 Note: AiScript and [Misskey](https://github.com/syuilo/misskey) are completely independent projects. AiScript does not prescribe any specific host, but Misskey is the largest user of AiScript (today!)
 
-## Getting started
+## Getting started (language)
 [See here](./docs/get-started.md)
+
+## Getting started (host implementation)
+todo
 
 ## Example programs
 ### Hello world
