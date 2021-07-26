@@ -3,10 +3,9 @@
  */
 
 import * as assert from 'assert';
+import { parse, analyze, serialize, deserialize } from '../src';
 import { AiScript } from '../src/interpreter';
 import { NUM, STR, NULL, ARR, OBJ, BOOL } from '../src/interpreter/value';
-import { serialize, deserialize } from '../src/serializer';
-import { parse } from '../src/parser';
 import { NAttr, Node } from '../src/node';
 
 const exe = (program: string): Promise<any> => new Promise((ok, err) => {
@@ -16,7 +15,7 @@ const exe = (program: string): Promise<any> => new Promise((ok, err) => {
 		},
 	});
 
-	const ast = parse(program);
+	const ast = analyze(parse(program));
 
 	const _ast = deserialize(serialize(ast));
 
@@ -1247,12 +1246,12 @@ describe('Attribute', () => {
 	it('single attribute with function (str)', async () => {
 		let node: Node;
 		let attr: NAttr;
-		const nodes = parse(`
+		const nodes = analyze(parse(`
 		+ Event "Recieved"
 		@onRecieved(data) {
 			data
 		}
-		`);
+		`));
 		assert.equal(nodes.length, 1);
 		node = nodes[0];
 		if (node.type != 'def') assert.fail();
@@ -1269,14 +1268,14 @@ describe('Attribute', () => {
 	it('multiple attributes with function (obj, str, bool)', async () => {
 		let node: Node;
 		let attr: NAttr;
-		const nodes = parse(`
+		const nodes = analyze(parse(`
 		+ Endpoint { path: "/notes/create"; }
 		+ Desc "Create a note."
 		+ Cat yes
 		@createNote(text) {
 			<: text
 		}
-		`);
+		`));
 		assert.equal(nodes.length, 1);
 		node = nodes[0];
 		if (node.type != 'def') assert.fail();
@@ -1310,14 +1309,17 @@ describe('Attribute', () => {
 		if (attr.value.type != 'bool') assert.fail();
 		assert.equal(attr.value.value, true);
 	});
+
+	// TODO: attributed function in block
+	// TODO: attribute target does not exist
 });
 
 describe('Location', () => {
 	it('function', async () => {
 		let node: Node;
-		const nodes = parse(`
+		const nodes = analyze(parse(`
 		@f(a) { a }
-		`);
+		`));
 		assert.equal(nodes.length, 1);
 		node = nodes[0];
 		if (!node.loc) assert.fail();
