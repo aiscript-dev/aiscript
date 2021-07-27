@@ -110,6 +110,21 @@ describe('ops', () => {
 	});
 });
 
+describe('Infix expression', () => {
+	it('simple infix expression', async () => {
+		eq(await exe('<: 0 < 1'), BOOL(true));
+		eq(await exe('<: 1 + 1'), NUM(2));
+	});
+
+	it('combination', async () => {
+		eq(await exe('<: 1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9 + 10'), NUM(55));
+	});
+
+	it('use parentheses to distinguish expr', async () => {
+		eq(await exe('<: (1 + 10) * (2 + 5)'), NUM(77));
+	});
+});
+
 it('Escaped double quote', async () => {
 	const res = await exe('<: "ai saw a note \\"bebeyo\\"."');
 	eq(res, STR('ai saw a note "bebeyo".'));
