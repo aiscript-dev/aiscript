@@ -48,6 +48,29 @@ export function validateKeyword(nodes: Node[]): Node[] {
 				}
 				break;
 			}
+			case 'fn': {
+				validateKeyword(node.children);
+				break;
+			}
+			case 'block': {
+				validateKeyword(node.statements);
+				break;
+			}
+			case 'if': {
+				if (node.then.type == 'block') {
+					validateKeyword(node.then.statements);
+				}
+				for (const n of node.elseif) {
+					if (n.then.type == 'block') {
+						validateKeyword(n.then.statements);
+					}
+				}
+				if (node.else?.type == 'block') {
+					validateKeyword(node.else.statements);
+				}
+				break;
+			}
+			// TODO: match
 		}
 	}
 
