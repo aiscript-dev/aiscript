@@ -417,6 +417,38 @@ export class AiScript {
 				return STR(str);
 			}
 
+			case 'infix': {
+				// TODO: 優先順位とか結合性をきちんと考える
+				let val = await this._eval(node.operands[0], scope);
+				for (let i = 0; i < node.operators.length; i++) {
+					const narg = await this._eval(node.operands[i+1], scope);
+					const func = await this._eval(node.operators[i], scope);
+					assertFunction(func);
+					val = await this._fn(func, [val, narg]);
+				}
+				return val;
+			}
+
+			case 'operator': {
+				// TODO: 優先順位とか結合性をきちんと考える
+				switch (node.op) {
+					case '+':  return scope.get('Core:add');
+					case '-':  return scope.get('Core:sub');
+					case '*':  return scope.get('Core:mul');
+					case '/':  return scope.get('Core:div');
+					case '%':  return scope.get('Core:mod');
+					case '=':  return scope.get('Core:eq');
+					case '!=': return scope.get('Core:neq');
+					case '&':  return scope.get('Core:and');
+					case '|':  return scope.get('Core:or');
+					case '<':  return scope.get('Core:lt');
+					case '>':  return scope.get('Core:gt');
+					case '<=': return scope.get('Core:lteq');
+					case '>=': return scope.get('Core:gteq');
+					default: throw new AiScriptError(`No such operator: ${node.op}.`);
+				}
+			}
+
 			case 'return': {
 				const val = await this._eval(node.expr, scope);
 				this.log('block:return', { scope: scope.name, val: val });

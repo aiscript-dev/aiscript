@@ -67,38 +67,38 @@ Statement
 	/ Loop        // "loop"
 	/ Break       // "break"
 	/ Continue    // "continue"
-	/ ExprA
 	/ Assign      // NAME "<-"
 	/ PropAssign  // NAME_WITH_NAMESPACE "."
 	/ IndexAssign // NAME_WITH_NAMESPACE "["
 	/ Inc         // NAME_WITH_NAMESPACE "+<-"
 	/ Dec         // NAME_WITH_NAMESPACE "-<-"
-	/ ExprB
+	/ Expr
 
 Expr
-	= ExprA
-	/ ExprB
-
-ExprA
-	= Fn          // "@("
-	/ Tmpl        // "`"
-	/ Str         // "\""
-	/ Op          // "("
-	/ Arr         // "["
-	/ Null        // "_"
-	/ Obj         // "{"
-	/ Block       // "{"
-	/ Num         // "+" | "-" | "1"~"9"
-	/ If          // "if"
+	= If          // "if"
+	/ Fn          // "@("
 	/ Match       // "match"
-	/ Bool        // "yes" | "no" | "+" | "-"
+	/ Block	      // "{"
+	/ Infix
+	/ Term
 
-ExprB
-	= Call        // NAME_WITH_NAMESPACE "("
+Term
+	= Literal
+	/ Call        // NAME_WITH_NAMESPACE "("
 	/ IndexRef    // NAME_WITH_NAMESPACE "["
 	/ PropCall    // NAME_WITH_NAMESPACE "."
 	/ PropRef     // NAME_WITH_NAMESPACE "."
-	/ VarRef      // NAME_WITH_NAMESPACE
+	/ VarRef		  // NAME_WITH_NAMESPACE
+	/ "(" _ e:Expr _ ")" { return e; }
+
+Literal
+	= Tmpl 			  // "`"
+	/ Str         // "\""
+	/ Num         // "+" | "-" | "1"~"9"
+	/ Bool        // "yes" | "no" | "+" | "-"
+	/ Null        // "_"
+	/ Obj         // "{"
+	/ Arr         // "["
 
 Namespace
 	= "::" ___ name:NAME ___ "{" _ members:NamespaceMembers? _ "}"
@@ -288,23 +288,20 @@ CallArgs
 { return [head, ...tails]; }
 
 // syntax sugers of operator function call
-Ops
-	= "=" { return 'Core:eq'; }
-	/ "!=" { return 'Core:neq'; }
-	/ "&" { return 'Core:and'; }
-	/ "|" { return 'Core:or'; }
-	/ "+" { return 'Core:add'; }
-	/ "-" { return 'Core:sub'; }
-	/ "*" { return 'Core:mul'; }
-	/ "/" { return 'Core:div'; }
-	/ "%" { return 'Core:mod'; }
-	/ ">=" { return 'Core:gteq'; }
-	/ "<=" { return 'Core:lteq'; }
-	/ ">" { return 'Core:gt'; }
-	/ "<" { return 'Core:lt'; }
-
 Op
-	= "(" _ expr1:Expr _ op:Ops _ expr2:Expr _ ")" { return createNode('call', { name: op, args: [expr1, expr2] }); }
+	= op:(!ReservedOps [-+*/%&|=~<>!?]+) {	return createNode('operator', { op: text() }); }
+
+ReservedOps
+	= "<<" / "<:" / "=>" / "<-" / "+<-" / "-<-"
+
+Infix
+	= s:Term rest:(_ o:Op _ t:Term { return {o, t}; })+
+{
+	return createNode('infix', {
+		operands: [s, ...rest.map(r => r.t)],
+		operators: rest.map(r => r.o)
+	});
+}
 
 // if statement --------------------------------------------------------------------------
 
