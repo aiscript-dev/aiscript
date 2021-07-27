@@ -507,7 +507,7 @@ describe('Return', () => {
 		const res = await exe(`
 		@f() {
 			if yes {
-				<< "ai"
+				return "ai"
 			}
 
 			"pope"
@@ -522,7 +522,7 @@ describe('Return', () => {
 		@f() {
 			if yes {
 				if yes {
-					<< "ai"
+					return "ai"
 				}
 			}
 
@@ -537,7 +537,7 @@ describe('Return', () => {
 		const res = await exe(`
 		@f() {
 			if yes {
-				<< "ai"
+				return "ai"
 			}
 
 			"pope"
@@ -545,7 +545,7 @@ describe('Return', () => {
 
 		@g() {
 			if (f() = "ai") {
-				<< "kawaii"
+				return "kawaii"
 			}
 
 			"pope"
@@ -559,7 +559,7 @@ describe('Return', () => {
 	it('Early return without block', async () => {
 		const res = await exe(`
 		@f() {
-			if yes << "ai"
+			if yes return "ai"
 
 			"pope"
 		}
@@ -749,7 +749,7 @@ describe('match', () => {
 		@f(x) {
 			match x {
 				1 => {
-					<< "ai"
+					return "ai"
 				}
 			}
 			"foo"
