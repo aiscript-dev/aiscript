@@ -3,7 +3,11 @@ import { Node } from '../node';
 
 const parseInternal = require('../../built/parser/parser.js').parse;
 
-export function parse(input: string): Node[] {
+export type RawAST = {
+	nodes: Node[];
+};
+
+export function parse(input: string): RawAST {
 	let nodes: Node[];
 	try {
 		nodes = parseInternal(input);
@@ -14,5 +18,7 @@ export function parse(input: string): Node[] {
 		throw e;
 	}
 
-	return nodes;
+	return {
+		nodes
+	};
 }

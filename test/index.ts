@@ -23,7 +23,7 @@ const exe = (program: string): Promise<any> => new Promise((ok, err) => {
 });
 
 const getMeta = (program: string) => {
-	const ast = parse(program);
+	const ast = analyze(parse(program));
 
 	const metadata = AiScript.collectMetadata(ast);
 

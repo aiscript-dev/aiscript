@@ -222,6 +222,7 @@ export type NAttr = {
 	value: Node; // 値
 };
 
+// TODO: analyze前のNodeとanalyze後のNodeが区別されておらず気持ち悪いのをなんとかしたい
 export type Node =
 	NDef |
 	NAssign |
