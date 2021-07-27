@@ -60,7 +60,7 @@ Statement
 	/ FnDef       // "@"
 	/ Out         // "<:"
 	/ Debug       // "<<<"
-	/ Return      // "<<"
+	/ Return      // "return"
 	/ Attr        // "+"
 	/ ForOf       // "~~" | "each"
 	/ For         // "~" | "for"
@@ -243,7 +243,7 @@ Block
 
 // return
 Return
-	= "<<" _ expr:Expr
+	= "return" _ expr:Expr
 { return createNode('return', { expr }); }
 
 // break
