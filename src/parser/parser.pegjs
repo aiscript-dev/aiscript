@@ -508,21 +508,8 @@ Attr
 
 // general -------------------------------------------------------------------------------
 
-IgnoredName
-	= "_"
-	/ "yes"
-	/ "no"
-	/ "break"
-	/ "continue"
-	/ "each"
-	/ "for"
-	/ "match"
-	/ "if"
-	/ "elif"
-	/ "else"
-
 NAME
-	= !(IgnoredName ![A-Z0-9_:]i) [A-Z_]i [A-Z0-9_]i*
+	= [A-Z_]i [A-Z0-9_]i*
 { return text(); }
 
 NAME_WITH_NAMESPACE
