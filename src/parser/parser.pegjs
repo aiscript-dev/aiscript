@@ -287,10 +287,10 @@ CallArgs
 	= head:Expr tails:(","? ___ expr:Expr { return expr; })*
 { return [head, ...tails]; }
 
-// syntax sugers of operator function call
 Op
 	= op:(!ReservedOps [-+*/%&|=~<>!?]+) {	return createNode('operator', { op: text() }); }
 
+// sequences that have syntax meaning; don't treat them as operators
 ReservedOps
 	= "<<" / "<:" / "=>" / "<-" / "+<-" / "-<-"
 
