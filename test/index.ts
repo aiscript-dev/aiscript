@@ -134,6 +134,25 @@ describe('Infix expression', () => {
 		`);
 		eq(res, STR("yes"));
 	});
+
+	it('number + if expression', async () => {
+		eq(await exe('<: 1 + if yes 1 else 2'), NUM(2));
+	});
+
+	it('number + match expression', async () => {
+		const res = await exe(`
+			<: 1 + match 2 = 2 {
+				yes => 3
+				no  => 4
+			}
+		`)
+		eq(res, NUM(4));
+	});
+
+	it('block + block', async () => {
+		eq(await exe('<: { 1 } + { 1 }'), NUM(2));
+	});
+
 });
 
 it('Escaped double quote', async () => {

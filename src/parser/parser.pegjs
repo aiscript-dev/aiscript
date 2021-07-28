@@ -75,15 +75,15 @@ Statement
 	/ Expr
 
 Expr
+	= Infix
+	/ Term
+
+Term
 	= If          // "if"
 	/ Fn          // "@("
 	/ Match       // "match"
 	/ Block	      // "{"
-	/ Infix
-	/ Term
-
-Term
-	= Literal
+	/ Literal
 	/ Call        // NAME_WITH_NAMESPACE "("
 	/ IndexRef    // NAME_WITH_NAMESPACE "["
 	/ PropCall    // NAME_WITH_NAMESPACE "."
