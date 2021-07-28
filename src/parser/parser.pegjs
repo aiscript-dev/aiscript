@@ -292,7 +292,7 @@ Op
 
 // sequences that have syntax meaning; don't treat them as operators
 ReservedOps
-	= "<<" / "<:" / "=>" / "<-" / "+<-" / "-<-"
+	= "<<<" / "<:" / "=>" / "<-" / "+<-" / "-<-"
 
 Infix
 	= s:Term rest:(_ o:Op _ t:Term { return {o, t}; })+
