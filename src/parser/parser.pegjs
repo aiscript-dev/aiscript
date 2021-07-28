@@ -60,7 +60,7 @@ Statement
 	/ FnDef       // "@"
 	/ Out         // "<:"
 	/ Debug       // "<<<"
-	/ Return      // "<<"
+	/ Return      // "return"
 	/ Attr        // "+"
 	/ ForOf       // "~~" | "each"
 	/ For         // "~" | "for"
@@ -243,7 +243,7 @@ Block
 
 // return
 Return
-	= "<<" _ expr:Expr
+	= "return" _ expr:Expr
 { return createNode('return', { expr }); }
 
 // break
@@ -517,6 +517,7 @@ IgnoredName
 	/ "if"
 	/ "elif"
 	/ "else"
+	/ "return"
 
 NAME
 	= !(IgnoredName ![A-Z0-9_:]i) [A-Z_]i [A-Z0-9_]i*
