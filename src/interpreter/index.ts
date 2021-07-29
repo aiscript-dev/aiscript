@@ -156,7 +156,7 @@ export class AiScript {
 	@autobind
 	private async _fn(fn: VFn, args: Value[]): Promise<Value> {
 		if (fn.native) {
-			const result = await Promise.resolve(fn.native!(args, {
+			const result = await Promise.resolve(fn.native(args, {
 				call: this._fn,
 				registerAbortHandler: this.registerAbortHandler,
 				unregisterAbortHandler: this.unregisterAbortHandler,
@@ -265,11 +265,11 @@ export class AiScript {
 			}
 
 			case 'forOf': {
-				const items = await this._eval(node.items!, scope);
+				const items = await this._eval(node.items, scope);
 				assertArray(items);
 				for (const item of items.value) {
 					await this._eval(node.for, scope.createChildScope(new Map([
-						[node.var!, item]
+						[node.var, item]
 					])));
 				}
 				return NULL;
@@ -393,7 +393,7 @@ export class AiScript {
 			}
 
 			case 'fn': {
-				return FN(node.args!, node.children!, scope);
+				return FN(node.args, node.children, scope);
 			}
 
 			case 'block': {
