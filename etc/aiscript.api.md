@@ -42,7 +42,7 @@ class AiScript {
 export function analyze(ast: RawAST): Node_2[];
 
 // @public (undocumented)
-const ARR: (arr: Value[]) => {
+const ARR: (arr: VArr['value']) => {
     type: "arr";
     value: Value[];
 };
@@ -66,7 +66,7 @@ function assertObject(val: Value): asserts val is VObj;
 function assertString(val: Value): asserts val is VStr;
 
 // @public (undocumented)
-const BOOL: (bool: boolean) => {
+const BOOL: (bool: VBool['value']) => {
     type: "bool";
     value: boolean;
 };
@@ -98,7 +98,7 @@ const FALSE: {
 };
 
 // @public (undocumented)
-const FN: (args: string[] | undefined, statements: Node_2[] | undefined, scope: Scope | undefined) => {
+const FN: (args: VFn['args'], statements: VFn['statements'], scope: VFn['scope']) => {
     type: "fn";
     args: string[] | undefined;
     statements: Node_2[] | undefined;
@@ -106,17 +106,13 @@ const FN: (args: string[] | undefined, statements: Node_2[] | undefined, scope: 
 };
 
 // @public (undocumented)
-const FN_NATIVE: (fn: ((args: Value[], opts: {
-    call: (fn: VFn, args: Value[]) => Promise<Value>;
-    registerAbortHandler: (handler: () => void) => void;
-    unregisterAbortHandler: (handler: () => void) => void;
-}) => void | VNull | VBool | VNum | VStr | VArr | VObj | VFn | VReturn | VBreak | VContinue | Promise<Value>) | undefined) => {
+const FN_NATIVE: (fn: VFn['native']) => {
     type: "fn";
     native: ((args: Value[], opts: {
         call: (fn: VFn, args: Value[]) => Promise<Value>;
         registerAbortHandler: (handler: () => void) => void;
         unregisterAbortHandler: (handler: () => void) => void;
-    }) => void | VNull | VBool | VNum | VStr | VArr | VObj | VFn | VReturn | VBreak | VContinue | Promise<Value>) | undefined;
+    }) => Value | Promise<Value> | void) | undefined;
 };
 
 // @public (undocumented)
@@ -131,13 +127,13 @@ const NULL: {
 };
 
 // @public (undocumented)
-const NUM: (num: number) => {
+const NUM: (num: VNum['value']) => {
     type: "num";
     value: number;
 };
 
 // @public (undocumented)
-const OBJ: (obj: Map<string, Value>) => {
+const OBJ: (obj: VObj['value']) => {
     type: "obj";
     value: Map<string, Value>;
 };
@@ -146,7 +142,7 @@ const OBJ: (obj: Map<string, Value>) => {
 export function parse(input: string): RawAST;
 
 // @public (undocumented)
-const RETURN: (v: Value) => {
+const RETURN: (v: VReturn['value']) => {
     type: "return";
     value: Value;
 };
@@ -160,7 +156,7 @@ export class SemanticError extends Error {
 export function serialize(ast: Node_2[]): Bin[];
 
 // @public (undocumented)
-const STR: (str: string) => {
+const STR: (str: VStr['value']) => {
     type: "str";
     value: string;
 };
