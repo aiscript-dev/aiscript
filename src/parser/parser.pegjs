@@ -294,8 +294,9 @@ Op
 ReservedOps
 	= "<<<" / "=>" / "<-" / "+<-" / "-<-"
 
+// don't allow line breaks before infix operators
 Infix
-	= s:Term rest:(_ o:Op _ t:Term { return {o, t}; })+
+	= s:Term rest:(__ o:Op _ t:Term { return {o, t}; })+
 {
 	return createNode('infix', {
 		operands: [s, ...rest.map(r => r.t)],
