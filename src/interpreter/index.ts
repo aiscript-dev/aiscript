@@ -432,17 +432,17 @@ export class AiScript {
 			case 'operator': {
 				// TODO: 優先順位とか結合性をきちんと考える
 				switch (node.op) {
-					case '+':  return scope.get('Core:add');
-					case '-':  return scope.get('Core:sub');
-					case '*':  return scope.get('Core:mul');
-					case '/':  return scope.get('Core:div');
-					case '%':  return scope.get('Core:mod');
-					case '=':  return scope.get('Core:eq');
+					case '+': return scope.get('Core:add');
+					case '-': return scope.get('Core:sub');
+					case '*': return scope.get('Core:mul');
+					case '/': return scope.get('Core:div');
+					case '%': return scope.get('Core:mod');
+					case '=': return scope.get('Core:eq');
 					case '!=': return scope.get('Core:neq');
-					case '&':  return scope.get('Core:and');
-					case '|':  return scope.get('Core:or');
-					case '<':  return scope.get('Core:lt');
-					case '>':  return scope.get('Core:gt');
+					case '&': return scope.get('Core:and');
+					case '|': return scope.get('Core:or');
+					case '<': return scope.get('Core:lt');
+					case '>': return scope.get('Core:gt');
 					case '<=': return scope.get('Core:lteq');
 					case '>=': return scope.get('Core:gteq');
 					default: throw new AiScriptError(`No such operator: ${node.op}.`);
