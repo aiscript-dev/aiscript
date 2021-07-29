@@ -109,12 +109,12 @@ export class AiScript {
 	}
 
 	@autobind
-	private log(type: string, params: Record<string, any>) {
+	private log(type: string, params: Record<string, any>): void {
 		if (this.opts.log) this.opts.log(type, params);
 	}
 
 	@autobind
-	private async collectNs(script: Node[]) {
+	private async collectNs(script: Node[]): Promise<void> {
 		for (const node of script) {
 			switch (node.type) {
 				case 'ns': {
@@ -130,7 +130,7 @@ export class AiScript {
 	}
 
 	@autobind
-	private async collectNsMember(ns: NNs) {
+	private async collectNsMember(ns: NNs): Promise<void> {
 		const scope = this.scope.createChildScope();
 
 		for (const node of ns.members) {
@@ -156,7 +156,7 @@ export class AiScript {
 	@autobind
 	private async _fn(fn: VFn, args: Value[]): Promise<Value> {
 		if (fn.native) {
-			const result = await Promise.resolve(fn.native!(args, {
+			const result = await Promise.resolve(fn.native(args, {
 				call: this._fn,
 				registerAbortHandler: this.registerAbortHandler,
 				unregisterAbortHandler: this.unregisterAbortHandler,
@@ -228,6 +228,7 @@ export class AiScript {
 			}
 
 			case 'loop': {
+				// eslint-disable-next-line no-constant-condition
 				while (true) {
 					const v = await this._run(node.statements, scope.createChildScope());
 					if (v.type === 'break') {
@@ -265,11 +266,11 @@ export class AiScript {
 			}
 
 			case 'forOf': {
-				const items = await this._eval(node.items!, scope);
+				const items = await this._eval(node.items, scope);
 				assertArray(items);
 				for (const item of items.value) {
 					await this._eval(node.for, scope.createChildScope(new Map([
-						[node.var!, item]
+						[node.var, item]
 					])));
 				}
 				return NULL;
@@ -393,7 +394,7 @@ export class AiScript {
 			}
 
 			case 'fn': {
-				return FN(node.args!, node.children!, scope);
+				return FN(node.args, node.children, scope);
 			}
 
 			case 'block': {
@@ -506,17 +507,17 @@ export class AiScript {
 	}
 
 	@autobind
-	public registerAbortHandler(handler: () => void) {
+	public registerAbortHandler(handler: () => void): void {
 		this.abortHandlers.push(handler);
 	}
 
 	@autobind
-	public unregisterAbortHandler(handler: () => void) {
+	public unregisterAbortHandler(handler: () => void): void {
 		this.abortHandlers = this.abortHandlers.filter(h => h != handler);
 	}
 
 	@autobind
-	public abort() {
+	public abort(): void {
 		this.stop = true;
 		for (const handler of this.abortHandlers) {
 			handler();
