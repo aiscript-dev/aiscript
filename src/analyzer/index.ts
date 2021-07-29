@@ -9,7 +9,7 @@ export function analyze(ast: RawAST): Node[] {
 	validateKeyword(ast.nodes);
 
 	// transform
-	let nodes = setAttribute(ast.nodes);
+	const nodes = setAttribute(ast.nodes);
 
 	return nodes;
 }
