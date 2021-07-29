@@ -288,11 +288,11 @@ CallArgs
 { return [head, ...tails]; }
 
 Op
-	= op:(!ReservedOps [-+*/%&|=~<>!?]+) {	return createNode('operator', { op: text() }); }
+	= !(ReservedOps ![-+*/%&|=~<>!?]) [-+*/%&|=~<>!?]+ {	return createNode('operator', { op: text() }); }
 
 // sequences that have syntax meaning; don't treat them as operators
 ReservedOps
-	= "<<<" / "<:" / "=>" / "<-" / "+<-" / "-<-"
+	= "<<<" / "=>" / "<-" / "+<-" / "-<-"
 
 Infix
 	= s:Term rest:(_ o:Op _ t:Term { return {o, t}; })+
