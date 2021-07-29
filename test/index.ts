@@ -119,7 +119,7 @@ describe('Infix expression', () => {
 
 	it('combination', async () => {
 		eq(await exe('<: 1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9 + 10'), NUM(55));
-		eq(await exe('<: Core:add(1, 3) * Core:mul(2, 5)'), NUM(40))
+		eq(await exe('<: Core:add(1, 3) * Core:mul(2, 5)'), NUM(40));
 	});
 
 	it('use parentheses to distinguish expr', async () => {
@@ -133,7 +133,7 @@ describe('Infix expression', () => {
 			1 < 1 => "no"
 		}
 		`);
-		eq(res, STR("yes"));
+		eq(res, STR('yes'));
 	});
 
 	it('number + if expression', async () => {
@@ -146,7 +146,7 @@ describe('Infix expression', () => {
 				yes => 3
 				no  => 4
 			}
-		`)
+		`);
 		eq(res, NUM(4));
 	});
 
