@@ -114,7 +114,7 @@ export class AiScript {
 	}
 
 	@autobind
-	private async collectNs(script: Node[]): void {
+	private async collectNs(script: Node[]): Promise<void> {
 		for (const node of script) {
 			switch (node.type) {
 				case 'ns': {
