@@ -1,43 +1,46 @@
 {
-  "name": "@syuilo/aiscript",
-  "version": "0.11.1",
-  "description": "AiScript implementation",
-  "author": "syuilo <syuilotan@yahoo.co.jp>",
-  "license": "MIT",
-  "repository": "https://github.com/syuilo/aiscript.git",
-  "bugs": "https://github.com/syuilo/aiscript/issues",
-  "main": "./built/index.js",
-  "types": "./built/index.d.ts",
-  "scripts": {
-    "start": "node ./run",
-    "parse": "node ./parse",
-    "peg": "mkdirp built/parser & pegjs -o built/parser/parser.js --allowed-start-rules Entry,Core --optimize size src/parser/parser.pegjs",
-    "build": "tsc & npm run peg",
+	"name": "@syuilo/aiscript",
+	"version": "0.11.1",
+	"description": "AiScript implementation",
+	"author": "syuilo <syuilotan@yahoo.co.jp>",
+	"license": "MIT",
+	"repository": "https://github.com/syuilo/aiscript.git",
+	"bugs": "https://github.com/syuilo/aiscript/issues",
+	"main": "./built/index.js",
+	"types": "./built/index.d.ts",
+	"scripts": {
+		"start": "node ./run",
+		"parse": "node ./parse",
+		"peg": "mkdirp built/parser & pegjs -o built/parser/parser.js --allowed-start-rules Entry,Core --optimize size src/parser/parser.pegjs",
+		"build": "tsc & npm run peg",
+		"api": "npx api-extractor run --local --verbose",
+		"api-prod": "npx api-extractor run --verbose",
 		"lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "jest": "jest --coverage --detectOpenHandles",
-    "tsd": "tsd",
-    "test": "npm run jest"
-  },
-  "devDependencies": {
-    "@types/jest": "26.0.23",
-    "@types/node": "13.11.0",
-    "@types/seedrandom": "2.4.28",
-    "@typescript-eslint/eslint-plugin": "4.28.5",
-    "@typescript-eslint/parser": "4.28.5",
-    "eslint": "7.31.0",
-    "jest": "27.0.5",
-    "mkdirp": "1.0.4",
-    "pegjs": "0.10.0",
-    "ts-jest": "27.0.3",
-    "ts-node": "8.8.2",
-    "tsd": "0.11.0",
-    "typescript": "3.8.3"
-  },
-  "dependencies": {
-    "autobind-decorator": "2.4.0",
-    "chalk": "4.0.0",
-    "seedrandom": "3.0.5",
-    "stringz": "2.1.0",
-    "uuid": "7.0.3"
-  }
+		"jest": "jest --coverage --detectOpenHandles",
+		"tsd": "tsd",
+		"test": "npm run jest"
+	},
+	"devDependencies": {
+		"@microsoft/api-extractor": "7.18.4",
+		"@types/jest": "26.0.23",
+		"@types/node": "13.11.0",
+		"@types/seedrandom": "2.4.28",
+		"@typescript-eslint/eslint-plugin": "4.28.5",
+		"@typescript-eslint/parser": "4.28.5",
+		"eslint": "7.31.0",
+		"jest": "27.0.5",
+		"mkdirp": "1.0.4",
+		"pegjs": "0.10.0",
+		"ts-jest": "27.0.3",
+		"ts-node": "8.8.2",
+		"tsd": "0.11.0",
+		"typescript": "3.8.3"
+	},
+	"dependencies": {
+		"autobind-decorator": "2.4.0",
+		"chalk": "4.0.0",
+		"seedrandom": "3.0.5",
+		"stringz": "2.1.0",
+		"uuid": "7.0.3"
+	}
 }
