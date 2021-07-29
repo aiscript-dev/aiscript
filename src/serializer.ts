@@ -113,7 +113,7 @@ export function deserializeOne(bin: Bin | null): Node | undefined {
 		case types.loop: return { type, statements: deserialize(bin[1]), } as NLoop;
 		case types.continue: return { type, name: bin[1], value: deserializeOne(null) } as NContinue;
 	}
-	throw new Error("deserialization failed");
+	throw new Error('deserialization failed');
 }
 
 export function deserialize(bin: Bin[]): Node[] {

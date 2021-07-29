@@ -13,6 +13,7 @@
     "parse": "node ./parse",
     "peg": "mkdirp built/parser & pegjs -o built/parser/parser.js --allowed-start-rules Entry,Core --optimize size src/parser/parser.pegjs",
     "build": "tsc & npm run peg",
+		"lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "jest": "jest --coverage --detectOpenHandles",
     "tsd": "tsd",
     "test": "npm run jest"
@@ -21,6 +22,9 @@
     "@types/jest": "26.0.23",
     "@types/node": "13.11.0",
     "@types/seedrandom": "2.4.28",
+    "@typescript-eslint/eslint-plugin": "4.28.5",
+    "@typescript-eslint/parser": "4.28.5",
+    "eslint": "7.31.0",
     "jest": "27.0.5",
     "mkdirp": "1.0.4",
     "pegjs": "0.10.0",

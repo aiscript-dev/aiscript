@@ -36,8 +36,8 @@ export type VFn = {
 	statements?: Node[];
 	native?: (args: Value[], opts: {
 		call: (fn: VFn, args: Value[]) => Promise<Value>;
-		registerAbortHandler: (handler: Function) => void;
-		unregisterAbortHandler: (handler: Function) => void;
+		registerAbortHandler: (handler: () => void) => void;
+		unregisterAbortHandler: (handler: () => void) => void;
 	}) => Value | Promise<Value> | void;
 	scope?: Scope;
 };
