@@ -13,10 +13,15 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v1
       with:
-        node-version: 16.x
+        node-version: 16.5.0
     - name: Install
       run: npm i
     - name: Build
       run: npm run build
+    - name: Check files
+      run: ls built
     - name: API report
       run: npm run api-prod
+    - name: Show report
+      if: always()
+      run: cat temp/aiscript.api.md
