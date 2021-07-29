@@ -1,9 +1,11 @@
+/* eslint-disable no-empty-pattern */
 import { v4 as uuid } from 'uuid';
 import { substring, length, indexOf, toArray } from 'stringz';
 import * as seedrandom from 'seedrandom';
 import { Value, NUM, STR, FN_NATIVE, FALSE, TRUE, VArr, ARR, NULL, BOOL, OBJ } from '../value';
 import { assertNumber, assertString, assertArray, assertBoolean, valToJs, jsToVal, assertFunction, assertObject, eq } from '../util';
 import { AiScriptError } from '../error';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const pkg = require('../../../package.json');
 
 export const std: Record<string, Value> = {

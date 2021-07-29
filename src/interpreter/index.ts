@@ -21,7 +21,7 @@ export class AiScript {
 	public stepCount = 0;
 	private stop = false;
 	public scope: Scope;
-	private abortHandlers: Function[] = [];
+	private abortHandlers: (() => void)[] = [];
 
 	constructor(vars: AiScript['vars'], opts?: AiScript['opts']) {
 		this.opts = opts || {};
@@ -506,12 +506,12 @@ export class AiScript {
 	}
 
 	@autobind
-	public registerAbortHandler(handler: Function) {
+	public registerAbortHandler(handler: () => void) {
 		this.abortHandlers.push(handler);
 	}
 
 	@autobind
-	public unregisterAbortHandler(handler: Function) {
+	public unregisterAbortHandler(handler: () => void) {
 		this.abortHandlers = this.abortHandlers.filter(h => h != handler);
 	}
 

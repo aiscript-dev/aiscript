@@ -119,7 +119,7 @@ export function deserializeOne(bin: Bin | null): Node | undefined {
 		case types.infix: return { type, operands: deserialize(bin[1]), operators: deserialize(bin[2])} as NInfix;
 		case types.operator: return { type, op: bin[1] } as NOperator;
 	}
-	throw new Error("deserialization failed");
+	throw new Error('deserialization failed');
 }
 
 export function deserialize(bin: Bin[]): Node[] {

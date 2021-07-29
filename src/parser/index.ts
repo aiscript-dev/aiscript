@@ -1,6 +1,7 @@
 import * as aiscript from '..';
 import { Node } from '../node';
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const parseInternal = require('../../built/parser/parser.js').parse;
 
 export type RawAST = {

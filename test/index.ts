@@ -1,3 +1,4 @@
+/* eslint-disable prefer-const */
 /**
  * Tests!
  */
@@ -410,7 +411,7 @@ it('Cannot access js native property via var', async () => {
 		await exe(`
 		<: constructor
 		`);
-	} catch(e) {
+	} catch (e) {
 		assert.ok(true);
 		return;
 	}
@@ -431,7 +432,7 @@ it('Throws error when divied by zero', async () => {
 		await exe(`
 		<: (0 / 0)
 		`);
-	} catch(e) {
+	} catch (e) {
 		assert.ok(true);
 		return;
 	}
@@ -933,7 +934,7 @@ describe('for of', () => {
 		<: msgs
 		`);
 		eq(res, ARR([STR('ai!'), STR('chan!'), STR('kawaii!')]));
-	})
+	});
 });
 
 describe('namespace', () => {
@@ -1069,14 +1070,14 @@ describe('literal', () => {
 		<: { a: 1, b: 2, c: 3 }
 		`);
 		eq(res, OBJ(new Map([['a', NUM(1)], ['b', NUM(2)], ['c', NUM(3)]])));
-	})
+	});
 
 	it('obj (separated by comma) (with trailing comma)', async () => {
 		const res = await exe(`
 		<: { a: 1, b: 2, c: 3, }
 		`);
 		eq(res, OBJ(new Map([['a', NUM(1)], ['b', NUM(2)], ['c', NUM(3)]])));
-	})
+	});
 
 	it('obj (separated by semicolon)', async () => {
 		const res = await exe(`
@@ -1223,7 +1224,7 @@ describe('meta', () => {
 				getMeta(`
 				### x [1 (2 + 2) 3]
 				`);
-			} catch(e) {
+			} catch (e) {
 				assert.ok(true);
 				return;
 			}
@@ -1250,7 +1251,7 @@ describe('meta', () => {
 				getMeta(`
 				### x { a: 1; b: (2 + 2); c: 3; }
 				`);
-			} catch(e) {
+			} catch (e) {
 				assert.ok(true);
 				return;
 			}
@@ -1264,7 +1265,7 @@ describe('meta', () => {
 				getMeta(`
 				### x \`foo {bar} baz\`
 				`);
-			} catch(e) {
+			} catch (e) {
 				assert.ok(true);
 				return;
 			}
@@ -1278,7 +1279,7 @@ describe('meta', () => {
 				getMeta(`
 				### x (1 + 1)
 				`);
-			} catch(e) {
+			} catch (e) {
 				assert.ok(true);
 				return;
 			}
