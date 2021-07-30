@@ -1,4 +1,4 @@
-import { Node, NDef, NAssign, NCall, NReturn, NIf, NFor, NForOf, NVar, NNull, NBool, NNum, NStr, NArr, NFn, NObj, NProp, NPropCall, NIndex, NBlock, NTmpl, NNs, NMatch, NMeta, NPropAssign, NIndexAssign, NInc, NDec, NAttr, NBreak, NLoop, NContinue } from './node';
+import { Node, NDef, NAssign, NCall, NReturn, NIf, NFor, NForOf, NVar, NNull, NBool, NNum, NStr, NArr, NFn, NObj, NProp, NPropCall, NIndex, NBlock, NTmpl, NNs, NMatch, NMeta, NPropAssign, NIndexAssign, NInc, NDec, NAttr, NBreak, NLoop, NContinue, NInfix, NOperator } from './node';
 
 const types = {
 	def: 0,
@@ -32,6 +32,8 @@ const types = {
 	break: 28,
 	loop: 29,
 	continue: 30,
+	infix: 31,
+	operator: 32,
 };
 
 type Bin = any[];
@@ -70,6 +72,8 @@ export function serializeOne(node: Node | null | undefined): Bin | null {
 		case 'break': return [types[node.type], null];
 		case 'loop': return [types[node.type], serialize(node.statements)];
 		case 'continue': return [types[node.type], null];
+		case 'infix': return [types[node.type], serialize(node.operands), serialize(node.operators)];
+		case 'operator': return [types[node.type], node.op];
 	}
 }
 
@@ -112,6 +116,8 @@ export function deserializeOne(bin: Bin | null): Node | undefined {
 		case types.break: return { type, name: bin[1], value: deserializeOne(null) } as NBreak;
 		case types.loop: return { type, statements: deserialize(bin[1]), } as NLoop;
 		case types.continue: return { type, name: bin[1], value: deserializeOne(null) } as NContinue;
+		case types.infix: return { type, operands: deserialize(bin[1]), operators: deserialize(bin[2])} as NInfix;
+		case types.operator: return { type, op: bin[1] } as NOperator;
 	}
 	throw new Error('deserialization failed');
 }

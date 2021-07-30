@@ -117,6 +117,51 @@ describe('ops', () => {
 	});
 });
 
+describe('Infix expression', () => {
+	it('simple infix expression', async () => {
+		eq(await exe('<: 0 < 1'), BOOL(true));
+		eq(await exe('<: 1 + 1'), NUM(2));
+	});
+
+	it('combination', async () => {
+		eq(await exe('<: 1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9 + 10'), NUM(55));
+		eq(await exe('<: Core:add(1, 3) * Core:mul(2, 5)'), NUM(40));
+	});
+
+	it('use parentheses to distinguish expr', async () => {
+		eq(await exe('<: (1 + 10) * (2 + 5)'), NUM(77));
+	});
+
+	it('syntax symbols vs infix operators', async () => {
+		const res = await exe(`
+		<: match yes {
+			1 = 1 => "yes"
+			1 < 1 => "no"
+		}
+		`);
+		eq(res, STR('yes'));
+	});
+
+	it('number + if expression', async () => {
+		eq(await exe('<: 1 + if yes 1 else 2'), NUM(2));
+	});
+
+	it('number + match expression', async () => {
+		const res = await exe(`
+			<: 1 + match 2 = 2 {
+				yes => 3
+				no  => 4
+			}
+		`);
+		eq(res, NUM(4));
+	});
+
+	it('block + block', async () => {
+		eq(await exe('<: { 1 } + { 1 }'), NUM(2));
+	});
+
+});
+
 it('Escaped double quote', async () => {
 	const res = await exe('<: "ai saw a note \\"bebeyo\\"."');
 	eq(res, STR('ai saw a note "bebeyo".'));

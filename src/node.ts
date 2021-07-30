@@ -222,6 +222,19 @@ export type NAttr = {
 	value: Node; // 値
 };
 
+export type NInfix = {
+	type: 'infix'; // 中置演算子式
+	loc?: Loc; // コード位置
+	operands: Node[]; // 項
+	operators: Node[]; // 演算子
+};
+
+export type NOperator = {
+	type: 'operator'; // 中置演算子
+	loc?: Loc; // コード位置
+	op: string; // 実際の記号列
+}
+
 // TODO: analyze前のNodeとanalyze後のNodeが区別されておらず気持ち悪いのをなんとかしたい
 export type Node =
 	NDef |
@@ -254,4 +267,6 @@ export type Node =
 	NMatch |
 	NNs |
 	NMeta |
-	NAttr;
+	NAttr |
+	NInfix |
+	NOperator;
