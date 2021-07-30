@@ -40,7 +40,7 @@ Comment
 
 Core
 	= _ content:GlobalStatements? _
-{ return content; }
+{ return content || []; }
 
 GlobalStatements
 	= head:GlobalStatement tails:(___ s:GlobalStatement { return s; })*

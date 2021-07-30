@@ -41,6 +41,12 @@ it('Hello, world!', async () => {
 	eq(res, STR('Hello, world!'));
 });
 
+it('empty script', async () => {
+	const ast = analyze(parse(''));
+	const _ast = deserialize(serialize(ast));
+	assert.deepEqual(_ast, []);
+});
+
 describe('ops', () => {
 	it('=', async () => {
 		eq(await exe('<: (1 = 1)'), BOOL(true));
