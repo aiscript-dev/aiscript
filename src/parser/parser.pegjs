@@ -82,17 +82,17 @@ Term
 	= If          // "if"
 	/ Fn          // "@("
 	/ Match       // "match"
-	/ Block	      // "{"
+	/ Block       // "{"
 	/ Literal
 	/ Call        // NAME_WITH_NAMESPACE "("
 	/ IndexRef    // NAME_WITH_NAMESPACE "["
 	/ PropCall    // NAME_WITH_NAMESPACE "."
 	/ PropRef     // NAME_WITH_NAMESPACE "."
-	/ VarRef		  // NAME_WITH_NAMESPACE
+	/ VarRef      // NAME_WITH_NAMESPACE
 	/ "(" _ e:Expr _ ")" { return e; }
 
 Literal
-	= Tmpl 			  // "`"
+	= Tmpl        // "`"
 	/ Str         // "\""
 	/ Num         // "+" | "-" | "1"~"9"
 	/ Bool        // "yes" | "no" | "+" | "-"
