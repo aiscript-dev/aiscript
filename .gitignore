@@ -4,5 +4,4 @@
 /coverage
 /temp
 npm-debug.log
-package-lock.json
 test.is
