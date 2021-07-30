@@ -118,6 +118,8 @@ describe('ops', () => {
 
 	it('~', async () => {
 		eq(await exe('<: 1 ~ 10'), ARR([NUM(1), NUM(2), NUM(3), NUM(4), NUM(5), NUM(6), NUM(7), NUM(8), NUM(9), NUM(10)]));
+		eq(await exe('<: 1 ~ 1'), ARR([NUM(1)]));
+		eq(await exe('<: 9 ~ 7'), ARR([NUM(9), NUM(8), NUM(7)]));
 	});
 });
 
