@@ -210,9 +210,19 @@ StrEsc
 
 // boolean literal
 Bool
-	= ("yes" / "+") ![A-Z0-9_:]i
+	= True
+	/ False
+
+True
+	= "yes" ![A-Z0-9_:]i
 { return createNode('bool', { value: true }); }
-	/ ("no" / "-") ![A-Z0-9_:]i
+	/ "+" ![A-Z0-9_:]i
+{ return createNode('bool', { value: true }); }
+
+False
+	= "no" ![A-Z0-9_:]i
+{ return createNode('bool', { value: false }); }
+	/ "-" ![A-Z0-9_:]i
 { return createNode('bool', { value: false }); }
 
 // array literal
