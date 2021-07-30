@@ -288,7 +288,7 @@ CallArgs
 { return [head, ...tails]; }
 
 Op
-	= !(ReservedOps ![-+*/%&|=~<>!?]) [-+*/%&|=~<>!?]+ {	return createNode('operator', { op: text() }); }
+	= !(ReservedOps ![-+*/%&|=~<>!?]) [-+*/%&|=~<>!?]+ { return createNode('operator', { op: text() }); }
 
 // sequences that have syntax meaning; don't treat them as operators
 ReservedOps
