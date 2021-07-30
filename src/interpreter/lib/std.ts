@@ -113,7 +113,7 @@ export const std: Record<string, Value> = {
 		if (a.value < b.value) {
 			return ARR(Array.from({ length: (b.value - a.value) + 1}, (_, i) => NUM(i + a.value)));
 		} else if (a.value > b.value) {
-			return ARR(Array.from({ length: (a.value - b.value) + 1}, (_, i) => NUM(b.value - i)));
+			return ARR(Array.from({ length: (a.value - b.value) + 1}, (_, i) => NUM(a.value - i)));
 		} else {
 			return ARR([a]);
 		}
