@@ -268,7 +268,7 @@ FnDef
 {
 	return createNode('def', {
 		name: name,
-		expr: createNode('fn', { args }, content),
+		expr: createNode('fn', { args }, content || []),
 		mut: false,
 		attr: []
 	});
@@ -276,7 +276,7 @@ FnDef
 
 // function
 Fn = "@(" _ args:Args? _ ")" _ "{" _ content:Statements? _ "}"
-{ return createNode('fn', { args }, content); }
+{ return createNode('fn', { args }, content || []); }
 
 // function call
 Call

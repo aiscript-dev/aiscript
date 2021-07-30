@@ -160,6 +160,22 @@ it('var', async () => {
 	eq(res, NUM(42));
 });
 
+it('empty function', async () => {
+	const res = await exe(`
+	@hoge() { }
+	<: hoge()
+	`);
+	eq(res, NULL);
+});
+
+it('empty function (function object)', async () => {
+	const res = await exe(`
+	#hoge = @() { }
+	<: hoge()
+	`);
+	eq(res, NULL);
+});
+
 it('Closure', async () => {
 	const res = await exe(`
 	@store(v) {
