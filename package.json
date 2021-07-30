@@ -12,7 +12,7 @@
 		"start": "node ./run",
 		"parse": "node ./parse",
 		"peg": "mkdirp built/parser && pegjs -o built/parser/parser.js --allowed-start-rules Entry,Core --optimize size src/parser/parser.pegjs",
-		"build": "tsc & npm run peg",
+		"build": "tsc && npm run peg",
 		"api": "npx api-extractor run --local --verbose",
 		"api-prod": "npx api-extractor run --verbose",
 		"lint": "eslint . --ext .js,.jsx,.ts,.tsx",
