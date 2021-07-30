@@ -216,12 +216,14 @@ Bool
 True
 	= "yes" ![A-Z0-9_:]i
 { return createNode('bool', { value: true }); }
+// TODO: 将来的に削除
 	/ "+" ![A-Z0-9_:]i
 { return createNode('bool', { value: true }); }
 
 False
 	= "no" ![A-Z0-9_:]i
 { return createNode('bool', { value: false }); }
+// TODO: 将来的に削除
 	/ "-" ![A-Z0-9_:]i
 { return createNode('bool', { value: false }); }
 
