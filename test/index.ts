@@ -115,6 +115,10 @@ describe('ops', () => {
 		eq(await exe('<: (1 <= 1)'), BOOL(true));
 		eq(await exe('<: (0 <= 1)'), BOOL(true));
 	});
+
+	it('~', async () => {
+		eq(await exe('<: 1 ~ 10'), ARR([NUM(1), NUM(2), NUM(3), NUM(4), NUM(5), NUM(6), NUM(7), NUM(8), NUM(9), NUM(10)]));
+	});
 });
 
 describe('Infix expression', () => {
@@ -935,6 +939,17 @@ describe('for of', () => {
 		<: msgs
 		`);
 		eq(res, ARR([STR('ai!'), STR('chan!'), STR('kawaii!')]));
+	});
+
+	it('ranged for', async () => {
+		const res = await exe(`
+		#nums = []
+		each #i, 1 ~ 5 {
+			Arr:push(nums, i * i)
+		}
+		<: nums
+		`);
+		eq(res, ARR([NUM(1), NUM(4), NUM(9), NUM(16), NUM(25)]));
 	});
 
 	it('Break', async () => {

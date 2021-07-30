@@ -106,6 +106,18 @@ export const std: Record<string, Value> = {
 		if (v.type === 'num') return STR(v.value.toString());
 		return STR('?');
 	}),
+
+	'Core:range': FN_NATIVE(([a, b]) => {
+		assertNumber(a);
+		assertNumber(b);
+		if (a.value < b.value) {
+			return ARR(Array.from({ length: (b.value - a.value) + 1}, (_, i) => NUM(i + a.value)));
+		} else if (a.value > b.value) {
+			return ARR(Array.from({ length: (a.value - b.value) + 1}, (_, i) => NUM(b.value - i)));
+		} else {
+			return ARR([a]);
+		}
+	}),
 	//#endregion
 
 	//#region Util
@@ -467,7 +479,7 @@ export const std: Record<string, Value> = {
 		assertString(key);
 		return BOOL(obj.value.has(key.value));
 	}),
-	
+
 	'Obj:copy': FN_NATIVE(([obj]) => {
 		assertObject(obj);
 		return OBJ(new Map(obj.value));

@@ -438,6 +438,7 @@ export class AiScript {
 					case '*': return scope.get('Core:mul');
 					case '/': return scope.get('Core:div');
 					case '%': return scope.get('Core:mod');
+					case '~': return scope.get('Core:range');
 					case '=': return scope.get('Core:eq');
 					case '!=': return scope.get('Core:neq');
 					case '&': return scope.get('Core:and');
