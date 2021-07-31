@@ -1,8 +1,8 @@
 import * as aiscript from '..';
 import { Node } from '../node';
+import * as parser from '../../built/parser/parser.js';
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const parseInternal = require('../../built/parser/parser.js').parse;
+const parseInternal = parser.parse;
 
 export type RawAST = {
 	nodes: Node[];
