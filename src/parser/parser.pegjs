@@ -67,7 +67,7 @@ Statement
 	/ Loop        // "loop"
 	/ Break       // "break"
 	/ Continue    // "continue"
-	/ Assign      // NAME "<-"
+	/ Assign      // NAME_WITH_NAMESPACE "<-"
 	/ PropAssign  // NAME_WITH_NAMESPACE "."
 	/ IndexAssign // NAME_WITH_NAMESPACE "["
 	/ Inc         // NAME_WITH_NAMESPACE "+<-"
