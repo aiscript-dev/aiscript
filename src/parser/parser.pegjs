@@ -301,13 +301,13 @@ Loop
 	= "loop" _ "{" _ s:Statements _ "}"
 { return createNode('loop', { statements: s }); }
 
-// break
+// break statement
 
 Break
 	= "break" ![A-Z0-9_:]i
 { return createNode('break', {}); }
 
-// continue
+// continue statement
 
 Continue
 	= "continue" ![A-Z0-9_:]i
