@@ -641,8 +641,11 @@ NAME_WITH_NAMESPACE
 	= NAME (":" NAME)*
 { return text(); }
 
+LF
+	= "\r\n" / [\r\n]
+
 EOL
-	= !. / "\r\n" / [\r\n]
+	= !. / LF
 
 // spacing
 _
