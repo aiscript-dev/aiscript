@@ -53,7 +53,7 @@ import 'prismjs/components/prism-clike';
 import 'prismjs/components/prism-javascript';
 import 'prismjs/themes/prism-okaidia.css';
 
-const script = ref('<: "Hello, AiScript!"');
+const script = ref(window.localStorage.getItem('script') || '<: "Hello, AiScript!"');
 
 const ast = ref(null);
 const bytecode = ref(null);
@@ -61,6 +61,7 @@ const logs = ref([]);
 const isSyntaxError = ref(false);
 
 watch(script, () => {
+	window.localStorage.setItem('script', script.value);
 	try {
 		ast.value = analyze(parse(script.value));
 		isSyntaxError.value = false;
