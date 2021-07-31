@@ -8,6 +8,8 @@
 
 > **AiScript** is a scripting language runing on JavaScript. Not altJS.
 
+[Play online ▶](https://syuilo.github.io/aiscript/)
+
 AiScriptは、JavaScript上で動作するマルチパラダイムプログラミング言語です。AltJSではありません(1)。
 
 * 配列、オブジェクト、関数等をファーストクラスでサポート
