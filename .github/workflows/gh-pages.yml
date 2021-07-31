@@ -19,25 +19,37 @@ jobs:
         with:
           node-version: 16.x
 
-      - name: cd
-        run: cd playground
+      - name: AiScript Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: npm-${{ hashFiles('package-lock.json') }}
+          restore-keys: npm-
+
+      - name: AiScript Install dependencies
+        run: npm ci
+
+      - name: AiScript Build
+        run: npm run build
 
       - name: Cache dependencies
         uses: actions/cache@v2
         with:
           path: ~/.npm
-          key: npm-playground-${{ hashFiles('package-lock.json') }}
+          key: npm-playground-${{ hashFiles('playground/package-lock.json') }}
           restore-keys: npm-playground-
 
       - name: Install dependencies
         run: npm ci
+        working-directory: ./playground
 
       - name: Build
         run: npm run build
+        working-directory: ./playground
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         if: ${{ github.ref == 'refs/heads/master' }}
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
+          publish_dir: ./playground/dist
