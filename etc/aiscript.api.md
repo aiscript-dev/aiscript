@@ -4,15 +4,8 @@
 
 ```ts
 
-declare namespace _ {
-    export {
-        AiScript
-    }
-}
-export { _ }
-
 // @public (undocumented)
-class AiScript {
+export class AiScript {
     constructor(vars: AiScript['vars'], opts?: AiScript['opts']);
     // (undocumented)
     abort(): void;
