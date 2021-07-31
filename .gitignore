@@ -4,5 +4,6 @@
 /coverage
 /temp
 /src/parser/parser.js
+/src/parser/parser.mjs
 npm-debug.log
 test.is

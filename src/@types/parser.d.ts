@@ -1,3 +1,3 @@
-declare module '*/parser.js' {
+declare module '*/parser.mjs' {
 	export const parse: any;
 }
