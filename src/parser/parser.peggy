@@ -173,9 +173,9 @@ NamespaceMember
 // meta statement
 
 Meta
-	= "###" ___* name:NAME _* value:StaticLiteral
+	= "###" __* name:NAME _* value:StaticLiteral
 { return createNode('meta', { name, value }); }
-	/ "###" ___* value:StaticLiteral
+	/ "###" __* value:StaticLiteral
 { return createNode('meta', { name: null, value }); }
 
 
@@ -209,7 +209,7 @@ Debug
 
 // Note: Attribute will be combined with def node when parsing is complete.
 Attr
-	= "+" ___* name:NAME _* value:StaticLiteral
+	= "+" __* name:NAME _* value:StaticLiteral
 { return createNode('attr', { name, value }); }
 
 // for-of statement
@@ -504,7 +504,7 @@ Tmpl
 
 TmplEmbed
 	= TmplEsc
-	/ "{" ___* expr:Expr ___* "}"
+	/ "{" __* expr:Expr __* "}"
 { return expr; }
 	/ .
 
@@ -651,10 +651,6 @@ EOL
 _
 	= [ \t\r\n]
 
-// statement spacing
-// __
-// 	= [ \t\r\n]
-
 // spacing (no linebreaks)
-___
+__
 	= [ \t]
