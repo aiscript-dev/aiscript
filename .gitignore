@@ -3,5 +3,6 @@
 /.vscode
 /coverage
 /temp
+/src/parser/parser.js
 npm-debug.log
 test.is
