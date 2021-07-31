@@ -5,14 +5,12 @@ import * as seedrandom from 'seedrandom';
 import { Value, NUM, STR, FN_NATIVE, FALSE, TRUE, VArr, ARR, NULL, BOOL, OBJ } from '../value';
 import { assertNumber, assertString, assertArray, assertBoolean, valToJs, jsToVal, assertFunction, assertObject, eq } from '../util';
 import { AiScriptError } from '../error';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const pkg = require('../../../package.json');
 
 export const std: Record<string, Value> = {
 	'help': STR('SEE: https://github.com/syuilo/aiscript/blob/master/docs/get-started.md'),
 
 	//#region Core
-	'Core:v': STR(pkg.version),
+	'Core:v': STR('0.11.1'), // TODO: package.jsonを参照
 
 	'Core:ai': STR('kawaii'),
 

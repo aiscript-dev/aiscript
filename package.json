@@ -11,7 +11,7 @@
 	"scripts": {
 		"start": "node ./run",
 		"parse": "node ./parse",
-		"peg": "mkdirp built/parser && pegjs -o built/parser/parser.js --allowed-start-rules Entry,Core --optimize size src/parser/parser.pegjs",
+		"peg": "mkdirp built/parser && peggy --format es -o built/parser/parser.js --allowed-start-rules Entry,Core --optimize size src/parser/parser.peggy",
 		"build": "tsc && npm run peg",
 		"api": "npx api-extractor run --local --verbose",
 		"api-prod": "npx api-extractor run --verbose",
@@ -30,7 +30,7 @@
 		"eslint": "7.31.0",
 		"jest": "27.0.6",
 		"mkdirp": "1.0.4",
-		"pegjs": "0.10.0",
+		"peggy": "1.2.0",
 		"ts-jest": "27.0.4",
 		"ts-node": "10.1.0",
 		"tsd": "0.17.0",

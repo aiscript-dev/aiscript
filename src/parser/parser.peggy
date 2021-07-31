@@ -1,4 +1,36 @@
 {
+	function group(arr, predicate) {
+		const dest = [];
+
+		for (let i = 0; i < arr.length; i++) {
+			if (i != 0 && predicate(arr[i - 1], arr[i])) {
+				dest[dest.length - 1].push(arr[i]);
+			} else {
+				dest.push([arr[i]]);
+			}
+		}
+
+		return dest;
+	}
+
+	function ungroup(groupes) {
+		return groupes.reduce((acc, val) => acc.concat(val), []);
+	}
+
+	function concatTemplate(arr) {
+		let groupes = group(arr, (prev, current) => (typeof current == typeof prev));
+
+		// concat string
+		groupes = groupes.map(g => {
+			if (typeof g[0] == 'string') {
+				return [g.join('')];
+			}
+			return g;
+		});
+
+		return ungroup(groupes);
+	}
+
 	function applyParser(input, startRule) {
 		let parseFunc = peg$parse;
 		return parseFunc(input, startRule ? { startRule } : { });
@@ -15,9 +47,6 @@
 		node.loc = { start: loc.start.offset, end: loc.end.offset - 1 };
 		return node;
 	}
-	const {
-		concatTemplate
-	} = require('./util');
 }
 
 // First, comments are removed by the entry rule, then the core parser is applied to the code.
