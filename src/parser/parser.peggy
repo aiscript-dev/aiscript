@@ -72,11 +72,11 @@ Core
 { return content || []; }
 
 GlobalStatements
-	= head:GlobalStatement tails:(_+ s:GlobalStatement { return s; })*
+	= head:GlobalStatement tails:(__* LF _* s:GlobalStatement { return s; })*
 { return [head, ...tails]; }
 
 Statements
-	= head:Statement tails:(_+ s:Statement { return s; })*
+	= head:Statement tails:(__* LF _* s:Statement { return s; })*
 { return [head, ...tails]; }
 
 // list of global statements
@@ -162,7 +162,7 @@ Namespace
 { return createNode('ns', { name, members }); }
 
 NamespaceMembers
-	= head:NamespaceMember tails:(_+ s:NamespaceMember { return s; })*
+	= head:NamespaceMember tails:(__* LF _* s:NamespaceMember { return s; })*
 { return [head, ...tails]; }
 
 NamespaceMember
