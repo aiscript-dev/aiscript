@@ -1,6 +1,6 @@
 import * as aiscript from '..';
 import { Node } from '../node';
-import * as parser from './parser.mjs';
+import * as parser from './parser.js';
 
 const parseInternal = parser.parse;
 
