@@ -231,6 +231,32 @@ it('var', async () => {
 	eq(res, NUM(42));
 });
 
+describe('Cannot put multiple statements in a line', () => {
+	it('var def', async () => {
+		try {
+			await exe(`
+			#a = 42 #b = 11
+			`);
+		} catch (e) {
+			assert.ok(true);
+			return;
+		}
+		assert.fail();
+	});
+
+	it('var def (op)', async () => {
+		try {
+			await exe(`
+			#a = 13 + 75 #b = 24 + 146
+			`);
+		} catch (e) {
+			assert.ok(true);
+			return;
+		}
+		assert.fail();
+	});
+});
+
 it('empty function', async () => {
 	const res = await exe(`
 	@hoge() { }
