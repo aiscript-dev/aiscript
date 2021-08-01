@@ -103,12 +103,12 @@ JSONをパースします。
 型: `str`  
 改行コード(LF)です。  
 
-### @Str:to_num(v: num | str): num | _
+### @Str:to_num(v: num | str): num | null
 
 ### @Str:len(v: str): num
 文字列の長さを取得します。  
 
-### @Str:pick(v: str, i: num): str | _
+### @Str:pick(v: str, i: num): str | null
 
 ### @Str:incl(v: str, keyword: str): bool
 
@@ -132,10 +132,10 @@ JSONをパースします。
 ### @Arr:len(v: arr): num
 配列の要素数を取得します。  
 
-### @Arr:push(v: arr, i: value): _
+### @Arr:push(v: arr, i: value): null
 配列の最後に要素を追加します。  
 
-### @Arr:unshift(v: arr, i: value): _
+### @Arr:unshift(v: arr, i: value): null
 
 ### @Arr:pop(v: arr): value
 配列の最後の要素を取り出します。  
@@ -150,7 +150,7 @@ JSONをパースします。
 
 ### @Arr:slice(v: arr, begin: num, end: num): arr
 
-### @Arr:incl(v: arr, i: str | num | bool | \_): bool
+### @Arr:incl(v: arr, i: str | num | bool | null): bool
 配列に指定した値が含まれているかどうかを返します。  
 
 ### @Arr:map(v: arr, f: fn): arr
@@ -162,7 +162,7 @@ JSONをパースします。
 ### @Arr:find(v: arr, f: @(item: value, index: num) { bool }): value
 配列から要素を探します。  
 
-### @Arr:reverse(v: arr): _
+### @Arr:reverse(v: arr): null
 配列を反転させます。  
 
 ### @Arr:copy(v: arr): arr
@@ -176,7 +176,7 @@ JSONをパースします。
 
 ### @Obj:get(v: obj, key: str): value
 
-### @Obj:set(v: obj, key: str, val: value): _
+### @Obj:set(v: obj, key: str, val: value): null
 
 ### @Obj:has(v: obj, key: str): bool
 

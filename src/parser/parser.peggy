@@ -146,7 +146,7 @@ Literal
 	/ Str         // "\""
 	/ Num         // "+" | "-" | "1"~"9"
 	/ Bool        // "yes" | "no" | "+" | "-"
-	/ Null        // "_"
+	/ Null        // "null"
 	/ Obj         // "{"
 	/ Arr         // "["
 
@@ -158,7 +158,7 @@ StaticLiteral
 	/ Bool        // "yes" | "no" | "+" | "-"
 	/ StaticArr   // "["
 	/ StaticObj   // "{"
-	/ Null        // "_"
+	/ Null        // "null"
 
 
 
@@ -563,7 +563,7 @@ False
 // null literal
 
 Null
-	= "_" ![A-Z0-9_:]i
+	= "null" ![A-Z0-9_:]i
 { return createNode('null', {}); }
 
 // object literal

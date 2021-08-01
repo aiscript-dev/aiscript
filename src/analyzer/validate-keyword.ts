@@ -2,7 +2,7 @@ import * as aiscript from '..';
 import { Node } from '../node';
 
 const reservedWord = [
-	'_',
+	'null',
 	'yes',
 	'no',
 	'true',

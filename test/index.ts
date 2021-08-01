@@ -722,7 +722,7 @@ describe('if', () => {
 
 	it('else', async () => {
 		const res1 = await exe(`
-		$msg <- _
+		$msg <- null
 		if yes {
 			msg <- "ai"
 		} else {
@@ -733,7 +733,7 @@ describe('if', () => {
 		eq(res1, STR('ai'));
 
 		const res2 = await exe(`
-		$msg <- _
+		$msg <- null
 		if no {
 			msg <- "ai"
 		} else {
@@ -770,7 +770,7 @@ describe('if', () => {
 
 	it('if ~ elif ~ else', async () => {
 		const res1 = await exe(`
-		$msg <- _
+		$msg <- null
 		if no {
 			msg <- "ai"
 		} elif yes {
@@ -783,7 +783,7 @@ describe('if', () => {
 		eq(res1, STR('chan'));
 
 		const res2 = await exe(`
-		$msg <- _
+		$msg <- null
 		if no {
 			msg <- "ai"
 		} elif no {
@@ -1270,7 +1270,7 @@ describe('meta', () => {
 	describe('Null', () => {
 		it('valid', async () => {
 			const res = getMeta(`
-			### x _
+			### x null
 			`);
 			eq(res, new Map([
 				['x', null]
