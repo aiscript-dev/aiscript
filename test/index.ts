@@ -160,6 +160,26 @@ describe('Infix expression', () => {
 		eq(await exe('<: { 1 } + { 1 }'), NUM(2));
 	});
 
+	it('disallow line break', async () => {
+		try {
+			await exe(`
+			<: 1 + 
+			1 + 1
+			`);
+		} catch (e) {
+			assert.ok(true);
+			return;
+		}
+		assert.fail();
+	});
+
+	it('escaped line break', async () => {
+		eq(await exe(`
+			<: 1 + \\
+			1 + 1
+		`), NUM(3));
+	});
+
 });
 
 it('Escaped double quote', async () => {
