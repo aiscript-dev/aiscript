@@ -26,12 +26,12 @@
 	"devDependencies": {
 		"@microsoft/api-extractor": "7.18.4",
 		"@types/jest": "26.0.24",
-		"@types/node": "16.4.7",
-		"@types/seedrandom": "2.4.28",
+		"@types/node": "16.4.9",
+		"@types/seedrandom": "3.0.1",
 		"@typescript-eslint/eslint-plugin": "4.28.5",
 		"@typescript-eslint/parser": "4.28.5",
 		"copyfiles": "2.4.1",
-		"eslint": "7.31.0",
+		"eslint": "7.32.0",
 		"jest": "27.0.6",
 		"peggy": "1.2.0",
 		"ts-jest": "27.0.4",
@@ -41,9 +41,9 @@
 	},
 	"dependencies": {
 		"autobind-decorator": "2.4.0",
-		"chalk": "4.1.1",
+		"chalk": "4.1.2",
 		"seedrandom": "3.0.5",
 		"stringz": "2.1.0",
-		"uuid": "7.0.3"
+		"uuid": "8.3.2"
 	}
 }
