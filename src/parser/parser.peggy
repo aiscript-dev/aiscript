@@ -382,13 +382,17 @@ Dec
 // infix expression
 
 Infix
-	= s:Term rest:(__* o:Op __* t:Term { return {o, t}; })+
+	= s:Term rest:(InfixSp* o:Op InfixSp* t:Term { return {o, t}; })+
 {
 	return createNode('infix', {
 		operands: [s, ...rest.map(r => r.t)],
 		operators: rest.map(r => r.o)
 	});
 }
+
+InfixSp
+	= "\\" LF
+	/ __
 
 // NOTE: sequences that have syntax meaning; don't treat them as operators
 ReservedOps
