@@ -213,31 +213,11 @@ Debug
 Attr
 	= "#[" _* name:NAME _* value:StaticLiteral _* "]"
 { return createNode('attr', { name, value }); }
-// TODO: 将来的に削除
-	/ "+" __* name:NAME _* value:StaticLiteral
-{ return createNode('attr', { name, value }); }
 
 // for-of statement
 
-// TODO: ~~ の方の構文は将来的に消す
 ForOf
-	= "~~" _* "(" "#" varn:NAME _* ","? _* items:Expr ")" _* x:Statement
-{
-	return createNode('forOf', {
-		var: varn,
-		items: items,
-		for: x,
-	});
-}
-	/ "~~" _+ "#" varn:NAME _* ","? _* items:Expr _+ x:Statement
-{
-	return createNode('forOf', {
-		var: varn,
-		items: items,
-		for: x,
-	});
-}
-	/ "each" _* "(" "#" varn:NAME _* ","? _* items:Expr ")" _* x:Statement
+	= "each" _* "(" "#" varn:NAME _* ","? _* items:Expr ")" _* x:Statement
 {
 	return createNode('forOf', {
 		var: varn,
@@ -256,41 +236,8 @@ ForOf
 
 // for statement
 
-// TODO: ~ の方の構文は将来的に消す
 For
-	= "~" _* "(" "#" varn:NAME _* from:("=" _* v:Expr { return v; })? ","? _* to:Expr ")" _* x:Statement
-{
-	return createNode('for', {
-		var: varn,
-		from: from || createNode('num', { value: 0 }),
-		to: to,
-		for: x,
-	});
-}
-	/ "~" _+ "#" varn:NAME _* from:("=" _* v:Expr { return v; })? ","? _* to:Expr _+ x:Statement
-{
-	return createNode('for', {
-		var: varn,
-		from: from || createNode('num', { value: 0 }),
-		to: to,
-		for: x,
-	});
-}
-	/ "~" _* "(" times:Expr ")" _* x:Statement
-{
-	return createNode('for', {
-		times: times,
-		for: x,
-	});
-}
-	/ "~" _+ times:Expr _+ x:Statement
-{
-	return createNode('for', {
-		times: times,
-		for: x,
-	});
-}
-	/ "for" _* "(" "#" varn:NAME _* from:("=" _* v:Expr { return v; })? ","? _* to:Expr ")" _* x:Statement
+	= "for" _* "(" "#" varn:NAME _* from:("=" _* v:Expr { return v; })? ","? _* to:Expr ")" _* x:Statement
 {
 	return createNode('for', {
 		var: varn,
@@ -418,16 +365,6 @@ If
 		else: elseBlock
 	});
 }
-// TODO: 将来的に削除
-	/ "?" _+ cond:Expr _+ then:Expr elseif:(_+ b:ElseifBlocks { return b; })? elseBlock:(_+ b:ElseBlock { return b; })?
-{
-	return createNode('if', {
-		cond: cond,
-		then: then,
-		elseif: elseif || [],
-		else: elseBlock
-	});
-}
 
 ElseifBlocks
 	= head:ElseifBlock tails:(_* i:ElseifBlock { return i; })*
@@ -436,15 +373,9 @@ ElseifBlocks
 ElseifBlock
 	= "elif" _* cond:Expr _* then:Statement
 { return { cond, then }; }
-// TODO: 将来的に削除
-	/ "."+ "?" _* cond:Expr _* then:Statement
-{ return { cond, then }; }
 
 ElseBlock
 	= "else" _* then:Statement
-{ return then; }
-// TODO: 将来的に削除
-	/ "."+ _* then:Statement
 { return then; }
 
 // match expression
@@ -549,15 +480,9 @@ Bool
 True
 	= "yes" ![A-Z0-9_:]i
 { return createNode('bool', { value: true }); }
-// TODO: 将来的に削除
-	/ "+" ![A-Z0-9_:]i
-{ return createNode('bool', { value: true }); }
 
 False
 	= "no" ![A-Z0-9_:]i
-{ return createNode('bool', { value: false }); }
-// TODO: 将来的に削除
-	/ "-" ![A-Z0-9_:]i
 { return createNode('bool', { value: false }); }
 
 // null literal
