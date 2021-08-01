@@ -160,6 +160,26 @@ describe('Infix expression', () => {
 		eq(await exe('<: { 1 } + { 1 }'), NUM(2));
 	});
 
+	it('disallow line break', async () => {
+		try {
+			await exe(`
+			<: 1 + 
+			1 + 1
+			`);
+		} catch (e) {
+			assert.ok(true);
+			return;
+		}
+		assert.fail();
+	});
+
+	it('escaped line break', async () => {
+		eq(await exe(`
+			<: 1 + \\
+			1 + 1
+		`), NUM(3));
+	});
+
 });
 
 it('Escaped double quote', async () => {
@@ -209,6 +229,32 @@ it('var', async () => {
 	<: a
 	`);
 	eq(res, NUM(42));
+});
+
+describe('Cannot put multiple statements in a line', () => {
+	it('var def', async () => {
+		try {
+			await exe(`
+			#a = 42 #b = 11
+			`);
+		} catch (e) {
+			assert.ok(true);
+			return;
+		}
+		assert.fail();
+	});
+
+	it('var def (op)', async () => {
+		try {
+			await exe(`
+			#a = 13 + 75 #b = 24 + 146
+			`);
+		} catch (e) {
+			assert.ok(true);
+			return;
+		}
+		assert.fail();
+	});
 });
 
 it('empty function', async () => {
