@@ -209,7 +209,10 @@ Debug
 
 // Note: Attribute will be combined with def node when parsing is complete.
 Attr
-	= "+" __* name:NAME _* value:StaticLiteral
+	= "#[" _* name:NAME _* value:StaticLiteral _* "]"
+{ return createNode('attr', { name, value }); }
+// TODO: 将来的に削除
+	/ "+" __* name:NAME _* value:StaticLiteral
 { return createNode('attr', { name, value }); }
 
 // for-of statement

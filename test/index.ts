@@ -1357,7 +1357,7 @@ describe('meta', () => {
 });
 
 describe('Attribute', () => {
-	it('single attribute with function (str)', async () => {
+	it('single attribute v1 with function (str)', async () => {
 		let node: Node;
 		let attr: NAttr;
 		const nodes = analyze(parse(`
@@ -1379,13 +1379,80 @@ describe('Attribute', () => {
 		assert.equal(attr.value.value, 'Recieved');
 	});
 
-	it('multiple attributes with function (obj, str, bool)', async () => {
+	it('multiple attributes v1 with function (obj, str, bool)', async () => {
 		let node: Node;
 		let attr: NAttr;
 		const nodes = analyze(parse(`
 		+ Endpoint { path: "/notes/create"; }
 		+ Desc "Create a note."
 		+ Cat yes
+		@createNote(text) {
+			<: text
+		}
+		`));
+		assert.equal(nodes.length, 1);
+		node = nodes[0];
+		if (node.type != 'def') assert.fail();
+		assert.equal(node.name, 'createNote');
+		assert.equal(node.attr.length, 3);
+		// attribute 1
+		attr = node.attr[0];
+		if (attr.type != 'attr') assert.fail();
+		assert.equal(attr.name, 'Endpoint');
+		if (attr.value.type != 'obj') assert.fail();
+		assert.equal(attr.value.value.size, 1);
+		for (const [k, v] of attr.value.value) {
+			if (k == 'path') {
+				if (v.type != 'str') assert.fail();
+				assert.equal(v.value, '/notes/create');
+			}
+			else {
+				assert.fail();
+			}
+		}
+		// attribute 2
+		attr = node.attr[1];
+		if (attr.type != 'attr') assert.fail();
+		assert.equal(attr.name, 'Desc');
+		if (attr.value.type != 'str') assert.fail();
+		assert.equal(attr.value.value, 'Create a note.');
+		// attribute 3
+		attr = node.attr[2];
+		if (attr.type != 'attr') assert.fail();
+		assert.equal(attr.name, 'Cat');
+		if (attr.value.type != 'bool') assert.fail();
+		assert.equal(attr.value.value, true);
+	});
+
+	it('single attribute v2 with function (str)', async () => {
+		let node: Node;
+		let attr: NAttr;
+		const nodes = analyze(parse(`
+		#[Event "Recieved"]
+		@onRecieved(data) {
+			data
+		}
+		`));
+		assert.equal(nodes.length, 1);
+		node = nodes[0];
+		if (node.type != 'def') assert.fail();
+		assert.equal(node.name, 'onRecieved');
+		assert.equal(node.attr.length, 1);
+		// attribute 1
+		attr = node.attr[0];
+		if (attr.type != 'attr') assert.fail();
+		assert.equal(attr.name, 'Event');
+		if (attr.value.type != 'str') assert.fail();
+		assert.equal(attr.value.value, 'Recieved');
+	});
+
+	it('multiple attributes v2 with function (obj, str, bool)', async () => {
+		let node: Node;
+		let attr: NAttr;
+		const nodes = analyze(parse(`
+		#[Endpoint { path: "/notes/create"; }]
+		#[Desc "Create a note."]
+		#[Cat yes]
 		@createNote(text) {
 			<: text
 		}
