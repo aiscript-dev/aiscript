@@ -75,6 +75,10 @@ GlobalStatements
 	= head:GlobalStatement tails:(__* LF _* s:GlobalStatement { return s; })*
 { return [head, ...tails]; }
 
+NamespaceStatements
+	= head:NamespaceStatement tails:(__* LF _* s:NamespaceStatement { return s; })*
+{ return [head, ...tails]; }
+
 Statements
 	= head:Statement tails:(__* LF _* s:Statement { return s; })*
 { return [head, ...tails]; }
@@ -85,6 +89,13 @@ GlobalStatement
 	= Namespace // "::"
 	/ Meta      // "###"
 	/ Statement
+
+// list of namespace statement
+
+NamespaceStatement
+	= VarDef
+	/ FnDef
+	/ Namespace
 
 // list of statement
 
@@ -142,12 +153,12 @@ Literal
 // list of static literal
 
 StaticLiteral
-	= Num
-	/ Str
-	/ Bool
-	/ StaticArr
-	/ StaticObj
-	/ Null
+	= Num         // "+" "1"~"9" | "-" "1"~"9" | "1"~"9"
+	/ Str         // "\""
+	/ Bool        // "yes" | "no" | "+" | "-"
+	/ StaticArr   // "["
+	/ StaticObj   // "{"
+	/ Null        // "_"
 
 
 
@@ -158,17 +169,8 @@ StaticLiteral
 // namespace statement
 
 Namespace
-	= "::" _+ name:NAME _+ "{" _* members:NamespaceMembers? _* "}"
+	= "::" _+ name:NAME _+ "{" _* members:NamespaceStatements? _* "}"
 { return createNode('ns', { name, members }); }
-
-NamespaceMembers
-	= head:NamespaceMember tails:(__* LF _* s:NamespaceMember { return s; })*
-{ return [head, ...tails]; }
-
-NamespaceMember
-	= VarDef
-	/ FnDef
-	/ Namespace
 
 // meta statement
 
