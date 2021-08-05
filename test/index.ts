@@ -120,6 +120,7 @@ describe('ops', () => {
 		eq(await exe('<: 1 + 2 * 3 + 4'), NUM(11));
 		eq(await exe('<: 1 + 4 / 4 + 1'), NUM(3));
 		eq(await exe('<: 1 + 1 = 2 & 2 * 2 = 4'), BOOL(true));
+		eq(await exe('<: (1 + 1) * 2'), NUM(4));
 	});
 
 });
