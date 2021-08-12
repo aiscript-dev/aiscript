@@ -226,7 +226,7 @@ export type NInfix = {
 	type: 'infix'; // 中置演算子式
 	loc?: Loc; // コード位置
 	operands: Node[]; // 項
-	operators: Node[]; // 演算子
+	operators: NOperator[]; // 演算子
 };
 
 export type NOperator = {
