@@ -8,7 +8,6 @@ import * as values from './interpreter/value';
 export { AiScript };
 export { utils };
 export { values };
-export { parse } from './parser';
-export { analyze } from './analyzer';
+export { Parser, ParserPlugin, parse } from './parser';
 export { serialize, deserialize } from './serializer';
 export { SyntaxError, SemanticError } from './error';

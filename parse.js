@@ -1,5 +1,5 @@
 const fs = require('fs');
-const { parse, analyze } = require('./built/index.js');
+const { parse } = require('./built/index.js');
 
 function transformMapToObj(key, value) {
 	if (Object.prototype.toString.call(value) == '[object Map]') {
@@ -16,5 +16,5 @@ function transformMapToObj(key, value) {
 }
 
 const script = fs.readFileSync('./test.is', 'utf8');
-const ast = analyze(parse(script));
+const ast = parse(script);
 console.log(JSON.stringify(ast, transformMapToObj, 2));

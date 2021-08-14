@@ -1,5 +1,5 @@
-import * as aiscript from '..';
-import { Node } from '../node';
+import * as aiscript from '../..';
+import { Node } from '../../node';
 
 const reservedWord = [
 	'null',
