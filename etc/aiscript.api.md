@@ -29,11 +29,6 @@ export class AiScript {
     unregisterAbortHandler(handler: () => void): void;
 }
 
-// Warning: (ae-forgotten-export) The symbol "RawAST" needs to be exported by the entry point index.d.ts
-//
-// @public (undocumented)
-export function analyze(ast: RawAST): Node_2[];
-
 // @public (undocumented)
 const ARR: (arr: VArr['value']) => {
     type: "arr";
@@ -132,7 +127,21 @@ const OBJ: (obj: VObj['value']) => {
 };
 
 // @public (undocumented)
-export function parse(input: string): RawAST;
+export function parse(input: string): Node_2[];
+
+// @public (undocumented)
+export class Parser {
+    constructor();
+    // (undocumented)
+    addPlugin(plugin: ParserPlugin): void;
+    // (undocumented)
+    static parse(input: string): Node_2[];
+    // (undocumented)
+    parse(input: string): Node_2[];
+}
+
+// @public (undocumented)
+export type ParserPlugin = (nodes: Node_2[]) => Node_2[];
 
 // @public (undocumented)
 const RETURN: (v: VReturn['value']) => {
