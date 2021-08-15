@@ -1,6 +1,6 @@
 import * as aiscript from '../..';
 import { NNs, Node } from '../../node';
-import { Type, TFn, T_STR, T_NULL, T_BOOL, T_NUM, T_ANY, T_ARR, T_FN, T_OBJ, compatibleType, getTypeName } from '../../type';
+import { Type, T_STR, T_NULL, T_BOOL, T_NUM, T_ANY, T_ARR, T_FN, T_OBJ, compatibleType, getTypeName } from '../../type';
 import { LayeredMap } from '../util/layered-map';
 
 class StaticAnalysis {
@@ -69,8 +69,25 @@ class StaticAnalysis {
 				if (!map.has(expr.name)) {
 					throw new aiscript.SemanticError(`No such function '${expr.name}'.`);
 				}
-				const fn = map.get(expr.name) as TFn;
-				return fn.result;
+				const sigType = map.get(expr.name);
+				if (sigType.name != 'any' && sigType.name != 'fn') {
+					throw new aiscript.SemanticError(`Incompatible type. Expect 'fn', but got '${getTypeName(sigType)}'.`);
+				}
+				if (sigType.name == 'fn') {
+					// check type of call arguments
+					const callExpr = expr;
+					if (callExpr.args.length != sigType.args.length) {
+						throw new aiscript.SemanticError(`argument length is not matched`);
+					}
+					const callArgTypes = callExpr.args.map(arg => StaticAnalysis.getType(arg, map));
+					for (let i = 0; i < callExpr.args.length; i++) {
+						if (!compatibleType(callArgTypes[i], sigType.args[i])) {
+							throw new aiscript.SemanticError(`argument type is not matched`);
+						}
+					}
+					return sigType.result;
+				}
+				return T_ANY();
 			}
 
 			case 'index': {
