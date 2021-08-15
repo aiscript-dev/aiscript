@@ -77,12 +77,12 @@ class StaticAnalysis {
 					// check type of call arguments
 					const callExpr = expr;
 					if (callExpr.args.length != sigType.args.length) {
-						throw new aiscript.SemanticError(`argument length is not matched`);
+						throw new aiscript.SemanticError('argument length is not matched');
 					}
 					const callArgTypes = callExpr.args.map(arg => StaticAnalysis.getType(arg, map));
 					for (let i = 0; i < callExpr.args.length; i++) {
 						if (!compatibleType(callArgTypes[i], sigType.args[i])) {
-							throw new aiscript.SemanticError(`argument type is not matched`);
+							throw new aiscript.SemanticError('argument type is not matched');
 						}
 					}
 					return sigType.result;
