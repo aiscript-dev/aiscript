@@ -4,6 +4,7 @@ import * as parser from './parser.js';
 
 import { validateKeyword } from './plugins/validate-keyword';
 import { setAttribute } from './plugins/set-attribute';
+import { staticAnalysis } from './plugins/static-analysis';
 
 export type ParserPlugin = (nodes: Node[]) => Node[];
 
@@ -15,6 +16,7 @@ export class Parser {
 		this.plugins = [
 			validateKeyword,
 			setAttribute,
+			staticAnalysis,
 		];
 	}
 
