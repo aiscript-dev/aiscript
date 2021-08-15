@@ -395,7 +395,7 @@ export class AiScript {
 			}
 
 			case 'fn': {
-				return FN(node.args, node.children, scope);
+				return FN(node.args.map(arg => arg.name), node.children, scope);
 			}
 
 			case 'block': {

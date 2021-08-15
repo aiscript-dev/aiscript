@@ -515,18 +515,25 @@ Arr
 // function ------------------------------------------------------------------------------
 //
 
+Arg
+	= name:NAME type:(_* ":" _* @NAME)?
+{ return { name, type }; }
+
 Args
-	= head:NAME tails:(","? _+ name:NAME { return name; })*
+	= head:Arg tails:(","? _+ @Arg)*
 { return [head, ...tails]; }
 
 // define function statement
 
 FnDef
-	= "@" name:NAME "(" _* args:Args? _* ")" _* "{" _* content:Statements? _* "}"
+	= "@" name:NAME "(" _* args:Args? _* ")" ret:(_* ":" _* @NAME)? _* "{" _* content:Statements? _* "}"
 {
 	return createNode('def', {
 		name: name,
-		expr: createNode('fn', { args }, content || []),
+		expr: createNode('fn', {
+			args: args || [],
+			ret: ret
+		}, content || []),
 		mut: false,
 		attr: []
 	});
@@ -534,8 +541,14 @@ FnDef
 
 // function expression
 
-Fn = "@(" _* args:Args? _* ")" _* "{" _* content:Statements? _* "}"
-{ return createNode('fn', { args }, content || []); }
+Fn
+	= "@(" _* args:Args? _* ")" ret:(_* ":" _* @NAME)? _* "{" _* content:Statements? _* "}"
+{
+	return createNode('fn', {
+		args: args || [],
+		ret: ret
+	}, content || []);
+}
 
 
 

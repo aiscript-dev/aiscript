@@ -146,7 +146,11 @@ export type NArr = {
 export type NFn = {
 	type: 'fn'; // 関数リテラル
 	loc?: Loc; // コード位置
-	args: string[]; // 引数名
+	args: {
+		name: string; // 引数名
+		type?: string; // 引数の型
+	}[];
+	ret?: string; // 戻り値の型
 	children: Node[]; // 関数の本体処理
 };
 
