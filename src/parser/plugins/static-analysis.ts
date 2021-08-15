@@ -33,16 +33,14 @@ class StaticAnalysis {
 			case 'arr': {
 				if (expr.value.length == 0) {
 					return T_ARR(T_ANY());
+				} else {
+					// check elements type
+					const arrType = StaticAnalysis.getType(expr.value[0], map);
+					if (!expr.value.every((item) => compatibleType(StaticAnalysis.getType(item, map), arrType))) {
+						throw new aiscript.SemanticError('Cannot use incompatible types for array elements.');
+					}
+					return T_ARR(arrType);
 				}
-
-				// // check elements type
-				// // NOTE: 配列の要素には1種類の型しか受け付けないようにしている。要検討。
-				// const arrType = getType(expr.value[0], map);
-				// if (!expr.value.every((item) => compatibleType(getType(item, map), arrType))) {
-				// 	throw new aiscript.SemanticError('Cannot use incompatible types for array elements.');
-				// }
-				// return T_ARR(arrType);
-				return T_ARR(T_ANY());
 			}
 
 			case 'obj': {
