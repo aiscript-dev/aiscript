@@ -87,6 +87,28 @@ export function T_ANY(): TAny {
 
 export type Type = TNull | TBool | TNum | TStr | TArr | TObj | TFn | TAny;
 
+export function getTypeByName(x: string) {
+	switch (x) {
+		case 'null':
+			return T_NULL();
+		case 'bool':
+			return T_BOOL();
+		case 'num':
+			return T_NUM();
+		case 'str':
+			return T_STR();
+		case 'obj':
+			return T_OBJ();
+		case 'arr':
+			return T_ARR(T_ANY());
+		case 'fn':
+			return T_FN([], T_ANY());
+		case 'any':
+			return T_ANY();
+	}
+	return null;
+}
+
 export function compatibleType(a: Type, b: Type): boolean {
 	if (a.name == 'any' || b.name == 'any') return true;
 	if (a.name != b.name) return false;

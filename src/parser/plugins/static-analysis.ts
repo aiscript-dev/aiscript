@@ -1,6 +1,6 @@
 import * as aiscript from '../..';
 import { NNs, Node } from '../../node';
-import { Type, T_STR, T_NULL, T_BOOL, T_NUM, T_ANY, T_ARR, T_FN, T_OBJ, compatibleType, getTypeName } from '../../type';
+import { Type, T_STR, T_NULL, T_BOOL, T_NUM, T_ANY, T_ARR, T_FN, T_OBJ, compatibleType, getTypeName, getTypeByName } from '../../type';
 import { LayeredMap } from '../util/layered-map';
 
 class StaticAnalysis {
@@ -48,8 +48,27 @@ class StaticAnalysis {
 			}
 
 			case 'fn': {
-				const args = (expr.args || []).map(arg => T_ANY()); // TODO
-				const result = T_ANY(); // TODO
+				const args = (expr.args || []).map(arg => {
+					if (arg.type != null) {
+						const type = getTypeByName(arg.type);
+						if (type == null) {
+							throw new aiscript.SemanticError(`invalid type name '${arg.type}'`);
+						}
+						return type;
+					} else {
+						return T_ANY();
+					}
+				});
+				let result: Type;
+				if (expr.ret != null) {
+					const type = getTypeByName(expr.ret);
+					if (type == null) {
+						throw new aiscript.SemanticError(`invalid type name '${expr.ret}'`);
+					}
+					result = type;
+				} else {
+					result = T_ANY();
+				}
 				return T_FN(args, result);
 			}
 
