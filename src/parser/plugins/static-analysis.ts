@@ -196,7 +196,7 @@ export function staticAnalysis(nodes: Node[]): Node[] {
 
 	// type declaration: io
 	builtin.set('print', T_FN([T_ANY()], T_NULL()));
-	builtin.set('readline', T_FN([T_STR()], T_NULL()));
+	builtin.set('readline', T_FN([T_STR()], T_STR()));
 
 	// TODO: ビルトインやホストAPIの定義をいい感じにする
 
