@@ -43,7 +43,7 @@
 
 <script setup>
 import { ref, watch } from 'vue';
-import { AiScript, parse, analyze, utils, serialize } from '../../src';
+import { AiScript, Parser, utils, serialize } from '../../src';
 
 import { PrismEditor } from 'vue-prism-editor';
 import 'vue-prism-editor/dist/prismeditor.min.css';
@@ -63,7 +63,7 @@ const isSyntaxError = ref(false);
 watch(script, () => {
 	window.localStorage.setItem('script', script.value);
 	try {
-		ast.value = analyze(parse(script.value));
+		ast.value = Parser.parse(script.value);
 		isSyntaxError.value = false;
 	} catch (e) {
 		isSyntaxError.value = true;

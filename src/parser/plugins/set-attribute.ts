@@ -1,5 +1,5 @@
-import * as aiscript from '..';
-import { Node, NAttr } from '../node';
+import * as aiscript from '../..';
+import { Node, NAttr } from '../../node';
 
 export function setAttribute(nodes: Node[]): Node[] {
 	const result: Node[] = [];

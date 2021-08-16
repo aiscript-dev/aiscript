@@ -4,7 +4,7 @@
  */
 
 import * as assert from 'assert';
-import { parse, analyze, serialize, deserialize } from '../src';
+import { parse, Parser, serialize, deserialize } from '../src';
 import { AiScript } from '../src/interpreter';
 import { NUM, STR, NULL, ARR, OBJ, BOOL } from '../src/interpreter/value';
 import { NAttr, Node } from '../src/node';
@@ -16,7 +16,8 @@ const exe = (program: string): Promise<any> => new Promise((ok, err) => {
 		},
 	});
 
-	const ast = analyze(parse(program));
+	const parser = new Parser();
+	const ast = parser.parse(program);
 
 	const _ast = deserialize(serialize(ast));
 
@@ -24,7 +25,8 @@ const exe = (program: string): Promise<any> => new Promise((ok, err) => {
 });
 
 const getMeta = (program: string) => {
-	const ast = analyze(parse(program));
+	const parser = new Parser();
+	const ast = parser.parse(program);
 
 	const metadata = AiScript.collectMetadata(ast);
 
@@ -42,9 +44,28 @@ it('Hello, world!', async () => {
 });
 
 it('empty script', async () => {
-	const ast = analyze(parse(''));
+	const parser = new Parser();
+	const ast = parser.parse('');
 	const _ast = deserialize(serialize(ast));
 	assert.deepEqual(_ast, []);
+});
+
+it('legacy parser api', async () => {
+	const exeLegacy = (program: string): Promise<any> => new Promise((ok, err) => {
+		const aiscript = new AiScript({}, {
+			out(value) {
+				ok(value);
+			},
+		});
+
+		const ast = parse(program);
+		const _ast = deserialize(serialize(ast));
+
+		aiscript.exec(_ast).catch(err);
+	});
+
+	const res = await exeLegacy('<: "Hello, world!"');
+	eq(res, STR('Hello, world!'));
 });
 
 describe('ops', () => {
@@ -1354,12 +1375,13 @@ describe('Attribute', () => {
 	it('single attribute with function (str)', async () => {
 		let node: Node;
 		let attr: NAttr;
-		const nodes = analyze(parse(`
+		const parser = new Parser();
+		const nodes = parser.parse(`
 		#[Event "Recieved"]
 		@onRecieved(data) {
 			data
 		}
-		`));
+		`);
 		assert.equal(nodes.length, 1);
 		node = nodes[0];
 		if (node.type != 'def') assert.fail();
@@ -1376,14 +1398,15 @@ describe('Attribute', () => {
 	it('multiple attributes with function (obj, str, bool)', async () => {
 		let node: Node;
 		let attr: NAttr;
-		const nodes = analyze(parse(`
+		const parser = new Parser();
+		const nodes = parser.parse(`
 		#[Endpoint { path: "/notes/create"; }]
 		#[Desc "Create a note."]
 		#[Cat yes]
 		@createNote(text) {
 			<: text
 		}
-		`));
+		`);
 		assert.equal(nodes.length, 1);
 		node = nodes[0];
 		if (node.type != 'def') assert.fail();
@@ -1425,9 +1448,10 @@ describe('Attribute', () => {
 describe('Location', () => {
 	it('function', async () => {
 		let node: Node;
-		const nodes = analyze(parse(`
+		const parser = new Parser();
+		const nodes = parser.parse(`
 		@f(a) { a }
-		`));
+		`);
 		assert.equal(nodes.length, 1);
 		node = nodes[0];
 		if (!node.loc) assert.fail();
