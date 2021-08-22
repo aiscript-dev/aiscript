@@ -1,17 +1,21 @@
+import autobind from 'autobind-decorator';
 import * as aiscript from '../..';
 import { NNs, Node } from '../../node';
 import { Type, T_STR, T_NULL, T_BOOL, T_NUM, T_ANY, T_ARR, T_FN, T_OBJ, compatibleType, getTypeName, getTypeByName } from '../../type';
-import { LayeredMap } from '../util/layered-map';
+import { AiSymbol, SymbolTable } from '../util/symbol-table';
 
 class StaticAnalysis {
 
-	private typeMap: LayeredMap<Type>;
+	private symbolTable: SymbolTable;
+	private nsSymbolTable: SymbolTable;
 
-	constructor(builtin: Map<string, Type>) {
-		this.typeMap = new LayeredMap<Type>([builtin]);
+	constructor(symbolTable: SymbolTable) {
+		this.symbolTable = symbolTable;
+		this.nsSymbolTable = new SymbolTable('<namespaces>');
 	}
 
-	static getType(expr: Node, map: LayeredMap<Type>): Type {
+	@autobind
+	static getType(expr: Node, table: StaticAnalysis['symbolTable']): Type {
 		switch (expr.type) {
 			case 'null': {
 				return T_NULL();
@@ -35,8 +39,8 @@ class StaticAnalysis {
 					return T_ARR(T_ANY());
 				} else {
 					// check elements type
-					const arrType = StaticAnalysis.getType(expr.value[0], map);
-					if (!expr.value.every((item) => compatibleType(StaticAnalysis.getType(item, map), arrType))) {
+					const arrType = StaticAnalysis.getType(expr.value[0], table);
+					if (!expr.value.every((item) => compatibleType(StaticAnalysis.getType(item, table), arrType))) {
 						throw new aiscript.SemanticError('Cannot use incompatible types for array elements.');
 					}
 					return T_ARR(arrType);
@@ -52,7 +56,7 @@ class StaticAnalysis {
 					if (arg.type != null) {
 						const type = getTypeByName(arg.type);
 						if (type == null) {
-							throw new aiscript.SemanticError(`invalid type name '${arg.type}'`);
+							throw new aiscript.SemanticError(`invalid type name '${ arg.type }'`);
 						}
 						return type;
 					} else {
@@ -63,7 +67,7 @@ class StaticAnalysis {
 				if (expr.ret != null) {
 					const type = getTypeByName(expr.ret);
 					if (type == null) {
-						throw new aiscript.SemanticError(`invalid type name '${expr.ret}'`);
+						throw new aiscript.SemanticError(`invalid type name '${ expr.ret }'`);
 					}
 					result = type;
 				} else {
@@ -85,40 +89,40 @@ class StaticAnalysis {
 			}
 
 			case 'call': {
-				if (!map.has(expr.name)) {
-					throw new aiscript.SemanticError(`No such function '${expr.name}'.`);
+				if (!table.has(expr.name)) {
+					throw new aiscript.SemanticError(`No such function '${ expr.name }'.`);
 				}
-				const sigType = map.get(expr.name);
-				if (sigType.name != 'any' && sigType.name != 'fn') {
-					throw new aiscript.SemanticError(`Incompatible type. Expect 'fn', but got '${getTypeName(sigType)}'.`);
+				const symbol = table.get(expr.name);
+				if (symbol.type.name != 'any' && symbol.type.name != 'fn') {
+					throw new aiscript.SemanticError(`Incompatible type. Expect 'fn', but got '${ getTypeName(symbol.type) }'.`);
 				}
-				if (sigType.name == 'fn') {
+				if (symbol.type.name == 'fn') {
 					// check type of call arguments
 					const callExpr = expr;
-					if (callExpr.args.length != sigType.args.length) {
+					if (callExpr.args.length != symbol.type.args.length) {
 						throw new aiscript.SemanticError('argument length is not matched');
 					}
-					const callArgTypes = callExpr.args.map(arg => StaticAnalysis.getType(arg, map));
+					const callArgTypes = callExpr.args.map(arg => StaticAnalysis.getType(arg, table));
 					for (let i = 0; i < callExpr.args.length; i++) {
-						if (!compatibleType(callArgTypes[i], sigType.args[i])) {
+						if (!compatibleType(callArgTypes[i], symbol.type.args[i])) {
 							throw new aiscript.SemanticError('argument type is not matched');
 						}
 					}
-					return sigType.result;
+					return symbol.type.result;
 				}
 				return T_ANY();
 			}
 
 			case 'index': {
-				if (!map.has(expr.arr)) {
+				if (!table.has(expr.arr)) {
 					throw new aiscript.SemanticError(`No such variable '${expr.arr}'.`);
 				}
-				const varType = map.get(expr.arr);
-				if (!compatibleType(varType, T_ARR(T_ANY()))) {
-					throw new aiscript.SemanticError(`Incompatible type. Expect 'arr', but got '${getTypeName(varType)}'.`);
+				const symbol = table.get(expr.arr);
+				if (!compatibleType(symbol.type, T_ARR(T_ANY()))) {
+					throw new aiscript.SemanticError(`Incompatible type. Expect 'arr', but got '${ getTypeName(symbol.type) }'.`);
 				}
-				if (varType.name == 'arr') {
-					return varType.item;
+				if (symbol.type.name == 'arr') {
+					return symbol.type.item;
 				}
 				return T_ANY();
 			}
@@ -132,10 +136,10 @@ class StaticAnalysis {
 			}
 
 			case 'var': {
-				if (!map.has(expr.name)) {
-					throw new aiscript.SemanticError(`No such variable '${expr.name}'.`);
+				if (!table.has(expr.name)) {
+					throw new aiscript.SemanticError(`No such variable '${ expr.name }'.`);
 				}
-				return map.get(expr.name);
+				return table.get(expr.name).type;
 			}
 		}
 
@@ -144,52 +148,54 @@ class StaticAnalysis {
 		// throw new aiscript.SemanticError('Type analysis error');
 	}
 
-	analysisNamespace(ns: NNs): void {
-		const map = this.typeMap.createSubLayer();
+	@autobind
+	analysisNamespace(ns: NNs, table: SymbolTable): void {
+		const nsTable = table.addChild(ns.name);
 
 		for (const node of ns.members) {
 			switch (node.type) {
 				case 'def': {
-					const type = StaticAnalysis.getType(node.expr, map);
-					map.set(node.name, type);
-					this.typeMap.set(`${ns.name}:${node.name}`, type);
+					const symbol = { type: StaticAnalysis.getType(node.expr, table), loc: node.loc };
+					nsTable.set(node.name, symbol);
 					break;
 				}
 
 				case 'ns': {
-					break; // TODO
+					this.analysisNamespace(node, nsTable);
+					break;
 				}
 			}
 		}
 	}
 
+	@autobind
 	analysis(nodes: Node[]): void {
 		for (const node of nodes) {
 			if (node.type == 'ns') {
-				this.analysisNamespace(node);
+				this.analysisNamespace(node, this.nsSymbolTable);
 			}
 		}
 
 		for (const node of nodes) {
 			switch (node.type) {
 				case 'def': {
-					if (this.typeMap.has(node.name, true)) {
+					if (this.symbolTable.has(node.name, true)) {
 						throw new aiscript.SemanticError(`Variable '${node.name}' is alerady exists.'`);
 					}
-					this.typeMap.set(node.name, StaticAnalysis.getType(node.expr, this.typeMap));
+					this.symbolTable.set(node.name, { type: StaticAnalysis.getType(node.expr, this.symbolTable), loc: node.loc });
 					break;
 				}
 
 				case 'assign': {
-					if (!this.typeMap.has(node.name)) {
+					if (!this.symbolTable.has(node.name)) {
 						throw new aiscript.SemanticError(`No such variable '${node.name}'.`);
 					}
-					const varType = this.typeMap.get(node.name);
-					const exprType = StaticAnalysis.getType(node.expr, this.typeMap);
+					const varType = this.symbolTable.get(node.name).type;
+					const exprType = StaticAnalysis.getType(node.expr, this.symbolTable);
 					if (!compatibleType(varType, exprType)) {
 						throw new aiscript.SemanticError(`Incompatible type. Expect '${getTypeName(varType)}', but got '${getTypeName(exprType)}'.`);
 					}
-					this.typeMap.set(node.name, exprType);
+					this.symbolTable.set(node.name, { type: exprType, loc: node.loc });
 					break;
 				}
 
@@ -216,7 +222,7 @@ class StaticAnalysis {
 				}
 
 				default: {
-					StaticAnalysis.getType(node, this.typeMap);
+					StaticAnalysis.getType(node, this.symbolTable);
 					break;
 				}
 			}
@@ -226,16 +232,17 @@ class StaticAnalysis {
 
 export function staticAnalysis(nodes: Node[]): Node[] {
 
-	const builtin = new Map<string, Type>();
+	const builtin = new Map<string, AiSymbol>();
 
 	// type declaration: io
-	builtin.set('print', T_FN([T_ANY()], T_NULL()));
-	builtin.set('readline', T_FN([T_STR()], T_STR()));
+	builtin.set('print', { type: T_FN([T_ANY()], T_NULL()) });
+	builtin.set('readline', { type: T_FN([T_STR()], T_STR()) });
 
 	// TODO: ビルトインやホストAPIの定義をいい感じにする
 
 
-	const staticAnalysis = new StaticAnalysis(builtin);
+	const symbolTable = new SymbolTable('<root>', builtin);
+	const staticAnalysis = new StaticAnalysis(symbolTable);
 	staticAnalysis.analysis(nodes);
 
 	return nodes;
