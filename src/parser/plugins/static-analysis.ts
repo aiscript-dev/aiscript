@@ -15,7 +15,7 @@ class StaticAnalysis {
 	}
 
 	@autobind
-	static getType(expr: Node, table: StaticAnalysis['symbolTable']): Type {
+	static getType(expr: Node, symbols: StaticAnalysis['symbolTable']): Type {
 		switch (expr.type) {
 			case 'null': {
 				return T_NULL();
@@ -39,8 +39,8 @@ class StaticAnalysis {
 					return T_ARR(T_ANY());
 				} else {
 					// check elements type
-					const arrType = StaticAnalysis.getType(expr.value[0], table);
-					if (!expr.value.every((item) => compatibleType(StaticAnalysis.getType(item, table), arrType))) {
+					const arrType = StaticAnalysis.getType(expr.value[0], symbols);
+					if (!expr.value.every((item) => compatibleType(StaticAnalysis.getType(item, symbols), arrType))) {
 						throw new aiscript.SemanticError('Cannot use incompatible types for array elements.');
 					}
 					return T_ARR(arrType);
@@ -89,10 +89,10 @@ class StaticAnalysis {
 			}
 
 			case 'call': {
-				if (!table.has(expr.name)) {
+				if (!symbols.has(expr.name)) {
 					throw new aiscript.SemanticError(`No such function '${ expr.name }'.`);
 				}
-				const symbol = table.get(expr.name);
+				const symbol = symbols.get(expr.name);
 				if (symbol.type.name != 'any' && symbol.type.name != 'fn') {
 					throw new aiscript.SemanticError(`Incompatible type. Expect 'fn', but got '${ getTypeName(symbol.type) }'.`);
 				}
@@ -102,7 +102,7 @@ class StaticAnalysis {
 					if (callExpr.args.length != symbol.type.args.length) {
 						throw new aiscript.SemanticError('argument length is not matched');
 					}
-					const callArgTypes = callExpr.args.map(arg => StaticAnalysis.getType(arg, table));
+					const callArgTypes = callExpr.args.map(arg => StaticAnalysis.getType(arg, symbols));
 					for (let i = 0; i < callExpr.args.length; i++) {
 						if (!compatibleType(callArgTypes[i], symbol.type.args[i])) {
 							throw new aiscript.SemanticError('argument type is not matched');
@@ -114,10 +114,10 @@ class StaticAnalysis {
 			}
 
 			case 'index': {
-				if (!table.has(expr.arr)) {
+				if (!symbols.has(expr.arr)) {
 					throw new aiscript.SemanticError(`No such variable '${expr.arr}'.`);
 				}
-				const symbol = table.get(expr.arr);
+				const symbol = symbols.get(expr.arr);
 				if (!compatibleType(symbol.type, T_ARR(T_ANY()))) {
 					throw new aiscript.SemanticError(`Incompatible type. Expect 'arr', but got '${ getTypeName(symbol.type) }'.`);
 				}
@@ -136,10 +136,10 @@ class StaticAnalysis {
 			}
 
 			case 'var': {
-				if (!table.has(expr.name)) {
+				if (!symbols.has(expr.name)) {
 					throw new aiscript.SemanticError(`No such variable '${ expr.name }'.`);
 				}
-				return table.get(expr.name).type;
+				return symbols.get(expr.name).type;
 			}
 		}
 
@@ -149,13 +149,13 @@ class StaticAnalysis {
 	}
 
 	@autobind
-	analysisNamespace(ns: NNs, table: SymbolTable): void {
-		const nsTable = table.addChild(ns.name);
+	analysisNamespace(ns: NNs, symbols: SymbolTable): void {
+		const nsTable = symbols.addChild(ns.name);
 
 		for (const node of ns.members) {
 			switch (node.type) {
 				case 'def': {
-					const symbol = { type: StaticAnalysis.getType(node.expr, table), loc: node.loc };
+					const symbol = { type: StaticAnalysis.getType(node.expr, symbols), loc: node.loc };
 					nsTable.set(node.name, symbol);
 					break;
 				}
