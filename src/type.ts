@@ -52,12 +52,13 @@ export function T_ARR(item: Type): TArr {
 
 export type TObj = {
 	name: 'obj';
-	// TODO: オブジェクトの中身の型
+	value: Type;
 };
 
-export function T_OBJ(): TObj {
+export function T_OBJ(value: Type): TObj {
 	return {
-		name: 'obj' as const
+		name: 'obj' as const,
+		value: value
 	};
 }
 

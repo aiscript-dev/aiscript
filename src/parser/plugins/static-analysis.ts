@@ -48,7 +48,18 @@ class StaticAnalysis {
 			}
 
 			case 'obj': {
-				return T_OBJ();
+				if (expr.value.size == 0) {
+					return T_OBJ(T_ANY());
+				} else {
+					// check values type
+					const objType = StaticAnalysis.getType(expr.value[0], symbols);
+					for (const [, value] of expr.value) {
+						if (!compatibleType(StaticAnalysis.getType(value, symbols), objType)) {
+							throw new aiscript.SemanticError('Cannot use incompatible types for obj values.');
+						}
+					}
+					return T_OBJ(objType);
+				}
 			}
 
 			case 'fn': {
