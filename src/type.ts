@@ -99,7 +99,7 @@ export function getTypeByName(x: string) {
 		case 'str':
 			return T_STR();
 		case 'obj':
-			return T_OBJ();
+			return T_OBJ(T_ANY());
 		case 'arr':
 			return T_ARR(T_ANY());
 		case 'fn':
