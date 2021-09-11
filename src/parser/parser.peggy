@@ -190,9 +190,9 @@ Meta
 
 VarDef
 	= "#" name:NAME type:(_* ":" _* @Type)? _* "=" _* expr:Expr
-{ return createNode('def', { name, type, expr, mut: false, attr: [] }); }
+{ return createNode('def', { name, varType: type, expr, mut: false, attr: [] }); }
 	/ "$" name:NAME type:(_* ":" _* @Type)? _* "<-" _* expr:Expr
-{ return createNode('def', { name, type, expr, mut: true, attr: [] }); }
+{ return createNode('def', { name, varType: type, expr, mut: true, attr: [] }); }
 
 // output statement
 
@@ -517,7 +517,7 @@ Arr
 
 Arg
 	= name:NAME type:(_* ":" _* @Type)?
-{ return { name, type }; }
+{ return { name, argType }; }
 
 Args
 	= head:Arg tails:(","? _+ @Arg)*
