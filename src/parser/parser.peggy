@@ -538,7 +538,7 @@ FnDef
 
 // function expression
 
-Fn = "@(" _* args:Args? _* ")" ret:(_* ":" _* @NAME)? _* "{" _* content:Statements? _* "}"
+Fn = "@(" _* args:Args? _* ")" ret:(_* ":" _* @Type)? _* "{" _* content:Statements? _* "}"
 { return createNode('fn', { args: args || [], ret: ret }, content || []); }
 
 
