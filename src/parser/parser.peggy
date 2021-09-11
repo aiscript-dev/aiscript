@@ -577,7 +577,7 @@ Type
 
 FnType
 	= "@(" _* args:ArgTypes? _* ")" _* "=>" _* result:Type
-{ return { type: 'fnType', args, result }; }
+{ return { type: 'fnType', args: args || [], result }; }
 
 ArgTypes
 	= head:Type tails:(","? _+ @Type)*
