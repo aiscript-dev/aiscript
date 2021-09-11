@@ -1,3 +1,5 @@
+import { TypeSource } from './type';
+
 export type Loc = {
 	start: number;
 	end: number;
@@ -7,6 +9,7 @@ export type NDef = {
 	type: 'def'; // 変数宣言
 	loc?: Loc; // コード位置
 	name: string; // 変数名
+	varType?: TypeSource; // 変数の型
 	expr: Node; // 式
 	mut: boolean; // ミュータブルか否か
 	attr: NAttr[]; // 付加された属性
@@ -146,7 +149,11 @@ export type NArr = {
 export type NFn = {
 	type: 'fn'; // 関数リテラル
 	loc?: Loc; // コード位置
-	args: string[]; // 引数名
+	args: {
+		name: string; // 引数名
+		argType?: TypeSource; // 引数の型
+	}[];
+	ret?: TypeSource; // 戻り値の型
 	children: Node[]; // 関数の本体処理
 };
 
