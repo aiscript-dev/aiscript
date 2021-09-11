@@ -54,7 +54,7 @@ export function serializeOne(node: Node | null | undefined): Bin | null {
 		case 'num': return [types[node.type], node.value];
 		case 'str': return [types[node.type], node.value];
 		case 'arr': return [types[node.type], serialize(node.value)];
-		case 'fn': return [types[node.type], node.args, serialize(node.children)];
+		case 'fn': return [types[node.type], node.args.map(arg => [arg.name]), serialize(node.children)];
 		case 'obj': return [types[node.type], Array.from(node.value.entries()).map(x => [x[0], serializeOne(x[1])])];
 		case 'prop': return [types[node.type], node.obj, node.path];
 		case 'propCall': return [types[node.type], node.obj, node.path, serialize(node.args)];
@@ -98,7 +98,7 @@ export function deserializeOne(bin: Bin | null): Node | undefined {
 		case types.num: return { type, value: bin[1], } as NNum;
 		case types.str: return { type, value: bin[1], } as NStr;
 		case types.arr: return { type, value: deserialize(bin[1]), } as NArr;
-		case types.fn: return { type, args: bin[1], children: deserialize(bin[2]), } as NFn;
+		case types.fn: return { type, args: bin[1].map(x => ({ name: x[0] })), children: deserialize(bin[2]), } as NFn;
 		case types.obj: return { type, value: new Map(bin[1].map(x => [x[0], deserializeOne(x[1])])), } as NObj;
 		case types.prop: return { type, obj: bin[1], path: bin[2], } as NProp;
 		case types.propCall: return { type, obj: bin[1], path: bin[2], args: deserialize(bin[3]), } as NPropCall;
