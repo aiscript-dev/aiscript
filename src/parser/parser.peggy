@@ -517,7 +517,7 @@ Arr
 
 Arg
 	= name:NAME type:(_* ":" _* @Type)?
-{ return { name, argType }; }
+{ return { name, argType: type }; }
 
 Args
 	= head:Arg tails:(","? _+ @Arg)*
