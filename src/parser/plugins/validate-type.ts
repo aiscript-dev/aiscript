@@ -21,6 +21,9 @@ function validate(node: Node) {
 			if (node.ret != null) {
 				getTypeBySource(node.ret);
 			}
+			for (const n of node.children) {
+				validate(n);
+			}
 			break;
 		}
 	}
