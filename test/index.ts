@@ -1229,6 +1229,32 @@ describe('literal', () => {
 	});
 });
 
+describe('type declaration', () => {
+	it('def', async () => {
+		const res = await exe(`
+		#abc: num = 1
+		$xyz: str <- "abc"
+		<: [abc xyz]
+		`);
+		eq(res, ARR([NUM(1), STR("abc")]));
+	});
+
+	it('fn def', async () => {
+		const res = await exe(`
+		@f(x: arr<num>, y: str, z: @(num) => bool): arr<num> {
+			x[4] <- 0
+			y <- "abc"
+			$r: bool <- z(x[1])
+			x[5] <- if r 5 else 10
+			x
+		}
+		
+		<: f([1, 2, 3], "a", @(n) { n = 1 })
+		`);
+		eq(res, ARR([NUM(1), NUM(2), NUM(3), NUM(0), NUM(5)]));
+	});
+});
+
 describe('meta', () => {
 	it('default meta', async () => {
 		const res = getMeta(`
