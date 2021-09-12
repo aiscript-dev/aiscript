@@ -173,7 +173,6 @@ export function getTypeBySource(typeSource: TypeSource): Type {
 				} else {
 					innerType = T_SIMPLE('any');
 				}
-				innerType;
 				return T_GENERIC(typeSource.name, [innerType]);
 			}
 		}
