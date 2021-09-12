@@ -356,7 +356,7 @@ Op
 // if statement
 
 If
-	= "if" _+ cond:Expr _+ then:Statement elseif:(_+ b:ElseifBlocks { return b; })? elseBlock:(_+ b:ElseBlock { return b; })?
+	= "if" _+ cond:Expr _+ then:Statement elseif:(_+ @ElseifBlocks)? elseBlock:(_+ @ElseBlock)?
 {
 	return createNode('if', {
 		cond: cond,
@@ -367,7 +367,7 @@ If
 }
 
 ElseifBlocks
-	= head:ElseifBlock tails:(_* i:ElseifBlock { return i; })*
+	= head:ElseifBlock tails:(_* @ElseifBlock)*
 { return [head, ...tails]; }
 
 ElseifBlock
