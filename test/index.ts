@@ -1236,7 +1236,7 @@ describe('type declaration', () => {
 		$xyz: str <- "abc"
 		<: [abc xyz]
 		`);
-		eq(res, ARR([NUM(1), STR("abc")]));
+		eq(res, ARR([NUM(1), STR('abc')]));
 	});
 
 	it('fn def', async () => {
