@@ -577,7 +577,7 @@ Type
 
 FnType
 	= "@(" _* args:ArgTypes? _* ")" _* "=>" _* result:Type
-{ return { type: 'fnType', args: args || [], result }; }
+{ return createNode('fn', { args: args || [], result }); }
 
 ArgTypes
 	= head:Type tails:(","? _+ @Type)*
@@ -585,9 +585,9 @@ ArgTypes
 
 NamedType
 	= name:NAME __* "<" __* inner:Type __* ">"
-{ return { type: 'type', name, inner }; }
+{ return createNode('named', { name, inner }); }
 	/ name:NAME
-{ return { type: 'type', name, inner: null }; }
+{ return createNode('named', { name, inner: null }); }
 
 
 

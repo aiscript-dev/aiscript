@@ -1,13 +1,18 @@
+import { SemanticError } from './error';
+import { Loc } from './node';
+
 // Type sources
 
 export type NamedTypeSource = {
-	type: 'type'; // 名前付き型, Generic型
+	type: 'named'; // 名前付き型, Generic型
+	loc?: Loc; // コード位置
 	name: string; // 型名
 	inner?: TypeSource; // 内側の型
 };
 
 export type FnTypeSource = {
-	type: 'fnType' // 関数リテラルの型
+	type: 'fn' // 関数リテラルの型
+	loc?: Loc; // コード位置
 	args: TypeSource[]; // 引数の型
 	result: TypeSource; // 戻り値の型
 };
@@ -18,168 +23,163 @@ export type TypeSource =
 
 // Types
 
-export type TNull = {
-	name: 'null';
-};
+// simple types:
+// null
+// bool
+// num
+// str
+// any
 
-export function T_NULL(): TNull {
+export type TSimple<N extends string = string> = {
+	type: 'simple';
+	name: N;
+}
+
+export function T_SIMPLE<T extends string>(name: T): TSimple<T> {
 	return {
-		name: 'null' as const
+		type: 'simple',
+		name: name
 	};
 }
 
-export type TBool = {
-	name: 'bool';
-};
-
-export function T_BOOL(): TBool {
-	return {
-		name: 'bool' as const
-	};
+export function isAny(x: Type): x is TSimple<'any'> {
+	return x.type == 'simple' && x.name == 'any';
 }
 
-export type TNum = {
-	name: 'num';
-};
+// generic types:
+// arr (inner = 1)
+// obj (inner = 1)
 
-export function T_NUM(): TNum {
-	return {
-		name: 'num' as const
-	};
+export type TGeneric<N extends string = string> = {
+	type: 'generic';
+	name: N;
+	inners: Type[];
 }
 
-export type TStr = {
-	name: 'str';
-};
-
-export function T_STR(): TStr {
+export function T_GENERIC<N extends string>(name: N, inners: Type[]): TGeneric<N> {
 	return {
-		name: 'str' as const
-	};
-}
-
-export type TArr = {
-	name: 'arr';
-	item: Type;
-};
-
-export function T_ARR(item: Type): TArr {
-	return {
-		name: 'arr' as const,
-		item: item
-	};
-}
-
-export type TObj = {
-	name: 'obj';
-	value: Type;
-};
-
-export function T_OBJ(value: Type): TObj {
-	return {
-		name: 'obj' as const,
-		value: value
+		type: 'generic',
+		name: name,
+		inners: inners
 	};
 }
 
 export type TFn = {
-	name: 'fn';
+	type: 'fn';
 	args: Type[];
 	result: Type;
 };
 
 export function T_FN(args: Type[], result: Type): TFn {
 	return {
-		name: 'fn' as const,
+		type: 'fn',
 		args,
 		result
 	};
 }
 
-export type TAny = {
-	name: 'any';
-};
+export type Type = TSimple | TGeneric | TFn;
 
-export function T_ANY(): TAny {
-	return {
-		name: 'any' as const
-	};
-}
+export function isCompatibleType(a: Type, b: Type): boolean {
+	if (isAny(a) || isAny(b)) return true;
+	if (a.type != b.type) return false;
 
-export type Type = TNull | TBool | TNum | TStr | TArr | TObj | TFn | TAny;
-
-export function getTypeByName(x: string) {
-	switch (x) {
-		case 'null':
-			return T_NULL();
-		case 'bool':
-			return T_BOOL();
-		case 'num':
-			return T_NUM();
-		case 'str':
-			return T_STR();
-		case 'obj':
-			return T_OBJ(T_ANY());
-		case 'arr':
-			return T_ARR(T_ANY());
-		case 'fn':
-			return T_FN([], T_ANY());
-		case 'any':
-			return T_ANY();
-	}
-	return null;
-}
-
-export function compatibleType(a: Type, b: Type): boolean {
-	if (a.name == 'any' || b.name == 'any') return true;
-	if (a.name != b.name) return false;
-
-	switch (a.name) {
-
-		case 'arr': {
-			b = (b as TArr); // NOTE: TypeGuardが効かない
-			return compatibleType(a.item, b.item);
+	switch (a.type) {
+		case 'simple': {
+			b = (b as TSimple); // NOTE: TypeGuardが効かない
+			if (a.name != b.name) return false;
+			break;
 		}
-
+		case 'generic': {
+			b = (b as TGeneric); // NOTE: TypeGuardが効かない
+			// name
+			if (a.name != b.name) return false;
+			// inners
+			if (a.inners.length != b.inners.length) return false;
+			for (let i = 0; i < a.inners.length; i++) {
+				if (!isCompatibleType(a.inners[i], b.inners[i])) return false;
+			}
+			break;
+		}
 		case 'fn': {
-			b = (b as TFn); // NOTE: TypeGuardが効かない
+			b = (b as TFn);
 			// fn result
-			if (!compatibleType(a.result, b.result)) return false;
+			if (!isCompatibleType(a.result, b.result)) return false;
 			// fn args
 			if (a.args.length != b.args.length) return false;
 			for (let i = 0; i < a.args.length; i++) {
-				if (!compatibleType(a.args[i], b.args[i])) return false;
+				if (!isCompatibleType(a.args[i], b.args[i])) return false;
 			}
-			return true;
-		}
-
-		case 'obj': {
 			break;
 		}
-
 	}
 
 	return true;
 }
 
 export function getTypeName(type: Type): string {
-
-	switch (type.name) {
-
-		case 'arr': {
-			if (type.item.name != 'any') {
-				return `arr<${type.item.name}>`;
-			}
-			break;
+	switch (type.type) {
+		case 'simple': {
+			return type.name;
 		}
-
+		case 'generic': {
+			return `${ type.name }<${ type.inners.map(inner => getTypeName(inner)).join(', ') }>`;
+		}
 		case 'fn': {
-			const args = type.args.map(arg => getTypeName(arg)).join(', ');
-			const result = getTypeName(type.result);
-			return `@(${args}) => ${result}`;
+			return `@(${ type.args.map(arg => getTypeName(arg)).join(', ') }) => ${ getTypeName(type.result) }`;
 		}
-
 	}
+}
 
-	return type.name;
+export function getTypeNameBySource(typeSource: TypeSource): string {
+	switch (typeSource.type) {
+		case 'named': {
+			if (typeSource.inner) {
+				const inner = getTypeNameBySource(typeSource.inner);
+				return `${ typeSource.name }<${ inner }>`;
+			} else {
+				return typeSource.name;
+			}
+		}
+		case 'fn': {
+			const args = typeSource.args.map(arg => getTypeNameBySource(arg)).join(', ');
+			const result = getTypeNameBySource(typeSource.result);
+			return `@(${ args }) => ${ result }`;
+		}
+	}
+}
+
+export function getTypeBySource(typeSource: TypeSource): Type {
+	if (typeSource.type == 'named') {
+		switch (typeSource.name) {
+			// simple types
+			case 'null':
+			case 'bool':
+			case 'num':
+			case 'str':
+			case 'any':
+			case 'void': {
+				if (typeSource.inner == null) {
+					return T_SIMPLE(typeSource.name);
+				}
+				break;
+			}
+			// alias for Generic types
+			case 'arr':
+			case 'obj': {
+				let innerType: Type;
+				if (typeSource.inner != null) {
+					innerType = getTypeBySource(typeSource.inner);
+				} else {
+					innerType = T_SIMPLE('any');
+				}
+				innerType;
+				return T_GENERIC(typeSource.name, [innerType]);
+			}
+		}
+		throw new SemanticError(`Unknown type: '${ getTypeNameBySource(typeSource) }'`);
+	} else {
+		const argTypes = typeSource.args.map(arg => getTypeBySource(arg));
+		return T_FN(argTypes, getTypeBySource(typeSource.result));
+	}
 }
