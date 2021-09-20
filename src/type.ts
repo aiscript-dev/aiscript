@@ -1,34 +1,25 @@
 import { SemanticError } from './error';
 import { Loc } from './node';
 
-// Type sources
+// Type source (AST)
 
 export type NamedTypeSource = {
-	type: 'named'; // 名前付き型, Generic型
+	type: 'named'; // 名前付き型
 	loc?: Loc; // コード位置
 	name: string; // 型名
 	inner?: TypeSource; // 内側の型
 };
 
 export type FnTypeSource = {
-	type: 'fn' // 関数リテラルの型
+	type: 'fn' // 関数の型
 	loc?: Loc; // コード位置
 	args: TypeSource[]; // 引数の型
 	result: TypeSource; // 戻り値の型
 };
 
-export type TypeSource =
-	NamedTypeSource |
-	FnTypeSource;
+export type TypeSource = NamedTypeSource | FnTypeSource;
 
-// Types
-
-// simple types:
-// null
-// bool
-// num
-// str
-// any
+// Type (IR)
 
 export type TSimple<N extends string = string> = {
 	type: 'simple';
@@ -45,10 +36,6 @@ export function T_SIMPLE<T extends string>(name: T): TSimple<T> {
 export function isAny(x: Type): x is TSimple<'any'> {
 	return x.type == 'simple' && x.name == 'any';
 }
-
-// generic types:
-// arr (inner = 1)
-// obj (inner = 1)
 
 export type TGeneric<N extends string = string> = {
 	type: 'generic';
@@ -79,6 +66,8 @@ export function T_FN(args: Type[], result: Type): TFn {
 }
 
 export type Type = TSimple | TGeneric | TFn;
+
+// Utility
 
 export function isCompatibleType(a: Type, b: Type): boolean {
 	if (isAny(a) || isAny(b)) return true;
