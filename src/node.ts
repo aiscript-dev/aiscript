@@ -81,7 +81,7 @@ export type NIf = {
 		cond: Node;
 		then: Node;
 	}[]; // elseif節
-	else: Node; // else節
+	else?: Node; // else節
 };
 
 export type NLoop = {
