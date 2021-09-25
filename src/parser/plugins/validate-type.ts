@@ -14,8 +14,8 @@ function validate(node: Node) {
 		}
 		case 'fn': {
 			for (const arg of node.args) {
-				if (arg.argType != null) {
-					getTypeBySource(arg.argType);
+				if (arg.type != null) {
+					getTypeBySource(arg.type);
 				}
 			}
 			if (node.ret != null) {

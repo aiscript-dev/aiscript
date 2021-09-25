@@ -151,7 +151,7 @@ export type NFn = {
 	loc?: Loc; // コード位置
 	args: {
 		name: string; // 引数名
-		argType?: TypeSource; // 引数の型
+		type?: TypeSource; // 引数の型
 	}[];
 	ret?: TypeSource; // 戻り値の型
 	children: Node[]; // 関数の本体処理
