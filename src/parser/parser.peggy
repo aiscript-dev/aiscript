@@ -189,10 +189,10 @@ Meta
 // define statement
 
 VarDef
-	= "#" name:NAME _* "=" _* expr:Expr
-{ return createNode('def', { name, expr, mut: false, attr: [] }); }
-	/ "$" name:NAME _* "<-" _* expr:Expr
-{ return createNode('def', { name, expr, mut: true, attr: [] }); }
+	= "#" name:NAME type:(_* ":" _* @Type)? _* "=" _* expr:Expr
+{ return createNode('def', { name, varType: type, expr, mut: false, attr: [] }); }
+	/ "$" name:NAME type:(_* ":" _* @Type)? _* "<-" _* expr:Expr
+{ return createNode('def', { name, varType: type, expr, mut: true, attr: [] }); }
 
 // output statement
 
@@ -515,18 +515,22 @@ Arr
 // function ------------------------------------------------------------------------------
 //
 
+Arg
+	= name:NAME type:(_* ":" _* @Type)?
+{ return { name, type }; }
+
 Args
-	= head:NAME tails:(","? _+ name:NAME { return name; })*
+	= head:Arg tails:(","? _+ @Arg)*
 { return [head, ...tails]; }
 
 // define function statement
 
 FnDef
-	= "@" name:NAME "(" _* args:Args? _* ")" _* "{" _* content:Statements? _* "}"
+	= "@" name:NAME "(" _* args:Args? _* ")" ret:(_* ":" _* @Type)? _* "{" _* content:Statements? _* "}"
 {
 	return createNode('def', {
 		name: name,
-		expr: createNode('fn', { args }, content || []),
+		expr: createNode('fn', { args: args || [], ret: ret }, content || []),
 		mut: false,
 		attr: []
 	});
@@ -534,8 +538,8 @@ FnDef
 
 // function expression
 
-Fn = "@(" _* args:Args? _* ")" _* "{" _* content:Statements? _* "}"
-{ return createNode('fn', { args }, content || []); }
+Fn = "@(" _* args:Args? _* ")" ret:(_* ":" _* @Type)? _* "{" _* content:Statements? _* "}"
+{ return createNode('fn', { args: args || [], ret: ret }, content || []); }
 
 
 
@@ -560,6 +564,30 @@ StaticObj
 	}
 	return createNode('obj', { value: obj });
 }
+
+
+
+//
+// type ----------------------------------------------------------------------------------
+//
+
+Type
+	= FnType
+	/ NamedType
+
+FnType
+	= "@(" _* args:ArgTypes? _* ")" _* "=>" _* result:Type
+{ return createNode('fn', { args: args || [], result }); }
+
+ArgTypes
+	= head:Type tails:(","? _+ @Type)*
+{ return [head, ...tails]; }
+
+NamedType
+	= name:NAME __* "<" __* inner:Type __* ">"
+{ return createNode('named', { name, inner }); }
+	/ name:NAME
+{ return createNode('named', { name, inner: null }); }
 
 
 

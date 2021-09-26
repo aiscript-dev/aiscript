@@ -3,6 +3,7 @@ import { Node } from '../node';
 import * as parser from './parser.js';
 
 import { validateKeyword } from './plugins/validate-keyword';
+import { validateType } from './plugins/validate-type';
 import { setAttribute } from './plugins/set-attribute';
 
 export type ParserPlugin = (nodes: Node[]) => Node[];
@@ -14,6 +15,7 @@ export class Parser {
 	constructor() {
 		this.plugins = [
 			validateKeyword,
+			validateType,
 			setAttribute,
 		];
 	}
