@@ -526,8 +526,11 @@ Args
 // define function statement
 
 FnDef
-	= "@" __* name:NAME __* "(" _* args:Args? _* ")" ret:(_* ":" _* @Type)? _* "{" _* content:Statements? _* "}"
+	= "@" s1:__* name:NAME s2:__* "(" _* args:Args? _* ")" ret:(_* ":" _* @Type)? _* "{" _* content:Statements? _* "}"
 {
+	if (s1.length > 0 || s2.length > 0) {
+		error('Cannot use spaces before or after the function name.');
+	}
 	return createNode('def', {
 		name: name,
 		expr: createNode('fn', { args: args || [], ret: ret }, content || []),
