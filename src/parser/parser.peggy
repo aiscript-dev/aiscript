@@ -526,7 +526,7 @@ Args
 // define function statement
 
 FnDef
-	= "@" name:NAME "(" _* args:Args? _* ")" ret:(_* ":" _* @Type)? _* "{" _* content:Statements? _* "}"
+	= "@" __* name:NAME __* "(" _* args:Args? _* ")" ret:(_* ":" _* @Type)? _* "{" _* content:Statements? _* "}"
 {
 	return createNode('def', {
 		name: name,
