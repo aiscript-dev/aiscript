@@ -403,7 +403,7 @@ Call
 { return createNode('call', { name, args: args || [] }); }
 
 CallArgs
-	= head:Expr tails:(","? _+ expr:Expr { return expr; })*
+	= head:Expr tails:(SEP expr:Expr { return expr; })*
 { return [head, ...tails]; }
 
 // reference of indexer expression
@@ -520,7 +520,7 @@ Arg
 { return { name, type }; }
 
 Args
-	= head:Arg tails:(","? _+ @Arg)*
+	= head:Arg tails:(SEP @Arg)*
 { return [head, ...tails]; }
 
 // define function statement
@@ -580,7 +580,7 @@ FnType
 { return createNode('fn', { args: args || [], result }); }
 
 ArgTypes
-	= head:Type tails:(","? _+ @Type)*
+	= head:Type tails:(SEP @Type)*
 { return [head, ...tails]; }
 
 NamedType
@@ -602,6 +602,10 @@ NAME
 NAME_WITH_NAMESPACE
 	= NAME (":" NAME)*
 { return text(); }
+
+SEP
+	= _* "," _*
+	/ _+
 
 LF
 	= "\r\n" / [\r\n]
