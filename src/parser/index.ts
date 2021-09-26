@@ -39,7 +39,11 @@ export class Parser {
 			nodes = parser.parse(input);
 		} catch (e) {
 			if (e.location) {
-				throw new aiscript.SyntaxError(`Line ${e.location.start.line}:${e.location.start.column}`);
+				if (e.expected) {
+					throw new aiscript.SyntaxError(`Line ${e.location.start.line}:${e.location.start.column}`);
+				} else {
+					throw new aiscript.SyntaxError(`${e.message} Line ${e.location.start.line}:${e.location.start.column}`);
+				}
 			}
 			throw e;
 		}

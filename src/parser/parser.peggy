@@ -403,7 +403,7 @@ Call
 { return createNode('call', { name, args: args || [] }); }
 
 CallArgs
-	= head:Expr tails:(","? _+ expr:Expr { return expr; })*
+	= head:Expr tails:(SEP expr:Expr { return expr; })*
 { return [head, ...tails]; }
 
 // reference of indexer expression
@@ -520,14 +520,17 @@ Arg
 { return { name, type }; }
 
 Args
-	= head:Arg tails:(","? _+ @Arg)*
+	= head:Arg tails:(SEP @Arg)*
 { return [head, ...tails]; }
 
 // define function statement
 
 FnDef
-	= "@" name:NAME "(" _* args:Args? _* ")" ret:(_* ":" _* @Type)? _* "{" _* content:Statements? _* "}"
+	= "@" s1:__* name:NAME s2:__* "(" _* args:Args? _* ")" ret:(_* ":" _* @Type)? _* "{" _* content:Statements? _* "}"
 {
+	if (s1.length > 0 || s2.length > 0) {
+		error('Cannot use spaces before or after the function name.');
+	}
 	return createNode('def', {
 		name: name,
 		expr: createNode('fn', { args: args || [], ret: ret }, content || []),
@@ -580,7 +583,7 @@ FnType
 { return createNode('fn', { args: args || [], result }); }
 
 ArgTypes
-	= head:Type tails:(","? _+ @Type)*
+	= head:Type tails:(SEP @Type)*
 { return [head, ...tails]; }
 
 NamedType
@@ -602,6 +605,10 @@ NAME
 NAME_WITH_NAMESPACE
 	= NAME (":" NAME)*
 { return text(); }
+
+SEP
+	= _* "," _*
+	/ _+
 
 LF
 	= "\r\n" / [\r\n]
