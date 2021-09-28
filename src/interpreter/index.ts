@@ -134,7 +134,7 @@ export class AiScript {
 	private async collectNsMember(ns: NNs): Promise<void> {
 		const scope = this.scope.createChildScope();
 
-		for (const node of ns.members) {
+		for (const node of ns.children) {
 			switch (node.type) {
 				case 'def': {
 					const v = await this._eval(node.expr, scope);
@@ -231,7 +231,7 @@ export class AiScript {
 			case 'loop': {
 				// eslint-disable-next-line no-constant-condition
 				while (true) {
-					const v = await this._run(node.statements, scope.createChildScope());
+					const v = await this._run(node.children, scope.createChildScope());
 					if (v.type === 'break') {
 						break;
 					}
@@ -399,7 +399,7 @@ export class AiScript {
 			}
 
 			case 'block': {
-				return this._run(node.statements, scope.createChildScope());
+				return this._run(node.children, scope.createChildScope());
 			}
 
 			case 'tmpl': {

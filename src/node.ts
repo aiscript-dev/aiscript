@@ -90,7 +90,7 @@ export type NIf = {
 export type NLoop = {
 	type: 'loop'; // loop文
 	loc?: Loc; // コード位置
-	statements: Node[]; // 処理
+	children: Node[]; // 処理
 };
 
 export type NFor = {
@@ -188,7 +188,7 @@ export type NIndex = {
 export type NBlock = {
 	type: 'block'; // ブロック
 	loc?: Loc; // コード位置
-	statements: Node[]; // 処理
+	children: Node[]; // 処理
 };
 
 export type NTmpl = {
@@ -201,7 +201,7 @@ export type NNs = {
 	type: 'ns'; // 名前空間
 	loc?: Loc; // コード位置
 	name: string; // 空間名
-	members: Node[]; // メンバー
+	children: Node[]; // メンバー
 };
 
 export type NMatch = {

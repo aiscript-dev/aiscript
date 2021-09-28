@@ -26,7 +26,7 @@ export function setAttribute(nodes: Node[]): Node[] {
 					break;
 				}
 				case 'block': {
-					node.statements = setAttribute(node.statements);
+					node.children = setAttribute(node.children);
 					break;
 				}
 			}

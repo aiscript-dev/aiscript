@@ -53,20 +53,20 @@ export function validateKeyword(nodes: Node[]): Node[] {
 				break;
 			}
 			case 'block': {
-				validateKeyword(node.statements);
+				validateKeyword(node.children);
 				break;
 			}
 			case 'if': {
 				if (node.then.type == 'block') {
-					validateKeyword(node.then.statements);
+					validateKeyword(node.then.children);
 				}
 				for (const n of node.elseif) {
 					if (n.then.type == 'block') {
-						validateKeyword(n.then.statements);
+						validateKeyword(n.then.children);
 					}
 				}
 				if (node.else?.type == 'block') {
-					validateKeyword(node.else.statements);
+					validateKeyword(node.else.children);
 				}
 				break;
 			}

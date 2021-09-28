@@ -170,7 +170,7 @@ StaticLiteral
 
 Namespace
 	= "::" _+ name:NAME _+ "{" _* members:NamespaceStatements? _* "}"
-{ return createNode('ns', { name, members }); }
+{ return createNode('ns', { name }, members); }
 
 // meta statement
 
@@ -280,7 +280,7 @@ Return
 
 Loop
 	= "loop" _* "{" _* s:Statements _* "}"
-{ return createNode('loop', { statements: s }); }
+{ return createNode('loop', { }, s); }
 
 // break statement
 
@@ -394,7 +394,7 @@ Match
 
 Block
 	= "{" _* s:Statements _* "}"
-{ return createNode('block', { statements: s }); }
+{ return createNode('block', { }, s); }
 
 // function call expression
 

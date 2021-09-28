@@ -59,9 +59,9 @@ export function serializeOne(node: Node | null | undefined): Bin | null {
 		case 'prop': return [types[node.type], node.obj, node.path];
 		case 'propCall': return [types[node.type], node.obj, node.path, serialize(node.args)];
 		case 'index': return [types[node.type], node.arr, serializeOne(node.i)];
-		case 'block': return [types[node.type], serialize(node.statements)];
+		case 'block': return [types[node.type], serialize(node.children)];
 		case 'tmpl': return [types[node.type], node.tmpl.map(x => typeof x === 'string' ? x : serializeOne(x))];
-		case 'ns': return [types[node.type], node.name, serialize(node.members)];
+		case 'ns': return [types[node.type], node.name, serialize(node.children)];
 		case 'match': return [types[node.type], serializeOne(node.about), node.qs.map(x => [serializeOne(x.q), serializeOne(x.a)]), serializeOne(node.default)];
 		case 'meta': return [types[node.type], node.name, serializeOne(node.value)];
 		case 'propAssign': return [types[node.type], node.obj, node.path, serializeOne(node.expr)];
@@ -70,7 +70,7 @@ export function serializeOne(node: Node | null | undefined): Bin | null {
 		case 'dec': return [types[node.type], node.name, serializeOne(node.expr)];
 		case 'attr': return [types[node.type], node.name, serializeOne(node.value)];
 		case 'break': return [types[node.type], null];
-		case 'loop': return [types[node.type], serialize(node.statements)];
+		case 'loop': return [types[node.type], serialize(node.children)];
 		case 'continue': return [types[node.type], null];
 		case 'infix': return [types[node.type], serialize(node.operands), serialize(node.operators)];
 		case 'operator': return [types[node.type], node.op];
@@ -103,9 +103,9 @@ export function deserializeOne(bin: Bin | null): Node | undefined {
 		case types.prop: return { type, obj: bin[1], path: bin[2], } as NProp;
 		case types.propCall: return { type, obj: bin[1], path: bin[2], args: deserialize(bin[3]), } as NPropCall;
 		case types.index: return { type, arr: bin[1], i: deserializeOne(bin[2]), } as NIndex;
-		case types.block: return { type, statements: deserialize(bin[1]), } as NBlock;
+		case types.block: return { type, children: deserialize(bin[1]), } as NBlock;
 		case types.tmpl: return { type, tmpl: bin[1].map(x => typeof x === 'string' ? x : deserializeOne(x)), } as NTmpl;
-		case types.ns: return { type, name: bin[1], members: deserialize(bin[2]), } as NNs;
+		case types.ns: return { type, name: bin[1], children: deserialize(bin[2]), } as NNs;
 		case types.match: return { type, about: deserializeOne(bin[1]), qs: bin[2].map(x => ({ q: deserializeOne(x[0]), a: deserializeOne(x[1]) })), default: deserializeOne(bin[3]), } as NMatch;
 		case types.meta: return { type, name: bin[1], value: deserializeOne(bin[2]), } as NMeta;
 		case types.propAssign: return { type, obj: bin[1], path: bin[2], expr: deserializeOne(bin[3]), } as NPropAssign;
@@ -114,7 +114,7 @@ export function deserializeOne(bin: Bin | null): Node | undefined {
 		case types.dec: return { type, name: bin[1], expr: deserializeOne(bin[2]), } as NDec;
 		case types.attr: return { type, name: bin[1], value: deserializeOne(bin[2]) } as NAttr;
 		case types.break: return { type, name: bin[1], value: deserializeOne(null) } as NBreak;
-		case types.loop: return { type, statements: deserialize(bin[1]), } as NLoop;
+		case types.loop: return { type, children: deserialize(bin[1]), } as NLoop;
 		case types.continue: return { type, name: bin[1], value: deserializeOne(null) } as NContinue;
 		case types.infix: return { type, operands: deserialize(bin[1]), operators: deserialize(bin[2])} as NInfix;
 		case types.operator: return { type, op: bin[1] } as NOperator;
