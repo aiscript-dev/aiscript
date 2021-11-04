@@ -1,3 +1,5 @@
+[Read translated version (en)](./translations/en/CONTRIBUTING.md)
+
 # Contribution guide
 プロジェクトに興味を持っていただきありがとうございます！
 このドキュメントでは、プロジェクトに貢献する際に必要な情報をまとめています。

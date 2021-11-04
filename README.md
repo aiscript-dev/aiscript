@@ -10,6 +10,8 @@
 
 [Play online ▶](https://syuilo.github.io/aiscript/)
 
+[Read translated version (en)](./translations/en/README.md)
+
 AiScriptは、JavaScript上で動作するマルチパラダイムプログラミング言語です。AltJSではありません(1)。
 
 * 配列、オブジェクト、関数等をファーストクラスでサポート

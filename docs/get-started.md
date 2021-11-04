@@ -1,4 +1,7 @@
 # Getting started
+
+[Read translated version (en)](./translations/en/docs/get-started.md)
+
 ## Introduction
 AiScript(あいすくりぷと)は、プログラミング言語です。
 このドキュメントでは、既にある程度のプログラミングの知識があることを前提にしています。

@@ -1,3 +1,5 @@
+[Read translated version](./translations/en/docs/std.md)
+
 ## std
 
 ### @print(message: str): void

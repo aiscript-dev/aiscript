@@ -1,4 +1,7 @@
 # Syntax
+
+[Read translated version (en)](./translations/en/docs/syntax.md)
+
 ## コメント
 `//`で始めた行はコメントになり、プログラムの動作に影響を与えません。
 

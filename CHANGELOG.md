@@ -1,3 +1,5 @@
+[Read translated version (en)](./translations/en/CHANGELOG.md)
+
 # (unreleased)
 ## Breaking changes
 - `? ~ .? ~ .` → `if ~ elif ~ else`
