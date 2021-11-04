@@ -221,7 +221,6 @@ You can embed variables and expressions in a string:
 
 ## Metadata
 This function allows you to embed metadata in AiScript files.
-AiScriptファイルにメタデータを埋め込める機能です。
 ```
 ### {
 	name: "example"
