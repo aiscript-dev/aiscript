@@ -1,6 +1,6 @@
 # Getting started
 
-[Read translated version (en)](./translations/en/docs/get-started.md)
+[Read translated version (en)](../translations/en/docs/get-started.md)
 
 ## Introduction
 AiScript(あいすくりぷと)は、プログラミング言語です。

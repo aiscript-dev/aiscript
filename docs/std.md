@@ -1,4 +1,4 @@
-[Read translated version](./translations/en/docs/std.md)
+[Read translated version](../translations/en/docs/std.md)
 
 ## std
 
