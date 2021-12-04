@@ -112,9 +112,9 @@ Core:add(1, 1)
 	<tr><td><code>Core:mul</code></td><td><code>*</code></td><td>乗算</td></tr>
 	<tr><td><code>Core:div</code></td><td><code>/</code></td><td>除算</td></tr>
 	<tr><td><code>Core:mod</code></td><td><code>%</code></td><td>剰余</td></tr>
-	<tr><td><code>Core:eq</code></td><td><code>=</code></td><td>等しい</td></tr>
-	<tr><td><code>Core:and</code></td><td><code>&</code></td><td>かつ</td></tr>
-	<tr><td><code>Core:or</code></td><td><code>|</code></td><td>または</td></tr>
+	<tr><td><code>Core:eq</code></td><td><code>==</code></td><td>等しい</td></tr>
+	<tr><td><code>Core:and</code></td><td><code>&&</code></td><td>かつ</td></tr>
+	<tr><td><code>Core:or</code></td><td><code>||</code></td><td>または</td></tr>
 	<tr><td><code>Core:gt</code></td><td><code>></code></td><td>大きい</td></tr>
 	<tr><td><code>Core:lt</code></td><td><code><</code></td><td>小さい</td></tr>
 </table>
@@ -137,7 +137,7 @@ Core:add(1, 1)
 ## 条件分岐
 AiScriptでの条件分岐は、次のように書きます:
 ```
-if (a = b) {
+if (a == b) {
 	<: "a is equal to b"
 }
 ```
@@ -145,7 +145,7 @@ if (a = b) {
 `if`の後にboolを返す式(条件)を書き、その後に条件に一致した場合に評価される式(then節)を書きます。
 then節の後に`else`を書き、さらに式を追加することで条件に一致しなかった場合の処理も行うことが出来ます:
 ```
-if (a = b) {
+if (a == b) {
 	<: "a is equal to b"
 } else {
 	<: "a is not equal to b"
@@ -154,7 +154,7 @@ if (a = b) {
 
 `elif`の後に条件式を書くことで条件判定を複数行うことも出来ます:
 ```
-if (a = b) {
+if (a == b) {
 	<: "a is equal to b"
 } elif (a > b) {
 	<: "a is grater than b"
@@ -165,7 +165,7 @@ if (a = b) {
 
 これらの条件分岐は式なので、ブロック内で値を返せます:
 ```
-<: if (a = b) {
+<: if (a == b) {
 	"a is equal to b"
 } elif (a > b) {
 	"a is grater than b"
@@ -226,16 +226,5 @@ AiScriptファイルにメタデータを埋め込める機能です。
 	name: "example"
 	version: 42
 	keywords: ["foo" "bar" "baz"]
-}
-```
-
-# Examples
-## FizzBuzz
-```
-for (#i, 100) {
-	<: ? ((i % 15) = 0) "FizzBuzz"
-		.? ((i % 3) = 0) "Fizz"
-		.? ((i % 5) = 0) "Buzz"
-		. i
 }
 ```

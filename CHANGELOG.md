@@ -1,5 +1,8 @@
 # (unreleased)
 ## Breaking changes
+- 比較の`=` → `==`
+- `&` → `&&`
+- `|` → `||`
 - `? ~ .? ~ .` → `if ~ elif ~ else`
 - `? x { 42 => yes }` → `match x { 42 => true }`
 - `yes` `no` → `true` `false`
