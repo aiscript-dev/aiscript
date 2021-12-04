@@ -104,6 +104,9 @@ const FN_NATIVE: (fn: VFn['native']) => {
 };
 
 // @public (undocumented)
+function getLangVersion(input: string): string | null;
+
+// @public (undocumented)
 function jsToVal(val: any): Value;
 
 // @public (undocumented)
@@ -134,10 +137,6 @@ export class Parser {
     constructor();
     // (undocumented)
     addPlugin(plugin: ParserPlugin): void;
-    // (undocumented)
-    static getLangVersion(input: string): string | null;
-    // (undocumented)
-    getLangVersion(input: string): string | null;
     // (undocumented)
     static parse(input: string): Node_2[];
     // (undocumented)
@@ -194,7 +193,8 @@ declare namespace utils {
         valToString,
         nodeToString,
         valToJs,
-        jsToVal
+        jsToVal,
+        getLangVersion
     }
 }
 export { utils }
