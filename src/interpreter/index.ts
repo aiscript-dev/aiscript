@@ -234,6 +234,8 @@ export class AiScript {
 					const v = await this._run(node.statements, scope.createChildScope());
 					if (v.type === 'break') {
 						break;
+					} else if (v.type === 'return') {
+						return v.value;
 					}
 				}
 				return NULL;
@@ -247,6 +249,8 @@ export class AiScript {
 						const v = await this._eval(node.for, scope);
 						if (v.type === 'break') {
 							break;
+						} else if (v.type === 'return') {
+							return v.value;
 						}
 					}
 				} else {
@@ -260,6 +264,8 @@ export class AiScript {
 						])));
 						if (v.type === 'break') {
 							break;
+						} else if (v.type === 'return') {
+							return v.value;
 						}
 					}
 				}

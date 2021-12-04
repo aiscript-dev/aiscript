@@ -710,6 +710,38 @@ describe('Return', () => {
 		`);
 		eq(res, STR('ai'));
 	});
+
+	it('return inside for', async () => {
+		const res = await exe(`
+		@f() {
+			$count <- 0
+			for (#i, 100) {
+				count +<- 1
+				if (i = 42) {
+					return count
+				} 
+			}
+		}
+		<: f()
+		`);
+		eq(res, NUM(42));
+	});
+
+	it('return inside loop', async () => {
+		const res = await exe(`
+		@f() {
+			$count <- 0
+			loop {
+				count +<- 1
+				if (count = 42) {
+					return count
+				} 
+			}
+		}
+		<: f()
+		`);
+		eq(res, NUM(42));
+	});
 });
 
 describe('Block', () => {
