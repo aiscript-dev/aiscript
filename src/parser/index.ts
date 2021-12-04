@@ -27,6 +27,13 @@ export class Parser {
 		return Parser.instance.parse(input);
 	}
 
+	public static getLangVersion(input: string): string | null {
+		if (Parser.instance == null) {
+			Parser.instance = new Parser();
+		}
+		return Parser.instance.getLangVersion(input);
+	}
+
 	public addPlugin(plugin: ParserPlugin) {
 		this.plugins.push(plugin);
 	}
@@ -54,6 +61,11 @@ export class Parser {
 		}
 
 		return nodes;
+	}
+
+	public getLangVersion(input: string): string | null {
+		const match = /^\/\/\s?@\s?([A-Z0-9_.-]+)(?:[\r\n][\s\S]*)?$/i.exec(input);
+		return (match != null) ? match[1] : null;
 	}
 }
 
