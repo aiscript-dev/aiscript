@@ -145,7 +145,7 @@ Literal
 	= Tmpl        // "`"
 	/ Str         // "\""
 	/ Num         // "+" | "-" | "1"~"9"
-	/ Bool        // "yes" | "no" | "+" | "-"
+	/ Bool        // "true" | "false"
 	/ Null        // "null"
 	/ Obj         // "{"
 	/ Arr         // "["
@@ -155,7 +155,7 @@ Literal
 StaticLiteral
 	= Num         // "+" "1"~"9" | "-" "1"~"9" | "1"~"9"
 	/ Str         // "\""
-	/ Bool        // "yes" | "no" | "+" | "-"
+	/ Bool        // "true" | "false"
 	/ StaticArr   // "["
 	/ StaticObj   // "{"
 	/ Null        // "null"
@@ -478,11 +478,11 @@ Bool
 	/ False
 
 True
-	= "yes" ![A-Z0-9_:]i
+	= "true" ![A-Z0-9_:]i
 { return createNode('bool', { value: true }); }
 
 False
-	= "no" ![A-Z0-9_:]i
+	= "false" ![A-Z0-9_:]i
 { return createNode('bool', { value: false }); }
 
 // null literal

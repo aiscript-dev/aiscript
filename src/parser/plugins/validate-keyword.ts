@@ -3,8 +3,6 @@ import { Node } from '../../node';
 
 const reservedWord = [
 	'null',
-	'yes',
-	'no',
 	'true',
 	'false',
 	'each',

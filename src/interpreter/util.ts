@@ -48,7 +48,7 @@ export function eq(a: Value, b: Value) {
 export function valToString(val: Value, simple = false) {
 	if (simple) {
 		if (val.type === 'num') return val.value;
-		if (val.type === 'bool') return val.value ? 'yes' : 'no';
+		if (val.type === 'bool') return val.value ? 'true' : 'false';
 		if (val.type === 'str') return `"${val.value}"`;
 		if (val.type === 'arr') return `[${val.value.map(item => valToString(item, true)).join(', ')}]`;
 		if (val.type === 'null') return '(null)';

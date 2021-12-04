@@ -1,7 +1,8 @@
 # (unreleased)
 ## Breaking changes
 - `? ~ .? ~ .` → `if ~ elif ~ else`
-- `? x { 42 => yes }` → `match x { 42 => yes }`
+- `? x { 42 => yes }` → `match x { 42 => true }`
+- `yes` `no` → `true` `false`
 - `_` → `null`
 - `<<` → `return`
 - `~` → `for`

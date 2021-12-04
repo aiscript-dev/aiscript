@@ -80,17 +80,17 @@ describe('ops', () => {
 	});
 
 	it('&', async () => {
-		eq(await exe('<: (yes & yes)'), BOOL(true));
-		eq(await exe('<: (yes & no)'), BOOL(false));
-		eq(await exe('<: (no & yes)'), BOOL(false));
-		eq(await exe('<: (no & no)'), BOOL(false));
+		eq(await exe('<: (true & true)'), BOOL(true));
+		eq(await exe('<: (true & false)'), BOOL(false));
+		eq(await exe('<: (false & true)'), BOOL(false));
+		eq(await exe('<: (false & false)'), BOOL(false));
 	});
 
 	it('|', async () => {
-		eq(await exe('<: (yes | yes)'), BOOL(true));
-		eq(await exe('<: (yes | no)'), BOOL(true));
-		eq(await exe('<: (no | yes)'), BOOL(true));
-		eq(await exe('<: (no | no)'), BOOL(false));
+		eq(await exe('<: (true | true)'), BOOL(true));
+		eq(await exe('<: (true | false)'), BOOL(true));
+		eq(await exe('<: (false | true)'), BOOL(true));
+		eq(await exe('<: (false | false)'), BOOL(false));
 	});
 
 	it('+', async () => {
@@ -163,23 +163,23 @@ describe('Infix expression', () => {
 
 	it('syntax symbols vs infix operators', async () => {
 		const res = await exe(`
-		<: match yes {
-			1 = 1 => "yes"
-			1 < 1 => "no"
+		<: match true {
+			1 = 1 => "true"
+			1 < 1 => "false"
 		}
 		`);
-		eq(res, STR('yes'));
+		eq(res, STR('true'));
 	});
 
 	it('number + if expression', async () => {
-		eq(await exe('<: 1 + if yes 1 else 2'), NUM(2));
+		eq(await exe('<: 1 + if true 1 else 2'), NUM(2));
 	});
 
 	it('number + match expression', async () => {
 		const res = await exe(`
 			<: 1 + match 2 = 2 {
-				yes => 3
-				no  => 4
+				true => 3
+				false  => 4
 			}
 		`);
 		eq(res, NUM(4));
@@ -350,11 +350,11 @@ it('Recursion', async () => {
 	eq(res, NUM(120));
 });
 
-it('Var name starts with \'no\'', async () => {
+it('Var name starts with reserved word', async () => {
 	const res = await exe(`
-	#note = "ai"
+	#falsecat = "ai"
 
-	<: note
+	<: falsecat
 	`);
 	eq(res, STR('ai'));
 });
@@ -649,7 +649,7 @@ describe('Return', () => {
 	it('Early return', async () => {
 		const res = await exe(`
 		@f() {
-			if yes {
+			if true {
 				return "ai"
 			}
 
@@ -663,8 +663,8 @@ describe('Return', () => {
 	it('Early return (nested)', async () => {
 		const res = await exe(`
 		@f() {
-			if yes {
-				if yes {
+			if true {
+				if true {
 					return "ai"
 				}
 			}
@@ -679,7 +679,7 @@ describe('Return', () => {
 	it('Early return (nested) 2', async () => {
 		const res = await exe(`
 		@f() {
-			if yes {
+			if true {
 				return "ai"
 			}
 
@@ -702,7 +702,7 @@ describe('Return', () => {
 	it('Early return without block', async () => {
 		const res = await exe(`
 		@f() {
-			if yes return "ai"
+			if true return "ai"
 
 			"pope"
 		}
@@ -731,7 +731,7 @@ describe('if', () => {
 	it('if', async () => {
 		const res1 = await exe(`
 		$msg <- "ai"
-		if yes {
+		if true {
 			msg <- "kawaii"
 		}
 		<: msg
@@ -740,7 +740,7 @@ describe('if', () => {
 
 		const res2 = await exe(`
 		$msg <- "ai"
-		if no {
+		if false {
 			msg <- "kawaii"
 		}
 		<: msg
@@ -751,7 +751,7 @@ describe('if', () => {
 	it('else', async () => {
 		const res1 = await exe(`
 		$msg <- null
-		if yes {
+		if true {
 			msg <- "ai"
 		} else {
 			msg <- "kawaii"
@@ -762,7 +762,7 @@ describe('if', () => {
 
 		const res2 = await exe(`
 		$msg <- null
-		if no {
+		if false {
 			msg <- "ai"
 		} else {
 			msg <- "kawaii"
@@ -775,9 +775,9 @@ describe('if', () => {
 	it('elif', async () => {
 		const res1 = await exe(`
 		$msg <- "bebeyo"
-		if no {
+		if false {
 			msg <- "ai"
-		} elif yes {
+		} elif true {
 			msg <- "kawaii"
 		}
 		<: msg
@@ -786,9 +786,9 @@ describe('if', () => {
 
 		const res2 = await exe(`
 		$msg <- "bebeyo"
-		if no {
+		if false {
 			msg <- "ai"
-		} elif no {
+		} elif false {
 			msg <- "kawaii"
 		}
 		<: msg
@@ -799,9 +799,9 @@ describe('if', () => {
 	it('if ~ elif ~ else', async () => {
 		const res1 = await exe(`
 		$msg <- null
-		if no {
+		if false {
 			msg <- "ai"
-		} elif yes {
+		} elif true {
 			msg <- "chan"
 		} else {
 			msg <- "kawaii"
@@ -812,9 +812,9 @@ describe('if', () => {
 
 		const res2 = await exe(`
 		$msg <- null
-		if no {
+		if false {
 			msg <- "ai"
-		} elif no {
+		} elif false {
 			msg <- "chan"
 		} else {
 			msg <- "kawaii"
@@ -826,12 +826,12 @@ describe('if', () => {
 
 	it('expr', async () => {
 		const res1 = await exe(`
-		<: if yes "ai" else "kawaii"
+		<: if true "ai" else "kawaii"
 		`);
 		eq(res1, STR('ai'));
 
 		const res2 = await exe(`
-		<: if no "ai" else "kawaii"
+		<: if false "ai" else "kawaii"
 		`);
 		eq(res2, STR('kawaii'));
 	});
@@ -1089,14 +1089,14 @@ describe('namespace', () => {
 describe('literal', () => {
 	it('bool (true)', async () => {
 		const res = await exe(`
-		<: yes
+		<: true
 		`);
 		eq(res, BOOL(true));
 	});
 
 	it('bool (false)', async () => {
 		const res = await exe(`
-		<: no
+		<: false
 		`);
 		eq(res, BOOL(false));
 	});
@@ -1299,7 +1299,7 @@ describe('meta', () => {
 	describe('Boolean', () => {
 		it('valid', async () => {
 			const res = getMeta(`
-			### x yes
+			### x true
 			`);
 			eq(res, new Map([
 				['x', true]
@@ -1428,7 +1428,7 @@ describe('Attribute', () => {
 		const nodes = parser.parse(`
 		#[Endpoint { path: "/notes/create"; }]
 		#[Desc "Create a note."]
-		#[Cat yes]
+		#[Cat true]
 		@createNote(text) {
 			<: text
 		}

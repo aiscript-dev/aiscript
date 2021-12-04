@@ -34,7 +34,7 @@ AiScriptのコメントは`//`で始めます。
 	<tr><th>種類</th><th>型</th><th>リテラル例</th></tr>
 	<tr><td>文字列</td><td><code>str</code></td><td><code>"kawaii"</code></td></tr>
 	<tr><td>数値</td><td><code>num</code></td><td><code>42</code></td></tr>
-	<tr><td>真理値</td><td><code>bool</code></td><td><code>yes</code>/<code>no</code></td></tr>
+	<tr><td>真理値</td><td><code>bool</code></td><td><code>true</code>/<code>false</code></td></tr>
 	<tr><td>配列</td><td><code>arr</code></td><td><code>["ai" "chan" "cute"]</code></td></tr>
 	<tr><td>オブジェクト</td><td><code>obj</code></td><td><code>{ foo: "bar"; a: 42; }</code></td></tr>
 	<tr><td>null</td><td><code>null</code></td><td><code>null</code></td></tr>
