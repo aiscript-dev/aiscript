@@ -215,12 +215,6 @@ export type NMatch = {
 	default?: Node; // デフォルト値
 };
 
-export type NLangVer = {
-	type: 'langVer'; // 言語バージョン指定
-	loc?: Loc; // コード位置
-	name: string; // バージョン名
-};
-
 export type NMeta = {
 	type: 'meta'; // メタデータ定義
 	loc?: Loc; // コード位置
@@ -279,7 +273,6 @@ export type Node =
 	NTmpl |
 	NMatch |
 	NNs |
-	NLangVer |
 	NMeta |
 	NAttr |
 	NInfix |
