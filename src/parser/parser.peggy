@@ -103,7 +103,6 @@ Statement
 	= VarDef      // "#" NAME | "$" NAME
 	/ FnDef       // "@"
 	/ Out         // "<:"
-	/ Debug       // "<<<"
 	/ Return      // "return"
 	/ Attr        // "+"
 	/ ForOf       // "~~" | "each"
@@ -200,12 +199,6 @@ VarDef
 Out
 	= "<:" _* expr:Expr
 { return createNode('call', { name: 'print', args: [expr] }); }
-
-// debug statement
-
-Debug
-	= "<<<" _* expr:Expr
-{ return createNode('debug', { expr }); }
 
 // attribute statement
 
