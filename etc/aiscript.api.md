@@ -135,6 +135,10 @@ export class Parser {
     // (undocumented)
     addPlugin(plugin: ParserPlugin): void;
     // (undocumented)
+    static getLangVersion(input: string): string | null;
+    // (undocumented)
+    getLangVersion(input: string): string | null;
+    // (undocumented)
     static parse(input: string): Node_2[];
     // (undocumented)
     parse(input: string): Node_2[];
