@@ -68,8 +68,12 @@ Comment
 //
 
 Core
-	= _* content:GlobalStatements? _*
-{ return content || []; }
+	= _* header:HeaderStatements? _* content:GlobalStatements? _*
+{ return [...(header || []), ...(content || [])]; }
+
+HeaderStatements
+	= head:HeaderStatement tails:(__* LF _* @HeaderStatement)*
+{ return [head, ...tails]; }
 
 GlobalStatements
 	= head:GlobalStatement tails:(__* LF _* s:GlobalStatement { return s; })*
@@ -82,6 +86,11 @@ NamespaceStatements
 Statements
 	= head:Statement tails:(__* LF _* s:Statement { return s; })*
 { return [head, ...tails]; }
+
+// list of header statements
+
+HeaderStatement
+	= LangVersion
 
 // list of global statements
 
@@ -159,6 +168,20 @@ StaticLiteral
 	/ StaticArr   // "["
 	/ StaticObj   // "{"
 	/ Null        // "null"
+
+
+
+//
+// header statements ---------------------------------------------------------------------
+//
+
+LangVersion
+	= "@" __* name:VersionName &EOL
+{ return createNode('langVer', { name }); }
+
+VersionName
+	= [A-Z0-9_.-]i+
+{ return text(); }
 
 
 

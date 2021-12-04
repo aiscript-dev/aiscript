@@ -24,6 +24,15 @@ const exe = (program: string): Promise<any> => new Promise((ok, err) => {
 	aiscript.exec(_ast).catch(err);
 });
 
+const getLangVer = (program: string) => {
+	const parser = new Parser();
+	const ast = parser.parse(program);
+
+	const langVer = AiScript.getLangVersion(ast);
+
+	return langVer;
+};
+
 const getMeta = (program: string) => {
 	const parser = new Parser();
 	const ast = parser.parse(program);
@@ -1252,6 +1261,30 @@ describe('type declaration', () => {
 		<: f([1, 2, 3], "a", @(n) { n = 1 })
 		`);
 		eq(res, ARR([NUM(1), NUM(2), NUM(3), NUM(0), NUM(5)]));
+	});
+});
+
+describe('lang version', () => {
+	it('basic', async () => {
+		const res = getLangVer(`
+		@1.0
+		@ 2.0-alpha
+		@f(x) {
+			x
+		}
+		f()
+		`);
+		assert.strictEqual(res, '2.0-alpha');
+	});
+
+	it('no specified', async () => {
+		const res = getLangVer(`
+		@f(x) {
+			x
+		}
+		f()
+		`);
+		assert.strictEqual(res, undefined);
 	});
 });
 

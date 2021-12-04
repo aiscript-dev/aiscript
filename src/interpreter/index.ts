@@ -70,6 +70,27 @@ export class AiScript {
 	}
 
 	@autobind
+	public static getLangVersion(script?: Node[]): string | undefined {
+		if (script == null || script.length === 0) return undefined;
+
+		let langVersion: string | undefined;
+		for (const node of script) {
+			switch (node.type) {
+				case 'langVer': {
+					langVersion = node.name;
+					break;
+				}
+
+				default: {
+					// nop
+				}
+			}
+		}
+
+		return langVersion;
+	}
+
+	@autobind
 	public static collectMetadata(script?: Node[]) {
 		if (script == null || script.length === 0) return;
 
@@ -444,6 +465,10 @@ export class AiScript {
 			}
 
 			case 'meta': {
+				return NULL; // nop
+			}
+
+			case 'langVer': {
 				return NULL; // nop
 			}
 
