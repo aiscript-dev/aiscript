@@ -29,10 +29,10 @@ function makeOperatorInfo(operator: NOperator): OperatorInfo {
 		case '*': return { func: 'Core:mul', prec: 7, loc: operator.loc };
 		case '/': return { func: 'Core:div', prec: 7, loc: operator.loc };
 		case '%': return { func: 'Core:mod', prec: 7, loc: operator.loc };
-		case '=': return { func: 'Core:eq', prec: 4, loc: operator.loc };
+		case '==': return { func: 'Core:eq', prec: 4, loc: operator.loc };
 		case '!=': return { func: 'Core:neq', prec: 4, loc: operator.loc };
-		case '&': return { func: 'Core:and', prec: 3, loc: operator.loc };
-		case '|': return { func: 'Core:or', prec: 2, loc: operator.loc };
+		case '&&': return { func: 'Core:and', prec: 3, loc: operator.loc };
+		case '||': return { func: 'Core:or', prec: 2, loc: operator.loc };
 		case '<': return { func: 'Core:lt', prec: 4, loc: operator.loc };
 		case '>': return { func: 'Core:gt', prec: 4, loc: operator.loc };
 		case '<=': return { func: 'Core:lteq', prec: 4, loc: operator.loc };
