@@ -69,9 +69,9 @@ it('legacy parser api', async () => {
 });
 
 describe('ops', () => {
-	it('=', async () => {
-		eq(await exe('<: (1 = 1)'), BOOL(true));
-		eq(await exe('<: (1 = 2)'), BOOL(false));
+	it('==', async () => {
+		eq(await exe('<: (1 == 1)'), BOOL(true));
+		eq(await exe('<: (1 == 2)'), BOOL(false));
 	});
 
 	it('!=', async () => {
@@ -79,18 +79,18 @@ describe('ops', () => {
 		eq(await exe('<: (1 != 1)'), BOOL(false));
 	});
 
-	it('&', async () => {
-		eq(await exe('<: (true & true)'), BOOL(true));
-		eq(await exe('<: (true & false)'), BOOL(false));
-		eq(await exe('<: (false & true)'), BOOL(false));
-		eq(await exe('<: (false & false)'), BOOL(false));
+	it('&&', async () => {
+		eq(await exe('<: (true && true)'), BOOL(true));
+		eq(await exe('<: (true && false)'), BOOL(false));
+		eq(await exe('<: (false && true)'), BOOL(false));
+		eq(await exe('<: (false && false)'), BOOL(false));
 	});
 
-	it('|', async () => {
-		eq(await exe('<: (true | true)'), BOOL(true));
-		eq(await exe('<: (true | false)'), BOOL(true));
-		eq(await exe('<: (false | true)'), BOOL(true));
-		eq(await exe('<: (false | false)'), BOOL(false));
+	it('||', async () => {
+		eq(await exe('<: (true || true)'), BOOL(true));
+		eq(await exe('<: (true || false)'), BOOL(true));
+		eq(await exe('<: (false || true)'), BOOL(true));
+		eq(await exe('<: (false || false)'), BOOL(false));
 	});
 
 	it('+', async () => {
@@ -140,7 +140,7 @@ describe('ops', () => {
 	it('precedence', async () => {
 		eq(await exe('<: 1 + 2 * 3 + 4'), NUM(11));
 		eq(await exe('<: 1 + 4 / 4 + 1'), NUM(3));
-		eq(await exe('<: 1 + 1 = 2 & 2 * 2 = 4'), BOOL(true));
+		eq(await exe('<: 1 + 1 == 2 && 2 * 2 == 4'), BOOL(true));
 		eq(await exe('<: (1 + 1) * 2'), NUM(4));
 	});
 
@@ -164,7 +164,7 @@ describe('Infix expression', () => {
 	it('syntax symbols vs infix operators', async () => {
 		const res = await exe(`
 		<: match true {
-			1 = 1 => "true"
+			1 == 1 => "true"
 			1 < 1 => "false"
 		}
 		`);
@@ -177,7 +177,7 @@ describe('Infix expression', () => {
 
 	it('number + match expression', async () => {
 		const res = await exe(`
-			<: 1 + match 2 = 2 {
+			<: 1 + match 2 == 2 {
 				true => 3
 				false  => 4
 			}
@@ -342,7 +342,7 @@ it('Closure (counter)', async () => {
 it('Recursion', async () => {
 	const res = await exe(`
 	@fact(n) {
-		if (n = 0) { 1 } else { (fact((n - 1)) * n) }
+		if (n == 0) { 1 } else { (fact((n - 1)) * n) }
 	}
 
 	<: fact(5)
@@ -541,9 +541,9 @@ it('Fizz Buzz', async () => {
 	#res = []
 	for (#i, 15) {
 		#msg =
-			if ((i % 15) = 0) "FizzBuzz"
-			elif ((i % 3) = 0) "Fizz"
-			elif ((i % 5) = 0) "Buzz"
+			if ((i % 15) == 0) "FizzBuzz"
+			elif ((i % 3) == 0) "Fizz"
+			elif ((i % 5) == 0) "Buzz"
 			else i
 		Arr:push(res msg)
 	}
@@ -584,7 +584,7 @@ it('SKI', async () => {
 
 		// extract
 		@x(v) {
-			if (Core:type(v) = "arr") { c(v) } else { v }
+			if (Core:type(v) == "arr") { c(v) } else { v }
 		}
 
 		// rec
@@ -687,7 +687,7 @@ describe('Return', () => {
 		}
 
 		@g() {
-			if (f() = "ai") {
+			if (f() == "ai") {
 				return "kawaii"
 			}
 
@@ -908,7 +908,7 @@ describe('loop', () => {
 		const res = await exe(`
 		$count <- 0
 		loop {
-			if (count = 10) break
+			if (count == 10) break
 			count <- (count + 1)
 		}
 		<: count
@@ -922,8 +922,8 @@ describe('loop', () => {
 		$b <- []
 		loop {
 			$x <- Arr:shift(a)
-			if (x = "chan") continue
-			if (x = "!") break
+			if (x == "chan") continue
+			if (x == "!") break
 			Arr:push(b, x)
 		}
 		<: b
@@ -970,7 +970,7 @@ describe('for', () => {
 		const res = await exe(`
 		$count <- 0
 		for (#i, 20) {
-			if (i = 11) break
+			if (i == 11) break
 			count <- (count + i)
 		}
 		<: count
@@ -982,7 +982,7 @@ describe('for', () => {
 		const res = await exe(`
 		$count <- 0
 		for (#i, 10) {
-			if (i = 5) continue
+			if (i == 5) continue
 			count <- (count + 1)
 		}
 		<: count
@@ -1016,7 +1016,7 @@ describe('for of', () => {
 		const res = await exe(`
 		#msgs = []
 		each #item, ["ai", "chan", "kawaii"] {
-			if (item = "kawaii") break
+			if (item == "kawaii") break
 			Arr:push(msgs, Arr:join([item, "!"]))
 		}
 		<: msgs
@@ -1249,7 +1249,7 @@ describe('type declaration', () => {
 			x
 		}
 		
-		<: f([1, 2, 3], "a", @(n) { n = 1 })
+		<: f([1, 2, 3], "a", @(n) { n == 1 })
 		`);
 		eq(res, ARR([NUM(1), NUM(2), NUM(3), NUM(0), NUM(5)]));
 	});
