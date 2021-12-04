@@ -18,6 +18,8 @@ export class AiScript {
     // (undocumented)
     execFn(fn: VFn, args: Value[]): Promise<Value>;
     // (undocumented)
+    static getLangVersion(script?: Node_2[]): string | undefined;
+    // (undocumented)
     registerAbortHandler(handler: () => void): void;
     // Warning: (ae-forgotten-export) The symbol "Scope" needs to be exported by the entry point index.d.ts
     //
