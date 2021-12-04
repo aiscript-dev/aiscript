@@ -717,7 +717,7 @@ describe('Return', () => {
 			$count <- 0
 			for (#i, 100) {
 				count +<- 1
-				if (i = 42) {
+				if (i == 42) {
 					return count
 				} 
 			}
@@ -733,7 +733,7 @@ describe('Return', () => {
 			$count <- 0
 			loop {
 				count +<- 1
-				if (count = 42) {
+				if (count == 42) {
 					return count
 				} 
 			}
