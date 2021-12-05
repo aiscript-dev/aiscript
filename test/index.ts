@@ -4,7 +4,7 @@
  */
 
 import * as assert from 'assert';
-import { parse, Parser, serialize, deserialize } from '../src';
+import { parse, Parser, serialize, deserialize, utils } from '../src';
 import { AiScript } from '../src/interpreter';
 import { NUM, STR, NULL, ARR, OBJ, BOOL } from '../src/interpreter/value';
 import { NAttr, Node } from '../src/node';
@@ -1394,6 +1394,49 @@ describe('meta', () => {
 			}
 			assert.fail();
 		});
+	});
+});
+
+describe('lang version', () => {
+	it('number', async () => {
+		const res = utils.getLangVersion(`
+		// @2021
+		@f(x) {
+			x
+		}
+		`);
+		assert.strictEqual(res, '2021');
+	});
+
+	it('chars', async () => {
+		const res = utils.getLangVersion(`
+		// @ canary
+		const a = 1
+		@f(x) {
+			x
+		}
+		f(a)
+		`);
+		assert.strictEqual(res, 'canary');
+	});
+
+	it('complex', async () => {
+		const res = utils.getLangVersion(`
+		// @ 2.0-Alpha
+		@f(x) {
+			x
+		}
+		`);
+		assert.strictEqual(res, '2.0-Alpha');
+	});
+
+	it('no specified', async () => {
+		const res = utils.getLangVersion(`
+		@f(x) {
+			x
+		}
+		`);
+		assert.strictEqual(res, null);
 	});
 });
 
