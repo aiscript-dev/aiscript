@@ -86,7 +86,7 @@ function getOpInfo(operator: string): OperatorInfo {
 /**
  * 中置演算子式を表す木を対応する関数呼び出しの構造体に変換する
  */
- function asCall(tree: InfixTree | Node): Node {
+function asCall(tree: InfixTree | Node): Node {
 	if (tree.type !== 'infixtree') {
 		return tree;
 	}
