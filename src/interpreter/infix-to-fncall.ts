@@ -1,9 +1,8 @@
 import { AiScriptError } from './error';
-import { Node, NInfix, NOperator, NCall, Loc } from '../node';
+import { Node, NInfix, NCall, Loc } from '../node';
 
 type OperatorInfo = {
 	func: string; // 対応する関数
-	loc?: Loc;
 	prec: number; // 優先度（高いほど優先して計算される値）
 };
 
@@ -22,27 +21,27 @@ type InfixTree = Node | {
 	rchild: InfixTree;
 };
 
-function makeOperatorInfo(operator: NOperator): OperatorInfo {
-	switch (operator.op) {
-		case '+': return { func: 'Core:add', prec: 6, loc: operator.loc };
-		case '-': return { func: 'Core:sub', prec: 6, loc: operator.loc };
-		case '*': return { func: 'Core:mul', prec: 7, loc: operator.loc };
-		case '/': return { func: 'Core:div', prec: 7, loc: operator.loc };
-		case '%': return { func: 'Core:mod', prec: 7, loc: operator.loc };
-		case '==': return { func: 'Core:eq', prec: 4, loc: operator.loc };
-		case '!=': return { func: 'Core:neq', prec: 4, loc: operator.loc };
-		case '&&': return { func: 'Core:and', prec: 3, loc: operator.loc };
-		case '||': return { func: 'Core:or', prec: 2, loc: operator.loc };
-		case '<': return { func: 'Core:lt', prec: 4, loc: operator.loc };
-		case '>': return { func: 'Core:gt', prec: 4, loc: operator.loc };
-		case '<=': return { func: 'Core:lteq', prec: 4, loc: operator.loc };
-		case '>=': return { func: 'Core:gteq', prec: 4, loc: operator.loc };
-		default: throw new AiScriptError(`No such operator: ${operator.op}.`);
+function makeOperatorInfo(operator: string): OperatorInfo {
+	switch (operator) {
+		case '+': return { func: 'Core:add', prec: 6 };
+		case '-': return { func: 'Core:sub', prec: 6 };
+		case '*': return { func: 'Core:mul', prec: 7 };
+		case '/': return { func: 'Core:div', prec: 7 };
+		case '%': return { func: 'Core:mod', prec: 7 };
+		case '==': return { func: 'Core:eq', prec: 4 };
+		case '!=': return { func: 'Core:neq', prec: 4 };
+		case '&&': return { func: 'Core:and', prec: 3 };
+		case '||': return { func: 'Core:or', prec: 2 };
+		case '<': return { func: 'Core:lt', prec: 4 };
+		case '>': return { func: 'Core:gt', prec: 4 };
+		case '<=': return { func: 'Core:lteq', prec: 4 };
+		case '>=': return { func: 'Core:gteq', prec: 4 };
+		default: throw new AiScriptError(`No such operator: ${operator}.`);
 	}
 }
 
 function makeInfixTree(opInfo: OperatorInfo, lchild: InfixTree, rchild: InfixTree): InfixTree {
-	return { opInfo, lchild, rchild, type: 'infixtree' };
+	return { type: 'infixtree', opInfo, lchild, rchild };
 }
 
 /**
@@ -88,7 +87,6 @@ function ascall(tree: InfixTree): Node {
 	} else {
 		return {
 			type: 'call',
-			loc: tree.opInfo.loc,
 			name: tree.opInfo.func,
 			args: [ ascall(tree.lchild), ascall(tree.rchild) ],
 		} as NCall;

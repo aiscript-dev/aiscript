@@ -344,7 +344,7 @@ ReservedOps
 	= "<<<" / "=>" / "<-" / "+<-" / "-<-"
 
 Op
-	= !(ReservedOps ![-+*/%&|=~<>!?]) [-+*/%&|=~<>!?]+ { return createNode('operator', { op: text() }); }
+	= !(ReservedOps ![-+*/%&|=~<>!?]) [-+*/%&|=~<>!?]+ { return text(); }
 
 // if statement
 
