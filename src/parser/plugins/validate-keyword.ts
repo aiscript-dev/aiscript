@@ -22,7 +22,6 @@ const reservedWord = [
 	// 'attribute',
 	// 'static',
 	// 'const',
-	// 'null',
 	// 'var',
 	// 'def',
 	// 'fn',
