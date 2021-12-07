@@ -104,6 +104,9 @@ const FN_NATIVE: (fn: VFn['native']) => {
 };
 
 // @public (undocumented)
+function getLangVersion(input: string): string | null;
+
+// @public (undocumented)
 function jsToVal(val: any): Value;
 
 // @public (undocumented)
@@ -190,7 +193,8 @@ declare namespace utils {
         valToString,
         nodeToString,
         valToJs,
-        jsToVal
+        jsToVal,
+        getLangVersion
     }
 }
 export { utils }
