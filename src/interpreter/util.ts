@@ -114,6 +114,6 @@ export function jsToVal(val: any): Value {
 }
 
 export function getLangVersion(input: string): string | null {
-	const match = /^\s*\/\/\s*@\s*([A-Z0-9_.-]+)(?:[\r\n][\s\S]*)?$/i.exec(input);
+	const match = /^\s*\/\/\/\s*@\s*([A-Z0-9_.-]+)(?:[\r\n][\s\S]*)?$/i.exec(input);
 	return (match != null) ? match[1] : null;
 }

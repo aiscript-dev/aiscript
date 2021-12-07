@@ -1432,7 +1432,7 @@ describe('meta', () => {
 describe('lang version', () => {
 	it('number', async () => {
 		const res = utils.getLangVersion(`
-		// @2021
+		/// @2021
 		@f(x) {
 			x
 		}
@@ -1442,7 +1442,7 @@ describe('lang version', () => {
 
 	it('chars', async () => {
 		const res = utils.getLangVersion(`
-		// @ canary
+		/// @ canary
 		const a = 1
 		@f(x) {
 			x
@@ -1454,7 +1454,7 @@ describe('lang version', () => {
 
 	it('complex', async () => {
 		const res = utils.getLangVersion(`
-		// @ 2.0-Alpha
+		/// @ 2.0-Alpha
 		@f(x) {
 			x
 		}
