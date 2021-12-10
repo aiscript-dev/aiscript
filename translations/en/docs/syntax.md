@@ -1,15 +1,12 @@
 # Syntax
-
-[Read translated version (en)](../translations/en/docs/syntax.md)
-
-## コメント
-`//`で始めた行はコメントになり、プログラムの動作に影響を与えません。
+## Comments
+Lines that begin with `//` are comments and do not affect the behavior of the program.
 
 ```
 // this is a comment
 ```
 
-## 変数宣言
+## Variable declaration
 ```
 #answer = 42
 ```

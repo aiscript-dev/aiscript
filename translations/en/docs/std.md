@@ -1,121 +1,119 @@
-[Read translated version](../translations/en/docs/std.md)
-
 ## std
 
 ### @print(message: str): void
-画面に文字列を表示します。  
+Display a string on the screen.  
 
 ### @readline(message: str): str
-文字列の入力を受け付けます。  
+Accept input of character strings.  
 
 ## :: Core
 
 ### #Core:v
-型: `str`  
-AiScriptのバージョンです。  
+Type: `str`.  
+AiScript version.
 
 ### @Core:type(v: value): str
-値の型名を取得します。  
+Get the type name of the value.  
 
 ### @Core:to_str(v: value): str
-値を表す文字列を取得します。  
+Get a string representing a value.  
 
 ## :: Util
 
 ### @Util:uuid(): str
-新しいUUIDを生成します。  
+Generate a new UUID.
 
 ## :: Json
 
 ### @Json:stringify(v: value): str
-JSONを生成します。  
+Generate JSON.
 
 ### @Json:parse(json: str): value
-JSONをパースします。  
+Parse JSON.  
 
 ## :: Date
 
 ### @Date:now(): num
-現在時刻を取得します。  
+Get the current time.
 
 ### @Date:year(): num
-現在時刻の年を取得します。  
+Get the year of the current time.  
 
 ### @Date:month(): num
-現在時刻の月を取得します。  
+Get the month of the current time.  
 
 ### @Date:day(): num
-現在時刻の日を取得します。  
+Get the day of the current time.  
 
 ### @Date:hour(): num
-現在時刻の時を取得します。  
+Get the current time in hours.  
 
 ### @Date:minute(): num
-現在時刻の分を取得します。  
+Get the minutes of the current time.  
 
 ### @Date:second(): num
-現在時刻の秒を取得します。  
+Get the current time in seconds.  
 
 ### @Date:parse(date: str): num
 
 ## :: Math
 
 ### #Math:PI
-型: `num`  
-円周率です。  
+Type: `num`.  
+It's pi.
 
 ### @Math:sin(x: num): num
-正弦を計算します。  
+Calculate the sine.  
 
 ### @Math:cos(x: num): num
-余弦を計算します。  
+Calculate the cosine.  
 
 ### @Math:abs(x: num): num
-絶対値を計算します。  
+Calculate the absolute value.  
 
 ### @Math:sqrt(x: num): num
-平方根を計算します。  
+Calculate the square root.  
 
 ### @Math:round(x: num): num
 
 ### @Math:floor(x: num): num
 
 ### @Math:min(a: num, b: num): num
-小さい方の値を取得します。  
+Get the smaller value.  
 
 ### @Math:max(a: num, b: num): num
-大きい方の値を取得します。  
+Get the larger value.  
 
 ### @Math:rnd(min?: num, max?: num): num
-乱数を生成します。  
+Generate a random number.  
 
 ### @Math:gen_rng(seed: num | str): fn
 
 ## :: Num
 
 ### @Num:to_hex(x: num): str
-数値から16進数の文字列を生成します。  
+Generates a hexadecimal string from a number.  
 
 ### @Num:from_hex(hex: str): num
-16進数の文字列から数値を生成します。  
+Generates a numeric value from a hexadecimal string.  
 
 ## :: Str
 
 ### #Str:lf
-型: `str`  
-改行コード(LF)です。  
+Type: `str`.  
+Newline code (LF).
 
 ### @Str:to_num(v: num | str): num | null
 
 ### @Str:len(v: str): num
-文字列の長さを取得します。  
+Get the length of a string.
 
 ### @Str:pick(v: str, i: num): str | null
 
 ### @Str:incl(v: str, keyword: str): bool
 
 ### @Str:slice(v: str, begin: num, end: num): str
-文字列の指定した部分を取得します。  
+Get the specified portion of a string.  
 
 ### @Str:split(v: str, splitter?: str): arr<str>
 
@@ -132,28 +130,28 @@ JSONをパースします。
 ## :: Arr
 
 ### @Arr:len(v: arr): num
-配列の要素数を取得します。  
+Get the number of array elements.  
 
 ### @Arr:push(v: arr, i: value): null
-配列の最後に要素を追加します。  
+Adds an element to the end of an array.  
 
 ### @Arr:unshift(v: arr, i: value): null
 
 ### @Arr:pop(v: arr): value
-配列の最後の要素を取り出します。  
+Extracts the last element of an array.  
 
 ### @Arr:shift(v: arr): value
 
 ### @Arr:concat(a: arr, b: arr): arr
-配列を連結します。  
+Concatenate the arrays.
 
 ### @Arr:join(v: arr<str>, joiner?: str): str
-文字列の配列を結合して一つの文字列として返します。  
+Concatenates an array of strings and returns them as a single string.  
 
 ### @Arr:slice(v: arr, begin: num, end: num): arr
 
 ### @Arr:incl(v: arr, i: str | num | bool | null): bool
-配列に指定した値が含まれているかどうかを返します。  
+Returns whether the array contains the specified value or not.  
 
 ### @Arr:map(v: arr, f: fn): arr
 
@@ -162,13 +160,13 @@ JSONをパースします。
 ### @Arr:reduce(v: arr, f: @(acm: value, item: value, index: num) { value }, initial: value): value
 
 ### @Arr:find(v: arr, f: @(item: value, index: num) { bool }): value
-配列から要素を探します。  
+Searches for an element in an array.  
 
 ### @Arr:reverse(v: arr): null
-配列を反転させます。  
+Invert the array.  
 
 ### @Arr:copy(v: arr): arr
-配列のコピーを生成します。  
+Generate a copy of the array.
 
 ## :: Obj
 
@@ -183,14 +181,14 @@ JSONをパースします。
 ### @Obj:has(v: obj, key: str): bool
 
 ### @Obj:copy(v: obj): obj
-オブジェクトのコピーを生成します。  
+Generate a copy of the object.
 
 ## :: Async
 
 ### @Async:interval(interval: num, callback: fn, immediate?: bool): fn
-指定した周期でコールバック関数を呼び出します。  
-戻り値として停止関数を返します。  
+Calls the callback function at the specified period.  
+Returns the stop function as a return value.  
 
 ### @Async:timeout(delay: num, callback: fn):
-指定した時間経過後にコールバック関数を呼び出します。  
-戻り値として停止関数を返します。  
+Calls the callback function after the specified time has elapsed.  
+Returns the stop function as a return value.  

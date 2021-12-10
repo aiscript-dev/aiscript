@@ -1,4 +1,4 @@
-<h1><img src="./aiscript.svg" alt="AiScript" width="300"></h1>
+<h1><img src="../../aiscript.svg" alt="AiScript" width="300"></h1>
 
 [![](https://img.shields.io/npm/v/@syuilo/aiscript.svg?style=flat-square)](https://www.npmjs.com/package/@syuilo/aiscript)
 ![](https://github.com/syuilo/aiscript/workflows/ci/badge.svg)
@@ -10,21 +10,19 @@
 
 [Play online ▶](https://syuilo.github.io/aiscript/)
 
-[Read translated version (en)](./translations/en/README.md)
+AiScript is a multi-paradigm programming language that runs on JavaScript, not AltJS (1).
 
-AiScriptは、JavaScript上で動作するマルチパラダイムプログラミング言語です。AltJSではありません(1)。
+* First-class support for arrays, objects, functions, etc.
+* Flexibility, including conditional branches and blocks can be treated as expressions
+* Easy to write, no need for semicolons or commas
+* Runs in a secure(2) sandbox environment
+* Variables and functions can be provided from the host
 
-* 配列、オブジェクト、関数等をファーストクラスでサポート
-* 条件分岐やブロックも式として扱えるなどの柔軟さ
-* セミコロンやカンマは不要で書きやすい
-* セキュア(2)なサンドボックス環境で実行される
-* ホストから変数や関数を提供可能
+> (1) ... It "runs on" JavaScript, not is "converted" to JavaScript. Therefore, it is not AltJS.
 
-> (1) ... JavaScript「上で動作」するのであって、JavaScriptに「変換される」のではありません。したがってAltJSではありません。
+> (2) ... Not being able to access the host's information.
 
-> (2) ... ホストの情報にアクセスできないこと。
-
-このリポジトリには、JavaScriptで実装されたパーサーと処理系が含まれます。
+This repository contains parsers and processors implemented in JavaScript.
 
 Note: AiScript and [Misskey](https://github.com/syuilo/misskey) are completely independent projects. AiScript does not prescribe any specific host, but Misskey is the largest user of AiScript (today!)
 
@@ -43,9 +41,9 @@ todo
 ### Fizz Buzz
 ```
 for (#i, 100) {
-  <: if ((i % 15) == 0) "FizzBuzz"
-    elif ((i % 3) == 0) "Fizz"
-    elif ((i % 5) == 0) "Buzz"
+  <: if ((i % 15) = 0) "FizzBuzz"
+    elif ((i % 3) = 0) "Fizz"
+    elif ((i % 5) = 0) "Buzz"
     else i
 }
 ```
