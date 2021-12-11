@@ -68,6 +68,31 @@ it('legacy parser api', async () => {
 	eq(res, STR('Hello, world!'));
 });
 
+describe('Interpreter', () => {
+	describe('Scope', () => {
+		it('getAll', async () => {
+			const aiscript = new AiScript({});
+			await aiscript.exec(Parser.parse(`
+			#a = 1
+			@b() {
+				#x = a + 1
+				x
+			}
+			if true {
+				$y <- 2
+			}
+			$c <- true
+			`));
+			const vars = aiscript.scope.getAll();
+			assert.ok(vars.get('a') != null);
+			assert.ok(vars.get('b') != null);
+			assert.ok(vars.get('c') != null);
+			assert.ok(vars.get('x') == null);
+			assert.ok(vars.get('y') == null);
+		});
+	});
+});
+
 describe('ops', () => {
 	it('==', async () => {
 		eq(await exe('<: (1 == 1)'), BOOL(true));
