@@ -57,7 +57,7 @@ export type VContinue = {
 	value: null;
 };
 
-type Attr = {
+export type Attr = {
 	attr?: {
 		name: string;
 		value: any;
