@@ -74,16 +74,21 @@ describe('Interpreter', () => {
 			const aiscript = new AiScript({});
 			await aiscript.exec(Parser.parse(`
 			#a = 1
-			@f() {
+			@b() {
 				#x = a + 1
 				x
 			}
-			#b = true
+			if true {
+				$y <- 2
+			}
+			$c <- true
 			`));
 			const vars = aiscript.scope.getAll();
 			assert.ok(vars.get('a') != null);
 			assert.ok(vars.get('b') != null);
+			assert.ok(vars.get('c') != null);
 			assert.ok(vars.get('x') == null);
+			assert.ok(vars.get('y') == null);
 		});
 	});
 });
