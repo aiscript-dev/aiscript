@@ -284,7 +284,18 @@ export class AiScript {
 			}
 
 			case 'def': {
-				scope.add(node.name, await this._eval(node.expr, scope));
+				const value = await this._eval(node.expr, scope);
+				if (node.attr.length > 0) {
+					const attrs: Value['attr'] = [];
+					for (const nAttr of node.attr) {
+						attrs.push({
+							name: nAttr.name,
+							value: await this._eval(nAttr.value, scope)
+						});
+					}
+					value.attr = attrs;
+				}
+				scope.add(node.name, value);
 				return NULL;
 			}
 

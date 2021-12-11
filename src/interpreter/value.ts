@@ -57,7 +57,14 @@ export type VContinue = {
 	value: null;
 };
 
-export type Value = VNull | VBool | VNum | VStr | VArr | VObj | VFn | VReturn | VBreak | VContinue;
+export type Attr = {
+	attr?: {
+		name: string;
+		value: Value;
+	}[];
+};
+
+export type Value = (VNull | VBool | VNum | VStr | VArr | VObj | VFn | VReturn | VBreak | VContinue) & Attr;
 
 export const NULL = {
 	type: 'null' as const,

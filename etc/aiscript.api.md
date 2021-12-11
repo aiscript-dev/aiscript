@@ -54,6 +54,14 @@ function assertObject(val: Value): asserts val is VObj;
 function assertString(val: Value): asserts val is VStr;
 
 // @public (undocumented)
+type Attr_2 = {
+    attr?: {
+        name: string;
+        value: Value;
+    }[];
+};
+
+// @public (undocumented)
 const BOOL: (bool: VBool['value']) => {
     type: "bool";
     value: boolean;
@@ -206,7 +214,7 @@ function valToJs(val: Value): any;
 function valToString(val: Value, simple?: boolean): any;
 
 // @public (undocumented)
-type Value = VNull | VBool | VNum | VStr | VArr | VObj | VFn | VReturn | VBreak | VContinue;
+type Value = (VNull | VBool | VNum | VStr | VArr | VObj | VFn | VReturn | VBreak | VContinue) & Attr_2;
 
 declare namespace values {
     export {
@@ -220,6 +228,7 @@ declare namespace values {
         VReturn,
         VBreak,
         VContinue,
+        Attr_2 as Attr,
         Value,
         NULL,
         TRUE,
