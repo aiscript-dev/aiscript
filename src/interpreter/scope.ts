@@ -62,6 +62,17 @@ export class Scope {
 	}
 
 	/**
+	 * 現在のスコープに存在する全ての変数を取得します
+	 */
+	@autobind
+	public getAll(): Map<string, Value> {
+		const vars = this.layerdStates.reduce((arr, layer) => {
+			return [...arr, ...layer];
+		}, [] as [string, Value][]);
+		return new Map(vars);
+	}
+
+	/**
 	 * 指定した名前の変数を現在のスコープに追加します
 	 * @param name 変数名
 	 * @param val 初期値
