@@ -51,16 +51,16 @@ The variable declaration is written as follows:
 Write the name of the variable after `#` and the value after `=`.
 
 In AiScript, variables declared in this way are immutable. In other words, you cannot change the value of a variable later.
-To create a variable that can be reassigned, declare the variable with `$` instead of `#`. Also, use `<-` for assignments. Example:
+To create a variable that can be reassigned, declare the variable with `$` instead of `#`. Example:
 ```
 // Declare a mutable variable.
-$message <- "Hello"
+$message = "Hello"
 
 // reassignment
-message <- "Hi"
+message = "Hi"
 
 // Reassigning again
-message <- "Yo"
+message = "Yo"
 ```
 
 ### Reference

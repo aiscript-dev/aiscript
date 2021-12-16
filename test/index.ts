@@ -79,9 +79,9 @@ describe('Interpreter', () => {
 				x
 			}
 			if true {
-				$y <- 2
+				$y = 2
 			}
-			$c <- true
+			$c = true
 			`));
 			const vars = aiscript.scope.getAll();
 			assert.ok(vars.get('a') != null);
@@ -257,10 +257,10 @@ it('式にコロンがあってもオブジェクトと判定されない', asyn
 
 it('inc', async () => {
 	const res = await exe(`
-	$a <- 0
-	a +<- 1
-	a +<- 2
-	a +<- 3
+	$a = 0
+	a += 1
+	a += 2
+	a += 3
 	<: a
 	`);
 	eq(res, NUM(6));
@@ -268,10 +268,10 @@ it('inc', async () => {
 
 it('dec', async () => {
 	const res = await exe(`
-	$a <- 0
-	a -<- 1
-	a -<- 2
-	a -<- 3
+	$a = 0
+	a -= 1
+	a -= 2
+	a -= 3
 	<: a
 	`);
 	eq(res, NUM(-6));
@@ -344,10 +344,10 @@ it('Closure', async () => {
 it('Closure (counter)', async () => {
 	const res = await exe(`
 	@create_counter() {
-		$count <- 0
+		$count = 0
 		{
 			get_count: @() { count };
-			count: @() { count <- (count + 1) };
+			count: @() { count = (count + 1) };
 		}
 	}
 
@@ -429,8 +429,8 @@ describe('Object', () => {
 			}
 		}
 
-		obj.a <- 24
-		obj.b.d.e <- 42
+		obj.a = 24
+		obj.b.d.e = 42
 
 		<: obj
 		`);
@@ -496,7 +496,7 @@ it('Array item assign', async () => {
 	const res = await exe(`
 	#arr = ["ai", "chan", "kawaii"]
 
-	arr[2] <- "taso"
+	arr[2] = "taso"
 
 	<: arr
 	`);
@@ -739,9 +739,9 @@ describe('Return', () => {
 	it('return inside for', async () => {
 		const res = await exe(`
 		@f() {
-			$count <- 0
+			$count = 0
 			for (#i, 100) {
-				count +<- 1
+				count += 1
 				if (i == 42) {
 					return count
 				} 
@@ -755,9 +755,9 @@ describe('Return', () => {
 	it('return inside loop', async () => {
 		const res = await exe(`
 		@f() {
-			$count <- 0
+			$count = 0
 			loop {
-				count +<- 1
+				count += 1
 				if (count == 42) {
 					return count
 				} 
@@ -787,18 +787,18 @@ describe('Block', () => {
 describe('if', () => {
 	it('if', async () => {
 		const res1 = await exe(`
-		$msg <- "ai"
+		$msg = "ai"
 		if true {
-			msg <- "kawaii"
+			msg = "kawaii"
 		}
 		<: msg
 		`);
 		eq(res1, STR('kawaii'));
 
 		const res2 = await exe(`
-		$msg <- "ai"
+		$msg = "ai"
 		if false {
-			msg <- "kawaii"
+			msg = "kawaii"
 		}
 		<: msg
 		`);
@@ -807,22 +807,22 @@ describe('if', () => {
 
 	it('else', async () => {
 		const res1 = await exe(`
-		$msg <- null
+		$msg = null
 		if true {
-			msg <- "ai"
+			msg = "ai"
 		} else {
-			msg <- "kawaii"
+			msg = "kawaii"
 		}
 		<: msg
 		`);
 		eq(res1, STR('ai'));
 
 		const res2 = await exe(`
-		$msg <- null
+		$msg = null
 		if false {
-			msg <- "ai"
+			msg = "ai"
 		} else {
-			msg <- "kawaii"
+			msg = "kawaii"
 		}
 		<: msg
 		`);
@@ -831,22 +831,22 @@ describe('if', () => {
 
 	it('elif', async () => {
 		const res1 = await exe(`
-		$msg <- "bebeyo"
+		$msg = "bebeyo"
 		if false {
-			msg <- "ai"
+			msg = "ai"
 		} elif true {
-			msg <- "kawaii"
+			msg = "kawaii"
 		}
 		<: msg
 		`);
 		eq(res1, STR('kawaii'));
 
 		const res2 = await exe(`
-		$msg <- "bebeyo"
+		$msg = "bebeyo"
 		if false {
-			msg <- "ai"
+			msg = "ai"
 		} elif false {
-			msg <- "kawaii"
+			msg = "kawaii"
 		}
 		<: msg
 		`);
@@ -855,26 +855,26 @@ describe('if', () => {
 
 	it('if ~ elif ~ else', async () => {
 		const res1 = await exe(`
-		$msg <- null
+		$msg = null
 		if false {
-			msg <- "ai"
+			msg = "ai"
 		} elif true {
-			msg <- "chan"
+			msg = "chan"
 		} else {
-			msg <- "kawaii"
+			msg = "kawaii"
 		}
 		<: msg
 		`);
 		eq(res1, STR('chan'));
 
 		const res2 = await exe(`
-		$msg <- null
+		$msg = null
 		if false {
-			msg <- "ai"
+			msg = "ai"
 		} elif false {
-			msg <- "chan"
+			msg = "chan"
 		} else {
-			msg <- "kawaii"
+			msg = "kawaii"
 		}
 		<: msg
 		`);
@@ -963,10 +963,10 @@ describe('match', () => {
 describe('loop', () => {
 	it('Basic', async () => {
 		const res = await exe(`
-		$count <- 0
+		$count = 0
 		loop {
 			if (count == 10) break
-			count <- (count + 1)
+			count = (count + 1)
 		}
 		<: count
 		`);
@@ -975,10 +975,10 @@ describe('loop', () => {
 
 	it('with continue', async () => {
 		const res = await exe(`
-		$a <- ["ai" "chan" "kawaii" "!"]
-		$b <- []
+		$a = ["ai" "chan" "kawaii" "!"]
+		$b = []
 		loop {
-			$x <- Arr:shift(a)
+			$x = Arr:shift(a)
 			if (x == "chan") continue
 			if (x == "!") break
 			Arr:push(b, x)
@@ -992,9 +992,9 @@ describe('loop', () => {
 describe('for', () => {
 	it('Basic', async () => {
 		const res = await exe(`
-		$count <- 0
+		$count = 0
 		for (#i, 10) {
-			count <- (count + i)
+			count = (count + i)
 		}
 		<: count
 		`);
@@ -1003,9 +1003,9 @@ describe('for', () => {
 
 	it('wuthout iterator', async () => {
 		const res = await exe(`
-		$count <- 0
+		$count = 0
 		for (10) {
-			count <- (count + 1)
+			count = (count + 1)
 		}
 		<: count
 		`);
@@ -1014,9 +1014,9 @@ describe('for', () => {
 
 	it('without brackets', async () => {
 		const res = await exe(`
-		$count <- 0
+		$count = 0
 		for #i, 10 {
-			count <- (count + i)
+			count = (count + i)
 		}
 		<: count
 		`);
@@ -1025,10 +1025,10 @@ describe('for', () => {
 
 	it('Break', async () => {
 		const res = await exe(`
-		$count <- 0
+		$count = 0
 		for (#i, 20) {
 			if (i == 11) break
-			count <- (count + i)
+			count = (count + i)
 		}
 		<: count
 		`);
@@ -1037,10 +1037,10 @@ describe('for', () => {
 
 	it('continue', async () => {
 		const res = await exe(`
-		$count <- 0
+		$count = 0
 		for (#i, 10) {
 			if (i == 5) continue
-			count <- (count + 1)
+			count = (count + 1)
 		}
 		<: count
 		`);
@@ -1049,8 +1049,8 @@ describe('for', () => {
 
 	it('single statement', async () => {
 		const res = await exe(`
-		$count <- 0
-		for 10 count +<- 1
+		$count = 0
+		for 10 count += 1
 		<: count
 		`);
 		eq(res, NUM(10));
@@ -1121,8 +1121,8 @@ describe('namespace', () => {
 		<: Foo:getMsg()
 
 		:: Foo {
-			$msg <- "ai"
-			@setMsg(value) { Foo:msg <- value }
+			$msg = "ai"
+			@setMsg(value) { Foo:msg = value }
 			@getMsg() { Foo:msg }
 		}
 		`);
@@ -1131,12 +1131,12 @@ describe('namespace', () => {
 
 	it('increment', async () => {
 		const res = await exe(`
-		Foo:value +<- 10
-		Foo:value -<- 5
+		Foo:value += 10
+		Foo:value -= 5
 		<: Foo:value
 
 		:: Foo {
-			$value <- 0
+			$value = 0
 		}
 		`);
 		eq(res, NUM(5));
@@ -1290,7 +1290,7 @@ describe('type declaration', () => {
 	it('def', async () => {
 		const res = await exe(`
 		#abc: num = 1
-		$xyz: str <- "abc"
+		$xyz: str = "abc"
 		<: [abc xyz]
 		`);
 		eq(res, ARR([NUM(1), STR('abc')]));
@@ -1299,10 +1299,10 @@ describe('type declaration', () => {
 	it('fn def', async () => {
 		const res = await exe(`
 		@f(x: arr<num>, y: str, z: @(num) => bool): arr<num> {
-			x[4] <- 0
-			y <- "abc"
-			$r: bool <- z(x[1])
-			x[5] <- if r 5 else 10
+			x[4] = 0
+			y = "abc"
+			$r: bool = z(x[1])
+			x[5] = if r 5 else 10
 			x
 		}
 		
