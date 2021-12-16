@@ -110,11 +110,11 @@ Statement
 	/ Loop        // "loop"
 	/ Break       // "break"
 	/ Continue    // "continue"
-	/ Assign      // NAME_WITH_NAMESPACE "<-"
+	/ Assign      // NAME_WITH_NAMESPACE "="
 	/ PropAssign  // NAME_WITH_NAMESPACE "."
 	/ IndexAssign // NAME_WITH_NAMESPACE "["
-	/ Inc         // NAME_WITH_NAMESPACE "+<-"
-	/ Dec         // NAME_WITH_NAMESPACE "-<-"
+	/ Inc         // NAME_WITH_NAMESPACE "+="
+	/ Dec         // NAME_WITH_NAMESPACE "-="
 	/ Expr
 
 // list of expression
@@ -190,7 +190,7 @@ Meta
 VarDef
 	= "#" name:NAME type:(_* ":" _* @Type)? _* "=" _* expr:Expr
 { return createNode('def', { name, varType: type, expr, mut: false, attr: [] }); }
-	/ "$" name:NAME type:(_* ":" _* @Type)? _* "<-" _* expr:Expr
+	/ "$" name:NAME type:(_* ":" _* @Type)? _* "=" _* expr:Expr
 { return createNode('def', { name, varType: type, expr, mut: true, attr: [] }); }
 
 // output statement
@@ -290,32 +290,32 @@ Continue
 // assign statement
 
 Assign
-	= name:NAME_WITH_NAMESPACE _* "<-" _* expr:Expr
+	= name:NAME_WITH_NAMESPACE _* "=" _* expr:Expr
 { return createNode('assign', { name, expr }); }
 
 // property assign statement
 
 PropAssign
-	= head:NAME_WITH_NAMESPACE tails:("." name:NAME { return name; })+ _* "<-" _* expr:Expr
+	= head:NAME_WITH_NAMESPACE tails:("." name:NAME { return name; })+ _* "=" _* expr:Expr
 { return createNode('propAssign', { obj: head, path: tails, expr }); }
 
 
 // indexer assign statement
 
 IndexAssign
-	= v:NAME_WITH_NAMESPACE "[" _* i:Expr _* "]" _* "<-" _* expr:Expr
+	= v:NAME_WITH_NAMESPACE "[" _* i:Expr _* "]" _* "=" _* expr:Expr
 { return createNode('indexAssign', { arr: v, i: i, expr }); }
 
 // increment statement
 
 Inc
-	= name:NAME_WITH_NAMESPACE _* "+<-" _* expr:Expr
+	= name:NAME_WITH_NAMESPACE _* "+=" _* expr:Expr
 { return createNode('inc', { name, expr }); }
 
 // decrement statement
 
 Dec
-	= name:NAME_WITH_NAMESPACE _* "-<-" _* expr:Expr
+	= name:NAME_WITH_NAMESPACE _* "-=" _* expr:Expr
 { return createNode('dec', { name, expr }); }
 
 
@@ -341,7 +341,7 @@ InfixSp
 
 // NOTE: sequences that have syntax meaning; don't treat them as operators
 ReservedOps
-	= "<<<" / "=>" / "<-" / "+<-" / "-<-"
+	= "<<<" / "=>" / "=" / "+=" / "-="
 
 Op
 	= !(ReservedOps ![-+*/%&|=~<>!?]) [-+*/%&|=~<>!?]+ { return text(); }
