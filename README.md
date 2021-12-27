@@ -6,7 +6,7 @@
 [![](https://img.shields.io/badge/license-MIT-444444.svg?style=flat-square)](http://opensource.org/licenses/MIT)
 [![](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square&logo=github)](http://makeapullrequest.com)
 
-> **AiScript** is a scripting language runing on JavaScript. Not altJS.
+> **AiScript** is a lightweight scripting language runing on JavaScript.
 
 [Play online ▶](https://syuilo.github.io/aiscript/)
 
