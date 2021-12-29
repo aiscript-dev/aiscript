@@ -60,7 +60,7 @@ export type VContinue = {
 export type Attr = {
 	attr?: {
 		name: string;
-		value?: Value;
+		value: Value;
 	}[];
 };
 

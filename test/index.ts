@@ -1517,7 +1517,7 @@ describe('Attribute', () => {
 		attr = node.attr[0];
 		if (attr.type != 'attr') assert.fail();
 		assert.equal(attr.name, 'Event');
-		if (attr.value == null || attr.value.type != 'str') assert.fail();
+		if (attr.value.type != 'str') assert.fail();
 		assert.equal(attr.value.value, 'Recieved');
 	});
 
@@ -1542,7 +1542,7 @@ describe('Attribute', () => {
 		attr = node.attr[0];
 		if (attr.type != 'attr') assert.fail();
 		assert.equal(attr.name, 'Endpoint');
-		if (attr.value == null || attr.value.type != 'obj') assert.fail();
+		if (attr.value.type != 'obj') assert.fail();
 		assert.equal(attr.value.value.size, 1);
 		for (const [k, v] of attr.value.value) {
 			if (k == 'path') {
@@ -1557,13 +1557,13 @@ describe('Attribute', () => {
 		attr = node.attr[1];
 		if (attr.type != 'attr') assert.fail();
 		assert.equal(attr.name, 'Desc');
-		if (attr.value == null || attr.value.type != 'str') assert.fail();
+		if (attr.value.type != 'str') assert.fail();
 		assert.equal(attr.value.value, 'Create a note.');
 		// attribute 3
 		attr = node.attr[2];
 		if (attr.type != 'attr') assert.fail();
 		assert.equal(attr.name, 'Cat');
-		if (attr.value == null || attr.value.type != 'bool') assert.fail();
+		if (attr.value.type != 'bool') assert.fail();
 		assert.equal(attr.value.value, true);
 	});
 
@@ -1587,7 +1587,8 @@ describe('Attribute', () => {
 		attr = node.attr[0];
 		assert.ok(attr.type == 'attr');
 		assert.equal(attr.name, 'serializable');
-		assert.ok(attr.value === undefined);
+		if (attr.value.type != 'bool') assert.fail();
+		assert.equal(attr.value.value, true);
 	});
 });
 

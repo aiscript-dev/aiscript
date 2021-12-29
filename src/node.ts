@@ -226,7 +226,7 @@ export type NAttr = {
 	type: 'attr'; // 属性
 	loc?: Loc; // コード位置
 	name: string; // 属性名
-	value?: Node; // 値
+	value: Node; // 値
 };
 
 export type NInfix = {
