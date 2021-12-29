@@ -57,7 +57,7 @@ function assertString(val: Value): asserts val is VStr;
 type Attr_2 = {
     attr?: {
         name: string;
-        value: Value;
+        value?: Value;
     }[];
 };
 
