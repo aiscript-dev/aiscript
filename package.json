@@ -8,7 +8,6 @@
 	"bugs": "https://github.com/syuilo/aiscript/issues",
 	"main": "./built/index.js",
 	"types": "./built/index.d.ts",
-	"type": "module",
 	"scripts": {
 		"start": "node ./run",
 		"parse": "node ./parse",
