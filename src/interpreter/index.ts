@@ -290,7 +290,7 @@ export class AiScript {
 					for (const nAttr of node.attr) {
 						attrs.push({
 							name: nAttr.name,
-							value: await this._eval(nAttr.value, scope)
+							value: (nAttr.value != null ? await this._eval(nAttr.value, scope) : undefined)
 						});
 					}
 					value.attr = attrs;

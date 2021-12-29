@@ -1517,7 +1517,7 @@ describe('Attribute', () => {
 		attr = node.attr[0];
 		if (attr.type != 'attr') assert.fail();
 		assert.equal(attr.name, 'Event');
-		if (attr.value.type != 'str') assert.fail();
+		if (attr.value == null || attr.value.type != 'str') assert.fail();
 		assert.equal(attr.value.value, 'Recieved');
 	});
 
@@ -1542,7 +1542,7 @@ describe('Attribute', () => {
 		attr = node.attr[0];
 		if (attr.type != 'attr') assert.fail();
 		assert.equal(attr.name, 'Endpoint');
-		if (attr.value.type != 'obj') assert.fail();
+		if (attr.value == null || attr.value.type != 'obj') assert.fail();
 		assert.equal(attr.value.value.size, 1);
 		for (const [k, v] of attr.value.value) {
 			if (k == 'path') {
@@ -1557,18 +1557,38 @@ describe('Attribute', () => {
 		attr = node.attr[1];
 		if (attr.type != 'attr') assert.fail();
 		assert.equal(attr.name, 'Desc');
-		if (attr.value.type != 'str') assert.fail();
+		if (attr.value == null || attr.value.type != 'str') assert.fail();
 		assert.equal(attr.value.value, 'Create a note.');
 		// attribute 3
 		attr = node.attr[2];
 		if (attr.type != 'attr') assert.fail();
 		assert.equal(attr.name, 'Cat');
-		if (attr.value.type != 'bool') assert.fail();
+		if (attr.value == null || attr.value.type != 'bool') assert.fail();
 		assert.equal(attr.value.value, true);
 	});
 
 	// TODO: attributed function in block
 	// TODO: attribute target does not exist
+
+	it('single attribute (no value)', async () => {
+		let node: Node;
+		let attr: NAttr;
+		const parser = new Parser();
+		const nodes = parser.parse(`
+		#[serializable]
+		#data = 1
+		`);
+		assert.equal(nodes.length, 1);
+		node = nodes[0];
+		if (node.type != 'def') assert.fail();
+		assert.equal(node.name, 'data');
+		assert.equal(node.attr.length, 1);
+		// attribute 1
+		attr = node.attr[0];
+		assert.ok(attr.type == 'attr');
+		assert.equal(attr.name, 'serializable');
+		assert.ok(attr.value === undefined);
+	});
 });
 
 describe('Location', () => {

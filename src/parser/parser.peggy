@@ -206,6 +206,8 @@ Out
 Attr
 	= "#[" _* name:NAME _* value:StaticLiteral _* "]"
 { return createNode('attr', { name, value }); }
+	/ "#[" _* name:NAME _* "]"
+{ return createNode('attr', { name }); }
 
 // for-of statement
 
