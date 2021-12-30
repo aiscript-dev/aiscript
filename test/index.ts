@@ -1569,6 +1569,27 @@ describe('Attribute', () => {
 
 	// TODO: attributed function in block
 	// TODO: attribute target does not exist
+
+	it('single attribute (no value)', async () => {
+		let node: Node;
+		let attr: NAttr;
+		const parser = new Parser();
+		const nodes = parser.parse(`
+		#[serializable]
+		#data = 1
+		`);
+		assert.equal(nodes.length, 1);
+		node = nodes[0];
+		if (node.type != 'def') assert.fail();
+		assert.equal(node.name, 'data');
+		assert.equal(node.attr.length, 1);
+		// attribute 1
+		attr = node.attr[0];
+		assert.ok(attr.type == 'attr');
+		assert.equal(attr.name, 'serializable');
+		if (attr.value.type != 'bool') assert.fail();
+		assert.equal(attr.value.value, true);
+	});
 });
 
 describe('Location', () => {

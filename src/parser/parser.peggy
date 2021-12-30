@@ -204,8 +204,13 @@ Out
 
 // Note: Attribute will be combined with def node when parsing is complete.
 Attr
-	= "#[" _* name:NAME _* value:StaticLiteral _* "]"
-{ return createNode('attr', { name, value }); }
+	= "#[" _* name:NAME value:(_* @StaticLiteral)? _* "]"
+{
+	return createNode('attr', {
+		name: name,
+		value: value || createNode('bool', { value: true })
+	});
+}
 
 // for-of statement
 
