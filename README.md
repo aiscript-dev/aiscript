@@ -1,7 +1,7 @@
 <h1><img src="./aiscript.svg" alt="AiScript" width="300"></h1>
 
 [![](https://img.shields.io/npm/v/@syuilo/aiscript.svg?style=flat-square)](https://www.npmjs.com/package/@syuilo/aiscript)
-![](https://github.com/syuilo/aiscript/workflows/ci/badge.svg)
+[![Test](https://github.com/syuilo/aiscript/actions/workflows/test.yml/badge.svg)](https://github.com/syuilo/aiscript/actions/workflows/test.yml)
 [![codecov](https://codecov.io/gh/syuilo/aiscript/branch/master/graph/badge.svg?token=R6IQZ3QJOL)](https://codecov.io/gh/syuilo/aiscript)
 [![](https://img.shields.io/badge/license-MIT-444444.svg?style=flat-square)](http://opensource.org/licenses/MIT)
 [![](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square&logo=github)](http://makeapullrequest.com)
@@ -12,7 +12,7 @@
 
 [Read translated version (en)](./translations/en/README.md)
 
-AiScriptは、JavaScript上で動作するマルチパラダイムプログラミング言語です。AltJSではありません(1)。
+AiScriptは、JavaScript上で動作する軽量プログラミング言語です。AltJSではありません(1)。
 
 * 配列、オブジェクト、関数等をファーストクラスでサポート
 * 条件分岐やブロックも式として扱えるなどの柔軟さ
