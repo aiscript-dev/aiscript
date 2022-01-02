@@ -566,9 +566,9 @@ it('Fizz Buzz', async () => {
 	#res = []
 	for (#i, 15) {
 		#msg =
-			if ((i % 15) == 0) "FizzBuzz"
-			elif ((i % 3) == 0) "Fizz"
-			elif ((i % 5) == 0) "Buzz"
+			if (i % 15 == 0) "FizzBuzz"
+			elif (i % 3 == 0) "Fizz"
+			elif (i % 5 == 0) "Buzz"
 			else i
 		Arr:push(res msg)
 	}
