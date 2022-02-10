@@ -163,7 +163,7 @@ StaticLiteral
 
 //
 // global statements ---------------------------------------------------------------------
-// 
+//
 
 // namespace statement
 
@@ -462,8 +462,17 @@ StrEsc
 { return '"'; }
 
 // number literal
-
 Num
+	= Float
+	/ Int
+
+Float
+	= [+-]? [1-9]+ [0-9]+ "." [0-9]+
+	{ return createNode('num', { value: parseFloat(text())}); }
+	/ [+-]? [0-9] "." [0-9]+
+	{ return createNode('num', { value: parseFloat(text())}); }
+
+Int
 	= [+-]? [1-9] [0-9]+
 { return createNode('num', { value: parseInt(text(), 10) }); }
 	/ [+-]? [0-9]
