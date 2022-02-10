@@ -744,7 +744,7 @@ describe('Return', () => {
 				count += 1
 				if (i == 42) {
 					return count
-				} 
+				}
 			}
 		}
 		<: f()
@@ -760,7 +760,7 @@ describe('Return', () => {
 				count += 1
 				if (count == 42) {
 					return count
-				} 
+				}
 			}
 		}
 		<: f()
@@ -1158,6 +1158,20 @@ describe('literal', () => {
 		eq(res, BOOL(false));
 	});
 
+	it('number (Int)', async () => {
+		const res = await exe(`
+		<: 10
+		`);
+		eq(res, NUM(10));
+	});
+
+	it('number (Float)', async () => {
+		const res = await exe(`
+		<: 0.5
+		`);
+		eq(res, NUM(0.5));
+	});
+
 	it('arr (separated by comma)', async () => {
 		const res = await exe(`
 		<: [1, 2, 3]
@@ -1305,7 +1319,7 @@ describe('type declaration', () => {
 			x[5] = if r 5 else 10
 			x
 		}
-		
+
 		<: f([1, 2, 3], "a", @(n) { n == 1 })
 		`);
 		eq(res, ARR([NUM(1), NUM(2), NUM(3), NUM(0), NUM(5)]));
