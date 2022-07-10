@@ -6,13 +6,13 @@ export function setAttribute(nodes: Node[]): Node[] {
 	const stockedAttrs: NAttr[] = [];
 
 	for (const node of nodes) {
-		if (node.type == 'attr') {
+		if (node.type === 'attr') {
 			stockedAttrs.push(node);
-		} else if (node.type == 'def') {
+		} else if (node.type === 'def') {
 			node.attr.push(...stockedAttrs);
 			// clear all
 			stockedAttrs.splice(0, stockedAttrs.length);
-			if (node.expr.type == 'fn') {
+			if (node.expr.type === 'fn') {
 				node.expr.children = setAttribute(node.expr.children);
 			}
 			result.push(node);

@@ -1,5 +1,5 @@
-import { Scope } from './scope';
 import { Node } from '../node';
+import { Scope } from './scope';
 
 export type VNull = {
 	type: 'null';
@@ -72,65 +72,65 @@ export const NULL = {
 
 export const TRUE = {
 	type: 'bool' as const,
-	value: true
+	value: true,
 };
 
 export const FALSE = {
 	type: 'bool' as const,
-	value: false
+	value: false,
 };
 
 export const NUM = (num: VNum['value']) => ({
 	type: 'num' as const,
-	value: num
+	value: num,
 });
 
 export const STR = (str: VStr['value']) => ({
 	type: 'str' as const,
-	value: str
+	value: str,
 });
 
 export const BOOL = (bool: VBool['value']) => ({
 	type: 'bool' as const,
-	value: bool
+	value: bool,
 });
 
 export const OBJ = (obj: VObj['value']) => ({
 	type: 'obj' as const,
-	value: obj
+	value: obj,
 });
 
 export const ARR = (arr: VArr['value']) => ({
 	type: 'arr' as const,
-	value: arr
+	value: arr,
 });
 
 export const FN = (args: VFn['args'], statements: VFn['statements'], scope: VFn['scope']) => ({
 	type: 'fn' as const,
 	args: args,
 	statements: statements,
-	scope: scope
+	scope: scope,
 });
 
 export const FN_NATIVE = (fn: VFn['native']) => ({
 	type: 'fn' as const,
-	native: fn
+	native: fn,
 });
 
 // Return文で値が返されたことを示すためのラッパー
 export const RETURN = (v: VReturn['value']) => ({
 	type: 'return' as const,
-	value: v
+	value: v,
 });
 
 export const BREAK = () => ({
 	type: 'break' as const,
-	value: null
+	value: null,
 });
 
 export const CONTINUE = () => ({
 	type: 'continue' as const,
-	value: null
+	value: null,
 });
 
 export const unWrapRet = (v: Value) => v.type === 'return' ? v.value : v;

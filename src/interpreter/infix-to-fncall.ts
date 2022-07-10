@@ -1,5 +1,5 @@
-import { AiScriptError } from './error';
 import { Node, NInfix, NCall } from '../node';
+import { AiScriptError } from './error';
 
 type OperatorInfo = {
 	func: string; // 対応する関数

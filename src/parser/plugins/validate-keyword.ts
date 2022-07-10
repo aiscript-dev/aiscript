@@ -34,7 +34,6 @@ const reservedWord = [
 ];
 
 export function validateKeyword(nodes: Node[]): Node[] {
-
 	for (const node of nodes) {
 		switch (node.type) {
 			case 'def':
@@ -54,15 +53,15 @@ export function validateKeyword(nodes: Node[]): Node[] {
 				break;
 			}
 			case 'if': {
-				if (node.then.type == 'block') {
+				if (node.then.type === 'block') {
 					validateKeyword(node.then.statements);
 				}
 				for (const n of node.elseif) {
-					if (n.then.type == 'block') {
+					if (n.then.type === 'block') {
 						validateKeyword(n.then.statements);
 					}
 				}
-				if (node.else?.type == 'block') {
+				if (node.else?.type === 'block') {
 					validateKeyword(node.else.statements);
 				}
 				break;

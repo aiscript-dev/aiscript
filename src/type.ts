@@ -29,12 +29,12 @@ export type TSimple<N extends string = string> = {
 export function T_SIMPLE<T extends string>(name: T): TSimple<T> {
 	return {
 		type: 'simple',
-		name: name
+		name: name,
 	};
 }
 
 export function isAny(x: Type): x is TSimple<'any'> {
-	return x.type == 'simple' && x.name == 'any';
+	return x.type === 'simple' && x.name === 'any';
 }
 
 export type TGeneric<N extends string = string> = {
@@ -47,7 +47,7 @@ export function T_GENERIC<N extends string>(name: N, inners: Type[]): TGeneric<N
 	return {
 		type: 'generic',
 		name: name,
-		inners: inners
+		inners: inners,
 	};
 }
 
@@ -61,7 +61,7 @@ export function T_FN(args: Type[], result: Type): TFn {
 	return {
 		type: 'fn',
 		args,
-		result
+		result,
 	};
 }
 
@@ -71,20 +71,20 @@ export type Type = TSimple | TGeneric | TFn;
 
 export function isCompatibleType(a: Type, b: Type): boolean {
 	if (isAny(a) || isAny(b)) return true;
-	if (a.type != b.type) return false;
+	if (a.type !== b.type) return false;
 
 	switch (a.type) {
 		case 'simple': {
 			b = (b as TSimple); // NOTE: TypeGuardが効かない
-			if (a.name != b.name) return false;
+			if (a.name !== b.name) return false;
 			break;
 		}
 		case 'generic': {
 			b = (b as TGeneric); // NOTE: TypeGuardが効かない
 			// name
-			if (a.name != b.name) return false;
+			if (a.name !== b.name) return false;
 			// inners
-			if (a.inners.length != b.inners.length) return false;
+			if (a.inners.length !== b.inners.length) return false;
 			for (let i = 0; i < a.inners.length; i++) {
 				if (!isCompatibleType(a.inners[i], b.inners[i])) return false;
 			}
@@ -95,7 +95,7 @@ export function isCompatibleType(a: Type, b: Type): boolean {
 			// fn result
 			if (!isCompatibleType(a.result, b.result)) return false;
 			// fn args
-			if (a.args.length != b.args.length) return false;
+			if (a.args.length !== b.args.length) return false;
 			for (let i = 0; i < a.args.length; i++) {
 				if (!isCompatibleType(a.args[i], b.args[i])) return false;
 			}
@@ -139,7 +139,7 @@ export function getTypeNameBySource(typeSource: TypeSource): string {
 }
 
 export function getTypeBySource(typeSource: TypeSource): Type {
-	if (typeSource.type == 'named') {
+	if (typeSource.type === 'named') {
 		switch (typeSource.name) {
 			// simple types
 			case 'null':

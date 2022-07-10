@@ -57,7 +57,7 @@ export class Scope {
 
 		throw new AiScriptError(
 			`No such variable '${name}' in scope '${this.name}'`, {
-				scope: this.layerdStates
+				scope: this.layerdStates,
 			});
 	}
 
@@ -83,7 +83,7 @@ export class Scope {
 		if (this.layerdStates[0].has(name)) {
 			throw new AiScriptError(
 				`Variable '${name}' is alerady exists in scope '${this.name}'`, {
-					scope: this.layerdStates
+					scope: this.layerdStates,
 				});
 		}
 		this.layerdStates[0].set(name, val);
@@ -110,7 +110,7 @@ export class Scope {
 
 		throw new AiScriptError(
 			`No such variable '${name}' in scope '${this.name}'`, {
-				scope: this.layerdStates
+				scope: this.layerdStates,
 			});
 	}
 }

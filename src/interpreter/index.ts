@@ -3,12 +3,12 @@
  */
 
 import autobind from 'autobind-decorator';
+import { Node, NNs } from '../node';
 import { Scope } from './scope';
 import { AiScriptError } from './error';
 import { std } from './lib/std';
 import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray, eq } from './util';
 import { Value, NULL, RETURN, unWrapRet, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, VFn, BREAK, CONTINUE } from './value';
-import { Node, NNs } from '../node';
 import { infixToFnCall } from './infix-to-fncall';
 
 export class AiScript {
@@ -37,7 +37,7 @@ export class AiScript {
 				if (this.opts.in == null) return NULL;
 				const a = await this.opts.in!(q.value);
 				return STR(a);
-			})
+			}),
 		};
 
 		this.vars = { ...vars, ...std, ...io };
@@ -260,7 +260,7 @@ export class AiScript {
 					assertNumber(to);
 					for (let i = from.value + 1; i < to.value + 1; i++) {
 						const v = await this._eval(node.for, scope.createChildScope(new Map([
-							[node.var!, NUM(i)]
+							[node.var!, NUM(i)],
 						])));
 						if (v.type === 'break') {
 							break;
@@ -277,7 +277,7 @@ export class AiScript {
 				assertArray(items);
 				for (const item of items.value) {
 					await this._eval(node.for, scope.createChildScope(new Map([
-						[node.var, item]
+						[node.var, item],
 					])));
 				}
 				return NULL;
@@ -290,7 +290,7 @@ export class AiScript {
 					for (const nAttr of node.attr) {
 						attrs.push({
 							name: nAttr.name,
-							value: await this._eval(nAttr.value, scope)
+							value: await this._eval(nAttr.value, scope),
 						});
 					}
 					value.attr = attrs;
@@ -503,7 +503,7 @@ export class AiScript {
 
 	@autobind
 	public unregisterAbortHandler(handler: () => void): void {
-		this.abortHandlers = this.abortHandlers.filter(h => h != handler);
+		this.abortHandlers = this.abortHandlers.filter(h => h !== handler);
 	}
 
 	@autobind

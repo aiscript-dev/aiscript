@@ -1,5 +1,5 @@
-import { Value, VStr, VNum, VBool, VFn, VObj, VArr, STR, NUM, ARR, OBJ, NULL, BOOL } from './value';
 import { Node } from '../node';
+import { Value, VStr, VNum, VBool, VFn, VObj, VArr, STR, NUM, ARR, OBJ, NULL, BOOL } from './value';
 import { AiScriptError } from './error';
 
 export function assertBoolean(val: Value): asserts val is VBool {
