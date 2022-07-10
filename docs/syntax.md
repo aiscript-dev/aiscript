@@ -11,7 +11,7 @@
 
 ## 変数宣言
 ```
-#answer = 42
+let answer = 42
 ```
 
 ## if
@@ -43,7 +43,7 @@ else if:
 
 as expression:
 ```
-#result =
+let result =
 	? eq(answer, "bebeyo") { "correct answer" }
 	.? eq(answer, "ai") { "kawaii" }
 	. { "wrong answer" }
@@ -53,16 +53,16 @@ print(result)
 
 ## for
 ```
-for #i, 10 {
+for let i, 10 {
 	print(i)
 }
 ```
 
 ## Block
 ```
-#foo = {
-	#x = 1
-	#y = 2
+let foo = {
+	let x = 1
+	let y = 2
 	add(x, y)
 }
 

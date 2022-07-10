@@ -100,7 +100,7 @@ NamespaceStatement
 // list of statement
 
 Statement
-	= VarDef      // "#" NAME | "$" NAME
+	= VarDef      // "let" NAME | "var" NAME
 	/ FnDef       // "@"
 	/ Out         // "<:"
 	/ Return      // "return"
@@ -188,9 +188,9 @@ Meta
 // define statement
 
 VarDef
-	= "#" name:NAME type:(_* ":" _* @Type)? _* "=" _* expr:Expr
+	= "let" _* name:NAME type:(_* ":" _* @Type)? _* "=" _* expr:Expr
 { return createNode('def', { name, varType: type, expr, mut: false, attr: [] }); }
-	/ "$" name:NAME type:(_* ":" _* @Type)? _* "=" _* expr:Expr
+	/ "var" _* name:NAME type:(_* ":" _* @Type)? _* "=" _* expr:Expr
 { return createNode('def', { name, varType: type, expr, mut: true, attr: [] }); }
 
 // output statement
@@ -215,7 +215,7 @@ Attr
 // for-of statement
 
 ForOf
-	= "each" _* "(" "#" varn:NAME _* ","? _* items:Expr ")" _* x:Statement
+	= "each" _* "(" "let" _* varn:NAME _* ","? _* items:Expr ")" _* x:Statement
 {
 	return createNode('forOf', {
 		var: varn,
@@ -223,7 +223,7 @@ ForOf
 		for: x,
 	});
 }
-	/ "each" _+ "#" varn:NAME _* ","? _* items:Expr _+ x:Statement
+	/ "each" _+ "let" _* varn:NAME _* ","? _* items:Expr _+ x:Statement
 {
 	return createNode('forOf', {
 		var: varn,
@@ -235,7 +235,7 @@ ForOf
 // for statement
 
 For
-	= "for" _* "(" "#" varn:NAME _* from:("=" _* v:Expr { return v; })? ","? _* to:Expr ")" _* x:Statement
+	= "for" _* "(" "let" _* varn:NAME _* from:("=" _* v:Expr { return v; })? ","? _* to:Expr ")" _* x:Statement
 {
 	return createNode('for', {
 		var: varn,
@@ -244,7 +244,7 @@ For
 		for: x,
 	});
 }
-	/ "for" _+ "#" varn:NAME _* from:("=" _* v:Expr { return v; })? ","? _* to:Expr _+ x:Statement
+	/ "for" _+ "let" _* varn:NAME _* from:("=" _* v:Expr { return v; })? ","? _* to:Expr _+ x:Statement
 {
 	return createNode('for', {
 		var: varn,

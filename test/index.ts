@@ -73,15 +73,15 @@ describe('Interpreter', () => {
 		it('getAll', async () => {
 			const aiscript = new AiScript({});
 			await aiscript.exec(Parser.parse(`
-			#a = 1
+			let a = 1
 			@b() {
-				#x = a + 1
+				let x = a + 1
 				x
 			}
 			if true {
-				$y = 2
+				var y = 2
 			}
-			$c = true
+			var c = true
 			`));
 			const vars = aiscript.scope.getAll();
 			assert.ok(vars.get('a') != null);
@@ -257,7 +257,7 @@ it('式にコロンがあってもオブジェクトと判定されない', asyn
 
 it('inc', async () => {
 	const res = await exe(`
-	$a = 0
+	var a = 0
 	a += 1
 	a += 2
 	a += 3
@@ -268,7 +268,7 @@ it('inc', async () => {
 
 it('dec', async () => {
 	const res = await exe(`
-	$a = 0
+	var a = 0
 	a -= 1
 	a -= 2
 	a -= 3
@@ -279,7 +279,7 @@ it('dec', async () => {
 
 it('var', async () => {
 	const res = await exe(`
-	#a = 42
+	let a = 42
 	<: a
 	`);
 	eq(res, NUM(42));
@@ -289,7 +289,7 @@ describe('Cannot put multiple statements in a line', () => {
 	it('var def', async () => {
 		try {
 			await exe(`
-			#a = 42 #b = 11
+			let a = 42 let b = 11
 			`);
 		} catch (e) {
 			assert.ok(true);
@@ -301,7 +301,7 @@ describe('Cannot put multiple statements in a line', () => {
 	it('var def (op)', async () => {
 		try {
 			await exe(`
-			#a = 13 + 75 #b = 24 + 146
+			let a = 13 + 75 let b = 24 + 146
 			`);
 		} catch (e) {
 			assert.ok(true);
@@ -321,7 +321,7 @@ it('empty function', async () => {
 
 it('empty function (function object)', async () => {
 	const res = await exe(`
-	#hoge = @() { }
+	let hoge = @() { }
 	<: hoge()
 	`);
 	eq(res, NULL);
@@ -330,12 +330,12 @@ it('empty function (function object)', async () => {
 it('Closure', async () => {
 	const res = await exe(`
 	@store(v) {
-		#state = v
+		let state = v
 		@() {
 			state
 		}
 	}
-	#s = store("ai")
+	let s = store("ai")
 	<: s()
 	`);
 	eq(res, STR('ai'));
@@ -344,16 +344,16 @@ it('Closure', async () => {
 it('Closure (counter)', async () => {
 	const res = await exe(`
 	@create_counter() {
-		$count = 0
+		var count = 0
 		{
 			get_count: @() { count };
 			count: @() { count = (count + 1) };
 		}
 	}
 
-	#counter = create_counter()
-	#get_count = counter.get_count
-	#count = counter.count
+	let counter = create_counter()
+	let get_count = counter.get_count
+	let count = counter.count
 
 	count()
 	count()
@@ -377,7 +377,7 @@ it('Recursion', async () => {
 
 it('Var name starts with reserved word', async () => {
 	const res = await exe(`
-	#falsecat = "ai"
+	let falsecat = "ai"
 
 	<: falsecat
 	`);
@@ -387,7 +387,7 @@ it('Var name starts with reserved word', async () => {
 describe('Object', () => {
 	it('property access', async () => {
 		const res = await exe(`
-		#obj = {
+		let obj = {
 			a: {
 				b: {
 					c: 42;
@@ -404,7 +404,7 @@ describe('Object', () => {
 		const res = await exe(`
 		@fn() { 42 }
 
-		#obj = {
+		let obj = {
 			a: {
 				b: {
 					c: fn;
@@ -419,7 +419,7 @@ describe('Object', () => {
 
 	it('property assign', async () => {
 		const res = await exe(`
-		#obj = {
+		let obj = {
 			a: 1
 			b: {
 				c: 2
@@ -448,7 +448,7 @@ describe('Object', () => {
 	/* 未実装
 	it('string key', async () => {
 		const res = await exe(`
-		#obj = {
+		let obj = {
 			"藍": 42;
 		}
 
@@ -459,7 +459,7 @@ describe('Object', () => {
 
 	it('string key including colon and period', async () => {
 		const res = await exe(`
-		#obj = {
+		let obj = {
 			":.:": 42;
 		}
 
@@ -470,9 +470,9 @@ describe('Object', () => {
 
 	it('expression key', async () => {
 		const res = await exe(`
-		#key = "藍"
+		let key = "藍"
 
-		#obj = {
+		let obj = {
 			<key>: 42;
 		}
 
@@ -485,7 +485,7 @@ describe('Object', () => {
 
 it('Array item access', async () => {
 	const res = await exe(`
-	#arr = ["ai", "chan", "kawaii"]
+	let arr = ["ai", "chan", "kawaii"]
 
 	<: arr[2]
 	`);
@@ -494,7 +494,7 @@ it('Array item access', async () => {
 
 it('Array item assign', async () => {
 	const res = await exe(`
-	#arr = ["ai", "chan", "kawaii"]
+	let arr = ["ai", "chan", "kawaii"]
 
 	arr[2] = "taso"
 
@@ -506,7 +506,7 @@ it('Array item assign', async () => {
 describe('Template syntax', () => {
 	it('Basic', async () => {
 		const res = await exe(`
-		#attr = "kawaii"
+		let attr = "kawaii"
 		<: \`Ai is {attr}!\`
 		`);
 		eq(res, STR('Ai is kawaii!'));
@@ -521,7 +521,7 @@ describe('Template syntax', () => {
 
 	it('Escape', async () => {
 		const res = await exe(`
-		#message = "Hello"
+		let message = "Hello"
 		<: \`\\\`a\\{b\\}c\\\`\`
 		`);
 		eq(res, STR('`a{b}c`'));
@@ -542,7 +542,7 @@ it('Cannot access js native property via var', async () => {
 
 it('Cannot access js native property via object', async () => {
 	const res = await exe(`
-	#obj = {}
+	let obj = {}
 
 	<: obj.constructor
 	`);
@@ -563,9 +563,9 @@ it('Throws error when divied by zero', async () => {
 
 it('Fizz Buzz', async () => {
 	const res = await exe(`
-	#res = []
-	for (#i, 15) {
-		#msg =
+	let res = []
+	for (let i, 15) {
+		let msg =
 			if (i % 15 == 0) "FizzBuzz"
 			elif (i % 3 == 0) "Fizz"
 			elif (i % 5 == 0) "Buzz"
@@ -595,17 +595,17 @@ it('Fizz Buzz', async () => {
 
 it('SKI', async () => {
 	const res = await exe(`
-	#s = @(x) { @(y) { @(z) {
-		//#f = x(z) f(@(a){ #g = y(z) g(a) })
-		#f = x(z)
+	let s = @(x) { @(y) { @(z) {
+		//let f = x(z) f(@(a){ let g = y(z) g(a) })
+		let f = x(z)
 		f(y(z))
 	}}}
-	#k = @(x){ @(y) { x } }
-	#i = @(x){ x }
+	let k = @(x){ @(y) { x } }
+	let i = @(x){ x }
 
 	// combine
 	@c(l) {
-		#L = (Arr:len(l) + 1)
+		let L = (Arr:len(l) + 1)
 
 		// extract
 		@x(v) {
@@ -622,7 +622,7 @@ it('SKI', async () => {
 		r(x(l[1]), 2)
 	}
 
-	#sksik = [s, [k, [s, i]], k]
+	let sksik = [s, [k, [s, i]], k]
 	c([sksik, "foo", print])
 	`);
 	eq(res, STR('foo'));
@@ -739,8 +739,8 @@ describe('Return', () => {
 	it('return inside for', async () => {
 		const res = await exe(`
 		@f() {
-			$count = 0
-			for (#i, 100) {
+			var count = 0
+			for (let i, 100) {
 				count += 1
 				if (i == 42) {
 					return count
@@ -755,7 +755,7 @@ describe('Return', () => {
 	it('return inside loop', async () => {
 		const res = await exe(`
 		@f() {
-			$count = 0
+			var count = 0
 			loop {
 				count += 1
 				if (count == 42) {
@@ -772,9 +772,9 @@ describe('Return', () => {
 describe('Block', () => {
 	it('returns value', async () => {
 		const res = await exe(`
-		#foo = {
-			#a = 1
-			#b = 2
+		let foo = {
+			let a = 1
+			let b = 2
 			(a + b)
 		}
 
@@ -787,7 +787,7 @@ describe('Block', () => {
 describe('if', () => {
 	it('if', async () => {
 		const res1 = await exe(`
-		$msg = "ai"
+		var msg = "ai"
 		if true {
 			msg = "kawaii"
 		}
@@ -796,7 +796,7 @@ describe('if', () => {
 		eq(res1, STR('kawaii'));
 
 		const res2 = await exe(`
-		$msg = "ai"
+		var msg = "ai"
 		if false {
 			msg = "kawaii"
 		}
@@ -807,7 +807,7 @@ describe('if', () => {
 
 	it('else', async () => {
 		const res1 = await exe(`
-		$msg = null
+		var msg = null
 		if true {
 			msg = "ai"
 		} else {
@@ -818,7 +818,7 @@ describe('if', () => {
 		eq(res1, STR('ai'));
 
 		const res2 = await exe(`
-		$msg = null
+		var msg = null
 		if false {
 			msg = "ai"
 		} else {
@@ -831,7 +831,7 @@ describe('if', () => {
 
 	it('elif', async () => {
 		const res1 = await exe(`
-		$msg = "bebeyo"
+		var msg = "bebeyo"
 		if false {
 			msg = "ai"
 		} elif true {
@@ -842,7 +842,7 @@ describe('if', () => {
 		eq(res1, STR('kawaii'));
 
 		const res2 = await exe(`
-		$msg = "bebeyo"
+		var msg = "bebeyo"
 		if false {
 			msg = "ai"
 		} elif false {
@@ -855,7 +855,7 @@ describe('if', () => {
 
 	it('if ~ elif ~ else', async () => {
 		const res1 = await exe(`
-		$msg = null
+		var msg = null
 		if false {
 			msg = "ai"
 		} elif true {
@@ -868,7 +868,7 @@ describe('if', () => {
 		eq(res1, STR('chan'));
 
 		const res2 = await exe(`
-		$msg = null
+		var msg = null
 		if false {
 			msg = "ai"
 		} elif false {
@@ -934,8 +934,8 @@ describe('match', () => {
 		<: match 2 {
 			1 => 1
 			2 => {
-				#a = 1
-				#b = 2
+				let a = 1
+				let b = 2
 				(a + b)
 			}
 			3 => 3
@@ -963,7 +963,7 @@ describe('match', () => {
 describe('loop', () => {
 	it('Basic', async () => {
 		const res = await exe(`
-		$count = 0
+		var count = 0
 		loop {
 			if (count == 10) break
 			count = (count + 1)
@@ -975,10 +975,10 @@ describe('loop', () => {
 
 	it('with continue', async () => {
 		const res = await exe(`
-		$a = ["ai" "chan" "kawaii" "!"]
-		$b = []
+		var a = ["ai" "chan" "kawaii" "!"]
+		var b = []
 		loop {
-			$x = Arr:shift(a)
+			var x = Arr:shift(a)
 			if (x == "chan") continue
 			if (x == "!") break
 			Arr:push(b, x)
@@ -992,8 +992,8 @@ describe('loop', () => {
 describe('for', () => {
 	it('Basic', async () => {
 		const res = await exe(`
-		$count = 0
-		for (#i, 10) {
+		var count = 0
+		for (let i, 10) {
 			count = (count + i)
 		}
 		<: count
@@ -1003,7 +1003,7 @@ describe('for', () => {
 
 	it('wuthout iterator', async () => {
 		const res = await exe(`
-		$count = 0
+		var count = 0
 		for (10) {
 			count = (count + 1)
 		}
@@ -1014,8 +1014,8 @@ describe('for', () => {
 
 	it('without brackets', async () => {
 		const res = await exe(`
-		$count = 0
-		for #i, 10 {
+		var count = 0
+		for let i, 10 {
 			count = (count + i)
 		}
 		<: count
@@ -1025,8 +1025,8 @@ describe('for', () => {
 
 	it('Break', async () => {
 		const res = await exe(`
-		$count = 0
-		for (#i, 20) {
+		var count = 0
+		for (let i, 20) {
 			if (i == 11) break
 			count = (count + i)
 		}
@@ -1037,8 +1037,8 @@ describe('for', () => {
 
 	it('continue', async () => {
 		const res = await exe(`
-		$count = 0
-		for (#i, 10) {
+		var count = 0
+		for (let i, 10) {
 			if (i == 5) continue
 			count = (count + 1)
 		}
@@ -1049,7 +1049,7 @@ describe('for', () => {
 
 	it('single statement', async () => {
 		const res = await exe(`
-		$count = 0
+		var count = 0
 		for 10 count += 1
 		<: count
 		`);
@@ -1060,8 +1060,8 @@ describe('for', () => {
 describe('for of', () => {
 	it('standard', async () => {
 		const res = await exe(`
-		#msgs = []
-		each #item, ["ai", "chan", "kawaii"] {
+		let msgs = []
+		each let item, ["ai", "chan", "kawaii"] {
 			Arr:push(msgs, Arr:join([item, "!"]))
 		}
 		<: msgs
@@ -1071,8 +1071,8 @@ describe('for of', () => {
 
 	it('Break', async () => {
 		const res = await exe(`
-		#msgs = []
-		each #item, ["ai", "chan", "kawaii"] {
+		let msgs = []
+		each let item, ["ai", "chan", "kawaii"] {
 			if (item == "kawaii") break
 			Arr:push(msgs, Arr:join([item, "!"]))
 		}
@@ -1083,8 +1083,8 @@ describe('for of', () => {
 
 	it('single statement', async () => {
 		const res = await exe(`
-		#msgs = []
-		each #item, ["ai", "chan", "kawaii"] Arr:push(msgs, Arr:join([item, "!"]))
+		let msgs = []
+		each let item, ["ai", "chan", "kawaii"] Arr:push(msgs, Arr:join([item, "!"]))
 		<: msgs
 		`);
 		eq(res, ARR([STR('ai!'), STR('chan!'), STR('kawaii!')]));
@@ -1108,7 +1108,7 @@ describe('namespace', () => {
 		<: Foo:bar()
 
 		:: Foo {
-			#ai = "kawaii"
+			let ai = "kawaii"
 			@bar() { ai }
 		}
 		`);
@@ -1121,7 +1121,7 @@ describe('namespace', () => {
 		<: Foo:getMsg()
 
 		:: Foo {
-			$msg = "ai"
+			var msg = "ai"
 			@setMsg(value) { Foo:msg = value }
 			@getMsg() { Foo:msg }
 		}
@@ -1136,7 +1136,7 @@ describe('namespace', () => {
 		<: Foo:value
 
 		:: Foo {
-			$value = 0
+			var value = 0
 		}
 		`);
 		eq(res, NUM(5));
@@ -1303,8 +1303,8 @@ describe('literal', () => {
 describe('type declaration', () => {
 	it('def', async () => {
 		const res = await exe(`
-		#abc: num = 1
-		$xyz: str = "abc"
+		let abc: num = 1
+		var xyz: str = "abc"
 		<: [abc xyz]
 		`);
 		eq(res, ARR([NUM(1), STR('abc')]));
@@ -1315,7 +1315,7 @@ describe('type declaration', () => {
 		@f(x: arr<num>, y: str, z: @(num) => bool): arr<num> {
 			x[4] = 0
 			y = "abc"
-			$r: bool = z(x[1])
+			var r: bool = z(x[1])
 			x[5] = if r 5 else 10
 			x
 		}
@@ -1590,7 +1590,7 @@ describe('Attribute', () => {
 		const parser = new Parser();
 		const nodes = parser.parse(`
 		#[serializable]
-		#data = 1
+		let data = 1
 		`);
 		assert.equal(nodes.length, 1);
 		node = nodes[0];
@@ -1624,7 +1624,7 @@ describe('std', () => {
 	describe('Arr', () => {
 		it('map', async () => {
 			const res = await exe(`
-			#arr = ["ai", "chan", "kawaii"]
+			let arr = ["ai", "chan", "kawaii"]
 
 			<: Arr:map(arr, @(item) { Arr:join([item, "!"]) })
 			`);
@@ -1633,7 +1633,7 @@ describe('std', () => {
 
 		it('filter', async () => {
 			const res = await exe(`
-			#arr = ["ai", "chan", "kawaii"]
+			let arr = ["ai", "chan", "kawaii"]
 
 			<: Arr:filter(arr, @(item) { Str:incl(item, "ai") })
 			`);
@@ -1642,7 +1642,7 @@ describe('std', () => {
 
 		it('reduce', async () => {
 			const res = await exe(`
-			#arr = [1, 2, 3, 4]
+			let arr = [1, 2, 3, 4]
 
 			<: Arr:reduce(arr, @(accumulator, currentValue) { (accumulator + currentValue) })
 			`);
@@ -1653,7 +1653,7 @@ describe('std', () => {
 	describe('Obj', () => {
 		it('keys', async () => {
 			const res = await exe(`
-			#o = { a: 1; b: 2; c: 3; }
+			let o = { a: 1; b: 2; c: 3; }
 
 			<: Obj:keys(o)
 			`);
@@ -1662,7 +1662,7 @@ describe('std', () => {
 
 		it('kvs', async () => {
 			const res = await exe(`
-			#o = { a: 1; b: 2; c: 3; }
+			let o = { a: 1; b: 2; c: 3; }
 
 			<: Obj:kvs(o)
 			`);

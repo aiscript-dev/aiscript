@@ -48,16 +48,16 @@ AiScriptのコメントは`//`で始めます。
 ### 宣言
 変数宣言は次のように書きます:
 ```
-#message = "Hello"
+let message = "Hello"
 ```
 
-`#`のあとに変数名を書き、`=`の後に値を書きます。
+`let`のあとに変数名を書き、`=`の後に値を書きます。
 
 AiScriptではこの方法で宣言した変数はイミュータブルです。つまり、変数の値を後から変えることは出来ません。
-再代入可能な変数を作る時は、`#`の代わりに`$`で変数宣言します。例:
+再代入可能な変数を作る時は、`let`の代わりに`var`で変数宣言します。例:
 ```
 // ミュータブルな変数を宣言
-$message = "Hello"
+var message = "Hello"
 
 // 再代入
 message = "Hi"
@@ -80,7 +80,7 @@ print(message)
 
 配列の要素にアクセスするときは、`[<index>]`と書きます。インデックスは1始まりです。
 ```
-#arr = ["ai" "chan" "kawaii"]
+let arr = ["ai" "chan" "kawaii"]
 <: arr[1] // "ai"
 ```
 
@@ -126,9 +126,9 @@ Core:add(1, 1)
 ブロックは処理のまとまりで、`{ ~ }`のように書きます。
 ブロックの最後に書かれた式が、ブロックの値として返されます。
 ```
-#foo = {
-	#a = 1
-	#b = 2
+let foo = {
+	let a = 1
+	let b = 2
 	(a + b)
 }
 
@@ -195,8 +195,8 @@ for (100) {
 ## 繰り返し(配列)
 `each`を使うと、配列のアイテムを繰り返すことができます:
 ```
-#items = ["a" "b" "c"]
-each (#item, items) {
+let items = ["a" "b" "c"]
+each (let item, items) {
 	<: item
 }
 ```
@@ -218,7 +218,7 @@ each (#item, items) {
 ## テンプレート
 バッククォートを使うと、文字列の中に変数や式を埋め込めます:
 ```
-#ai = "kawaii"
+let ai = "kawaii"
 <: `Hello, {ai} world!`
 // 結果: Hello, kawaii world!
 ```
