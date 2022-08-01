@@ -319,12 +319,20 @@ it('empty function', async () => {
 	eq(res, NULL);
 });
 
-it('empty function (function object)', async () => {
+it('empty lambda', async () => {
 	const res = await exe(`
 	let hoge = @() { }
 	<: hoge()
 	`);
 	eq(res, NULL);
+});
+
+it('lambda that returns an object', async () => {
+	const res = await exe(`
+	let hoge = @() {{}}
+	<: hoge()
+	`);
+	eq(res, OBJ(new Map()));
 });
 
 it('Closure', async () => {
