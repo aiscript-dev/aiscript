@@ -41,7 +41,7 @@ AiScriptのコメントは`//`で始めます。
 	<tr><td>配列</td><td><code>arr</code></td><td><code>["ai" "chan" "cute"]</code></td></tr>
 	<tr><td>オブジェクト</td><td><code>obj</code></td><td><code>{ foo: "bar"; a: 42; }</code></td></tr>
 	<tr><td>null</td><td><code>null</code></td><td><code>null</code></td></tr>
-	<tr><td>関数</td><td><code>fn</code></td><td><code>@(x) { x }</code></td></tr>
+	<tr><td>関数</td><td><code>fn</code></td><td><code>(x) => x</code></td></tr>
 </table>
 
 ## 変数
@@ -205,12 +205,12 @@ each (let item, items) {
 ### 関数定義
 次のように書きます:
 ```
-@fn(x) {
+fn times(x) {
 	(x * 2)
 }
 ```
 
-`@`の後に関数名を書き、カッコの中に引数定義を書きます。その後にブロックが関数の処理になります。
+`fn`の後に関数名を書き、カッコの中に引数定義を書きます。その後のブロックが関数の処理になります。
 
 ### return
 関数の最後に書かれた式の値が関数の返り値になりますが、関数の途中で値を返したい時は`return`を使います。

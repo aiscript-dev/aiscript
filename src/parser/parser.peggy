@@ -101,7 +101,7 @@ NamespaceStatement
 
 Statement
 	= VarDef      // "let" NAME | "var" NAME
-	/ FnDef       // "@"
+	/ FnDef       // "fn"
 	/ Out         // "<:"
 	/ Return      // "return"
 	/ Attr        // "+"
@@ -127,7 +127,7 @@ Expr
 
 Term
 	= If          // "if"
-	/ Fn          // "@("
+	/ Fn          // "("
 	/ Match       // "match"
 	/ Block       // "{"
 	/ Literal
@@ -533,10 +533,10 @@ Args
 // define function statement
 
 FnDef
-	= "@" s1:__* name:NAME s2:__* "(" _* args:Args? _* ")" ret:(_* ":" _* @Type)? _* "{" _* content:Statements? _* "}"
+	= "fn" _+ name:NAME s1:__* "(" _* args:Args? _* ")" ret:(_* "->" _* @Type)? _* "{" _* content:Statements? _* "}"
 {
-	if (s1.length > 0 || s2.length > 0) {
-		error('Cannot use spaces before or after the function name.');
+	if (s1.length) {
+		error('Cannot use spaces after the function name.');
 	}
 	return createNode('def', {
 		name: name,
@@ -548,8 +548,8 @@ FnDef
 
 // function expression
 
-Fn = "@(" _* args:Args? _* ")" ret:(_* ":" _* @Type)? _* "{" _* content:Statements? _* "}"
-{ return createNode('fn', { args: args || [], ret: ret }, content || []); }
+Fn = "(" _* args:Args? _* ")" ret:(_* "->" _* @Type)? _+ "=>" _+ content:Expr
+{ return createNode('fn', { args: args || [], ret: ret }, [content]); }
 
 
 
@@ -586,7 +586,7 @@ Type
 	/ NamedType
 
 FnType
-	= "@(" _* args:ArgTypes? _* ")" _* "=>" _* result:Type
+	= "|" _* args:ArgTypes? _* "|" _* "->" _* result:Type
 { return createNode('fn', { args: args || [], result }); }
 
 ArgTypes

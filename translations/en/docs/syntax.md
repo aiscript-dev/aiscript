@@ -68,7 +68,7 @@ print(foo) // 3
 
 ## Function
 ```
-@inc(x) {
+fn inc(x) {
 	add(x, 1)
 }
 
