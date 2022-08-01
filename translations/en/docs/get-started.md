@@ -38,7 +38,7 @@ Comments do not affect the behavior of the program.
 	<tr><td>array</td><td><code>arr</code></td><td><code>["ai" "chan" "cute"]</code></td></tr>
 	<tr><td>object</td><td><code>obj</code></td><td><code>{ foo: "bar"; a: 42; }</code></td></tr>
 	<tr><td>null</td><td><code>null</code></td><td><code>null</code></td></tr>
-	<tr><td>function</td><td><code>fn</code></td><td><code>(x) => x</code></td></tr>
+	<tr><td>function</td><td><code>fn</code></td><td><code>@(x) { x }</code></td></tr>
 </table>
 
 ## Variables
@@ -202,12 +202,12 @@ each (#item, items) {
 ### Function definition
 Write the following:
 ```
-fn times(x) {
+@fn(x) {
 	(x * 2)
 }
 ```
 
-Write the function name after `fn` and the argument definition in parentheses. After that, the block becomes the process of the function.
+Write the function name after `@` and the argument definition in parentheses. After that, the block becomes the process of the function.
 
 ### return
 The value of the expression written at the end of the function will be the return value of the function, but if you want to return a value in the middle of the function, use `return`.

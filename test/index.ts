@@ -74,7 +74,7 @@ describe('Interpreter', () => {
 			const aiscript = new AiScript({});
 			await aiscript.exec(Parser.parse(`
 			let a = 1
-			fn b() {
+			@b() {
 				let x = a + 1
 				x
 			}
@@ -313,31 +313,15 @@ describe('Cannot put multiple statements in a line', () => {
 
 it('empty function', async () => {
 	const res = await exe(`
-	fn hoge() { }
+	@hoge() { }
 	<: hoge()
 	`);
 	eq(res, NULL);
 });
 
-it('empty lambda', async () => {
+it('empty function (function object)', async () => {
 	const res = await exe(`
-	let hoge = () => { }
-	<: hoge()
-	`);
-	eq(res, NULL);
-});
-
-it('lambda that returns an object', async () => {
-	const res = await exe(`
-	let hoge = () => ({ })
-	<: hoge()
-	`);
-	eq(res, OBJ());
-});
-
-it('expression lambda', async () => {
-	const res = await exe(`
-	let hoge = () => null
+	let hoge = @() { }
 	<: hoge()
 	`);
 	eq(res, NULL);
@@ -345,9 +329,9 @@ it('expression lambda', async () => {
 
 it('Closure', async () => {
 	const res = await exe(`
-	fn store(v) {
+	@store(v) {
 		let state = v
-		() => {
+		@() {
 			state
 		}
 	}
@@ -359,11 +343,11 @@ it('Closure', async () => {
 
 it('Closure (counter)', async () => {
 	const res = await exe(`
-	fn create_counter() {
+	@create_counter() {
 		var count = 0
 		{
-			get_count: () => count;
-			count: () => { count = (count + 1) };
+			get_count: @() { count };
+			count: @() { count = (count + 1) };
 		}
 	}
 
@@ -382,7 +366,7 @@ it('Closure (counter)', async () => {
 
 it('Recursion', async () => {
 	const res = await exe(`
-	fn fact(n) {
+	@fact(n) {
 		if (n == 0) { 1 } else { (fact((n - 1)) * n) }
 	}
 
@@ -418,7 +402,7 @@ describe('Object', () => {
 
 	it('property access (fn call)', async () => {
 		const res = await exe(`
-		fn fn() { 42 }
+		@fn() { 42 }
 
 		let obj = {
 			a: {
@@ -611,25 +595,25 @@ it('Fizz Buzz', async () => {
 
 it('SKI', async () => {
 	const res = await exe(`
-	let s = (x) => (y) => (z) => {
-		//let f = x(z) f((a) => { let g = y(z) g(a) })
+	let s = @(x) { @(y) { @(z) {
+		//let f = x(z) f(@(a){ let g = y(z) g(a) })
 		let f = x(z)
 		f(y(z))
-	}
-	let k = (x) => (y) => x
-	let i = (x) => x
+	}}}
+	let k = @(x){ @(y) { x } }
+	let i = @(x){ x }
 
 	// combine
-	fn c(l) {
+	@c(l) {
 		let L = (Arr:len(l) + 1)
 
 		// extract
-		fn x(v) {
+		@x(v) {
 			if (Core:type(v) == "arr") { c(v) } else { v }
 		}
 
 		// rec
-		fn r(f, n) {
+		@r(f, n) {
 			if (n < L) {
 				r(f(x(l[n])), (n + 1))
 			} else { f }
@@ -647,7 +631,7 @@ it('SKI', async () => {
 describe('Function call', () => {
 	it('without args', async () => {
 		const res = await exe(`
-		fn f() {
+		@f() {
 			42
 		}
 		<: f()
@@ -657,7 +641,7 @@ describe('Function call', () => {
 
 	it('with args', async () => {
 		const res = await exe(`
-		fn f(x) {
+		@f(x) {
 			x
 		}
 		<: f(42)
@@ -667,7 +651,7 @@ describe('Function call', () => {
 
 	it('with args (separated by comma)', async () => {
 		const res = await exe(`
-		fn f(x, y) {
+		@f(x, y) {
 			(x + y)
 		}
 		<: f(1, 1)
@@ -677,7 +661,7 @@ describe('Function call', () => {
 
 	it('with args (separated by space)', async () => {
 		const res = await exe(`
-		fn f(x y) {
+		@f(x y) {
 			(x + y)
 		}
 		<: f(1 1)
@@ -689,7 +673,7 @@ describe('Function call', () => {
 describe('Return', () => {
 	it('Early return', async () => {
 		const res = await exe(`
-		fn f() {
+		@f() {
 			if true {
 				return "ai"
 			}
@@ -703,7 +687,7 @@ describe('Return', () => {
 
 	it('Early return (nested)', async () => {
 		const res = await exe(`
-		fn f() {
+		@f() {
 			if true {
 				if true {
 					return "ai"
@@ -719,7 +703,7 @@ describe('Return', () => {
 
 	it('Early return (nested) 2', async () => {
 		const res = await exe(`
-		fn f() {
+		@f() {
 			if true {
 				return "ai"
 			}
@@ -727,7 +711,7 @@ describe('Return', () => {
 			"pope"
 		}
 
-		fn g() {
+		@g() {
 			if (f() == "ai") {
 				return "kawaii"
 			}
@@ -742,7 +726,7 @@ describe('Return', () => {
 
 	it('Early return without block', async () => {
 		const res = await exe(`
-		fn f() {
+		@f() {
 			if true return "ai"
 
 			"pope"
@@ -754,7 +738,7 @@ describe('Return', () => {
 
 	it('return inside for', async () => {
 		const res = await exe(`
-		fn f() {
+		@f() {
 			var count = 0
 			for (let i, 100) {
 				count += 1
@@ -770,7 +754,7 @@ describe('Return', () => {
 
 	it('return inside loop', async () => {
 		const res = await exe(`
-		fn f() {
+		@f() {
 			var count = 0
 			loop {
 				count += 1
@@ -962,7 +946,7 @@ describe('match', () => {
 
 	it('With return', async () => {
 		const res = await exe(`
-		fn f(x) {
+		@f(x) {
 			match x {
 				1 => {
 					return "ai"
@@ -1113,7 +1097,7 @@ describe('namespace', () => {
 		<: Foo:bar()
 
 		:: Foo {
-			fn bar() { "ai" }
+			@bar() { "ai" }
 		}
 		`);
 		eq(res, STR('ai'));
@@ -1125,7 +1109,7 @@ describe('namespace', () => {
 
 		:: Foo {
 			let ai = "kawaii"
-			fn bar() { ai }
+			@bar() { ai }
 		}
 		`);
 		eq(res, STR('kawaii'));
@@ -1138,8 +1122,8 @@ describe('namespace', () => {
 
 		:: Foo {
 			var msg = "ai"
-			fn setMsg(value) { Foo:msg = value }
-			fn getMsg() { Foo:msg }
+			@setMsg(value) { Foo:msg = value }
+			@getMsg() { Foo:msg }
 		}
 		`);
 		eq(res, STR('hello'));
@@ -1328,7 +1312,7 @@ describe('type declaration', () => {
 
 	it('fn def', async () => {
 		const res = await exe(`
-		fn f(x: arr<num>, y: str, z: (num) -> bool) -> arr<num> {
+		@f(x: arr<num>, y: str, z: @(num) => bool): arr<num> {
 			x[4] = 0
 			y = "abc"
 			var r: bool = z(x[1])
@@ -1336,7 +1320,7 @@ describe('type declaration', () => {
 			x
 		}
 
-		<: f([1, 2, 3], "a", (n) => n == 1)
+		<: f([1, 2, 3], "a", @(n) { n == 1 })
 		`);
 		eq(res, ARR([NUM(1), NUM(2), NUM(3), NUM(0), NUM(5)]));
 	});
@@ -1488,7 +1472,7 @@ describe('lang version', () => {
 	it('number', async () => {
 		const res = utils.getLangVersion(`
 		/// @2021
-		fn f(x) {
+		@f(x) {
 			x
 		}
 		`);
@@ -1499,7 +1483,7 @@ describe('lang version', () => {
 		const res = utils.getLangVersion(`
 		/// @ canary
 		const a = 1
-		fn f(x) {
+		@f(x) {
 			x
 		}
 		f(a)
@@ -1510,7 +1494,7 @@ describe('lang version', () => {
 	it('complex', async () => {
 		const res = utils.getLangVersion(`
 		/// @ 2.0-Alpha
-		fn f(x) {
+		@f(x) {
 			x
 		}
 		`);
@@ -1519,7 +1503,7 @@ describe('lang version', () => {
 
 	it('no specified', async () => {
 		const res = utils.getLangVersion(`
-		fn f(x) {
+		@f(x) {
 			x
 		}
 		`);
@@ -1534,7 +1518,7 @@ describe('Attribute', () => {
 		const parser = new Parser();
 		const nodes = parser.parse(`
 		#[Event "Recieved"]
-		fn onRecieved(data) {
+		@onRecieved(data) {
 			data
 		}
 		`);
@@ -1559,7 +1543,7 @@ describe('Attribute', () => {
 		#[Endpoint { path: "/notes/create"; }]
 		#[Desc "Create a note."]
 		#[Cat true]
-		fn createNote(text) {
+		@createNote(text) {
 			<: text
 		}
 		`);
@@ -1627,7 +1611,7 @@ describe('Location', () => {
 		let node: Node;
 		const parser = new Parser();
 		const nodes = parser.parse(`
-		fn f(a) { a }
+		@f(a) { a }
 		`);
 		assert.equal(nodes.length, 1);
 		node = nodes[0];
@@ -1642,7 +1626,7 @@ describe('std', () => {
 			const res = await exe(`
 			let arr = ["ai", "chan", "kawaii"]
 
-			<: Arr:map(arr, (item) => Arr:join([item, "!"]))
+			<: Arr:map(arr, @(item) { Arr:join([item, "!"]) })
 			`);
 			eq(res, ARR([STR('ai!'), STR('chan!'), STR('kawaii!')]));
 		});
@@ -1651,7 +1635,7 @@ describe('std', () => {
 			const res = await exe(`
 			let arr = ["ai", "chan", "kawaii"]
 
-			<: Arr:filter(arr, (item) => Str:incl(item, "ai"))
+			<: Arr:filter(arr, @(item) { Str:incl(item, "ai") })
 			`);
 			eq(res, ARR([STR('ai'), STR('kawaii')]));
 		});
@@ -1660,7 +1644,7 @@ describe('std', () => {
 			const res = await exe(`
 			let arr = [1, 2, 3, 4]
 
-			<: Arr:reduce(arr, (accumulator, currentValue) => accumulator + currentValue)
+			<: Arr:reduce(arr, @(accumulator, currentValue) { (accumulator + currentValue) })
 			`);
 			eq(res, NUM(10));
 		});

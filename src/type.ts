@@ -115,7 +115,7 @@ export function getTypeName(type: Type): string {
 			return `${ type.name }<${ type.inners.map(inner => getTypeName(inner)).join(', ') }>`;
 		}
 		case 'fn': {
-			return `(${ type.args.map(arg => getTypeName(arg)).join(', ') }) -> ${ getTypeName(type.result) }`;
+			return `@(${ type.args.map(arg => getTypeName(arg)).join(', ') }) => ${ getTypeName(type.result) }`;
 		}
 	}
 }
@@ -133,7 +133,7 @@ export function getTypeNameBySource(typeSource: TypeSource): string {
 		case 'fn': {
 			const args = typeSource.args.map(arg => getTypeNameBySource(arg)).join(', ');
 			const result = getTypeNameBySource(typeSource.result);
-			return `(${ args }) -> ${ result }`;
+			return `@(${ args }) => ${ result }`;
 		}
 	}
 }
