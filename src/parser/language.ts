@@ -28,19 +28,7 @@ function createNode(type: string, params: Record<string, any>) {
 	return node;
 }
 
-const eof = new T.Parser((input, index, state) => {
-	return index >= input.length
-		? T.success(index, null)
-		: T.failure();
-});
-
-function succeeded<T>(value: T): T.Parser<T> {
-	return new T.Parser((input, index, state) => {
-		return T.success(index, value);
-	});
-}
-
-const endOfLine = T.alt([T.newline, eof]);
+const endOfLine = T.alt([T.newline, T.eof]);
 
 const language = T.createLanguage({
 	preprocess: r => {
@@ -66,7 +54,7 @@ const language = T.createLanguage({
 		const statements = T.sep(r.statement, T.newline, 1);
 		return T.alt([
 			statements,
-			succeeded([]),
+			T.succeeded([]),
 		]);
 	},
 

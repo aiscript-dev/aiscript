@@ -45,7 +45,7 @@
 		"autobind-decorator": "2.4.0",
 		"seedrandom": "3.0.5",
 		"stringz": "2.1.0",
-		"terrario": "0.4.0",
+		"terrario": "0.5.0",
 		"uuid": "8.3.2"
 	}
 }
