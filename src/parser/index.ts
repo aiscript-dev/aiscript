@@ -1,6 +1,6 @@
 import * as aiscript from '..';
 import { Node } from '../node';
-import * as parser from './parser.js';
+import * as parser from './language';
 
 import { validateKeyword } from './plugins/validate-keyword';
 import { validateType } from './plugins/validate-type';

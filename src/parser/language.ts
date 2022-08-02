@@ -41,8 +41,8 @@ const language = T.createLanguage({
 		]);
 
 		return T.alt([
-			r.string.text(),
-			r.template.text(),
+			r.str.text(),
+			r.tmpl.text(),
 			commentLine.map(() => ''),
 			T.char,
 		]).many(0).map(values => {
@@ -62,11 +62,11 @@ const language = T.createLanguage({
 
 	]),
 
-	expression: r => T.alt([
+	expr: r => T.alt([
 
 	]),
 
-	string: r => {
+	str: r => {
 		const content = T.alt([
 			T.str('\\"').map(() => '"'),
 			T.char,
@@ -84,7 +84,7 @@ const language = T.createLanguage({
 		});
 	},
 
-	template: r => {
+	tmpl: r => {
 		function concatTemplate(arr: any[]): any[] {
 			let groupes = group(arr, (prev, current) => (typeof current == typeof prev));
 			// concat string
@@ -97,17 +97,13 @@ const language = T.createLanguage({
 			return ungroup(groupes);
 		}
 
-		const embeded = T.seq([
-			T.str('{'),
-			r.expression,
-			T.str('}'),
-		], 1);
-
 		const content = T.alt([
 			T.str('\\{').map(() => '{'),
 			T.str('\\}').map(() => '}'),
 			T.str('\\`').map(() => '`'),
-			embeded,
+			T.seq([
+				T.str('{'), r.expr, T.str('}'),
+			], 1),
 			T.char,
 		]);
 
