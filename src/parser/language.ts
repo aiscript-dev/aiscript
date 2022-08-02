@@ -1,37 +1,12 @@
 import * as T from 'terrario';
+import { createNode, group, ungroup } from './util';
 
-function group<T>(arr: T[], predicate: (prev: T, curr: T) => boolean): T[][] {
-	const dest: T[][] = [];
-	for (let i = 0; i < arr.length; i++) {
-		if (i != 0 && predicate(arr[i - 1], arr[i])) {
-			dest[dest.length - 1].push(arr[i]);
-		} else {
-			dest.push([arr[i]]);
-		}
-	}
-	return dest;
-}
-
-function ungroup<T>(groupes: T[][]): T[] {
-	return groupes.reduce((acc, val) => acc.concat(val), []);
-}
-
-function createNode(type: string, params: Record<string, any>) {
-	const node: Record<string, any> = { type };
-	for (const key of Object.keys(params)) {
-		if (params[key] !== undefined) {
-			node[key] = params[key];
-		}
-	}
-	//const loc = location();
-	//node.loc = { start: loc.start.offset, end: loc.end.offset - 1 };
-	return node;
-}
-
+const space = T.regexp(/[ \t]/);
+const spacing = T.alt([space, T.newline]).many(0);
 const endOfLine = T.alt([T.newline, T.eof]);
 
 const language = T.createLanguage({
-	preprocess: r => {
+	preprocessorRoot: r => {
 		const commentLine = T.seq([
 			T.str('//'),
 			T.seq([
@@ -50,21 +25,71 @@ const language = T.createLanguage({
 		});
 	},
 
-	root: r => {
-		const statements = T.sep(r.statement, T.newline, 1);
-		return T.alt([
-			statements,
-			T.succeeded([]),
+	parserRoot: r => {
+		const separator = T.seq([
+			space.many(0),
+			T.newline,
+			spacing,
 		]);
+
+		const statements = T.sep(r.statement, separator, 1);
+		return T.seq([
+			T.alt([space, T.newline]).many(0),
+			T.alt([
+				statements,
+				T.succeeded([]),
+			]),
+			T.alt([space, T.newline]).many(0),
+		], 1);
 	},
 
 	statement: r => T.alt([
-
+		r.varDef,
 	]),
 
 	expr: r => T.alt([
-
+		r.tmpl,
+		r.str,
 	]),
+
+	// statements
+
+	varDef: r => {
+		const typePart = T.seq([
+			spacing,
+			T.str(':'),
+			spacing,
+			r.type,
+		], 3);
+		return T.alt([
+			T.seq([
+				T.str('let'),
+				T.alt([space, T.newline]).many(1),
+				r.identifier,
+				typePart.option(),
+				spacing,
+				T.str('='),
+				spacing,
+				r.expr,
+			]).map(values => {
+				return createNode('def', { name: values[2], varType: values[3], expr: values[7], mut: false, attr: [] });
+			}),
+			T.seq([
+				T.str('var'),
+				T.alt([space, T.newline]).many(1),
+				r.identifier,
+				typePart.option(),
+				spacing,
+				T.str('='),
+				spacing,
+				r.expr,
+			]).map(values => {
+				return createNode('def', { name: values[2], varType: values[3], expr: values[7], mut: true, attr: [] });
+			}),
+		]);
+	},
+
+	// expressions
 
 	str: r => {
 		const content = T.alt([
@@ -112,23 +137,30 @@ const language = T.createLanguage({
 			T.seq([
 				T.notMatch(T.str('`')),
 				content,
-			]).many(0),
+			], 1).many(0),
 			T.str('`'),
 		], 1).map(value => {
 			return createNode('tmpl', { tmpl: concatTemplate(value) });
 		});
 	},
+
+	// utility
+
+	identifier: r => T.seq([
+		T.regexp(/[a-z_]/i),
+		T.regexp(/[a-z0-9_]/i).many(0),
+	]).text(),
 });
 
 export function parse(input: string) {
 	let result;
 
-	result = language.preprocess.parse(input);
+	result = language.preprocessorRoot.parse(input);
 	if (!result.success) {
 		throw new Error('syntax error: preprocess fails');
 	}
 
-	result = language.root.parse(result.value);
+	result = language.parserRoot.parse(result.value);
 	if (!result.success) {
 		throw new Error('syntax error');
 	}

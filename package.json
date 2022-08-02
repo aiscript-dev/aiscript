@@ -15,7 +15,7 @@
 		"api": "npx api-extractor run --local --verbose",
 		"api-prod": "npx api-extractor run --verbose",
 		"lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-		"jest": "jest --coverage --detectOpenHandles",
+		"jest": "jest --coverage --detectOpenHandles --verbose",
 		"tsd": "tsd",
 		"test": "npm run jest"
 	},
