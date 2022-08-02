@@ -1,18 +1,17 @@
 import * as assert from 'assert';
 import { Parser } from '../src';
 import * as Ast from '../src/node';
-import * as Types from '../src/type';
 import { createNode } from '../src/parser/util';
 
-function N_STR(value: string): Ast.NStr {
+function N_STR(value: Ast.NStr['value']): Ast.NStr {
 	return createNode('str', { value }) as Ast.NStr;
 }
 
-function N_TMPL(tmpl: (string | Ast.Node)[]): Ast.NTmpl {
+function N_TMPL(tmpl: Ast.NTmpl['tmpl']): Ast.NTmpl {
 	return createNode('tmpl', { tmpl }) as Ast.NTmpl;
 }
 
-function N_DEF(name: string, varType: Types.TypeSource | null, expr: Ast.Node, mut: boolean, attr: Ast.NAttr[]): Ast.NDef {
+function N_DEF(name: Ast.NDef['name'], varType: Ast.NDef['varType'], expr: Ast.NDef['expr'], mut: Ast.NDef['mut'], attr: Ast.NDef['attr']): Ast.NDef {
 	return createNode('def', { name, varType, expr, mut, attr }) as Ast.NDef;
 }
 
@@ -32,8 +31,9 @@ describe('varDef (let)', () => {
 		let abc = "xyz"
 		`);
 		assert.deepStrictEqual(res, [
-			N_DEF('abc', null, N_STR('xyz'), false, []),
+			N_DEF('abc', undefined, N_STR('xyz'), false, []),
 		]);
+		console.log(res);
 	});
 
 	it('template', async () => {
@@ -41,7 +41,7 @@ describe('varDef (let)', () => {
 		let abc = \`abc{"123"}\`
 		`);
 		assert.deepStrictEqual(res, [
-			N_DEF('abc', null, N_TMPL(['abc', N_STR('123')]), false, []),
+			N_DEF('abc', undefined, N_TMPL(['abc', N_STR('123')]), false, []),
 		]);
 	});
 });
@@ -52,7 +52,7 @@ describe('varDef (var)', () => {
 		var abc = "xyz"
 		`);
 		assert.deepStrictEqual(res, [
-			N_DEF('abc', null, N_STR('xyz'), true, []),
+			N_DEF('abc', undefined, N_STR('xyz'), true, []),
 		]);
 	});
 
@@ -61,7 +61,7 @@ describe('varDef (var)', () => {
 		var abc = \`abc{"123"}\`
 		`);
 		assert.deepStrictEqual(res, [
-			N_DEF('abc', null, N_TMPL(['abc', N_STR('123')]), true, []),
+			N_DEF('abc', undefined, N_TMPL(['abc', N_STR('123')]), true, []),
 		]);
 	});
 });

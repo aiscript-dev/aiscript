@@ -72,7 +72,7 @@ const language = T.createLanguage({
 				spacing,
 				r.expr,
 			]).map(values => {
-				return createNode('def', { name: values[2], varType: values[3], expr: values[7], mut: false, attr: [] });
+				return createNode('def', { name: values[2], varType: values[3] ?? undefined, expr: values[7], mut: false, attr: [] });
 			}),
 			T.seq([
 				T.str('var'),
@@ -84,7 +84,7 @@ const language = T.createLanguage({
 				spacing,
 				r.expr,
 			]).map(values => {
-				return createNode('def', { name: values[2], varType: values[3], expr: values[7], mut: true, attr: [] });
+				return createNode('def', { name: values[2], varType: values[3] ?? undefined, expr: values[7], mut: true, attr: [] });
 			}),
 		]);
 	},
