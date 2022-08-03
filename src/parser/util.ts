@@ -3,7 +3,7 @@ import * as Ast from '../node';
 export function group<T>(arr: T[], predicate: (prev: T, curr: T) => boolean): T[][] {
 	const dest: T[][] = [];
 	for (let i = 0; i < arr.length; i++) {
-		if (i != 0 && predicate(arr[i - 1], arr[i])) {
+		if (i !== 0 && predicate(arr[i - 1], arr[i])) {
 			dest[dest.length - 1].push(arr[i]);
 		} else {
 			dest.push([arr[i]]);

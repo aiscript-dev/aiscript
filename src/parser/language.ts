@@ -100,10 +100,10 @@ const language = T.createLanguage({
 
 	tmpl: r => {
 		function concatTemplate(arr: any[]): any[] {
-			let groupes = group(arr, (prev, current) => (typeof current == typeof prev));
+			let groupes = group(arr, (prev, current) => (typeof current === typeof prev));
 			// concat string
 			groupes = groupes.map(g => {
-				if (typeof g[0] == 'string') {
+				if (typeof g[0] === 'string') {
 					return [g.join('')];
 				}
 				return g;
