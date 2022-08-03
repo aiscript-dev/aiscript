@@ -1,19 +1,6 @@
 import * as assert from 'assert';
 import { Parser } from '../src';
-import * as Ast from '../src/node';
-import { createNode } from '../src/parser/util';
-
-function N_STR(value: Ast.NStr['value']): Ast.NStr {
-	return createNode('str', { value }) as Ast.NStr;
-}
-
-function N_TMPL(tmpl: Ast.NTmpl['tmpl']): Ast.NTmpl {
-	return createNode('tmpl', { tmpl }) as Ast.NTmpl;
-}
-
-function N_DEF(name: Ast.NDef['name'], varType: Ast.NDef['varType'], expr: Ast.NDef['expr'], mut: Ast.NDef['mut'], attr: Ast.NDef['attr']): Ast.NDef {
-	return createNode('def', { name, varType, expr, mut, attr }) as Ast.NDef;
-}
+import { N_DEF, N_FALSE, N_NULL, N_NUM, N_STR, N_TMPL, N_TRUE } from '../src/parser/util';
 
 function parse(program: string) {
 	const parser = new Parser();
@@ -33,7 +20,6 @@ describe('varDef (let)', () => {
 		assert.deepStrictEqual(res, [
 			N_DEF('abc', undefined, N_STR('xyz'), false, []),
 		]);
-		console.log(res);
 	});
 
 	it('template', async () => {
@@ -42,6 +28,41 @@ describe('varDef (let)', () => {
 		`);
 		assert.deepStrictEqual(res, [
 			N_DEF('abc', undefined, N_TMPL(['abc', N_STR('123')]), false, []),
+		]);
+	});
+
+	it('number', async () => {
+		const res = parse(`
+		let abc = 100
+		`);
+		assert.deepStrictEqual(res, [
+			N_DEF('abc', undefined, N_NUM(100), false, []),
+		]);
+	});
+
+	it('boolean', async () => {
+		let res;
+		res = parse(`
+		let abc = true
+		`);
+		assert.deepStrictEqual(res, [
+			N_DEF('abc', undefined, N_TRUE(), false, []),
+		]);
+
+		res = parse(`
+		let abc = false
+		`);
+		assert.deepStrictEqual(res, [
+			N_DEF('abc', undefined, N_FALSE(), false, []),
+		]);
+	});
+
+	it('null', async () => {
+		const res = parse(`
+		let abc = null
+		`);
+		assert.deepStrictEqual(res, [
+			N_DEF('abc', undefined, N_NULL(), false, []),
 		]);
 	});
 });
@@ -62,6 +83,41 @@ describe('varDef (var)', () => {
 		`);
 		assert.deepStrictEqual(res, [
 			N_DEF('abc', undefined, N_TMPL(['abc', N_STR('123')]), true, []),
+		]);
+	});
+
+	it('number', async () => {
+		const res = parse(`
+		var abc = 100
+		`);
+		assert.deepStrictEqual(res, [
+			N_DEF('abc', undefined, N_NUM(100), true, []),
+		]);
+	});
+
+	it('boolean', async () => {
+		let res;
+		res = parse(`
+		var abc = true
+		`);
+		assert.deepStrictEqual(res, [
+			N_DEF('abc', undefined, N_TRUE(), true, []),
+		]);
+
+		res = parse(`
+		var abc = false
+		`);
+		assert.deepStrictEqual(res, [
+			N_DEF('abc', undefined, N_FALSE(), true, []),
+		]);
+	});
+
+	it('null', async () => {
+		const res = parse(`
+		var abc = null
+		`);
+		assert.deepStrictEqual(res, [
+			N_DEF('abc', undefined, N_NULL(), true, []),
 		]);
 	});
 });

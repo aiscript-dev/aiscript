@@ -1,5 +1,5 @@
 import * as T from 'terrario';
-import { createNode, group, ungroup } from './util';
+import { group, N_DEF, N_FALSE, N_NULL, N_NUM, N_STR, N_TMPL, N_TRUE, ungroup } from './util';
 
 const space = T.regexp(/[ \t]/);
 const spacing = T.alt([space, T.newline]).many(0);
@@ -50,6 +50,11 @@ const language = T.createLanguage({
 	expr: r => T.alt([
 		r.tmpl,
 		r.str,
+		r.num,
+		r.bool,
+		r.null,
+		// r.obj,
+		// r.arr,
 	]),
 
 	// statements
@@ -72,7 +77,7 @@ const language = T.createLanguage({
 				spacing,
 				r.expr,
 			]).map(values => {
-				return createNode('def', { name: values[2], varType: values[3] ?? undefined, expr: values[7], mut: false, attr: [] });
+				return N_DEF(values[2], (values[3] ?? undefined), values[7], false, []);
 			}),
 			T.seq([
 				T.str('var'),
@@ -84,30 +89,14 @@ const language = T.createLanguage({
 				spacing,
 				r.expr,
 			]).map(values => {
-				return createNode('def', { name: values[2], varType: values[3] ?? undefined, expr: values[7], mut: true, attr: [] });
+				return N_DEF(values[2], (values[3] ?? undefined), values[7], true, []);
 			}),
 		]);
 	},
 
-	// expressions
-
-	str: r => {
-		const content = T.alt([
-			T.str('\\"').map(() => '"'),
-			T.char,
-		]);
-
-		return T.seq([
-			T.str('"'),
-			T.seq([
-				T.notMatch(T.str('"')),
-				content,
-			]).many(0).text(),
-			T.str('"'),
-		], 1).map(value => {
-			return createNode('str', { value: value });
-		});
-	},
+	// ------------------------------------------------------------------------------
+	// literals
+	// ------------------------------------------------------------------------------
 
 	tmpl: r => {
 		function concatTemplate(arr: any[]): any[] {
@@ -140,15 +129,86 @@ const language = T.createLanguage({
 			], 1).many(0),
 			T.str('`'),
 		], 1).map(value => {
-			return createNode('tmpl', { tmpl: concatTemplate(value) });
+			return N_TMPL(concatTemplate(value));
 		});
+	},
+
+	str: r => {
+		const content = T.alt([
+			T.str('\\"').map(() => '"'),
+			T.char,
+		]);
+
+		return T.seq([
+			T.str('"'),
+			T.seq([
+				T.notMatch(T.str('"')),
+				content,
+			]).many(0).text(),
+			T.str('"'),
+		], 1).map(value => {
+			return N_STR(value);
+		});
+	},
+
+	num: r => T.alt([
+		r.float,
+		r.int,
+	]),
+
+	float: r => T.seq([
+		T.regexp(/[+-]/).option(),
+		T.alt([
+			T.regexp(/[1-9][0-9]+/),
+			T.regexp(/[0-9]/),
+		]),
+		T.str('.'),
+		T.regexp(/[0-9]+/),
+	]).text().map(value => {
+		return N_NUM(Number(value));
+	}),
+
+	int: r => T.seq([
+		T.regexp(/[+-]/).option(),
+		T.alt([
+			T.regexp(/[1-9][0-9]+/),
+			T.regexp(/[0-9]/),
+		]),
+	]).text().map(value => {
+		return N_NUM(Number(value));
+	}),
+
+	bool: r => T.alt([
+		r.true,
+		r.false,
+	]),
+
+	true: r => {
+		return T.seq([
+			T.str('true'),
+			T.notMatch(T.regexp(/[a-z0-9_:]/i)),
+		]).map(() => N_TRUE());
+	},
+
+	false: r => {
+		return T.seq([
+			T.str('false'),
+			T.notMatch(T.regexp(/[a-z0-9_:]/i)),
+		]).map(() => N_FALSE());
+	},
+
+	null: r => {
+		return T.seq([
+			T.str('null'),
+			T.notMatch(T.regexp(/[a-z0-9_:]/i)),
+		]).map(() => N_NULL());
 	},
 
 	// utility
 
 	identifier: r => T.seq([
 		T.regexp(/[a-z_]/i),
-		T.regexp(/[a-z0-9_]/i).many(0),
+		T.regexp(/[a-z0-9_]*/i),
 	]).text(),
 });
 
