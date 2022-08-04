@@ -1,3 +1,4 @@
+import { createNode } from './parser/util';
 import { TypeSource } from './type';
 
 export type Loc = {
@@ -14,6 +15,12 @@ export type NDef = {
 	mut: boolean; // ミュータブルか否か
 	attr: NAttr[]; // 付加された属性
 };
+
+type DefOption = Partial<{ varType: NDef['varType'], attr: NDef['attr']; }>;
+export function DEF(name: NDef['name'], expr: NDef['expr'], mut: NDef['mut'], opts?: DefOption) {
+	const optsValue: DefOption = opts ?? {};
+	return createNode('def', { name, varType: optsValue.varType, expr, mut, attr: optsValue.attr ?? [] }) as NDef;
+}
 
 export type NAssign = {
 	type: 'assign'; // 再代入
@@ -58,6 +65,10 @@ export type NCall = {
 	name: string; // 関数名
 	args: Node[]; // 引数(式の配列)
 };
+
+export function CALL(name: NCall['name'], args: NCall['args']) {
+	return createNode('call', { name, args }) as NCall;
+}
 
 export type NReturn = {
 	type: 'return'; // return
@@ -122,11 +133,23 @@ export type NNull = {
 	loc?: Loc; // コード位置
 };
 
+export function NULL() {
+	return createNode('null', {}) as NNull;
+}
+
 export type NBool = {
 	type: 'bool'; // 真理値リテラル
 	loc?: Loc; // コード位置
 	value: boolean; // 真理値
 };
+
+export function TRUE() {
+	return createNode('bool', { value: true }) as NBool;
+}
+
+export function FALSE() {
+	return createNode('bool', { value: false }) as NBool;
+}
 
 export type NNum = {
 	type: 'num'; // 数値リテラル
@@ -134,11 +157,19 @@ export type NNum = {
 	value: number; // 数値
 };
 
+export function NUM(value: NNum['value']) {
+	return createNode('num', { value }) as NNum;
+}
+
 export type NStr = {
 	type: 'str'; // 文字列リテラル
 	loc?: Loc; // コード位置
 	value: string; // 文字列
 };
+
+export function STR(value: NStr['value']) {
+	return createNode('str', { value }) as NStr;
+}
 
 export type NArr = {
 	type: 'arr'; // 配列リテラル
@@ -196,6 +227,10 @@ export type NTmpl = {
 	loc?: Loc; // コード位置
 	tmpl: (string | Node)[]; // 処理
 };
+
+export function TMPL(tmpl: NTmpl['tmpl']) {
+	return createNode('tmpl', { tmpl }) as NTmpl;
+}
 
 export type NNs = {
 	type: 'ns'; // 名前空間

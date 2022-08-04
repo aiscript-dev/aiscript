@@ -1,5 +1,6 @@
 import * as T from 'terrario';
-import { group, N_DEF, N_FALSE, N_NULL, N_NUM, N_STR, N_TMPL, N_TRUE, ungroup } from './util';
+import * as Ast from '../node';
+import { group, ungroup } from './util';
 
 const space = T.regexp(/[ \t]/);
 const spacing = T.alt([space, T.newline]).many(0);
@@ -45,6 +46,7 @@ const language = T.createLanguage({
 
 	statement: r => T.alt([
 		r.varDef,
+		r.out,
 	]),
 
 	expr: r => T.alt([
@@ -77,7 +79,7 @@ const language = T.createLanguage({
 				spacing,
 				r.expr,
 			]).map(values => {
-				return N_DEF(values[2], (values[3] ?? undefined), values[7], false, []);
+				return Ast.DEF(values[2], values[7], false, { varType: values[3] ?? undefined });
 			}),
 			T.seq([
 				T.str('var'),
@@ -89,10 +91,18 @@ const language = T.createLanguage({
 				spacing,
 				r.expr,
 			]).map(values => {
-				return N_DEF(values[2], (values[3] ?? undefined), values[7], true, []);
+				return Ast.DEF(values[2], values[7], true, { varType: values[3] ?? undefined });
 			}),
 		]);
 	},
+
+	out: r => T.seq([
+		T.str('<:'),
+		spacing,
+		r.expr,
+	], 2).map(value => {
+		return Ast.CALL('print', [value]);
+	}),
 
 	// ------------------------------------------------------------------------------
 	// literals
@@ -129,7 +139,7 @@ const language = T.createLanguage({
 			], 1).many(0),
 			T.str('`'),
 		], 1).map(value => {
-			return N_TMPL(concatTemplate(value));
+			return Ast.TMPL(concatTemplate(value));
 		});
 	},
 
@@ -147,7 +157,7 @@ const language = T.createLanguage({
 			]).many(0).text(),
 			T.str('"'),
 		], 1).map(value => {
-			return N_STR(value);
+			return Ast.STR(value);
 		});
 	},
 
@@ -165,7 +175,7 @@ const language = T.createLanguage({
 		T.str('.'),
 		T.regexp(/[0-9]+/),
 	]).text().map(value => {
-		return N_NUM(Number(value));
+		return Ast.NUM(Number(value));
 	}),
 
 	int: r => T.seq([
@@ -175,7 +185,7 @@ const language = T.createLanguage({
 			T.regexp(/[0-9]/),
 		]),
 	]).text().map(value => {
-		return N_NUM(Number(value));
+		return Ast.NUM(Number(value));
 	}),
 
 	bool: r => T.alt([
@@ -187,21 +197,21 @@ const language = T.createLanguage({
 		return T.seq([
 			T.str('true'),
 			T.notMatch(T.regexp(/[a-z0-9_:]/i)),
-		]).map(() => N_TRUE());
+		]).map(() => Ast.TRUE());
 	},
 
 	false: r => {
 		return T.seq([
 			T.str('false'),
 			T.notMatch(T.regexp(/[a-z0-9_:]/i)),
-		]).map(() => N_FALSE());
+		]).map(() => Ast.FALSE());
 	},
 
 	null: r => {
 		return T.seq([
 			T.str('null'),
 			T.notMatch(T.regexp(/[a-z0-9_:]/i)),
-		]).map(() => N_NULL());
+		]).map(() => Ast.NULL());
 	},
 
 	// utility
