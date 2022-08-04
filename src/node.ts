@@ -206,6 +206,10 @@ export type NObj = {
 	value: Map<string, Node>; // オブジェクト
 };
 
+export function OBJ(value: NObj['value']) {
+	return createNode('obj', { value }) as NObj;
+}
+
 export type NProp = {
 	type: 'prop'; // プロパティアクセス
 	loc?: Loc; // コード位置
