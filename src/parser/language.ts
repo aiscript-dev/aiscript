@@ -59,7 +59,7 @@ const language = T.createLanguage({
 		// r.arr,
 	]),
 
-	// statements
+	//#region statements
 
 	varDef: r => {
 		const typePart = T.seq([
@@ -104,9 +104,9 @@ const language = T.createLanguage({
 		return Ast.CALL('print', [value]);
 	}),
 
-	// ------------------------------------------------------------------------------
-	// literals
-	// ------------------------------------------------------------------------------
+	//#endregion statements
+
+	//#region expressions
 
 	tmpl: r => {
 		function concatTemplate(arr: any[]): any[] {
@@ -161,50 +161,50 @@ const language = T.createLanguage({
 		});
 	},
 
-	num: r => T.alt([
-		r.float,
-		r.int,
-	]),
+	num: r => {
+		const float = T.seq([
+			T.regexp(/[+-]/).option(),
+			T.alt([
+				T.regexp(/[1-9][0-9]+/),
+				T.regexp(/[0-9]/),
+			]),
+			T.str('.'),
+			T.regexp(/[0-9]+/),
+		]).text().map(value => {
+			return Ast.NUM(Number(value));
+		});
+	
+		const int = T.seq([
+			T.regexp(/[+-]/).option(),
+			T.alt([
+				T.regexp(/[1-9][0-9]+/),
+				T.regexp(/[0-9]/),
+			]),
+		]).text().map(value => {
+			return Ast.NUM(Number(value));
+		});
 
-	float: r => T.seq([
-		T.regexp(/[+-]/).option(),
-		T.alt([
-			T.regexp(/[1-9][0-9]+/),
-			T.regexp(/[0-9]/),
-		]),
-		T.str('.'),
-		T.regexp(/[0-9]+/),
-	]).text().map(value => {
-		return Ast.NUM(Number(value));
-	}),
+		return T.alt([
+			float,
+			int,
+		]);
+	},
 
-	int: r => T.seq([
-		T.regexp(/[+-]/).option(),
-		T.alt([
-			T.regexp(/[1-9][0-9]+/),
-			T.regexp(/[0-9]/),
-		]),
-	]).text().map(value => {
-		return Ast.NUM(Number(value));
-	}),
-
-	bool: r => T.alt([
-		r.true,
-		r.false,
-	]),
-
-	true: r => {
-		return T.seq([
+	bool: r => {
+		const trueParser = T.seq([
 			T.str('true'),
 			T.notMatch(T.regexp(/[a-z0-9_:]/i)),
 		]).map(() => Ast.TRUE());
-	},
-
-	false: r => {
-		return T.seq([
+	
+		const falseParser = T.seq([
 			T.str('false'),
 			T.notMatch(T.regexp(/[a-z0-9_:]/i)),
 		]).map(() => Ast.FALSE());
+
+		return T.alt([
+			trueParser,
+			falseParser,
+		]);
 	},
 
 	null: r => {
@@ -214,12 +214,17 @@ const language = T.createLanguage({
 		]).map(() => Ast.NULL());
 	},
 
-	// utility
+	//#endregion expressions
+
+	//#region utility
 
 	identifier: r => T.seq([
 		T.regexp(/[a-z_]/i),
 		T.regexp(/[a-z0-9_]*/i),
 	]).text(),
+
+	//#endregion utility
+
 });
 
 export function parse(input: string) {
