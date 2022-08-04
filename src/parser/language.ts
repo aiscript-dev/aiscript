@@ -79,7 +79,7 @@ const language = T.createLanguage({
 		r.num,
 		r.bool,
 		r.null,
-		// r.obj,
+		r.obj,
 		// r.arr,
 		// r.call,
 		// group
@@ -254,6 +254,50 @@ const language = T.createLanguage({
 			T.str('null'),
 			T.notMatch(keywordAfter),
 		]).map(() => Ast.NULL());
+	},
+
+	obj: r => {
+		type Entry = { key: unknown; value: unknown; };
+
+		const entry = T.seq([
+			r.identifier,
+			spacing,
+			T.str(':'),
+			spacing,
+			r.expr,
+		]).map((values: unknown[]) => {
+			return { key: values[0], value: values[4] } as Entry;
+		});
+
+		const separator = T.alt([
+			T.seq([
+				spacing,
+				T.alt([
+					T.str(','),
+					T.str(';'),
+				]),
+				spacing,
+			]),
+			T.alt([space, T.newline]).many(1),
+		]);
+
+		return T.seq([
+			T.str('{'),
+			spacing,
+			T.seq([
+				T.sep(entry, separator, 1),
+				separator.option(),
+			], 0).option(),
+			spacing,
+			T.str('}'),
+		], 2).map((value: Entry[] | null) => {
+			const pairs = value ?? [];
+			const obj = new Map();
+			for (const pair of pairs) {
+				obj.set(pair.key, pair.value);
+			}
+			return Ast.OBJ(obj);
+		});
 	},
 
 	//#endregion expressions
