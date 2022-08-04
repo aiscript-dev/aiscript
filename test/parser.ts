@@ -98,5 +98,84 @@ describe('expressions', () => {
 				Ast.DEF('x', Ast.NULL(), false),
 			]);
 		});
+
+		describe('obj', () => {
+			it('empty', async () => {
+				const res = parse(`
+				let x = {}
+				`);
+				assert.deepStrictEqual(res, [
+					Ast.DEF('x', Ast.OBJ(new Map<string, Ast.Node>()), false),
+				]);
+			});
+
+			describe('single entry', () => {
+				it('basic', async () => {
+					const res = parse(`
+					let x = {a:1}
+					`);
+					assert.deepStrictEqual(res, [
+						Ast.DEF('x', Ast.OBJ(new Map<string, Ast.Node>([
+							['a', Ast.NUM(1)],
+						])), false),
+					]);
+				});
+
+				it('with separator', async () => {
+					const res = parse(`
+					let x = {a:1,}
+					`);
+					assert.deepStrictEqual(res, [
+						Ast.DEF('x', Ast.OBJ(new Map<string, Ast.Node>([
+							['a', Ast.NUM(1)],
+						])), false),
+					]);
+				});
+			});
+
+			describe('multiple entry', () => {
+				it('with separator', async () => {
+					const res = parse(`
+					let x = {a:1,b:"xyz"}
+					`);
+					assert.deepStrictEqual(res, [
+						Ast.DEF('x', Ast.OBJ(new Map<string, Ast.Node>([
+							['a', Ast.NUM(1)],
+							['b', Ast.STR('xyz')],
+						])), false),
+					]);
+				});
+
+				it('with spacing-separator', async () => {
+					const res = parse(`
+					let x = {
+						a: 1
+						b:"xyz"
+					}
+					`);
+					assert.deepStrictEqual(res, [
+						Ast.DEF('x', Ast.OBJ(new Map<string, Ast.Node>([
+							['a', Ast.NUM(1)],
+							['b', Ast.STR('xyz')],
+						])), false),
+					]);
+				});
+			});
+
+			it('multiline', async () => {
+				const res = parse(`
+				let x = {
+					a: 1,
+					b:"xyz"
+				}
+				`);
+				assert.deepStrictEqual(res, [
+					Ast.DEF('x', Ast.OBJ(new Map<string, Ast.Node>([
+						['a', Ast.NUM(1)],
+						['b', Ast.STR('xyz')],
+					])), false),
+				]);
+			});
+		});
 	});
 });
