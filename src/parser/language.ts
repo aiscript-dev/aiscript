@@ -5,6 +5,7 @@ import { group, ungroup } from './util';
 const space = T.regexp(/[ \t]/);
 const spacing = T.alt([space, T.newline]).many(0);
 const endOfLine = T.alt([T.newline, T.eof]);
+const keywordAfter = T.lazy(() => T.regexp(/[a-z0-9_:]/i));
 
 const language = T.createLanguage({
 	preprocessorRoot: r => {
@@ -193,12 +194,12 @@ const language = T.createLanguage({
 	bool: r => {
 		const trueParser = T.seq([
 			T.str('true'),
-			T.notMatch(T.regexp(/[a-z0-9_:]/i)),
+			T.notMatch(keywordAfter),
 		]).map(() => Ast.TRUE());
 	
 		const falseParser = T.seq([
 			T.str('false'),
-			T.notMatch(T.regexp(/[a-z0-9_:]/i)),
+			T.notMatch(keywordAfter),
 		]).map(() => Ast.FALSE());
 
 		return T.alt([
@@ -210,7 +211,7 @@ const language = T.createLanguage({
 	null: r => {
 		return T.seq([
 			T.str('null'),
-			T.notMatch(T.regexp(/[a-z0-9_:]/i)),
+			T.notMatch(keywordAfter),
 		]).map(() => Ast.NULL());
 	},
 
@@ -218,10 +219,9 @@ const language = T.createLanguage({
 
 	//#region utility
 
-	identifier: r => T.seq([
-		T.regexp(/[a-z_]/i),
-		T.regexp(/[a-z0-9_]*/i),
-	]).text(),
+	identifier: r => {
+		return T.regexp(/[a-z_][a-z0-9_]*/i);
+	},
 
 	//#endregion utility
 
