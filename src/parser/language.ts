@@ -45,12 +45,35 @@ const language = T.createLanguage({
 		], 1);
 	},
 
+	// propAssign
+	// indexAssign
+	// indexRef
+	// propCall
+	// propRef
+	// varRef
+
 	statement: r => T.alt([
 		r.varDef,
+		// r.fnDef,
 		r.out,
+		r.return,
+		// r.attr,
+		// r.forOf,
+		// r.for,
+		// r.loop,
+		r.break,
+		r.continue,
+		// r.assign,
+		// r.inc,
+		// r.dec,
+		// r.expr,
 	]),
 
 	expr: r => T.alt([
+		// r.if,
+		// r.fn,
+		// r.match,
+		// r.blockExpr,
 		r.tmpl,
 		r.str,
 		r.num,
@@ -58,6 +81,8 @@ const language = T.createLanguage({
 		r.null,
 		// r.obj,
 		// r.arr,
+		// r.call,
+		// group
 	]),
 
 	//#region statements
@@ -104,6 +129,22 @@ const language = T.createLanguage({
 	], 2).map(value => {
 		return Ast.CALL('print', [value]);
 	}),
+
+	return: r => T.seq([
+		T.str('return'),
+		T.alt([space, T.newline]).many(1),
+		r.expr,
+	]).map(values => Ast.RETURN(values[3])),
+
+	break: r => T.seq([
+		T.str('break'),
+		T.notMatch(keywordAfter),
+	]).map(() => Ast.BREAK()),
+
+	continue: r => T.seq([
+		T.str('continue'),
+		T.notMatch(keywordAfter),
+	]).map(() => Ast.CONTINUE()),
 
 	//#endregion statements
 

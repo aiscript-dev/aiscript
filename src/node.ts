@@ -76,15 +76,27 @@ export type NReturn = {
 	expr: Node; // 式
 };
 
+export function RETURN(expr: NReturn['expr']) {
+	return createNode('return', { expr }) as NReturn;
+}
+
 export type NBreak = {
 	type: 'break'; // break
 	loc?: Loc; // コード位置
 };
 
+export function BREAK() {
+	return createNode('break', {}) as NBreak;
+}
+
 export type NContinue = {
 	type: 'continue'; // continue
 	loc?: Loc; // コード位置
 };
+
+export function CONTINUE() {
+	return createNode('continue', {}) as NContinue;
+}
 
 export type NIf = {
 	type: 'if'; // if文
