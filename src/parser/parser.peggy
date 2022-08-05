@@ -271,7 +271,7 @@ For
 // return statement
 
 Return
-	= "return" _* expr:Expr
+	= "return" ![A-Z0-9_:]i _* expr:Expr
 { return createNode('return', { expr }); }
 
 // loop statement
