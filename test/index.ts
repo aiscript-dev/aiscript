@@ -383,13 +383,149 @@ it('Recursion', async () => {
 	eq(res, NUM(120));
 });
 
-it('Var name starts with reserved word', async () => {
-	const res = await exe(`
-	let falsecat = "ai"
+describe('Var name starts with reserved word', () => {
+	it('let', async () => {
+		const res = await exe(`
+		@f() {
+			let letcat = "ai"
+			letcat
+		}
+		<: f()
+		`);
+		eq(res, STR('ai'));
+	});
 
-	<: falsecat
-	`);
-	eq(res, STR('ai'));
+	it('var', async () => {
+		const res = await exe(`
+		@f() {
+			let varcat = "ai"
+			varcat
+		}
+		<: f()
+		`);
+		eq(res, STR('ai'));
+	});
+
+	it('return', async () => {
+		const res = await exe(`
+		@f() {
+			let returncat = "ai"
+			returncat
+		}
+		<: f()
+		`);
+		eq(res, STR('ai'));
+	});
+
+	it('each', async () => {
+		const res = await exe(`
+		@f() {
+			let eachcat = "ai"
+			eachcat
+		}
+		<: f()
+		`);
+		eq(res, STR('ai'));
+	});
+
+	it('for', async () => {
+		const res = await exe(`
+		@f() {
+			let forcat = "ai"
+			forcat
+		}
+		<: f()
+		`);
+		eq(res, STR('ai'));
+	});
+
+	it('loop', async () => {
+		const res = await exe(`
+		@f() {
+			let loopcat = "ai"
+			loopcat
+		}
+		<: f()
+		`);
+		eq(res, STR('ai'));
+	});
+
+	it('break', async () => {
+		const res = await exe(`
+		@f() {
+			let breakcat = "ai"
+			breakcat
+		}
+		<: f()
+		`);
+		eq(res, STR('ai'));
+	});
+
+	it('continue', async () => {
+		const res = await exe(`
+		@f() {
+			let continuecat = "ai"
+			continuecat
+		}
+		<: f()
+		`);
+		eq(res, STR('ai'));
+	});
+
+	it('if', async () => {
+		const res = await exe(`
+		@f() {
+			let ifcat = "ai"
+			ifcat
+		}
+		<: f()
+		`);
+		eq(res, STR('ai'));
+	});
+
+	it('match', async () => {
+		const res = await exe(`
+		@f() {
+			let matchcat = "ai"
+			matchcat
+		}
+		<: f()
+		`);
+		eq(res, STR('ai'));
+	});
+
+	it('true', async () => {
+		const res = await exe(`
+		@f() {
+			let truecat = "ai"
+			truecat
+		}
+		<: f()
+		`);
+		eq(res, STR('ai'));
+	});
+
+	it('false', async () => {
+		const res = await exe(`
+		@f() {
+			let falsecat = "ai"
+			falsecat
+		}
+		<: f()
+		`);
+		eq(res, STR('ai'));
+	});
+
+	it('null', async () => {
+		const res = await exe(`
+		@f() {
+			let nullcat = "ai"
+			nullcat
+		}
+		<: f()
+		`);
+		eq(res, STR('ai'));
+	});
 });
 
 describe('Object', () => {
