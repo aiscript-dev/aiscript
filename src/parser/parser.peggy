@@ -188,9 +188,9 @@ Meta
 // define statement
 
 VarDef
-	= "let" _* name:NAME type:(_* ":" _* @Type)? _* "=" _* expr:Expr
+	= "let" _+ name:NAME type:(_* ":" _* @Type)? _* "=" _* expr:Expr
 { return createNode('def', { name, varType: type, expr, mut: false, attr: [] }); }
-	/ "var" _* name:NAME type:(_* ":" _* @Type)? _* "=" _* expr:Expr
+	/ "var" _+ name:NAME type:(_* ":" _* @Type)? _* "=" _* expr:Expr
 { return createNode('def', { name, varType: type, expr, mut: true, attr: [] }); }
 
 // output statement
@@ -369,17 +369,17 @@ ElseifBlocks
 { return [head, ...tails]; }
 
 ElseifBlock
-	= "elif" _* cond:Expr _* then:Statement
+	= "elif" ![A-Z0-9_:]i _* cond:Expr _* then:Statement
 { return { cond, then }; }
 
 ElseBlock
-	= "else" _* then:Statement
+	= "else" ![A-Z0-9_:]i _* then:Statement
 { return then; }
 
 // match expression
 
 Match
-	= "match" _* about:Expr _* "{" _* qs:(q:Expr _* "=>" _* a:Expr _* { return { q, a }; })+ x:("*" _* "=>" _* v:Expr _* { return v; })? _* "}"
+	= "match" ![A-Z0-9_:]i _* about:Expr _* "{" _* qs:(q:Expr _* "=>" _* a:Expr _* { return { q, a }; })+ x:("*" _* "=>" _* v:Expr _* { return v; })? _* "}"
 {
 	return createNode('match', {
 		about: about,
