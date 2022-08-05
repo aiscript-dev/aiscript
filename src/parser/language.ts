@@ -54,7 +54,7 @@ const language = T.createLanguage({
 
 	statement: r => T.alt([
 		r.varDef,
-		// r.fnDef,
+		//r.fnDef,
 		r.out,
 		r.return,
 		// r.attr,
@@ -94,33 +94,26 @@ const language = T.createLanguage({
 			spacing,
 			r.type,
 		], 3);
-		return T.alt([
-			T.seq([
-				T.str('let'),
-				T.alt([space, T.newline]).many(1),
-				r.identifier,
-				typePart.option(),
-				spacing,
-				T.str('='),
-				spacing,
-				r.expr,
-			]).map(values => {
-				return Ast.DEF(values[2], values[7], false, { varType: values[3] ?? undefined });
-			}),
-			T.seq([
-				T.str('var'),
-				T.alt([space, T.newline]).many(1),
-				r.identifier,
-				typePart.option(),
-				spacing,
-				T.str('='),
-				spacing,
-				r.expr,
-			]).map(values => {
-				return Ast.DEF(values[2], values[7], true, { varType: values[3] ?? undefined });
-			}),
-		]);
+
+		return T.seq([
+			T.alt([
+				T.str('let').map(() => false),
+				T.str('var').map(() => true),
+			]),
+			T.alt([space, T.newline]).many(1),
+			r.identifier,
+			typePart.option(),
+			spacing,
+			T.str('='),
+			spacing,
+			r.expr,
+		]).map(values => {
+			return Ast.DEF(values[2], values[7], values[0], { varType: values[3] ?? undefined });
+		});
 	},
+
+	// fnDef: r => {
+	// },
 
 	out: r => T.seq([
 		T.str('<:'),
