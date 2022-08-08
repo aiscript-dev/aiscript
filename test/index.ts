@@ -249,7 +249,7 @@ it('//', async () => {
 it('式にコロンがあってもオブジェクトと判定されない', async () => {
 	const res = await exe(`
 	{
-		Str:incl("ai", "a")
+		<: Str:incl("ai", "a")
 	}
 	`);
 	eq(res, BOOL(true));
