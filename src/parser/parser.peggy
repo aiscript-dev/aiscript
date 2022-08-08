@@ -107,6 +107,7 @@ Statement
 	/ Attr        // "+"
 	/ ForOf       // "~~" | "each"
 	/ For         // "~" | "for"
+	/ Block       // "{"
 	/ Loop        // "loop"
 	/ Break       // "break"
 	/ Continue    // "continue"
@@ -129,7 +130,7 @@ Term
 	= If          // "if"
 	/ Fn          // "@("
 	/ Match       // "match"
-	/ Block       // "{"
+	/ Eval        // "eval"
 	/ Literal
 	/ Call        // NAME_WITH_NAMESPACE "("
 	/ IndexRef    // NAME_WITH_NAMESPACE "["
@@ -268,6 +269,14 @@ For
 	});
 }
 
+// block statement
+
+Block
+	= "{" _* s:Statements _* "}"
+{
+	return createNode('block', { statements: s });
+}
+
 // return statement
 
 Return
@@ -388,11 +397,13 @@ Match
 	});
 }
 
-// block expression
+// eval expression
 
-Block
-	= "{" _* s:Statements _* "}"
-{ return createNode('block', { statements: s }); }
+Eval
+	= "eval" _* "{" _* s:Statements _* "}"
+{
+	return createNode('block', { statements: s });
+}
 
 // function call expression
 
