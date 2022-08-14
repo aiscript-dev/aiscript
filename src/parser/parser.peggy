@@ -31,10 +31,6 @@
 		return ungroup(groupes);
 	}
 
-	function applyParser(input, startRule) {
-		let parseFunc = peg$parse;
-		return parseFunc(input, startRule ? { startRule } : { });
-	}
 	function createNode(type, params, children) {
 		const node = { type };
 		params.children = children;
@@ -49,25 +45,30 @@
 	}
 }
 
-// First, comments are removed by the entry rule, then the core parser is applied to the code.
-Entry
-	= parts:PreprocessPart*
-{ return applyParser(parts.join(''), 'Core'); }
+//
+// preprocessor
+//
+
+Preprocess
+	= s:PreprocessPart*
+{ return s.join(''); }
 
 PreprocessPart
 	= Tmpl { return text(); }
 	/ Str { return text(); }
-	/ Comment { return ''; }
+	/ Comment
 	/ .
 
 Comment
-	= "//" (!EOL .)*
+	= "//" (!EOL .)* { return ''; }
+
+
 
 //
-// core parser
+// main parser
 //
 
-Core
+Main
 	= _* content:GlobalStatements? _*
 { return content || []; }
 
@@ -105,8 +106,8 @@ Statement
 	/ Out         // "<:"
 	/ Return      // "return"
 	/ Attr        // "+"
-	/ ForOf       // "~~" | "each"
-	/ For         // "~" | "for"
+	/ Each        // "each"
+	/ For         // "for"
 	/ Loop        // "loop"
 	/ Break       // "break"
 	/ Continue    // "continue"
@@ -130,24 +131,19 @@ Term
 	/ Fn          // "@("
 	/ Match       // "match"
 	/ Eval        // "eval"
-	/ Literal
-	/ Call        // NAME_WITH_NAMESPACE "("
-	/ IndexRef    // NAME_WITH_NAMESPACE "["
-	/ PropCall    // NAME_WITH_NAMESPACE "."
-	/ PropRef     // NAME_WITH_NAMESPACE "."
-	/ VarRef      // NAME_WITH_NAMESPACE
-	/ "(" _* e:Expr _* ")" { return e; }
-
-// list of literal
-
-Literal
-	= Tmpl        // "`"
+	/ Tmpl        // "`"
 	/ Str         // "\""
 	/ Num         // "+" | "-" | "1"~"9"
 	/ Bool        // "true" | "false"
 	/ Null        // "null"
 	/ Obj         // "{"
 	/ Arr         // "["
+	/ Call        // NAME_WITH_NAMESPACE "("
+	/ IndexRef    // NAME_WITH_NAMESPACE "["
+	/ PropCall    // NAME_WITH_NAMESPACE "."
+	/ PropRef     // NAME_WITH_NAMESPACE "."
+	/ VarRef      // NAME_WITH_NAMESPACE
+	/ "(" _* e:Expr _* ")" { return e; }
 
 // list of static literal
 
@@ -212,9 +208,9 @@ Attr
 	});
 }
 
-// for-of statement
+// each statement
 
-ForOf
+Each
 	= "each" _* "(" "let" _* varn:NAME _* ","? _* items:Expr ")" _* x:BlockOrStatement
 {
 	return createNode('forOf', {

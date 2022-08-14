@@ -11,8 +11,8 @@
 	"scripts": {
 		"start": "node ./run",
 		"parse": "node ./parse",
-		"peg": "peggy --format es --cache -o src/parser/parser.js --allowed-start-rules Entry,Core --optimize size src/parser/parser.peggy && npm run peg-copy",
-		"peg-debug": "peggy --trace --format es --cache -o src/parser/parser.js --allowed-start-rules Entry,Core --optimize size src/parser/parser.peggy && npm run peg-copy",
+		"peg": "peggy --format es --cache -o src/parser/parser.js --allowed-start-rules Preprocess,Main --optimize size src/parser/parser.peggy && npm run peg-copy",
+		"peg-debug": "peggy --trace --format es --cache -o src/parser/parser.js --allowed-start-rules Preprocess,Main --optimize size src/parser/parser.peggy && npm run peg-copy",
 		"peg-copy": "copyfiles -f src/parser/parser.js built/parser/",
 		"build": "npm run peg && tsc",
 		"build-debug": "npm run peg-debug && tsc",
