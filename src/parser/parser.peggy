@@ -129,7 +129,7 @@ Term
 	= If          // "if"
 	/ Fn          // "@("
 	/ Match       // "match"
-	/ Block       // "{"
+	/ Eval        // "eval"
 	/ Literal
 	/ Call        // NAME_WITH_NAMESPACE "("
 	/ IndexRef    // NAME_WITH_NAMESPACE "["
@@ -215,7 +215,7 @@ Attr
 // for-of statement
 
 ForOf
-	= "each" _* "(" "let" _* varn:NAME _* ","? _* items:Expr ")" _* x:Statement
+	= "each" _* "(" "let" _* varn:NAME _* ","? _* items:Expr ")" _* x:BlockOrStatement
 {
 	return createNode('forOf', {
 		var: varn,
@@ -223,7 +223,7 @@ ForOf
 		for: x,
 	});
 }
-	/ "each" _+ "let" _* varn:NAME _* ","? _* items:Expr _+ x:Statement
+	/ "each" _+ "let" _* varn:NAME _* ","? _* items:Expr _+ x:BlockOrStatement
 {
 	return createNode('forOf', {
 		var: varn,
@@ -235,7 +235,7 @@ ForOf
 // for statement
 
 For
-	= "for" _* "(" "let" _* varn:NAME _* from:("=" _* v:Expr { return v; })? ","? _* to:Expr ")" _* x:Statement
+	= "for" _* "(" "let" _* varn:NAME _* from:("=" _* v:Expr { return v; })? ","? _* to:Expr ")" _* x:BlockOrStatement
 {
 	return createNode('for', {
 		var: varn,
@@ -244,7 +244,7 @@ For
 		for: x,
 	});
 }
-	/ "for" _+ "let" _* varn:NAME _* from:("=" _* v:Expr { return v; })? ","? _* to:Expr _+ x:Statement
+	/ "for" _+ "let" _* varn:NAME _* from:("=" _* v:Expr { return v; })? ","? _* to:Expr _+ x:BlockOrStatement
 {
 	return createNode('for', {
 		var: varn,
@@ -253,14 +253,14 @@ For
 		for: x,
 	});
 }
-	/ "for" _* "(" times:Expr ")" _* x:Statement
+	/ "for" _* "(" times:Expr ")" _* x:BlockOrStatement
 {
 	return createNode('for', {
 		times: times,
 		for: x,
 	});
 }
-	/ "for" _+ times:Expr _+ x:Statement
+	/ "for" _+ times:Expr _+ x:BlockOrStatement
 {
 	return createNode('for', {
 		times: times,
@@ -354,7 +354,7 @@ Op
 // if statement
 
 If
-	= "if" _+ cond:Expr _+ then:Statement elseif:(_+ @ElseifBlocks)? elseBlock:(_+ @ElseBlock)?
+	= "if" _+ cond:Expr _+ then:BlockOrStatement elseif:(_+ @ElseifBlocks)? elseBlock:(_+ @ElseBlock)?
 {
 	return createNode('if', {
 		cond: cond,
@@ -369,17 +369,17 @@ ElseifBlocks
 { return [head, ...tails]; }
 
 ElseifBlock
-	= "elif" ![A-Z0-9_:]i _* cond:Expr _* then:Statement
+	= "elif" ![A-Z0-9_:]i _* cond:Expr _* then:BlockOrStatement
 { return { cond, then }; }
 
 ElseBlock
-	= "else" ![A-Z0-9_:]i _* then:Statement
+	= "else" ![A-Z0-9_:]i _* then:BlockOrStatement
 { return then; }
 
 // match expression
 
 Match
-	= "match" ![A-Z0-9_:]i _* about:Expr _* "{" _* qs:(q:Expr _* "=>" _* a:Expr _* { return { q, a }; })+ x:("*" _* "=>" _* v:Expr _* { return v; })? _* "}"
+	= "match" ![A-Z0-9_:]i _* about:Expr _* "{" _* qs:(q:Expr _* "=>" _* a:BlockOrStatement _* { return { q, a }; })+ x:("*" _* "=>" _* @BlockOrStatement _*)? _* "}"
 {
 	return createNode('match', {
 		about: about,
@@ -388,10 +388,10 @@ Match
 	});
 }
 
-// block expression
+// eval expression
 
-Block
-	= "{" _* s:Statements _* "}"
+Eval
+	= "eval" _* "{" _* s:Statements _* "}"
 { return createNode('block', { statements: s }); }
 
 // function call expression
@@ -616,6 +616,11 @@ NAME_WITH_NAMESPACE
 SEP
 	= _* "," _*
 	/ _+
+
+BlockOrStatement
+	= "{" _* s:Statements? _* "}"
+{ return createNode('block', { statements: (s || []) }); }
+	/ Statement
 
 LF
 	= "\r\n" / [\r\n]

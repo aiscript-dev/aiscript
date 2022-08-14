@@ -210,8 +210,8 @@ describe('Infix expression', () => {
 		eq(res, NUM(4));
 	});
 
-	it('block + block', async () => {
-		eq(await exe('<: { 1 } + { 1 }'), NUM(2));
+	it('eval + eval', async () => {
+		eq(await exe('<: eval { 1 } + eval { 1 }'), NUM(2));
 	});
 
 	it('disallow line break', async () => {
@@ -248,7 +248,7 @@ it('//', async () => {
 
 it('式にコロンがあってもオブジェクトと判定されない', async () => {
 	const res = await exe(`
-	<: {
+	<: eval {
 		Str:incl("ai", "a")
 	}
 	`);
@@ -913,10 +913,10 @@ describe('Return', () => {
 	});
 });
 
-describe('Block', () => {
+describe('Eval', () => {
 	it('returns value', async () => {
 		const res = await exe(`
-		let foo = {
+		let foo = eval {
 			let a = 1
 			let b = 2
 			(a + b)
