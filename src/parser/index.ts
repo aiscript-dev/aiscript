@@ -36,7 +36,10 @@ export class Parser {
 
 		// generate a node tree
 		try {
-			nodes = parser.parse(input);
+			// apply preprocessor
+			const code = parser.parse(input, { startRule: 'Preprocess' });
+			// apply main parser
+			nodes = parser.parse(code, { startRule: 'Main' });
 		} catch (e) {
 			if (e.location) {
 				if (e.expected) {
