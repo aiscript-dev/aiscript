@@ -370,18 +370,11 @@ ElseifBlocks
 
 ElseifBlock
 	= "elif" ![A-Z0-9_:]i _* cond:Expr _* then:BlockOrStatement
-{
-	return {
-		cond: cond,
-		then: then,
-	};
-}
+{ return { cond, then }; }
 
 ElseBlock
 	= "else" ![A-Z0-9_:]i _* then:BlockOrStatement
-{
-	return then;
-}
+{ return then; }
 
 // match expression
 
@@ -391,7 +384,7 @@ Match
 	return createNode('match', {
 		about: about,
 		qs: qs || [],
-		default: x,
+		default: x
 	});
 }
 
