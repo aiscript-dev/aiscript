@@ -215,56 +215,56 @@ Attr
 // for-of statement
 
 ForOf
-	= "each" _* "(" "let" _* varn:NAME _* ","? _* items:Expr ")" _* x:Statement
+	= "each" _* "(" "let" _* varn:NAME _* ","? _* items:Expr ")" _* x:("{" _* @Statements _* "}" / Statement)
 {
 	return createNode('forOf', {
 		var: varn,
 		items: items,
-		for: x,
+		for: (Array.isArray(x) ? createNode('block', { statements: x }) : x),
 	});
 }
-	/ "each" _+ "let" _* varn:NAME _* ","? _* items:Expr _+ x:Statement
+	/ "each" _+ "let" _* varn:NAME _* ","? _* items:Expr _+ x:("{" _* @Statements _* "}" / Statement)
 {
 	return createNode('forOf', {
 		var: varn,
 		items: items,
-		for: x,
+		for: (Array.isArray(x) ? createNode('block', { statements: x }) : x),
 	});
 }
 
 // for statement
 
 For
-	= "for" _* "(" "let" _* varn:NAME _* from:("=" _* v:Expr { return v; })? ","? _* to:Expr ")" _* x:Statement
+	= "for" _* "(" "let" _* varn:NAME _* from:("=" _* v:Expr { return v; })? ","? _* to:Expr ")" _* x:("{" _* @Statements _* "}" / Statement)
 {
 	return createNode('for', {
 		var: varn,
 		from: from || createNode('num', { value: 0 }),
 		to: to,
-		for: x,
+		for: (Array.isArray(x) ? createNode('block', { statements: x }) : x),
 	});
 }
-	/ "for" _+ "let" _* varn:NAME _* from:("=" _* v:Expr { return v; })? ","? _* to:Expr _+ x:Statement
+	/ "for" _+ "let" _* varn:NAME _* from:("=" _* v:Expr { return v; })? ","? _* to:Expr _+ x:("{" _* @Statements _* "}" / Statement)
 {
 	return createNode('for', {
 		var: varn,
 		from: from || createNode('num', { value: 0 }),
 		to: to,
-		for: x,
+		for: (Array.isArray(x) ? createNode('block', { statements: x }) : x),
 	});
 }
-	/ "for" _* "(" times:Expr ")" _* x:Statement
+	/ "for" _* "(" times:Expr ")" _* x:("{" _* @Statements _* "}" / Statement)
 {
 	return createNode('for', {
 		times: times,
-		for: x,
+		for: (Array.isArray(x) ? createNode('block', { statements: x }) : x),
 	});
 }
-	/ "for" _+ times:Expr _+ x:Statement
+	/ "for" _+ times:Expr _+ x:("{" _* @Statements _* "}" / Statement)
 {
 	return createNode('for', {
 		times: times,
-		for: x,
+		for: (Array.isArray(x) ? createNode('block', { statements: x }) : x),
 	});
 }
 
@@ -354,11 +354,11 @@ Op
 // if statement
 
 If
-	= "if" _+ cond:Expr _+ then:Statement elseif:(_+ @ElseifBlocks)? elseBlock:(_+ @ElseBlock)?
+	= "if" _+ cond:Expr _+ then:("{" _* @Statements _* "}" / Statement) elseif:(_+ @ElseifBlocks)? elseBlock:(_+ @ElseBlock)?
 {
 	return createNode('if', {
 		cond: cond,
-		then: then,
+		then: (Array.isArray(then) ? createNode('block', { statements: then }) : then),
 		elseif: elseif || [],
 		else: elseBlock
 	});
@@ -369,22 +369,34 @@ ElseifBlocks
 { return [head, ...tails]; }
 
 ElseifBlock
-	= "elif" ![A-Z0-9_:]i _* cond:Expr _* then:Statement
-{ return { cond, then }; }
+	= "elif" ![A-Z0-9_:]i _* cond:Expr _* then:("{" _* @Statements _* "}" / Statement)
+{
+	return {
+		cond: cond,
+		then: (Array.isArray(then) ? createNode('block', { statements: then }) : then),
+	};
+}
 
 ElseBlock
-	= "else" ![A-Z0-9_:]i _* then:Statement
-{ return then; }
+	= "else" ![A-Z0-9_:]i _* then:("{" _* @Statements _* "}" / Statement)
+{
+	return (Array.isArray(then) ? createNode('block', { statements: then }) : then);
+}
 
 // match expression
 
 Match
-	= "match" ![A-Z0-9_:]i _* about:Expr _* "{" _* qs:(q:Expr _* "=>" _* a:Expr _* { return { q, a }; })+ x:("*" _* "=>" _* v:Expr _* { return v; })? _* "}"
+	= "match" ![A-Z0-9_:]i _* about:Expr _* "{" _* qs:(q:Expr _* "=>" _* a:("{" _* @Statements _* "}" / Statement) _* { return { q, a }; })+ x:("*" _* "=>" _* @("{" _* @Statements _* "}" / Statement) _*)? _* "}"
 {
 	return createNode('match', {
 		about: about,
-		qs: qs || [],
-		default: x
+		qs: (qs || []).map(n => {
+			return {
+				q: n.q,
+				a: (Array.isArray(n.a) ? createNode('block', { statements: n.a }) : n.a),
+			};
+		}),
+		default: (Array.isArray(x) ? createNode('block', { statements: x }) : x),
 	});
 }
 
