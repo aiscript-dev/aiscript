@@ -107,7 +107,6 @@ Statement
 	/ Attr        // "+"
 	/ ForOf       // "~~" | "each"
 	/ For         // "~" | "for"
-	/ Block       // "{"
 	/ Loop        // "loop"
 	/ Break       // "break"
 	/ Continue    // "continue"
@@ -267,14 +266,6 @@ For
 		times: times,
 		for: x,
 	});
-}
-
-// block statement
-
-Block
-	= "{" _* s:Statements _* "}"
-{
-	return createNode('block', { statements: s });
 }
 
 // return statement
