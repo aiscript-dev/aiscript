@@ -392,9 +392,7 @@ Match
 
 Eval
 	= "eval" _* "{" _* s:Statements _* "}"
-{
-	return createNode('block', { statements: s });
-}
+{ return createNode('block', { statements: s }); }
 
 // function call expression
 
