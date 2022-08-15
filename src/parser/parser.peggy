@@ -328,11 +328,11 @@ Dec
 // infix expression
 
 Infix
-	= s:Term rest:(InfixSp* o:Op InfixSp* t:Term { return {o, t}; })+
+	= head:Term tail:(InfixSp* op:Op InfixSp* term:Term { return {op, term}; })+
 {
 	return createNode('infix', {
-		operands: [s, ...rest.map(r => r.t)],
-		operators: rest.map(r => r.o)
+		operands: [head, ...tail.map(i => i.term)],
+		operators: tail.map(i => i.op)
 	});
 }
 
@@ -340,12 +340,9 @@ InfixSp
 	= "\\" LF
 	/ __
 
-// NOTE: sequences that have syntax meaning; don't treat them as operators
-ReservedOps
-	= "<<<" / "=>" / "=" / "+=" / "-="
-
 Op
-	= !(ReservedOps ![-+*/%&|=~<>!?]) [-+*/%&|=~<>!?]+ { return text(); }
+	= ("||" / "&&" / "==" / "!=" / "<=" / ">=" / "<" / ">" / "+" / "-" / "*" / "/" / "%") ![-+*/%&|=~<>!?]
+{ return text(); }
 
 // if statement
 
