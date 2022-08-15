@@ -111,11 +111,7 @@ Statement
 	/ Loop        // "loop"
 	/ Break       // "break"
 	/ Continue    // "continue"
-	/ Assign      // NAME_WITH_NAMESPACE "="
-	/ PropAssign  // NAME_WITH_NAMESPACE "."
-	/ IndexAssign // NAME_WITH_NAMESPACE "["
-	/ Inc         // NAME_WITH_NAMESPACE "+="
-	/ Dec         // NAME_WITH_NAMESPACE "-="
+	/ left:Expr _* op:("+=" / "-=" / "=") _* right:Expr
 	/ Expr
 
 // list of expression
@@ -127,6 +123,10 @@ Expr
 // list of term expression
 
 Term
+	= term:Term2 ext:TermExt*
+{ return { ...term, ext }; }
+
+Term2
 	= If          // "if"
 	/ Fn          // "@("
 	/ Match       // "match"
@@ -138,12 +138,16 @@ Term
 	/ Null        // "null"
 	/ Obj         // "{"
 	/ Arr         // "["
-	/ Call        // NAME_WITH_NAMESPACE "("
-	/ IndexRef    // NAME_WITH_NAMESPACE "["
-	/ PropCall    // NAME_WITH_NAMESPACE "."
-	/ PropRef     // NAME_WITH_NAMESPACE "."
 	/ VarRef      // NAME_WITH_NAMESPACE
 	/ "(" _* e:Expr _* ")" { return e; }
+
+TermExt
+	= "(" _* args:CallArgs? _* ")"
+{ return createNode('callExt', { args }); }
+	/ "[" _* index:Expr _* "]"
+{ return createNode('indexExt', { index }); }
+	/ "." name:NAME
+{ return createNode('propExt', { name }); }
 
 // list of static literal
 
@@ -290,34 +294,33 @@ Continue
 
 // assign statement
 
-Assign
-	= name:NAME_WITH_NAMESPACE _* "=" _* expr:Expr
-{ return createNode('assign', { name, expr }); }
+// Assign
+// 	= name:NAME_WITH_NAMESPACE _* "=" _* expr:Expr
+// { return createNode('assign', { name, expr }); }
 
 // property assign statement
 
-PropAssign
-	= head:NAME_WITH_NAMESPACE tails:("." name:NAME { return name; })+ _* "=" _* expr:Expr
-{ return createNode('propAssign', { obj: head, path: tails, expr }); }
-
+// PropAssign
+// 	= head:NAME_WITH_NAMESPACE tails:("." name:NAME { return name; })+ _* "=" _* expr:Expr
+// { return createNode('propAssign', { obj: head, path: tails, expr }); }
 
 // indexer assign statement
 
-IndexAssign
-	= v:NAME_WITH_NAMESPACE "[" _* i:Expr _* "]" _* "=" _* expr:Expr
-{ return createNode('indexAssign', { arr: v, i: i, expr }); }
+// IndexAssign
+// 	= v:NAME_WITH_NAMESPACE "[" _* i:Expr _* "]" _* "=" _* expr:Expr
+// { return createNode('indexAssign', { arr: v, i: i, expr }); }
 
 // increment statement
 
-Inc
-	= name:NAME_WITH_NAMESPACE _* "+=" _* expr:Expr
-{ return createNode('inc', { name, expr }); }
+// Inc
+// 	= name:NAME_WITH_NAMESPACE _* "+=" _* expr:Expr
+// { return createNode('inc', { name, expr }); }
 
 // decrement statement
 
-Dec
-	= name:NAME_WITH_NAMESPACE _* "-=" _* expr:Expr
-{ return createNode('dec', { name, expr }); }
+// Dec
+// 	= name:NAME_WITH_NAMESPACE _* "-=" _* expr:Expr
+// { return createNode('dec', { name, expr }); }
 
 
 
@@ -392,9 +395,9 @@ Eval
 
 // function call expression
 
-Call
-	= name:NAME_WITH_NAMESPACE "(" _* args:CallArgs? _* ")"
-{ return createNode('call', { name, args: args || [] }); }
+// Call
+// 	= name:NAME_WITH_NAMESPACE "(" _* args:CallArgs? _* ")"
+// { return createNode('call', { name, args: args || [] }); }
 
 CallArgs
 	= head:Expr tails:(SEP expr:Expr { return expr; })*
@@ -402,21 +405,21 @@ CallArgs
 
 // reference of indexer expression
 
-IndexRef
-	= v:NAME_WITH_NAMESPACE "[" _* i:Expr _* "]"
-{ return createNode('index', { arr: v, i: i }); }
+// IndexRef
+// 	= v:NAME_WITH_NAMESPACE "[" _* i:Expr _* "]"
+// { return createNode('index', { arr: v, i: i }); }
 
 // property call
 
-PropCall
-	= head:NAME_WITH_NAMESPACE tails:("." name:NAME { return name; })+ "(" _* args:CallArgs? _* ")"
-{ return createNode('propCall', { obj: head, path: tails, args: args || [] }); }
+// PropCall
+// 	= head:NAME_WITH_NAMESPACE tails:("." name:NAME { return name; })+ "(" _* args:CallArgs? _* ")"
+// { return createNode('propCall', { obj: head, path: tails, args: args || [] }); }
 
 // reference of property expression
 
-PropRef
-	= head:NAME_WITH_NAMESPACE tails:("." name:NAME { return name; })+
-{ return createNode('prop', { obj: head, path: tails }); }
+// PropRef
+// 	= head:NAME_WITH_NAMESPACE tails:("." name:NAME { return name; })+
+// { return createNode('prop', { obj: head, path: tails }); }
 
 // reference of variable expression
 
