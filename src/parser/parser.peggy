@@ -111,24 +111,22 @@ Statement
 	/ Loop        // "loop"
 	/ Break       // "break"
 	/ Continue    // "continue"
-	/ left:Expr _* op:("+=" / "-=" / "=") _* right:Expr
+	/ Assign
 	/ Expr
 
 // list of expression
 
 Expr
 	= Infix
-	/ Term
+	/ Expr2
 
-// list of term expression
-
-Term
-	= term:Term2 ext:TermExt*
-{ return { ...term, ext }; }
-
-Term2
+Expr2
 	= If          // "if"
-	/ Fn          // "@("
+	/ Chain
+	/ Expr3
+
+Expr3
+	= Fn          // "@("
 	/ Match       // "match"
 	/ Eval        // "eval"
 	/ Tmpl        // "`"
@@ -140,14 +138,6 @@ Term2
 	/ Arr         // "["
 	/ VarRef      // NAME_WITH_NAMESPACE
 	/ "(" _* e:Expr _* ")" { return e; }
-
-TermExt
-	= "(" _* args:CallArgs? _* ")"
-{ return createNode('callExt', { args }); }
-	/ "[" _* index:Expr _* "]"
-{ return createNode('indexExt', { index }); }
-	/ "." name:NAME
-{ return createNode('propExt', { name }); }
 
 // list of static literal
 
@@ -294,33 +284,16 @@ Continue
 
 // assign statement
 
-// Assign
-// 	= name:NAME_WITH_NAMESPACE _* "=" _* expr:Expr
-// { return createNode('assign', { name, expr }); }
-
-// property assign statement
-
-// PropAssign
-// 	= head:NAME_WITH_NAMESPACE tails:("." name:NAME { return name; })+ _* "=" _* expr:Expr
-// { return createNode('propAssign', { obj: head, path: tails, expr }); }
-
-// indexer assign statement
-
-// IndexAssign
-// 	= v:NAME_WITH_NAMESPACE "[" _* i:Expr _* "]" _* "=" _* expr:Expr
-// { return createNode('indexAssign', { arr: v, i: i, expr }); }
-
-// increment statement
-
-// Inc
-// 	= name:NAME_WITH_NAMESPACE _* "+=" _* expr:Expr
-// { return createNode('inc', { name, expr }); }
-
-// decrement statement
-
-// Dec
-// 	= name:NAME_WITH_NAMESPACE _* "-=" _* expr:Expr
-// { return createNode('dec', { name, expr }); }
+Assign
+	= target:Expr _* op:("+=" / "-=" / "=") _* expr:Expr
+{
+	if (op === '+=')
+		return createNode('inc', { target, expr });
+	else if (op === '-=')
+		return createNode('dec', { target, expr });
+	else
+		return createNode('assign', { target, expr });
+}
 
 
 
@@ -331,7 +304,7 @@ Continue
 // infix expression
 
 Infix
-	= head:Term tail:(InfixSp* op:Op InfixSp* term:Term { return {op, term}; })+
+	= head:Expr2 tail:(InfixSp* op:Op InfixSp* term:Expr2 { return {op, term}; })+
 {
 	return createNode('infix', {
 		operands: [head, ...tail.map(i => i.term)],
@@ -346,6 +319,24 @@ InfixSp
 Op
 	= ("||" / "&&" / "==" / "!=" / "<=" / ">=" / "<" / ">" / "+" / "-" / "*" / "/" / "%") ![-+*/%&|=~<>!?]
 { return text(); }
+
+// chain
+
+Chain
+	= e:Expr3 ext:(ChainCall / ChainIndex / ChainName)+
+{ return { ...e, ext }; }
+
+ChainCall
+	= "(" _* args:CallArgs? _* ")"
+{ return createNode('chainCall', { args }); }
+
+ChainIndex
+	= "[" _* index:Expr _* "]"
+{ return createNode('chainIndex', { index }); }
+
+ChainName
+	= "." name:NAME
+{ return createNode('chainName', { name }); }
 
 // if statement
 
