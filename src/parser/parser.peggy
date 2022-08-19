@@ -285,14 +285,14 @@ Continue
 // assign statement
 
 Assign
-	= target:Expr _* op:("+=" / "-=" / "=") _* expr:Expr
+	= dest:Expr _* op:("+=" / "-=" / "=") _* expr:Expr
 {
 	if (op === '+=')
-		return createNode('inc', { target, expr });
+		return createNode('inc', { dest, expr });
 	else if (op === '-=')
-		return createNode('dec', { target, expr });
+		return createNode('dec', { dest, expr });
 	else
-		return createNode('assign', { target, expr });
+		return createNode('assign', { dest, expr });
 }
 
 
@@ -323,24 +323,24 @@ Op
 // chain
 
 Chain
-	= e:Expr3 ext:(ChainCall / ChainIndex / ChainName)+
+	= e:Expr3 ext:(CallChain / IndexChain / NameChain)+
 { return { ...e, ext }; }
 
-ChainCall
+CallChain
 	= "(" _* args:CallArgs? _* ")"
-{ return createNode('chainCall', { args }); }
+{ return createNode('callChain', { args: args || [] }); }
 
 CallArgs
 	= head:Expr tails:(SEP expr:Expr { return expr; })*
 { return [head, ...tails]; }
 
-ChainIndex
+IndexChain
 	= "[" _* index:Expr _* "]"
-{ return createNode('chainIndex', { index }); }
+{ return createNode('indexChain', { index }); }
 
-ChainName
+NameChain
 	= "." name:NAME
-{ return createNode('chainName', { name }); }
+{ return createNode('nameChain', { name }); }
 
 // if statement
 
