@@ -27,6 +27,7 @@ const reservedWord = [
 	'attribute',
 	'static',
 	'class',
+	'struct',
 	'module',
 	'while',
 	'import',
