@@ -215,12 +215,12 @@ export type Var = CoreProp & ChainProp & {
 	name: string;
 };
 
-export type StaticObj = CoreProp & ChainProp & {
+export type StaticObj = CoreProp & {
 	type: 'obj';
 	value: Map<string, StaticLiteral>;
 };
 
-export type StaticArr = CoreProp & ChainProp & {
+export type StaticArr = CoreProp & {
 	type: 'arr';
 	value: StaticLiteral[];
 };
