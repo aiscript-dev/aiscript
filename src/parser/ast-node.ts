@@ -1,9 +1,9 @@
 import { TypeSource } from '../type';
 
-export type Node = GlobalMember | NamespaceMember | LocalMember;
-export type LocalMember = Statement | Expression;
+export type Node = GlobalMember | NamespaceMember;
+export type GlobalMember = Namespace | Meta | LocalMember;
 export type NamespaceMember = Definition | Namespace;
-export type GlobalMember = Namespace | Meta;
+export type LocalMember = Statement | Expression;
 
 export type Statement =
 	Definition |
