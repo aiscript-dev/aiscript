@@ -7,7 +7,7 @@ export type GlobalMember = Namespace | Meta;
 
 export type Statement =
 	Definition |
-	Call |
+	Out |
 	Return |
 	Attribute |
 	Each |
@@ -69,10 +69,9 @@ export type Definition = CoreProp & {
 	mut: boolean;
 };
 
-export type Call = CoreProp & {
-	type: 'call';
-	name: string;
-	args: Expression[];
+export type Out = CoreProp & {
+	type: 'out';
+	expr: Expression;
 };
 
 export type Return = CoreProp & {

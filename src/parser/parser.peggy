@@ -185,10 +185,10 @@ VarDef
 
 // output statement
 
-// NOTE: syntax sugar for print()
+// NOTE: out is syntax sugar for print(expr)
 Out
 	= "<:" _* expr:Expr
-{ return createNode('call', { name: 'print', args: [expr] }); }
+{ return createNode('out', { expr }); }
 
 // attribute statement
 
