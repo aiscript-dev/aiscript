@@ -1,6 +1,6 @@
 import { TypeSource } from '../type';
 
-export type Node = GlobalMember | NamespaceMember;
+export type Node = GlobalMember | StaticLiteral;
 export type GlobalMember = Namespace | Meta | LocalMember;
 export type NamespaceMember = Definition | Namespace;
 export type LocalMember = Statement | Expression;
@@ -44,7 +44,7 @@ export type StaticLiteral =
 	StaticObj |
 	StaticArr;
 
-export type ChainMember =
+export type ChainSource =
 	Fn |
 	Match |
 	Eval |
@@ -244,7 +244,7 @@ export type StaticArr = CoreProp & {
 // [ex.] call > fn
 export type Call = CoreProp & {
 	type: 'call';
-	expr: ChainMember;
+	expr: ChainSource;
 	args: Expression[];
 };
 
@@ -252,7 +252,7 @@ export type Call = CoreProp & {
 // [ex.] index > arr
 export type Index = CoreProp & {
 	type: 'index';
-	expr: ChainMember;
+	expr: ChainSource;
 	index: Expression;
 };
 
@@ -260,6 +260,6 @@ export type Index = CoreProp & {
 // [ex.] prop > obj
 export type Prop = CoreProp & {
 	type: 'prop';
-	expr: ChainMember;
+	expr: ChainSource;
 	name: string;
 };

@@ -1,6 +1,6 @@
 import { TypeSource } from '../type';
 
-export type Node = GlobalMember | NamespaceMember;
+export type Node = GlobalMember | StaticLiteral | ChainMember;
 export type GlobalMember = Namespace | Meta | LocalMember;
 export type NamespaceMember = Definition | Namespace;
 export type LocalMember = Statement | Expression;
@@ -228,8 +228,10 @@ export type StaticArr = CoreProp & {
 // chain
 
 type ChainProp = {
-	chain: (CallChain | IndexChain | NameChain)[];
+	chain: ChainMember[];
 };
+
+export type ChainMember = CallChain | IndexChain | NameChain;
 
 export type CallChain = CoreProp & {
 	type: 'callChain';
