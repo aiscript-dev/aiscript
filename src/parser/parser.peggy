@@ -323,7 +323,7 @@ Op
 // chain
 
 Chain
-	= e:Expr3 ext:(CallChain / IndexChain / NameChain)+
+	= e:Expr3 ext:(CallChain / IndexChain / PropChain)+
 { return { ...e, ext }; }
 
 CallChain
@@ -338,9 +338,9 @@ IndexChain
 	= "[" _* index:Expr _* "]"
 { return createNode('indexChain', { index }); }
 
-NameChain
+PropChain
 	= "." name:NAME
-{ return createNode('nameChain', { name }); }
+{ return createNode('propChain', { name }); }
 
 // if statement
 

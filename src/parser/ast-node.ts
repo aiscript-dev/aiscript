@@ -231,7 +231,7 @@ type ChainProp = {
 	chain: ChainMember[];
 };
 
-export type ChainMember = CallChain | IndexChain | NameChain;
+export type ChainMember = CallChain | IndexChain | PropChain;
 
 export type CallChain = CoreProp & {
 	type: 'callChain';
@@ -243,7 +243,7 @@ export type IndexChain = CoreProp & {
 	index: Expression;
 };
 
-export type NameChain = CoreProp & {
-	type: 'nameChain';
+export type PropChain = CoreProp & {
+	type: 'propChain';
 	name: string;
 };
