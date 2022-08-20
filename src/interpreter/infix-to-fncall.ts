@@ -1,4 +1,4 @@
-import { Node, NInfix, NCall } from '../node';
+import * as N from '../node';
 import { AiScriptError } from './error';
 
 /**
@@ -11,15 +11,15 @@ import { AiScriptError } from './error';
  */
 type InfixTree = {
 	type: 'infixTree';
-	left: InfixTree | Node;
-	right: InfixTree | Node;
+	left: InfixTree | N.Node;
+	right: InfixTree | N.Node;
 	info: {
 		func: string; // 対応する関数名
 		priority: number; // 優先度（高いほど優先して計算される値）
 	};
 };
 
-function INFIX_TREE(left: InfixTree | Node, right: InfixTree | Node, info: InfixTree["info"]): InfixTree {
+function INFIX_TREE(left: InfixTree | N.Node, right: InfixTree | N.Node, info: InfixTree["info"]): InfixTree {
 	return { type: 'infixTree', left, right, info };
 }
 
@@ -46,7 +46,7 @@ function INFIX_TREE(left: InfixTree | Node, right: InfixTree | Node, info: Infix
  * - NOTE: 右結合性の演算子としては代入演算子などが挙げられる
  * - NOTE: 比較の演算子などは非結合性とされる
  */
-function insertTree(currTree: InfixTree | Node, nextTree: InfixTree | Node, nextOpInfo: InfixTree["info"]): InfixTree {
+function insertTree(currTree: InfixTree | N.Node, nextTree: InfixTree | N.Node, nextOpInfo: InfixTree["info"]): InfixTree {
 	if (currTree.type !== 'infixTree') {
 		return INFIX_TREE(currTree, nextTree, nextOpInfo);
 	}
@@ -62,15 +62,15 @@ function insertTree(currTree: InfixTree | Node, nextTree: InfixTree | Node, next
 /**
  * 中置演算子式を表す木を対応する関数呼び出しの構造体に変換する
  */
-function treeToNode(tree: InfixTree | Node): Node {
+function treeToNode(tree: InfixTree | N.Node): N.Node {
 	if (tree.type !== 'infixTree') {
 		return tree;
 	}
 	return {
 		type: 'call',
-		name: tree.info.func,
+		target: { type: 'var', name: tree.info.func },
 		args: [treeToNode(tree.left), treeToNode(tree.right)],
-	} as NCall;
+	} as N.Call;
 }
 
 const infoTable: Record<string, InfixTree["info"]> = {
@@ -92,7 +92,7 @@ const infoTable: Record<string, InfixTree["info"]> = {
 /**
  * NInfix を関数呼び出し形式に変換する
  */
-export function infixToFnCall(node: NInfix): Node {
+export function infixToFnCall(node: N.Infix): N.Node {
 	const infos = node.operators.map(op => {
 		const info = infoTable[op];
 		if (info == null) {
