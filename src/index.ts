@@ -9,5 +9,4 @@ export { AiScript };
 export { utils };
 export { values };
 export { Parser, ParserPlugin, parse } from './parser';
-export { serialize, deserialize } from './serializer';
 export { SyntaxError, SemanticError } from './error';

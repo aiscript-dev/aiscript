@@ -29,7 +29,6 @@
 		<div id="bin" class="container">
 			<header>Bytecode</header>
 			<div>
-				<code>{{ JSON.stringify(bytecode) }}</code>
 			</div>
 		</div>
 		<div id="debugger" class="container">
@@ -56,7 +55,6 @@ import 'prismjs/themes/prism-okaidia.css';
 const script = ref(window.localStorage.getItem('script') || '<: "Hello, AiScript!"');
 
 const ast = ref(null);
-const bytecode = ref(null);
 const logs = ref([]);
 const isSyntaxError = ref(false);
 
@@ -70,7 +68,6 @@ watch(script, () => {
 		console.error(e);
 		return;
 	}
-	bytecode.value = serialize(ast.value);
 }, {
 	immediate: true
 });

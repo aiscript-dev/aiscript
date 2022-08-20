@@ -4,7 +4,7 @@
  */
 
 import * as assert from 'assert';
-import { parse, Parser, serialize, deserialize, utils } from '../src';
+import { parse, Parser, utils } from '../src';
 import { AiScript } from '../src/interpreter';
 import { NUM, STR, NULL, ARR, OBJ, BOOL } from '../src/interpreter/value';
 import { NAttr, Node } from '../src/node';
@@ -19,10 +19,7 @@ const exe = (program: string): Promise<any> => new Promise((ok, err) => {
 
 	const parser = new Parser();
 	const ast = parser.parse(program);
-
-	const _ast = deserialize(serialize(ast));
-
-	aiscript.exec(_ast).catch(err);
+	aiscript.exec(ast).catch(err);
 });
 
 const getMeta = (program: string) => {
@@ -47,8 +44,7 @@ it('Hello, world!', async () => {
 it('empty script', async () => {
 	const parser = new Parser();
 	const ast = parser.parse('');
-	const _ast = deserialize(serialize(ast));
-	assert.deepEqual(_ast, []);
+	assert.deepEqual(ast, []);
 });
 
 it('legacy parser api', async () => {
@@ -60,9 +56,7 @@ it('legacy parser api', async () => {
 		});
 
 		const ast = parse(program);
-		const _ast = deserialize(serialize(ast));
-
-		aiscript.exec(_ast).catch(err);
+		aiscript.exec(ast).catch(err);
 	});
 
 	const res = await exeLegacy('<: "Hello, world!"');
@@ -547,12 +541,12 @@ describe('Object', () => {
 
 	it('property access (fn call)', async () => {
 		const res = await exe(`
-		@fn() { 42 }
+		@f() { 42 }
 
 		let obj = {
 			a: {
 				b: {
-					c: fn;
+					c: f;
 				};
 			};
 		}
@@ -651,8 +645,8 @@ it('Array item assign', async () => {
 describe('Template syntax', () => {
 	it('Basic', async () => {
 		const res = await exe(`
-		let attr = "kawaii"
-		<: \`Ai is {attr}!\`
+		let str = "kawaii"
+		<: \`Ai is {str}!\`
 		`);
 		eq(res, STR('Ai is kawaii!'));
 	});
