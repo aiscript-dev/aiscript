@@ -9,10 +9,9 @@
 
 import { TypeSource } from '../type';
 
-export type Node = GlobalMember | StaticLiteral | ChainMember;
-export type GlobalMember = Namespace | Meta | LocalMember;
+export type Node = Namespace | Meta | Statement | Expression | StaticLiteral | ChainMember;
+export type GlobalMember = Namespace | Meta | Statement | Expression;
 export type NamespaceMember = Definition | Namespace;
-export type LocalMember = Statement | Expression;
 
 export type Statement =
 	Definition |
@@ -33,7 +32,7 @@ export type Expression =
 	If |
 	Fn |
 	Match |
-	Eval |
+	Block |
 	Tmpl |
 	Str |
 	Num |
@@ -51,26 +50,27 @@ export type StaticLiteral =
 	StaticObj |
 	StaticArr;
 
-type CoreProp = {
+type NodeBase = {
+	__AST_NODE: never;
 	loc?: {
 		start: number;
 		end: number;
 	};
 };
 
-export type Namespace = CoreProp & {
+export type Namespace = NodeBase & {
 	type: 'ns';
 	name: string;
 	members: NamespaceMember[];
 };
 
-export type Meta = CoreProp & {
+export type Meta = NodeBase & {
 	type: 'meta';
 	name: string | null;
 	value: StaticLiteral;
 };
 
-export type Definition = CoreProp & {
+export type Definition = NodeBase & {
 	type: 'def';
 	name: string;
 	varType?: TypeSource;
@@ -78,64 +78,64 @@ export type Definition = CoreProp & {
 	mut: boolean;
 };
 
-export type Out = CoreProp & {
-	type: 'out';
-	expr: Expression;
-};
-
-export type Return = CoreProp & {
-	type: 'return';
-	expr: Expression;
-};
-
-export type Attribute = CoreProp & {
+export type Attribute = NodeBase & {
 	type: 'attr';
 	name: string;
 	value: StaticLiteral;
 };
 
-export type Each = CoreProp & {
+export type Out = NodeBase & {
+	type: 'out';
+	expr: Expression;
+};
+
+export type Return = NodeBase & {
+	type: 'return';
+	expr: Expression;
+};
+
+export type Each = NodeBase & {
 	type: 'forOf';
 	var: string;
 	items: Expression;
-	for: LocalMember;
+	for: Statement | Expression;
 };
 
-export type For = CoreProp & {
+export type For = NodeBase & {
 	type: 'for';
 	var?: string;
 	from?: Expression;
 	to?: Expression;
 	times?: Expression;
-	for: LocalMember;
+	for: Statement | Expression;
 };
 
-export type Loop = CoreProp & {
+export type Loop = NodeBase & {
 	type: 'loop';
-	statements: LocalMember[];
+	statements: (Statement | Expression)[];
 };
 
-export type Break = CoreProp & {
+export type Break = NodeBase & {
 	type: 'break';
 };
 
-export type Continue = CoreProp & {
+export type Continue = NodeBase & {
 	type: 'continue';
 };
 
-export type AddAssign = CoreProp & {
+export type AddAssign = NodeBase & {
 	type: 'inc';
 	dest: Expression;
 	expr: Expression;
 };
 
-export type SubAssign = CoreProp & {
+export type SubAssign = NodeBase & {
 	type: 'dec';
 	dest: Expression;
 	expr: Expression;
 };
 
-export type Assign = CoreProp & {
+export type Assign = NodeBase & {
 	type: 'assign';
 	dest: Expression;
 	expr: Expression;
@@ -143,93 +143,93 @@ export type Assign = CoreProp & {
 
 export type InfixOperator = "||" | "&&" | "==" | "!=" | "<=" | ">=" | "<" | ">" | "+" | "-" | "*" | "|" | "%";
 
-export type Infix = CoreProp & {
+export type Infix = NodeBase & {
 	type: 'infix';
 	operands: Expression[];
 	operators: InfixOperator[];
 };
 
-export type If = CoreProp & {
+export type If = NodeBase & {
 	type: 'if';
 	cond: Expression;
-	then: LocalMember;
+	then: Statement | Expression;
 	elseif: {
 		cond: Expression;
-		then: LocalMember;
+		then: Statement | Expression;
 	}[];
-	else?: LocalMember;
+	else?: Statement | Expression;
 };
 
-export type Fn = CoreProp & ChainProp & {
+export type Fn = NodeBase & ChainProp & {
 	type: 'fn';
 	args: {
 		name: string;
 		type?: TypeSource;
 	}[];
 	ret?: TypeSource; 
-	children: LocalMember[];
+	children: (Statement | Expression)[];
 };
 
-export type Match = CoreProp & ChainProp & {
+export type Match = NodeBase & ChainProp & {
 	type: 'match';
 	about: Expression;
 	qs: {
 		q: Expression;
-		a: LocalMember;
+		a: Statement | Expression;
 	}[];
-	default?: LocalMember;
+	default?: Statement | Expression;
 };
 
-export type Eval = CoreProp & ChainProp & {
+export type Block = NodeBase & ChainProp & {
 	type: 'block';
-	statements: LocalMember[];
+	statements: (Statement | Expression)[];
 };
 
-export type Tmpl = CoreProp & ChainProp & {
+export type Tmpl = NodeBase & ChainProp & {
 	type: 'tmpl';
 	tmpl: (string | Expression)[];
 };
 
-export type Str = CoreProp & ChainProp & {
+export type Str = NodeBase & ChainProp & {
 	type: 'str';
 	value: string;
 };
 
-export type Num = CoreProp & ChainProp & {
+export type Num = NodeBase & ChainProp & {
 	type: 'num';
 	value: number;
 };
 
-export type Bool = CoreProp & ChainProp & {
+export type Bool = NodeBase & ChainProp & {
 	type: 'bool';
 	value: boolean;
 };
 
-export type Null = CoreProp & ChainProp & {
+export type Null = NodeBase & ChainProp & {
 	type: 'null';
 };
 
-export type Obj = CoreProp & ChainProp & {
+export type Obj = NodeBase & ChainProp & {
 	type: 'obj';
 	value: Map<string, Expression>;
 };
 
-export type Arr = CoreProp & ChainProp & {
+export type Arr = NodeBase & ChainProp & {
 	type: 'arr';
 	value: Expression[];
 };
 
-export type Var = CoreProp & ChainProp & {
+export type Var = NodeBase & ChainProp & {
 	type: 'var';
 	name: string;
 };
 
-export type StaticObj = CoreProp & {
+export type StaticObj = NodeBase & {
 	type: 'obj';
 	value: Map<string, StaticLiteral>;
 };
 
-export type StaticArr = CoreProp & {
+export type StaticArr = NodeBase & {
 	type: 'arr';
 	value: StaticLiteral[];
 };
@@ -242,17 +242,17 @@ type ChainProp = {
 
 export type ChainMember = CallChain | IndexChain | PropChain;
 
-export type CallChain = CoreProp & {
+export type CallChain = NodeBase & {
 	type: 'callChain';
 	args: Expression[];
 };
 
-export type IndexChain = CoreProp & {
+export type IndexChain = NodeBase & {
 	type: 'indexChain';
 	index: Expression;
 };
 
-export type PropChain = CoreProp & {
+export type PropChain = NodeBase & {
 	type: 'propChain';
 	name: string;
 };

@@ -6,7 +6,7 @@
 
 import { TypeSource } from '../type';
 
-export type Node = GlobalMember | StaticLiteral;
+export type Node = Namespace | Meta | Statement | Expression | StaticLiteral;
 export type GlobalMember = Namespace | Meta | Statement | Expression;
 export type NamespaceMember = Definition | Namespace;
 
@@ -27,7 +27,7 @@ export type Expression =
 	If |
 	Fn |
 	Match |
-	Eval |
+	Block |
 	Tmpl |
 	Str |
 	Num |
@@ -51,7 +51,7 @@ export type StaticLiteral =
 export type ChainTarget =
 	Fn |
 	Match |
-	Eval |
+	Block |
 	Tmpl |
 	Str |
 	Num |
@@ -64,26 +64,27 @@ export type ChainTarget =
 	Index |
 	Prop;
 
-type CoreProp = {
+type NodeBase = {
+	__IR_NODE: never;
 	loc?: { // コード位置
 		start: number;
 		end: number;
 	};
 };
 
-export type Namespace = CoreProp & {
+export type Namespace = NodeBase & {
 	type: 'ns'; // 名前空間
 	name: string; // 空間名
 	members: NamespaceMember[]; // メンバー
 };
 
-export type Meta = CoreProp & {
+export type Meta = NodeBase & {
 	type: 'meta'; // メタデータ定義
 	name: string | null; // 名
 	value: StaticLiteral; // 値
 };
 
-export type Definition = CoreProp & {
+export type Definition = NodeBase & {
 	type: 'def'; // 変数宣言文
 	name: string; // 変数名
 	varType?: TypeSource; // 変数の型
@@ -92,25 +93,25 @@ export type Definition = CoreProp & {
 	attr: Attribute[]; // 付加された属性
 };
 
-export type Attribute = CoreProp & {
+export type Attribute = NodeBase & {
 	type: 'attr'; // 属性
 	name: string; // 属性名
 	value: StaticLiteral; // 値
 };
 
-export type Return = CoreProp & {
+export type Return = NodeBase & {
 	type: 'return'; // return文
 	expr: Expression; // 式
 };
 
-export type Each = CoreProp & {
+export type Each = NodeBase & {
 	type: 'forOf'; // each文
 	var: string; // イテレータ変数名
 	items: Expression; // 配列
 	for: Statement | Expression; // 本体処理
 };
 
-export type For = CoreProp & {
+export type For = NodeBase & {
 	type: 'for'; // for文
 	var?: string; // イテレータ変数名
 	from?: Expression; // 開始値
@@ -119,32 +120,32 @@ export type For = CoreProp & {
 	for: Statement | Expression; // 本体処理
 };
 
-export type Loop = CoreProp & {
+export type Loop = NodeBase & {
 	type: 'loop'; // loop文
 	statements: (Statement | Expression)[]; // 処理
 };
 
-export type Break = CoreProp & {
+export type Break = NodeBase & {
 	type: 'break'; // break文
 };
 
-export type Continue = CoreProp & {
+export type Continue = NodeBase & {
 	type: 'continue'; // continue文
 };
 
-export type AddAssign = CoreProp & {
+export type AddAssign = NodeBase & {
 	type: 'inc'; // 加算代入文
 	dest: Expression; // 代入先
 	expr: Expression; // 式
 };
 
-export type SubAssign = CoreProp & {
+export type SubAssign = NodeBase & {
 	type: 'dec'; // 減算代入文
 	dest: Expression; // 代入先
 	expr: Expression; // 式
 };
 
-export type Assign = CoreProp & {
+export type Assign = NodeBase & {
 	type: 'assign'; // 代入文
 	dest: Expression; // 代入先
 	expr: Expression; // 式
@@ -153,13 +154,13 @@ export type Assign = CoreProp & {
 export type InfixOperator = "||" | "&&" | "==" | "!=" | "<=" | ">=" | "<" | ">" | "+" | "-" | "*" | "|" | "%";
 
 // TODO: remove by transform plugin
-export type Infix = CoreProp & {
+export type Infix = NodeBase & {
 	type: 'infix'; // 中置演算子式
 	operands: Expression[]; // 項のリスト
 	operators: InfixOperator[]; // 演算子のリスト
 };
 
-export type If = CoreProp & {
+export type If = NodeBase & {
 	type: 'if'; // if式
 	cond: Expression; // 条件式
 	then: Statement | Expression; // then節
@@ -170,7 +171,7 @@ export type If = CoreProp & {
 	else?: Statement | Expression; // else節
 };
 
-export type Fn = CoreProp & {
+export type Fn = NodeBase & {
 	type: 'fn'; // 関数
 	args: {
 		name: string; // 引数名
@@ -180,7 +181,7 @@ export type Fn = CoreProp & {
 	children: (Statement | Expression)[]; // 本体処理
 };
 
-export type Match = CoreProp & {
+export type Match = NodeBase & {
 	type: 'match'; // パターンマッチ
 	about: Expression; // 対象
 	qs: {
@@ -190,56 +191,56 @@ export type Match = CoreProp & {
 	default?: Statement | Expression; // デフォルト値
 };
 
-export type Eval = CoreProp & {
+export type Block = NodeBase & {
 	type: 'block'; // ブロックまたはeval式
 	statements: (Statement | Expression)[]; // 処理
 };
 
-export type Tmpl = CoreProp & {
+export type Tmpl = NodeBase & {
 	type: 'tmpl'; // テンプレート
 	tmpl: (string | Expression)[]; // 処理
 };
 
-export type Str = CoreProp & {
+export type Str = NodeBase & {
 	type: 'str'; // 文字列リテラル
 	value: string; // 文字列
 };
 
-export type Num = CoreProp & {
+export type Num = NodeBase & {
 	type: 'num'; // 数値リテラル
 	value: number; // 数値
 };
 
-export type Bool = CoreProp & {
+export type Bool = NodeBase & {
 	type: 'bool'; // 真理値リテラル
 	value: boolean; // 真理値
 };
 
-export type Null = CoreProp & {
+export type Null = NodeBase & {
 	type: 'null'; // nullリテラル
 };
 
-export type Obj = CoreProp & {
+export type Obj = NodeBase & {
 	type: 'obj'; // オブジェクト
 	value: Map<string, Expression>; // プロパティ
 };
 
-export type Arr = CoreProp & {
+export type Arr = NodeBase & {
 	type: 'arr'; // 配列
 	value: Expression[]; // アイテム
 };
 
-export type Var = CoreProp & {
+export type Var = NodeBase & {
 	type: 'var'; // 変数
 	name: string; // 変数名
 };
 
-export type StaticObj = CoreProp & {
+export type StaticObj = NodeBase & {
 	type: 'obj'; // 静的なオブジェクト
 	value: Map<string, StaticLiteral>; // プロパティ
 };
 
-export type StaticArr = CoreProp & {
+export type StaticArr = NodeBase & {
 	type: 'arr'; // 静的な配列
 	value: StaticLiteral[]; // アイテム
 };
@@ -252,19 +253,19 @@ export type StaticArr = CoreProp & {
 // prop > prop(obj) > var(obj)
 // call > prop(fn) > obj
 
-export type Call = CoreProp & {
+export type Call = NodeBase & {
 	type: 'call'; // 関数呼び出し
 	target: ChainTarget; // 対象
 	args: Expression[]; // 引数
 };
 
-export type Index = CoreProp & {
+export type Index = NodeBase & {
 	type: 'index'; // 配列要素アクセス
 	target: ChainTarget; // 対象
 	index: Expression; // インデックス
 };
 
-export type Prop = CoreProp & {
+export type Prop = NodeBase & {
 	type: 'prop'; // プロパティアクセス
 	target: ChainTarget; // 対象
 	name: string; // プロパティ名
