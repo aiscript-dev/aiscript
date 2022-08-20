@@ -1,21 +1,18 @@
 /**
  * ASTノード
- * 
- * パーサーが生成する直接的な処理結果(AST)です。
+ *
+ * パーサーが生成する直接的な処理結果です。
  * パーサーが生成しやすい形式になっているため、インタプリタ等では操作しにくい構造になっていることがあります。
  * この処理結果がプラグインによって処理されるとIRノードとなります。
- * IRノードはインタプリタ等から操作しやすい構造に加工されたものです。
 */
 
 import { TypeSource } from '../type';
 
 export type Node = Namespace | Meta | Statement | Expression | StaticLiteral | ChainMember;
-export type GlobalMember = Namespace | Meta | Statement | Expression;
-export type NamespaceMember = Definition | Namespace;
 
 export type Statement =
 	Definition |
-	Out |
+	Out | // AST
 	Return |
 	Attribute |
 	Each |
@@ -40,7 +37,10 @@ export type Expression =
 	Null |
 	Obj |
 	Arr |
-	Var;
+	Var |
+	Call | // IR
+	Index | // IR
+	Prop; // IR
 
 export type StaticLiteral =
 	Str |
@@ -50,6 +50,23 @@ export type StaticLiteral =
 	StaticObj |
 	StaticArr;
 
+// IR
+export type ChainTarget =
+	Fn |
+	Match |
+	Block |
+	Tmpl |
+	Str |
+	Num |
+	Bool |
+	Null |
+	Obj |
+	Arr |
+	Var |
+	Call | // IR
+	Index | // IR
+	Prop; // IR
+
 type NodeBase = {
 	__AST_NODE: never;
 	loc?: {
@@ -57,6 +74,8 @@ type NodeBase = {
 		end: number;
 	};
 };
+
+export type NamespaceMember = Definition | Namespace;
 
 export type Namespace = NodeBase & {
 	type: 'ns';
@@ -76,6 +95,7 @@ export type Definition = NodeBase & {
 	varType?: TypeSource;
 	expr: Expression;
 	mut: boolean;
+	attr?: Attribute[]; // IR
 };
 
 export type Attribute = NodeBase & {
@@ -84,7 +104,7 @@ export type Attribute = NodeBase & {
 	value: StaticLiteral;
 };
 
-export type Out = NodeBase & {
+export type Out = NodeBase & { // AST
 	type: 'out';
 	expr: Expression;
 };
@@ -234,25 +254,47 @@ export type StaticArr = NodeBase & {
 	value: StaticLiteral[];
 };
 
-// chain
-
 type ChainProp = {
-	chain: ChainMember[];
+	chain?: ChainMember[]; // AST
 };
 
 export type ChainMember = CallChain | IndexChain | PropChain;
 
+// AST
 export type CallChain = NodeBase & {
 	type: 'callChain';
 	args: Expression[];
 };
 
+// AST
 export type IndexChain = NodeBase & {
 	type: 'indexChain';
 	index: Expression;
 };
 
+// AST
 export type PropChain = NodeBase & {
 	type: 'propChain';
+	name: string;
+};
+
+// IR
+export type Call = NodeBase & {
+	type: 'call';
+	target: ChainTarget;
+	args: Expression[];
+};
+
+// IR
+export type Index = NodeBase & {
+	type: 'index';
+	target: ChainTarget;
+	index: Expression;
+};
+
+// IR
+export type Prop = NodeBase & {
+	type: 'prop';
+	target: ChainTarget;
 	name: string;
 };
