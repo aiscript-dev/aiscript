@@ -1,12 +1,13 @@
 import * as aiscript from '..';
-import { Node } from '../node';
+import * as N from '../node';
+import * as Ast from './node';
 import * as parser from './parser.js';
 
 import { validateKeyword } from './plugins/validate-keyword';
 import { validateType } from './plugins/validate-type';
 import { setAttribute } from './plugins/set-attribute';
 
-export type ParserPlugin = (nodes: Node[]) => Node[];
+export type ParserPlugin = (nodes: Ast.Node[]) => Ast.Node[];
 
 export class Parser {
 	private static instance?: Parser;
@@ -20,7 +21,7 @@ export class Parser {
 		];
 	}
 
-	public static parse(input: string): Node[] {
+	public static parse(input: string): N.Node[] {
 		if (Parser.instance == null) {
 			Parser.instance = new Parser();
 		}
@@ -31,8 +32,8 @@ export class Parser {
 		this.plugins.push(plugin);
 	}
 
-	public parse(input: string): Node[] {
-		let nodes: Node[];
+	public parse(input: string): N.Node[] {
+		let nodes: Ast.Node[];
 
 		// generate a node tree
 		try {
@@ -56,12 +57,12 @@ export class Parser {
 			nodes = plugin(nodes);
 		}
 
-		return nodes;
+		return nodes as N.Node[];
 	}
 }
 
 // alias of legacy api
 
-export function parse(input: string): Node[] {
+export function parse(input: string): N.Node[] {
 	return Parser.parse(input);
 }
