@@ -48,7 +48,7 @@ export type StaticLiteral =
 	StaticObj |
 	StaticArr;
 
-export type ChainSource =
+export type ChainTarget =
 	Fn |
 	Match |
 	Eval |
@@ -254,18 +254,18 @@ export type StaticArr = CoreProp & {
 
 export type Call = CoreProp & {
 	type: 'call'; // 関数呼び出し
-	expr: ChainSource; // 対象
+	target: ChainTarget; // 対象
 	args: Expression[]; // 引数
 };
 
 export type Index = CoreProp & {
 	type: 'index'; // 配列要素アクセス
-	expr: ChainSource; // 対象
+	target: ChainTarget; // 対象
 	index: Expression; // インデックス
 };
 
 export type Prop = CoreProp & {
 	type: 'prop'; // プロパティアクセス
-	expr: ChainSource; // 対象
+	target: ChainTarget; // 対象
 	name: string; // プロパティ名
 };
