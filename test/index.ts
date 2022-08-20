@@ -7,7 +7,7 @@ import * as assert from 'assert';
 import { parse, Parser, utils } from '../src';
 import { AiScript } from '../src/interpreter';
 import { NUM, STR, NULL, ARR, OBJ, BOOL } from '../src/interpreter/value';
-import { NAttr, Node } from '../src/node';
+import * as N from '../src/node';
 
 const exe = (program: string): Promise<any> => new Promise((ok, err) => {
 	const aiscript = new AiScript({}, {
@@ -1652,8 +1652,8 @@ describe('lang version', () => {
 
 describe('Attribute', () => {
 	it('single attribute with function (str)', async () => {
-		let node: Node;
-		let attr: NAttr;
+		let node: N.Node;
+		let attr: N.Attribute;
 		const parser = new Parser();
 		const nodes = parser.parse(`
 		#[Event "Recieved"]
@@ -1675,8 +1675,8 @@ describe('Attribute', () => {
 	});
 
 	it('multiple attributes with function (obj, str, bool)', async () => {
-		let node: Node;
-		let attr: NAttr;
+		let node: N.Node;
+		let attr: N.Attribute;
 		const parser = new Parser();
 		const nodes = parser.parse(`
 		#[Endpoint { path: "/notes/create"; }]
@@ -1724,8 +1724,8 @@ describe('Attribute', () => {
 	// TODO: attribute target does not exist
 
 	it('single attribute (no value)', async () => {
-		let node: Node;
-		let attr: NAttr;
+		let node: N.Node;
+		let attr: N.Attribute;
 		const parser = new Parser();
 		const nodes = parser.parse(`
 		#[serializable]
@@ -1747,7 +1747,7 @@ describe('Attribute', () => {
 
 describe('Location', () => {
 	it('function', async () => {
-		let node: Node;
+		let node: N.Node;
 		const parser = new Parser();
 		const nodes = parser.parse(`
 		@f(a) { a }
