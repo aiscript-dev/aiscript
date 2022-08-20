@@ -1,3 +1,12 @@
+/**
+ * ASTノード
+ * 
+ * パーサーが生成する直接的な処理結果(AST)です。
+ * パーサーが生成しやすい形式になっているため、インタプリタ等では操作しにくい構造になっていることがあります。
+ * この処理結果がプラグインによって処理されるとIRノードとなります。
+ * 通常の場合、インタプリタ等からはIRノードを操作します。
+*/
+
 import { TypeSource } from '../type';
 
 export type Node = GlobalMember | StaticLiteral | ChainMember;

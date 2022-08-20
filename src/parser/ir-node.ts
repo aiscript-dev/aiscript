@@ -1,3 +1,9 @@
+/**
+ * IRノード
+ * 
+ * 詳しくはASTノードの説明を参照してください。
+*/
+
 import { TypeSource } from '../type';
 
 export type Node = GlobalMember | StaticLiteral;
