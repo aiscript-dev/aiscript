@@ -65,7 +65,7 @@ export type ChainTarget =
 	Prop;
 
 type CoreProp = {
-	loc?: {
+	loc?: { // コード位置
 		start: number;
 		end: number;
 	};
