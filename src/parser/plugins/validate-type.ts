@@ -1,6 +1,6 @@
 import * as aiscript from '../..';
 import { SemanticError } from '../../error';
-import { Node } from '../../node';
+import { Node } from '../node';
 import { getTypeBySource } from '../../type';
 
 function validate(node: Node) {
