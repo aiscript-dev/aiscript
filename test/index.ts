@@ -546,12 +546,12 @@ describe('Object', () => {
 
 	it('property access (fn call)', async () => {
 		const res = await exe(`
-		@fn() { 42 }
+		@f() { 42 }
 
 		let obj = {
 			a: {
 				b: {
-					c: fn;
+					c: f;
 				};
 			};
 		}
@@ -650,8 +650,8 @@ it('Array item assign', async () => {
 describe('Template syntax', () => {
 	it('Basic', async () => {
 		const res = await exe(`
-		let attr = "kawaii"
-		<: \`Ai is {attr}!\`
+		let str = "kawaii"
+		<: \`Ai is {str}!\`
 		`);
 		eq(res, STR('Ai is kawaii!'));
 	});
