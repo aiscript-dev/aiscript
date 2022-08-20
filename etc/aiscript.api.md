@@ -79,11 +79,6 @@ const CONTINUE: () => {
     value: null;
 };
 
-// Warning: (ae-forgotten-export) The symbol "Bin" needs to be exported by the entry point index.d.ts
-//
-// @public (undocumented)
-export function deserialize(bin: Bin[]): Node_2[];
-
 // @public (undocumented)
 function eq(a: Value, b: Value): boolean;
 
@@ -164,9 +159,6 @@ const RETURN: (v: VReturn['value']) => {
 export class SemanticError extends Error {
     constructor(details?: string);
 }
-
-// @public (undocumented)
-export function serialize(ast: Node_2[]): Bin[];
 
 // @public (undocumented)
 const STR: (str: VStr['value']) => {
