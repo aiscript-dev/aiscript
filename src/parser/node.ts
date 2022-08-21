@@ -103,11 +103,6 @@ export type Attribute = NodeBase & {
 	value: StaticLiteral;
 };
 
-export type Out = NodeBase & { // AST
-	type: 'out';
-	expr: Expression;
-};
-
 export type Return = NodeBase & {
 	type: 'return';
 	expr: Expression;
