@@ -47,6 +47,10 @@ export function transformChain(nodes: Ast.Node[]): Ast.Node[] {
 				node.args = transformChain(node.args) as Ast.Call['args'];
 				break;
 			}
+			case 'index': {
+				node.index = transform(node.index) as Ast.Index['index'];
+				break;
+			}
 		}
 	}
 	return nodes;
