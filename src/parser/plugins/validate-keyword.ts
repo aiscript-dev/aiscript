@@ -40,14 +40,25 @@ const reservedWord = [
 	// 'out',
 ];
 
+function throwReservedWordError(name: string) {
+	throw new aiscript.SemanticError(`Reserved word "${name}" cannot be used as variable name.`);
+}
+
 export function validateKeyword(nodes: Node[]): Node[] {
 	for (const node of nodes) {
 		switch (node.type) {
 			case 'def':
-			case 'assign':
 			case 'ns': {
 				if (reservedWord.includes(node.name)) {
-					throw new aiscript.SemanticError(`Reserved word "${node.name}" cannot be used as variable name.`);
+					throwReservedWordError(node.name);
+				}
+				break;
+			}
+			case 'assign': {
+				if (node.dest.type === 'var' && node.dest.chain == null) {
+					if (reservedWord.includes(node.dest.name)) {
+						throwReservedWordError(node.dest.name);
+					}
 				}
 				break;
 			}
