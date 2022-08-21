@@ -168,16 +168,22 @@ type Break_2 = NodeBase_2 & {
 };
 
 // @public (undocumented)
+function CALL(target: Call_2['target'], args: Call_2['args'], loc?: {
+    start: number;
+    end: number;
+}): Call_2;
+
+// @public (undocumented)
 type Call = NodeBase & {
     type: 'call';
-    target: ChainTarget;
+    target: ChainElement;
     args: Expression[];
 };
 
 // @public (undocumented)
 type Call_2 = NodeBase_2 & {
     type: 'call';
-    target: ChainTarget_2;
+    target: ChainElement_2;
     args: Expression_2[];
 };
 
@@ -188,15 +194,19 @@ type CallChain = NodeBase_2 & {
 };
 
 // @public (undocumented)
-type ChainMember = CallChain | IndexChain | PropChain;
+type ChainElement = Fn | Match | Block | Tmpl | Str | Num | Bool | Null | Obj | Arr | Var | Call | Index | Prop;
 
 // @public (undocumented)
-type ChainTarget = Fn | Match | Block | Tmpl | Str | Num | Bool | Null | Obj | Arr | Var | Call | Index | Prop;
-
-// @public (undocumented)
-type ChainTarget_2 = Fn_2 | Match_2 | Block_2 | Tmpl_2 | Str_2 | Num_2 | Bool_2 | Null_2 | Obj_2 | Arr_2 | Var_2 | Call_2 | // IR
+type ChainElement_2 = Call_2 | // IR
 Index_2 | // IR
-Prop_2;
+Prop_2 | // IR
+ChainHost;
+
+// @public (undocumented)
+type ChainHost = Fn_2 | Match_2 | Block_2 | Tmpl_2 | Str_2 | Num_2 | Bool_2 | Null_2 | Obj_2 | Arr_2 | Var_2;
+
+// @public (undocumented)
+type ChainMember = CallChain | IndexChain | PropChain;
 
 // @public (undocumented)
 const CONTINUE: () => {
@@ -358,16 +368,22 @@ type If_2 = NodeBase_2 & {
 };
 
 // @public (undocumented)
+function INDEX(target: Index_2['target'], index: Index_2['index'], loc?: {
+    start: number;
+    end: number;
+}): Index_2;
+
+// @public (undocumented)
 type Index = NodeBase & {
     type: 'index';
-    target: ChainTarget;
+    target: ChainElement;
     index: Expression;
 };
 
 // @public (undocumented)
 type Index_2 = NodeBase_2 & {
     type: 'index';
-    target: ChainTarget_2;
+    target: ChainElement_2;
     index: Expression_2;
 };
 
@@ -396,6 +412,9 @@ type InfixOperator = "||" | "&&" | "==" | "!=" | "<=" | ">=" | "<" | ">" | "+" |
 
 // @public (undocumented)
 type InfixOperator_2 = "||" | "&&" | "==" | "!=" | "<=" | ">=" | "<" | ">" | "+" | "-" | "*" | "|" | "%";
+
+// @public (undocumented)
+function isChainHost(x: Node_3): x is ChainHost;
 
 // @public (undocumented)
 function jsToVal(val: any): Value;
@@ -535,12 +554,6 @@ type Obj_2 = NodeBase_2 & ChainProp & {
 };
 
 // @public (undocumented)
-type Out = NodeBase_2 & {
-    type: 'out';
-    expr: Expression_2;
-};
-
-// @public (undocumented)
 export function parse(input: string): N.Node[];
 
 // @public (undocumented)
@@ -560,16 +573,22 @@ export class Parser {
 export type ParserPlugin = (nodes: Ast.Node[]) => Ast.Node[];
 
 // @public (undocumented)
+function PROP(target: Prop_2['target'], name: Prop_2['name'], loc?: {
+    start: number;
+    end: number;
+}): Prop_2;
+
+// @public (undocumented)
 type Prop = NodeBase & {
     type: 'prop';
-    target: ChainTarget;
+    target: ChainElement;
     name: string;
 };
 
 // @public (undocumented)
 type Prop_2 = NodeBase_2 & {
     type: 'prop';
-    target: ChainTarget_2;
+    target: ChainElement_2;
     name: string;
 };
 
@@ -606,8 +625,8 @@ export class SemanticError extends Error {
 type Statement = Definition | Return | Each | For | Loop | Break | Continue | Assign | AddAssign | SubAssign;
 
 // @public (undocumented)
-type Statement_2 = Definition_2 | Out | // AST
-Return_2 | Attribute_2 | Each_2 | For_2 | Loop_2 | Break_2 | Continue_2 | Assign_2 | AddAssign_2 | SubAssign_2;
+type Statement_2 = Definition_2 | Return_2 | Attribute_2 | // AST
+Each_2 | For_2 | Loop_2 | Break_2 | Continue_2 | Assign_2 | AddAssign_2 | SubAssign_2;
 
 // @public (undocumented)
 type StaticArr = NodeBase & {
