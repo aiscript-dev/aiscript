@@ -33,6 +33,21 @@ function transform(node: Ast.Node): Ast.Node {
 export function transformChain(nodes: Ast.Node[]): Ast.Node[] {
 	for (let i = 0; i < nodes.length; i++) {
 		nodes[i] = transform(nodes[i]);
+
+		let node = nodes[i];
+		switch (node.type) {
+			case 'inc':
+			case 'dec':
+			case 'assign': {
+				node.expr = transform(node.expr) as Ast.Assign['expr'];
+				node.dest = transform(node.dest) as Ast.Assign['dest'];
+				break;
+			}
+			case 'call': {
+				node.args = transformChain(node.args) as Ast.Call['args'];
+				break;
+			}
+		}
 	}
 	return nodes;
 }
