@@ -1,6 +1,8 @@
 import * as Ast from '../node';
 
-function transform(node: Ast.Node): Ast.Node {
+function transformNode(node: Ast.Node): Ast.Node {
+	let result = node;
+
 	if (Ast.isChainHost(node) && node.chain != null) {
 		const { chain, ...hostNode } = node;
 		let parent: Ast.ChainElement = hostNode;
@@ -23,35 +25,34 @@ function transform(node: Ast.Node): Ast.Node {
 				}
 			}
 		}
-		return parent;
+		result = parent;
 	}
-	else {
-		return node;
+
+	// nested nodes
+	switch (result.type) {
+		case 'inc':
+		case 'dec':
+		case 'assign': {
+			result.expr = transformNode(result.expr) as Ast.Assign['expr'];
+			result.dest = transformNode(result.dest) as Ast.Assign['dest'];
+			break;
+		}
+		case 'call': {
+			result.args = transformChain(result.args) as Ast.Call['args'];
+			break;
+		}
+		case 'index': {
+			result.index = transformNode(result.index) as Ast.Index['index'];
+			break;
+		}
 	}
+
+	return result;
 }
 
 export function transformChain(nodes: Ast.Node[]): Ast.Node[] {
 	for (let i = 0; i < nodes.length; i++) {
-		nodes[i] = transform(nodes[i]);
-
-		const node = nodes[i];
-		switch (node.type) {
-			case 'inc':
-			case 'dec':
-			case 'assign': {
-				node.expr = transform(node.expr) as Ast.Assign['expr'];
-				node.dest = transform(node.dest) as Ast.Assign['dest'];
-				break;
-			}
-			case 'call': {
-				node.args = transformChain(node.args) as Ast.Call['args'];
-				break;
-			}
-			case 'index': {
-				node.index = transform(node.index) as Ast.Index['index'];
-				break;
-			}
-		}
+		nodes[i] = transformNode(nodes[i]);
 	}
 	return nodes;
 }
