@@ -49,8 +49,7 @@ export type StaticLiteral =
 	StaticObj |
 	StaticArr;
 
-// IR
-export type ChainTarget =
+export type ChainHost =
 	Fn |
 	Match |
 	Block |
@@ -61,10 +60,17 @@ export type ChainTarget =
 	Null |
 	Obj |
 	Arr |
-	Var |
+	Var;
+
+export function isChainHost(x: Node): x is ChainHost {
+	return ((x as any).chain != null);
+}
+
+export type ChainElement =
 	Call | // IR
 	Index | // IR
-	Prop; // IR
+	Prop | // IR
+	ChainHost;
 
 type NodeBase = {
 	__AST_NODE: never; // phantom type
@@ -249,14 +255,6 @@ export type StaticArr = NodeBase & {
 };
 
 // AST
-export type ChainHost = Fn | Match | Block | Tmpl | Str | Num | Bool | Null | Obj | Arr | Var;
-
-// AST
-export function isChainHost(x: Node): x is ChainHost {
-	return ((x as any).chain != null);
-}
-
-// AST
 type ChainProp = {
 	chain?: ChainMember[];
 };
@@ -285,20 +283,31 @@ export type PropChain = NodeBase & {
 // IR
 export type Call = NodeBase & {
 	type: 'call';
-	target: ChainTarget;
+	target: ChainElement;
 	args: Expression[];
 };
+export function CALL(target: Call['target'], args: Call['args'], loc?: { start: number, end: number }): Call {
+	return { type: 'call', target, args, loc, } as Call;
+}
 
 // IR
 export type Index = NodeBase & {
 	type: 'index';
-	target: ChainTarget;
+	target: ChainElement;
 	index: Expression;
 };
+
+export function INDEX(target: Index['target'], index: Index['index'], loc?: { start: number, end: number }): Index {
+	return { type: 'index', target, index, loc, } as Index;
+}
 
 // IR
 export type Prop = NodeBase & {
 	type: 'prop';
-	target: ChainTarget;
+	target: ChainElement;
 	name: string;
 };
+
+export function PROP(target: Prop['target'], name: Prop['name'], loc?: { start: number, end: number }): Prop {
+	return { type: 'prop', target, name, loc, } as Prop;
+}
