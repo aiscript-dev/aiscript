@@ -53,7 +53,7 @@ export type StaticLiteral =
 	StaticObj |
 	StaticArr;
 
-export type ChainTarget =
+export type ChainElement =
 	Fn |
 	Match |
 	Block |
@@ -259,18 +259,18 @@ export type StaticArr = NodeBase & {
 
 export type Call = NodeBase & {
 	type: 'call'; // 関数呼び出し
-	target: ChainTarget; // 対象
+	target: ChainElement; // 対象
 	args: Expression[]; // 引数
 };
 
 export type Index = NodeBase & {
 	type: 'index'; // 配列要素アクセス
-	target: ChainTarget; // 対象
+	target: ChainElement; // 対象
 	index: Expression; // インデックス
 };
 
 export type Prop = NodeBase & {
 	type: 'prop'; // プロパティアクセス
-	target: ChainTarget; // 対象
+	target: ChainElement; // 対象
 	name: string; // プロパティ名
 };
