@@ -188,7 +188,12 @@ VarDef
 // NOTE: out is syntax sugar for print(expr)
 Out
 	= "<:" _* expr:Expr
-{ return createNode('out', { expr }); }
+{
+	return createNode('var', {
+		name: 'print',
+		chain: [createNode('callChain', { args: [expr] })],
+	});
+}
 
 // attribute statement
 
@@ -323,8 +328,8 @@ Op
 // chain
 
 Chain
-	= e:Expr3 ext:(CallChain / IndexChain / PropChain)+
-{ return { ...e, ext }; }
+	= e:Expr3 chain:(CallChain / IndexChain / PropChain)+
+{ return { ...e, chain }; }
 
 CallChain
 	= "(" _* args:CallArgs? _* ")"

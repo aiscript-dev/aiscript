@@ -12,9 +12,8 @@ export type Node = Namespace | Meta | Statement | Expression | StaticLiteral | C
 
 export type Statement =
 	Definition |
-	Out | // AST
 	Return |
-	Attribute |
+	Attribute | // AST
 	Each |
 	For |
 	Loop |
@@ -68,7 +67,7 @@ export type ChainTarget =
 	Prop; // IR
 
 type NodeBase = {
-	__AST_NODE: never;
+	__AST_NODE: never; // phantom type
 	loc?: {
 		start: number;
 		end: number;
@@ -254,8 +253,9 @@ export type StaticArr = NodeBase & {
 	value: StaticLiteral[];
 };
 
+// AST
 type ChainProp = {
-	chain?: ChainMember[]; // AST
+	chain?: ChainMember[];
 };
 
 export type ChainMember = CallChain | IndexChain | PropChain;
