@@ -642,6 +642,54 @@ it('Array item assign', async () => {
 	eq(res, ARR([STR('ai'), STR('taso'), STR('kawaii')]));
 });
 
+it('chain access (prop + index + call)', async () => {
+	const res = await exe(`
+	let obj = {
+		a: {
+			b: [@(name) { name }, @(str) { "chan" }, @() { "kawaii" }];
+		};
+	}
+
+	<: obj.a.b[1]("ai")
+	`);
+	eq(res, STR('chan'));
+});
+
+it('chained assign left side (prop + index)', async () => {
+	const res = await exe(`
+	let obj = {
+		a: {
+			b: ["ai", "chan", "kawaii"];
+		};
+	}
+
+	obj.a.b[2] = "taso"
+
+	<: obj
+	`);
+	eq(res, OBJ(new Map([
+		['a', OBJ(new Map([
+			['b', ARR([STR('ai'), STR('taso'), STR('kawaii')])]
+		]))]
+	])));
+});
+
+it('chained assign right side (prop + index + call)', async () => {
+	const res = await exe(`
+	let obj = {
+		a: {
+			b: ["ai", "chan", "kawaii"];
+		};
+	}
+
+	var x = null
+	x = obj.a.b[1]
+
+	<: x
+	`);
+	eq(res, STR('ai'));
+});
+
 describe('Template syntax', () => {
 	it('Basic', async () => {
 		const res = await exe(`
