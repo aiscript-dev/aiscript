@@ -34,7 +34,7 @@ export function transformChain(nodes: Ast.Node[]): Ast.Node[] {
 	for (let i = 0; i < nodes.length; i++) {
 		nodes[i] = transform(nodes[i]);
 
-		let node = nodes[i];
+		const node = nodes[i];
 		switch (node.type) {
 			case 'inc':
 			case 'dec':
