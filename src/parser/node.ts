@@ -249,10 +249,19 @@ export type StaticArr = NodeBase & {
 };
 
 // AST
+export type ChainHost = Fn | Match | Block | Tmpl | Str | Num | Bool | Null | Obj | Arr | Var;
+
+// AST
+export function isChainHost(x: Node): x is ChainHost {
+	return ((x as any).chain != null);
+}
+
+// AST
 type ChainProp = {
 	chain?: ChainMember[];
 };
 
+// AST
 export type ChainMember = CallChain | IndexChain | PropChain;
 
 // AST
