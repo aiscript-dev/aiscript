@@ -6,6 +6,7 @@ import * as parser from './parser.js';
 import { validateKeyword } from './plugins/validate-keyword';
 import { validateType } from './plugins/validate-type';
 import { setAttribute } from './plugins/set-attribute';
+import { transformChain } from './plugins/transform-chain';
 
 export type ParserPlugin = (nodes: Ast.Node[]) => Ast.Node[];
 
@@ -18,6 +19,7 @@ export class Parser {
 			validateKeyword,
 			validateType,
 			setAttribute,
+			transformChain,
 		];
 	}
 
