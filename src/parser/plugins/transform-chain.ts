@@ -1,5 +1,9 @@
 import * as Ast from '../node';
 
+function visitNode(node: Ast.ChainHost): Ast.ChainHost | Ast.ChainElement
+function visitNode(node: Ast.Expression): Ast.Expression
+function visitNode(node: Ast.Statement | Ast.Expression): Ast.Statement | Ast.Expression
+function visitNode(node: Ast.Node): Ast.Node
 function visitNode(node: Ast.Node): Ast.Node {
 	let result = node;
 
@@ -32,29 +36,29 @@ function visitNode(node: Ast.Node): Ast.Node {
 	// nested nodes
 	switch (result.type) {
 		case 'def': {
-			result.expr = visitNode(result.expr) as Ast.Definition['expr'];
+			result.expr = visitNode(result.expr);
 			break;
 		}
 		case 'return': {
-			result.expr = visitNode(result.expr) as Ast.Return['expr'];
+			result.expr = visitNode(result.expr);
 			break;
 		}
 		case 'forOf': {
-			result.items = visitNode(result.items) as Ast.Each['items'];
-			result.for = visitNode(result.for) as Ast.Each['for'];
+			result.items = visitNode(result.items);
+			result.for = visitNode(result.for);
 			break;
 		}
 		case 'for': {
 			if (result.from != null) {
-				result.from = visitNode(result.from) as Ast.For['from'];
+				result.from = visitNode(result.from);
 			}
 			if (result.to != null) {
-				result.to = visitNode(result.to) as Ast.For['to'];
+				result.to = visitNode(result.to);
 			}
 			if (result.times != null) {
-				result.times = visitNode(result.times) as Ast.For['times'];
+				result.times = visitNode(result.times);
 			}
-			result.for = visitNode(result.for) as Ast.Each['for'];
+			result.for = visitNode(result.for);
 			break;
 		}
 		case 'loop': {
@@ -64,8 +68,8 @@ function visitNode(node: Ast.Node): Ast.Node {
 		case 'inc':
 		case 'dec':
 		case 'assign': {
-			result.expr = visitNode(result.expr) as Ast.Assign['expr'];
-			result.dest = visitNode(result.dest) as Ast.Assign['dest'];
+			result.expr = visitNode(result.expr);
+			result.dest = visitNode(result.dest);
 			break;
 		}
 		case 'infix': {
@@ -73,14 +77,14 @@ function visitNode(node: Ast.Node): Ast.Node {
 			break;
 		}
 		case 'if': {
-			result.cond = visitNode(result.cond) as Ast.If['cond'];
-			result.then = visitNode(result.then) as Ast.If['then'];
+			result.cond = visitNode(result.cond);
+			result.then = visitNode(result.then);
 			for (const prop of result.elseif) {
-				prop.cond = visitNode(prop.cond) as Ast.If['elseif'][number]['cond'];
-				prop.then = visitNode(prop.then) as Ast.If['elseif'][number]['then'];
+				prop.cond = visitNode(prop.cond);
+				prop.then = visitNode(prop.then);
 			}
 			if (result.else != null) {
-				result.else = visitNode(result.else) as Ast.If['else'];
+				result.else = visitNode(result.else);
 			}
 			break;
 		}
@@ -89,13 +93,13 @@ function visitNode(node: Ast.Node): Ast.Node {
 			break;
 		}
 		case 'match': {
-			result.about = visitNode(result.about) as Ast.Match['about'];
+			result.about = visitNode(result.about);
 			for (const prop of result.qs) {
-				prop.q = visitNode(prop.q) as Ast.Match['qs'][number]['q'];
-				prop.a = visitNode(prop.a) as Ast.Match['qs'][number]['a'];
+				prop.q = visitNode(prop.q);
+				prop.a = visitNode(prop.a);
 			}
 			if (result.default != null) {
-				result.default = visitNode(result.default) as Ast.Match['default'];
+				result.default = visitNode(result.default);
 			}
 			break;
 		}
@@ -106,7 +110,7 @@ function visitNode(node: Ast.Node): Ast.Node {
 		case 'tmpl': {
 			for (let i = 0; i < result.tmpl.length; i++) {
 				if (typeof result.tmpl[i] !== 'string') {
-					result.tmpl[i] = visitNode(result.tmpl[i] as Ast.Expression) as Ast.Expression;
+					result.tmpl[i] = visitNode(result.tmpl[i] as Ast.Expression);
 				}
 			}
 			break;
