@@ -363,7 +363,11 @@ export class AiScript {
 			case 'prop': {
 				const obj = await this._eval(node.target, scope);
 				assertObject(obj);
-				return obj.value.get(node.name)!;
+				if (obj.value.has(node.name)) {
+					return obj.value.get(node.name)!;
+				} else {
+					return NULL; // エラーにしてもよさそう
+				}
 			}
 
 			case 'index': {
