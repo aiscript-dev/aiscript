@@ -1,5 +1,5 @@
 import * as aiscript from '../..';
-import { Node, isChainHost } from '../node';
+import * as Ast from '../node';
 
 const reservedWord = [
 	'null',
@@ -44,7 +44,7 @@ function throwReservedWordError(name: string) {
 	throw new aiscript.SemanticError(`Reserved word "${name}" cannot be used as variable name.`);
 }
 
-function validate(node: Node): void {
+function validate(node: Ast.Node): void {
 	switch (node.type) {
 		case 'def':
 		case 'ns': {
@@ -100,7 +100,7 @@ function validate(node: Node): void {
 		// TODO: match
 	}
 
-	if (isChainHost(node)) {
+	if (Ast.hasChainProp(node)) {
 		if (node.chain != null) {
 			for (const item of node.chain) {
 				if (item.type === 'propChain') {
@@ -113,7 +113,7 @@ function validate(node: Node): void {
 	}
 }
 
-export function validateKeyword(nodes: Node[]): Node[] {
+export function validateKeyword(nodes: Ast.Node[]): Ast.Node[] {
 	for (const inner of nodes) {
 		validate(inner);
 	}

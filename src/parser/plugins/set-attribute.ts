@@ -1,6 +1,10 @@
 import * as aiscript from '../..';
 import * as Ast from '../node';
 
+export function setAttribute(node: Ast.Expression[]): Ast.Expression[]
+export function setAttribute(node: Ast.Statement[]): Ast.Statement[]
+export function setAttribute(node: (Ast.Statement | Ast.Expression)[]): (Ast.Statement | Ast.Expression)[]
+export function setAttribute(node: Ast.Node[]): Ast.Node[]
 export function setAttribute(nodes: Ast.Node[]): Ast.Node[] {
 	const result: Ast.Node[] = [];
 	const stockedAttrs: Ast.Attribute[] = [];
@@ -16,7 +20,7 @@ export function setAttribute(nodes: Ast.Node[]): Ast.Node[] {
 			// clear all
 			stockedAttrs.splice(0, stockedAttrs.length);
 			if (node.expr.type === 'fn') {
-				node.expr.children = setAttribute(node.expr.children) as Ast.Fn['children'];
+				node.expr.children = setAttribute(node.expr.children);
 			}
 			result.push(node);
 		} else {
@@ -25,11 +29,11 @@ export function setAttribute(nodes: Ast.Node[]): Ast.Node[] {
 			}
 			switch (node.type) {
 				case 'fn': {
-					node.children = setAttribute(node.children) as Ast.Fn['children'];
+					node.children = setAttribute(node.children);
 					break;
 				}
 				case 'block': {
-					node.statements = setAttribute(node.statements) as Ast.Block['statements'];
+					node.statements = setAttribute(node.statements);
 					break;
 				}
 			}

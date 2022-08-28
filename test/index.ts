@@ -652,7 +652,7 @@ it('chain access (prop + index + call)', async () => {
 
 	<: obj.a.b[1]("ai")
 	`);
-	eq(res, STR('chan'));
+	eq(res, STR('ai'));
 });
 
 it('chained assign left side (prop + index)', async () => {
