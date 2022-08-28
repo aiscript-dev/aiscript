@@ -1,5 +1,6 @@
 import * as aiscript from '../..';
 import * as Ast from '../node';
+import { visitNode } from '../visit';
 
 const reservedWord = [
 	'null',
@@ -44,78 +45,40 @@ function throwReservedWordError(name: string) {
 	throw new aiscript.SemanticError(`Reserved word "${name}" cannot be used as variable name.`);
 }
 
-function validate(node: Ast.Node): void {
+function validateNode(node: Ast.Node): Ast.Node {
 	switch (node.type) {
 		case 'def':
-		case 'ns': {
+		case 'attr':
+		case 'ns':
+		case 'var':
+		case 'propChain': {
 			if (reservedWord.includes(node.name)) {
 				throwReservedWordError(node.name);
 			}
 			break;
 		}
-		case 'inc':
-		case 'dec':
-		case 'assign': {
-			if (node.dest.type === 'var') {
-				if (reservedWord.includes(node.dest.name)) {
-					throwReservedWordError(node.dest.name);
-				}
+		case 'meta': {
+			if (node.name != null && reservedWord.includes(node.name)) {
+				throwReservedWordError(node.name);
 			}
-			validate(node.dest);
-			validate(node.expr);
 			break;
 		}
 		case 'fn': {
-			for (const inner of node.children) {
-				validate(inner);
-			}
-			break;
-		}
-		case 'block': {
-			for (const inner of node.statements) {
-				validate(inner);
-			}
-			break;
-		}
-		case 'if': {
-			if (node.then.type === 'block') {
-				for (const inner of node.then.statements) {
-					validate(inner);
-				}
-			}
-			for (const n of node.elseif) {
-				if (n.then.type === 'block') {
-					for (const inner of n.then.statements) {
-						validate(inner);
-					}
-				}
-			}
-			if (node.else?.type === 'block') {
-				for (const inner of node.else.statements) {
-					validate(inner);
+			for (const arg of node.args) {
+				if (reservedWord.includes(arg.name)) {
+					throwReservedWordError(arg.name);
 				}
 			}
 			break;
 		}
-		// TODO: match
 	}
 
-	if (Ast.hasChainProp(node)) {
-		if (node.chain != null) {
-			for (const item of node.chain) {
-				if (item.type === 'propChain') {
-					if (reservedWord.includes(item.name)) {
-						throwReservedWordError(item.name);
-					}
-				}
-			}
-		}
-	}
+	return node;
 }
 
 export function validateKeyword(nodes: Ast.Node[]): Ast.Node[] {
 	for (const inner of nodes) {
-		validate(inner);
+		visitNode(inner, validateNode);
 	}
 	return nodes;
 }
