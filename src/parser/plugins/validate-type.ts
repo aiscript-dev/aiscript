@@ -2,14 +2,14 @@ import * as aiscript from '../..';
 import { SemanticError } from '../../error';
 import * as Ast from '../node';
 import { getTypeBySource } from '../../type';
+import { visitNode } from '../visit';
 
-function validate(node: Ast.Node) {
+function validateNode(node: Ast.Node): Ast.Node {
 	switch (node.type) {
 		case 'def': {
 			if (node.varType != null) {
 				getTypeBySource(node.varType);
 			}
-			validate(node.expr);
 			break;
 		}
 		case 'fn': {
@@ -21,18 +21,16 @@ function validate(node: Ast.Node) {
 			if (node.ret != null) {
 				getTypeBySource(node.ret);
 			}
-			for (const n of node.children) {
-				validate(n);
-			}
 			break;
 		}
 	}
-	// TODO: ブロックも全部スキャン
+
+	return node;
 }
 
 export function validateType(nodes: Ast.Node[]): Ast.Node[] {
 	for (const node of nodes) {
-		validate(node);
+		visitNode(node, validateNode);
 	}
 	return nodes;
 }

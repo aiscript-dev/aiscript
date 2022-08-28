@@ -534,6 +534,96 @@ describe('Var name starts with reserved word', () => {
 	});
 });
 
+describe('name validation of reserved word', () => {
+	it('def', async () => {
+		try {
+			await exe(`
+			let let = 1
+			`);
+		} catch (e) {
+			assert.ok(true);
+			return;
+		}
+		assert.fail();
+	});
+
+	it('attr', async () => {
+		try {
+			await exe(`
+			#[let 1]
+			@f() { 1 }
+			`);
+		} catch (e) {
+			assert.ok(true);
+			return;
+		}
+		assert.fail();
+	});
+
+	it('ns', async () => {
+		try {
+			await exe(`
+			:: let {
+				@f() { 1 }
+			}
+			`);
+		} catch (e) {
+			assert.ok(true);
+			return;
+		}
+		assert.fail();
+	});
+
+	it('var', async () => {
+		try {
+			await exe(`
+			let
+			`);
+		} catch (e) {
+			assert.ok(true);
+			return;
+		}
+		assert.fail();
+	});
+
+	it('prop', async () => {
+		try {
+			await exe(`
+			let x = { let: 1 }
+			x.let
+			`);
+		} catch (e) {
+			assert.ok(true);
+			return;
+		}
+		assert.fail();
+	});
+
+	it('meta', async () => {
+		try {
+			await exe(`
+			### let 1
+			`);
+		} catch (e) {
+			assert.ok(true);
+			return;
+		}
+		assert.fail();
+	});
+
+	it('fn', async () => {
+		try {
+			await exe(`
+			@let() { 1 }
+			`);
+		} catch (e) {
+			assert.ok(true);
+			return;
+		}
+		assert.fail();
+	});
+});
+
 describe('Object', () => {
 	it('property access', async () => {
 		const res = await exe(`
@@ -653,94 +743,149 @@ it('Array item assign', async () => {
 	eq(res, ARR([STR('ai'), STR('taso'), STR('kawaii')]));
 });
 
-it('chain access (prop + index + call)', async () => {
-	const res = await exe(`
-	let obj = {
-		a: {
-			b: [@(name) { name }, @(str) { "chan" }, @() { "kawaii" }];
-		};
-	}
-
-	<: obj.a.b[1]("ai")
-	`);
-	eq(res, STR('ai'));
-});
-
-it('chained assign left side (prop + index)', async () => {
-	const res = await exe(`
-	let obj = {
-		a: {
-			b: ["ai", "chan", "kawaii"];
-		};
-	}
-
-	obj.a.b[2] = "taso"
-
-	<: obj
-	`);
-	eq(res, OBJ(new Map([
-		['a', OBJ(new Map([
-			['b', ARR([STR('ai'), STR('taso'), STR('kawaii')])]
-		]))]
-	])));
-});
-
-it('chained assign right side (prop + index + call)', async () => {
-	const res = await exe(`
-	let obj = {
-		a: {
-			b: ["ai", "chan", "kawaii"];
-		};
-	}
-
-	var x = null
-	x = obj.a.b[1]
-
-	<: x
-	`);
-	eq(res, STR('ai'));
-});
-
-it('chained inc/dec left side (index + prop)', async () => {
-	const res = await exe(`
-	let arr = [
-		{
-			a: 1;
-			b: 2;
+describe('chain', () => {
+	it('chain access (prop + index + call)', async () => {
+		const res = await exe(`
+		let obj = {
+			a: {
+				b: [@(name) { name }, @(str) { "chan" }, @() { "kawaii" }];
+			};
 		}
-	]
 
-	arr[1].a += 1
-	arr[1].b -= 1
+		<: obj.a.b[1]("ai")
+		`);
+		eq(res, STR('ai'));
+	});
 
-	<: arr
-	`);
-	eq(res, ARR([
-		OBJ(new Map([
-			['a', NUM(2)],
-			['b', NUM(1)]
-		]))
-	]));
-});
+	it('chained assign left side (prop + index)', async () => {
+		const res = await exe(`
+		let obj = {
+			a: {
+				b: ["ai", "chan", "kawaii"];
+			};
+		}
 
-it('chained inc/dec left side (prop + index)', async () => {
-	const res = await exe(`
-	let obj = {
-		a: {
-			b: [1, 2, 3];
-		};
-	}
+		obj.a.b[2] = "taso"
 
-	obj.a.b[2] += 1
-	obj.a.b[3] -= 1
+		<: obj
+		`);
+		eq(res, OBJ(new Map([
+			['a', OBJ(new Map([
+				['b', ARR([STR('ai'), STR('taso'), STR('kawaii')])]
+			]))]
+		])));
+	});
 
-	<: obj
-	`);
-	eq(res, OBJ(new Map([
-		['a', OBJ(new Map([
-			['b', ARR([NUM(1), NUM(3), NUM(2)])]
-		]))]
-	])));
+	it('chained assign right side (prop + index + call)', async () => {
+		const res = await exe(`
+		let obj = {
+			a: {
+				b: ["ai", "chan", "kawaii"];
+			};
+		}
+
+		var x = null
+		x = obj.a.b[1]
+
+		<: x
+		`);
+		eq(res, STR('ai'));
+	});
+
+	it('chained inc/dec left side (index + prop)', async () => {
+		const res = await exe(`
+		let arr = [
+			{
+				a: 1;
+				b: 2;
+			}
+		]
+
+		arr[1].a += 1
+		arr[1].b -= 1
+
+		<: arr
+		`);
+		eq(res, ARR([
+			OBJ(new Map([
+				['a', NUM(2)],
+				['b', NUM(1)]
+			]))
+		]));
+	});
+
+	it('chained inc/dec left side (prop + index)', async () => {
+		const res = await exe(`
+		let obj = {
+			a: {
+				b: [1, 2, 3];
+			};
+		}
+
+		obj.a.b[2] += 1
+		obj.a.b[3] -= 1
+
+		<: obj
+		`);
+		eq(res, OBJ(new Map([
+			['a', OBJ(new Map([
+				['b', ARR([NUM(1), NUM(3), NUM(2)])]
+			]))]
+		])));
+	});
+
+	it('prop in def', async () => {
+		const res = await exe(`
+		let x = @() {
+			let obj = {
+				a: 1
+			}
+			obj.a
+		}
+
+		<: x()
+		`);
+		eq(res, NUM(1));
+	});
+
+	it('prop in return', async () => {
+		const res = await exe(`
+		let x = @() {
+			let obj = {
+				a: 1
+			}
+			return obj.a
+			2
+		}
+
+		<: x()
+		`);
+		eq(res, NUM(1));
+	});
+
+	it('prop in each', async () => {
+		const res = await exe(`
+		let msgs = []
+		let x = { a: ["ai", "chan", "kawaii"] }
+		each let item, x.a {
+			let y = { a: item }
+			Arr:push(msgs, Arr:join([y.a, "!"]))
+		}
+		<: msgs
+		`);
+		eq(res, ARR([STR('ai!'), STR('chan!'), STR('kawaii!')]));
+	});
+
+	it('prop in for', async () => {
+		const res = await exe(`
+		let x = { times: 10, count: 0 }
+		for (let i, x.times) {
+			x.count = (x.count + i)
+		}
+		<: x.count
+		`);
+		eq(res, NUM(55));
+	});
 });
 
 describe('Template syntax', () => {
