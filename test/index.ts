@@ -280,6 +280,17 @@ it('var', async () => {
 	eq(res, NUM(42));
 });
 
+it('参照が繋がらない', async () => {
+	const res = await exe(`
+	var f = @() { "a" }
+	var g = f
+	f = @() { "b" }
+
+	<: g()
+	`);
+	eq(res, STR('a'));
+});
+
 describe('Cannot put multiple statements in a line', () => {
 	it('var def', async () => {
 		try {
