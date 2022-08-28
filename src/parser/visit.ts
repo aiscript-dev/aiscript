@@ -136,7 +136,7 @@ export function visitNode(node: Ast.Node, fn: (node: Ast.Node) => Ast.Node): Ast
 
 	if (Ast.hasChainProp(result)) {
 		if (result.chain != null) {
-			for (let i = 0 ; i < result.chain.length; i++) {
+			for (let i = 0; i < result.chain.length; i++) {
 				result.chain[i] = visitNode(result.chain[i], fn) as Ast.ChainMember;
 			}
 		}
