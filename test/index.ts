@@ -699,8 +699,8 @@ it('chained inc/dec left side (index + prop)', async () => {
 		}
 	]
 
-	arr[1].a++
-	arr[1].b--
+	arr[1].a += 1
+	arr[1].b -= 1
 
 	<: arr
 	`);
@@ -720,8 +720,8 @@ it('chained inc/dec left side (prop + index)', async () => {
 		};
 	}
 
-	obj.a.b[2]++
-	obj.a.b[3]--
+	obj.a.b[2] += 1
+	obj.a.b[3] -= 1
 
 	<: obj
 	`);
