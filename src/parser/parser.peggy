@@ -123,13 +123,13 @@ Expr
 Expr2
 	= If          // "if"
 	/ Fn          // "@("
-	/ Match       // "match"
-	/ Eval        // "eval"
 	/ Chain       // Expr3 "(" | Expr3 "[" | Expr3 "."
 	/ Expr3
 
 Expr3
-	= Tmpl        // "`"
+	= Match       // "match"
+	/ Eval        // "eval"
+	/ Tmpl        // "`"
 	/ Str         // "\""
 	/ Num         // "+" | "-" | "1"~"9"
 	/ Bool        // "true" | "false"
