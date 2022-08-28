@@ -1,16 +1,16 @@
 import * as Ast from '../node';
 
-function visitNode(node: Ast.ChainHost): Ast.ChainHost | Ast.ChainElement
 function visitNode(node: Ast.Expression): Ast.Expression
+function visitNode(node: Ast.Statement): Ast.Statement
 function visitNode(node: Ast.Statement | Ast.Expression): Ast.Statement | Ast.Expression
 function visitNode(node: Ast.Node): Ast.Node
 function visitNode(node: Ast.Node): Ast.Node {
-	let result = node;
+	let result: Ast.Node = node;
 
 	// transform chain
-	if (Ast.isChainHost(node) && node.chain != null) {
+	if (Ast.hasChainProp(node) && node.chain != null) {
 		const { chain, ...hostNode } = node;
-		let parent: Ast.ChainElement = hostNode;
+		let parent: Ast.Expression = hostNode;
 		for (const item of chain) {
 			switch (item.type) {
 				case 'callChain': {
@@ -109,15 +109,16 @@ function visitNode(node: Ast.Node): Ast.Node {
 		}
 		case 'tmpl': {
 			for (let i = 0; i < result.tmpl.length; i++) {
-				if (typeof result.tmpl[i] !== 'string') {
-					result.tmpl[i] = visitNode(result.tmpl[i] as Ast.Expression);
+				const item = result.tmpl[i];
+				if (typeof item !== 'string') {
+					result.tmpl[i] = visitNode(item);
 				}
 			}
 			break;
 		}
 		case 'obj': {
 			for (const item of result.value) {
-				result.value.set(item[0], visitNode(item[1]) as any);
+				result.value.set(item[0], visitNode(item[1]));
 			}
 			break;
 		}
@@ -126,17 +127,17 @@ function visitNode(node: Ast.Node): Ast.Node {
 			break;
 		}
 		case 'call': {
-			result.target = visitNode(result.target) as Ast.Call['target'];
+			result.target = visitNode(result.target);
 			visitNodes(result.args);
 			break;
 		}
 		case 'index': {
-			result.target = visitNode(result.target) as Ast.Index['target'];
-			result.index = visitNode(result.index) as Ast.Index['index'];
+			result.target = visitNode(result.target);
+			result.index = visitNode(result.index);
 			break;
 		}
 		case 'prop': {
-			result.target = visitNode(result.target) as Ast.Prop['target'];
+			result.target = visitNode(result.target);
 			break;
 		}
 	}

@@ -11,9 +11,7 @@ export type Loc = {
 	end: number;
 };
 
-export type Node = Namespace | Meta | Statement | Expression | StaticLiteral;
-export type GlobalMember = Namespace | Meta | Statement | Expression;
-export type NamespaceMember = Definition | Namespace;
+export type Node = Namespace | Meta | Statement | Expression;
 
 export type Statement =
 	Definition |
@@ -26,6 +24,13 @@ export type Statement =
 	Assign |
 	AddAssign |
 	SubAssign;
+
+const statementTypes = [
+	'def', 'return', 'forOf', 'for', 'loop', 'break', 'continue', 'assign', 'inc', 'dec'
+];
+export function isStatement(x: Node): x is Statement {
+	return statementTypes.includes(x.type);
+}
 
 export type Expression =
 	Infix |
@@ -45,29 +50,12 @@ export type Expression =
 	Index |
 	Prop;
 
-export type StaticLiteral =
-	Str |
-	Num |
-	Bool |
-	Null |
-	StaticObj |
-	StaticArr;
-
-export type ChainElement =
-	Fn |
-	Match |
-	Block |
-	Tmpl |
-	Str |
-	Num |
-	Bool |
-	Null |
-	Obj |
-	Arr |
-	Var |
-	Call |
-	Index |
-	Prop;
+const expressionTypes = [
+	'infix', 'if', 'fn', 'match', 'block', 'tmpl', 'str', 'num', 'bool', 'null', 'obj', 'arr', 'var', 'cal', 'index', 'prop'
+];
+export function isExpression(x: Node): x is Expression {
+	return expressionTypes.includes(x.type);
+}
 
 type NodeBase = {
 	loc?: { // コード位置
@@ -79,13 +67,13 @@ type NodeBase = {
 export type Namespace = NodeBase & {
 	type: 'ns'; // 名前空間
 	name: string; // 空間名
-	members: NamespaceMember[]; // メンバー
+	members: (Definition | Namespace)[]; // メンバー
 };
 
 export type Meta = NodeBase & {
 	type: 'meta'; // メタデータ定義
 	name: string | null; // 名
-	value: StaticLiteral; // 値
+	value: Expression; // 値
 };
 
 export type Definition = NodeBase & {
@@ -100,7 +88,7 @@ export type Definition = NodeBase & {
 export type Attribute = NodeBase & {
 	type: 'attr'; // 属性
 	name: string; // 属性名
-	value: StaticLiteral; // 値
+	value: Expression; // 値
 };
 
 export type Return = NodeBase & {
@@ -239,16 +227,6 @@ export type Var = NodeBase & {
 	name: string; // 変数名
 };
 
-export type StaticObj = NodeBase & {
-	type: 'obj'; // 静的なオブジェクト
-	value: Map<string, StaticLiteral>; // プロパティ
-};
-
-export type StaticArr = NodeBase & {
-	type: 'arr'; // 静的な配列
-	value: StaticLiteral[]; // アイテム
-};
-
 // chain node example:
 // call > fn
 // call > var(fn)
@@ -259,18 +237,18 @@ export type StaticArr = NodeBase & {
 
 export type Call = NodeBase & {
 	type: 'call'; // 関数呼び出し
-	target: ChainElement; // 対象
+	target: Expression; // 対象
 	args: Expression[]; // 引数
 };
 
 export type Index = NodeBase & {
 	type: 'index'; // 配列要素アクセス
-	target: ChainElement; // 対象
+	target: Expression; // 対象
 	index: Expression; // インデックス
 };
 
 export type Prop = NodeBase & {
 	type: 'prop'; // プロパティアクセス
-	target: ChainElement; // 対象
+	target: Expression; // 対象
 	name: string; // プロパティ名
 };

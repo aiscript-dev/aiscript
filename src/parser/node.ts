@@ -8,7 +8,7 @@
 
 import { TypeSource } from '../type';
 
-export type Node = Namespace | Meta | Statement | Expression | StaticLiteral | ChainMember;
+export type Node = Namespace | Meta | Statement | Expression | ChainMember;
 
 export type Statement =
 	Definition |
@@ -22,6 +22,13 @@ export type Statement =
 	Assign |
 	AddAssign |
 	SubAssign;
+
+const statementTypes = [
+	'def', 'return', 'attr', 'forOf', 'for', 'loop', 'break', 'continue', 'assign', 'inc', 'dec'
+];
+export function isStatement(x: Node): x is Statement {
+	return statementTypes.includes(x.type);
+}
 
 export type Expression =
 	Infix |
@@ -41,36 +48,12 @@ export type Expression =
 	Index | // IR
 	Prop; // IR
 
-export type StaticLiteral =
-	Str |
-	Num |
-	Bool |
-	Null |
-	StaticObj |
-	StaticArr;
-
-export type ChainHost =
-	Fn |
-	Match |
-	Block |
-	Tmpl |
-	Str |
-	Num |
-	Bool |
-	Null |
-	Obj |
-	Arr |
-	Var;
-
-export function isChainHost(x: Node): x is ChainHost {
-	return ((x as any).chain != null);
+const expressionTypes = [
+	'infix', 'if', 'fn', 'match', 'block', 'tmpl', 'str', 'num', 'bool', 'null', 'obj', 'arr', 'var', 'cal', 'index', 'prop'
+];
+export function isExpression(x: Node): x is Expression {
+	return expressionTypes.includes(x.type);
 }
-
-export type ChainElement =
-	Call | // IR
-	Index | // IR
-	Prop | // IR
-	ChainHost;
 
 type NodeBase = {
 	__AST_NODE: never; // phantom type
@@ -80,18 +63,16 @@ type NodeBase = {
 	};
 };
 
-export type NamespaceMember = Definition | Namespace;
-
 export type Namespace = NodeBase & {
 	type: 'ns';
 	name: string;
-	members: NamespaceMember[];
+	members: (Definition | Namespace)[];
 };
 
 export type Meta = NodeBase & {
 	type: 'meta';
 	name: string | null;
-	value: StaticLiteral;
+	value: Expression;
 };
 
 export type Definition = NodeBase & {
@@ -106,7 +87,7 @@ export type Definition = NodeBase & {
 export type Attribute = NodeBase & {
 	type: 'attr';
 	name: string;
-	value: StaticLiteral;
+	value: Expression;
 };
 
 export type Return = NodeBase & {
@@ -244,20 +225,15 @@ export type Var = NodeBase & ChainProp & {
 	name: string;
 };
 
-export type StaticObj = NodeBase & {
-	type: 'obj';
-	value: Map<string, StaticLiteral>;
-};
-
-export type StaticArr = NodeBase & {
-	type: 'arr';
-	value: StaticLiteral[];
-};
-
 // AST
 type ChainProp = {
 	chain?: ChainMember[];
 };
+
+// AST
+export function hasChainProp(x: Node): x is Node & ChainProp {
+	return ((x as any).chain != null);
+}
 
 // AST
 export type ChainMember = CallChain | IndexChain | PropChain;
@@ -283,7 +259,7 @@ export type PropChain = NodeBase & {
 // IR
 export type Call = NodeBase & {
 	type: 'call';
-	target: ChainElement;
+	target: Expression;
 	args: Expression[];
 };
 export function CALL(target: Call['target'], args: Call['args'], loc?: { start: number, end: number }): Call {
@@ -293,7 +269,7 @@ export function CALL(target: Call['target'], args: Call['args'], loc?: { start: 
 // IR
 export type Index = NodeBase & {
 	type: 'index';
-	target: ChainElement;
+	target: Expression;
 	index: Expression;
 };
 
@@ -304,7 +280,7 @@ export function INDEX(target: Index['target'], index: Index['index'], loc?: { st
 // IR
 export type Prop = NodeBase & {
 	type: 'prop';
-	target: ChainElement;
+	target: Expression;
 	name: string;
 };
 
