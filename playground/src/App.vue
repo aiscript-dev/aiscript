@@ -73,7 +73,7 @@ watch(script, () => {
 });
 
 const setCode = () => {
-	script.value = `for (#i, 100) {
+	script.value = `for (let i, 100) {
   <: if (i % 15 == 0) "FizzBuzz"
     elif (i % 3 == 0) "Fizz"
     elif (i % 5 == 0) "Buzz"
