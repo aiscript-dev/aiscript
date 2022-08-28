@@ -111,14 +111,14 @@ type Attr_2 = {
 type Attribute = NodeBase & {
     type: 'attr';
     name: string;
-    value: StaticLiteral;
+    value: Expression;
 };
 
 // @public (undocumented)
 type Attribute_2 = NodeBase_2 & {
     type: 'attr';
     name: string;
-    value: StaticLiteral_2;
+    value: Expression_2;
 };
 
 // @public (undocumented)
@@ -176,14 +176,14 @@ function CALL(target: Call_2['target'], args: Call_2['args'], loc?: {
 // @public (undocumented)
 type Call = NodeBase & {
     type: 'call';
-    target: ChainElement;
+    target: Expression;
     args: Expression[];
 };
 
 // @public (undocumented)
 type Call_2 = NodeBase_2 & {
     type: 'call';
-    target: ChainElement_2;
+    target: Expression_2;
     args: Expression_2[];
 };
 
@@ -192,18 +192,6 @@ type CallChain = NodeBase_2 & {
     type: 'callChain';
     args: Expression_2[];
 };
-
-// @public (undocumented)
-type ChainElement = Fn | Match | Block | Tmpl | Str | Num | Bool | Null | Obj | Arr | Var | Call | Index | Prop;
-
-// @public (undocumented)
-type ChainElement_2 = Call_2 | // IR
-Index_2 | // IR
-Prop_2 | // IR
-ChainHost;
-
-// @public (undocumented)
-type ChainHost = Fn_2 | Match_2 | Block_2 | Tmpl_2 | Str_2 | Num_2 | Bool_2 | Null_2 | Obj_2 | Arr_2 | Var_2;
 
 // @public (undocumented)
 type ChainMember = CallChain | IndexChain | PropChain;
@@ -341,7 +329,7 @@ type For_2 = NodeBase_2 & {
 function getLangVersion(input: string): string | null;
 
 // @public (undocumented)
-type GlobalMember = Namespace | Meta | Statement | Expression;
+function hasChainProp(x: Node_3): x is Node_3 & ChainProp;
 
 // @public (undocumented)
 type If = NodeBase & {
@@ -376,14 +364,14 @@ function INDEX(target: Index_2['target'], index: Index_2['index'], loc?: {
 // @public (undocumented)
 type Index = NodeBase & {
     type: 'index';
-    target: ChainElement;
+    target: Expression;
     index: Expression;
 };
 
 // @public (undocumented)
 type Index_2 = NodeBase_2 & {
     type: 'index';
-    target: ChainElement_2;
+    target: Expression_2;
     index: Expression_2;
 };
 
@@ -414,7 +402,16 @@ type InfixOperator = "||" | "&&" | "==" | "!=" | "<=" | ">=" | "<" | ">" | "+" |
 type InfixOperator_2 = "||" | "&&" | "==" | "!=" | "<=" | ">=" | "<" | ">" | "+" | "-" | "*" | "|" | "%";
 
 // @public (undocumented)
-function isChainHost(x: Node_3): x is ChainHost;
+function isExpression(x: Node_2): x is Expression;
+
+// @public (undocumented)
+function isExpression_2(x: Node_3): x is Expression_2;
+
+// @public (undocumented)
+function isStatement(x: Node_2): x is Statement;
+
+// @public (undocumented)
+function isStatement_2(x: Node_3): x is Statement_2;
 
 // @public (undocumented)
 function jsToVal(val: any): Value;
@@ -463,41 +460,35 @@ type Match_2 = NodeBase_2 & ChainProp & {
 type Meta = NodeBase & {
     type: 'meta';
     name: string | null;
-    value: StaticLiteral;
+    value: Expression;
 };
 
 // @public (undocumented)
 type Meta_2 = NodeBase_2 & {
     type: 'meta';
     name: string | null;
-    value: StaticLiteral_2;
+    value: Expression_2;
 };
 
 // @public (undocumented)
 type Namespace = NodeBase & {
     type: 'ns';
     name: string;
-    members: NamespaceMember[];
+    members: (Definition | Namespace)[];
 };
 
 // @public (undocumented)
 type Namespace_2 = NodeBase_2 & {
     type: 'ns';
     name: string;
-    members: NamespaceMember_2[];
+    members: (Definition_2 | Namespace_2)[];
 };
 
 // @public (undocumented)
-type NamespaceMember = Definition | Namespace;
+type Node_2 = Namespace | Meta | Statement | Expression;
 
 // @public (undocumented)
-type NamespaceMember_2 = Definition_2 | Namespace_2;
-
-// @public (undocumented)
-type Node_2 = Namespace | Meta | Statement | Expression | StaticLiteral;
-
-// @public (undocumented)
-type Node_3 = Namespace_2 | Meta_2 | Statement_2 | Expression_2 | StaticLiteral_2 | ChainMember;
+type Node_3 = Namespace_2 | Meta_2 | Statement_2 | Expression_2 | ChainMember;
 
 // @public (undocumented)
 const NULL: {
@@ -578,14 +569,14 @@ function PROP(target: Prop_2['target'], name: Prop_2['name'], loc?: {
 // @public (undocumented)
 type Prop = NodeBase & {
     type: 'prop';
-    target: ChainElement;
+    target: Expression;
     name: string;
 };
 
 // @public (undocumented)
 type Prop_2 = NodeBase_2 & {
     type: 'prop';
-    target: ChainElement_2;
+    target: Expression_2;
     name: string;
 };
 
@@ -624,36 +615,6 @@ type Statement = Definition | Return | Each | For | Loop | Break | Continue | As
 // @public (undocumented)
 type Statement_2 = Definition_2 | Return_2 | Attribute_2 | // AST
 Each_2 | For_2 | Loop_2 | Break_2 | Continue_2 | Assign_2 | AddAssign_2 | SubAssign_2;
-
-// @public (undocumented)
-type StaticArr = NodeBase & {
-    type: 'arr';
-    value: StaticLiteral[];
-};
-
-// @public (undocumented)
-type StaticArr_2 = NodeBase_2 & {
-    type: 'arr';
-    value: StaticLiteral_2[];
-};
-
-// @public (undocumented)
-type StaticLiteral = Str | Num | Bool | Null | StaticObj | StaticArr;
-
-// @public (undocumented)
-type StaticLiteral_2 = Str_2 | Num_2 | Bool_2 | Null_2 | StaticObj_2 | StaticArr_2;
-
-// @public (undocumented)
-type StaticObj = NodeBase & {
-    type: 'obj';
-    value: Map<string, StaticLiteral>;
-};
-
-// @public (undocumented)
-type StaticObj_2 = NodeBase_2 & {
-    type: 'obj';
-    value: Map<string, StaticLiteral_2>;
-};
 
 // @public (undocumented)
 const STR: (str: VStr['value']) => {
@@ -852,7 +813,7 @@ type VStr = {
 
 // Warnings were encountered during analysis:
 //
-// src/node.ts:94:2 - (ae-forgotten-export) The symbol "TypeSource" needs to be exported by the entry point index.d.ts
+// src/node.ts:82:2 - (ae-forgotten-export) The symbol "TypeSource" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 
