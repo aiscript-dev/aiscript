@@ -1,4 +1,3 @@
-import { Node } from '../node';
 import { Value, VStr, VNum, VBool, VFn, VObj, VArr, STR, NUM, ARR, OBJ, NULL, BOOL } from './value';
 import { AiScriptError } from './error';
 
@@ -38,16 +37,16 @@ export function assertArray(val: Value): asserts val is VArr {
 	}
 }
 
-export function eq(a: Value, b: Value) {
+export function eq(a: Value, b: Value): boolean {
 	if (a.type === 'fn' || b.type === 'fn') return false;
 	if (a.type === 'null' && b.type === 'null') return true;
 	if (a.type === 'null' || b.type === 'null') return false;
 	return (a.value === b.value);
 }
 
-export function valToString(val: Value, simple = false) {
+export function valToString(val: Value, simple = false): string {
 	if (simple) {
-		if (val.type === 'num') return val.value;
+		if (val.type === 'num') return val.value.toString();
 		if (val.type === 'bool') return val.value ? 'true' : 'false';
 		if (val.type === 'str') return `"${val.value}"`;
 		if (val.type === 'arr') return `[${val.value.map(item => valToString(item, true)).join(', ')}]`;
@@ -62,20 +61,6 @@ export function valToString(val: Value, simple = false) {
 		val.type === 'null' ? '' :
 		null;
 	return `${val.type}<${label}>`;
-}
-
-export function nodeToString(node: Node) {
-	const label =
-		node.type === 'num' ? node.value :
-		node.type === 'bool' ? node.value :
-		node.type === 'str' ? node.value :
-		node.type === 'fn' ? null :
-		node.type === 'null' ? null :
-		node.type === 'def' ? node.name :
-		node.type === 'var' ? node.name :
-		node.type === 'call' ? node.name :
-		null;
-	return label ? `${node.type.toUpperCase()} (${label})` : node.type.toUpperCase();
 }
 
 export function valToJs(val: Value): any {

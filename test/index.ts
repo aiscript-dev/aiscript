@@ -280,6 +280,17 @@ it('var', async () => {
 	eq(res, NUM(42));
 });
 
+it('参照が繋がらない', async () => {
+	const res = await exe(`
+	var f = @() { "a" }
+	var g = f
+	f = @() { "b" }
+
+	<: g()
+	`);
+	eq(res, STR('a'));
+});
+
 describe('Cannot put multiple statements in a line', () => {
 	it('var def', async () => {
 		try {
@@ -688,6 +699,48 @@ it('chained assign right side (prop + index + call)', async () => {
 	<: x
 	`);
 	eq(res, STR('ai'));
+});
+
+it('chained inc/dec left side (index + prop)', async () => {
+	const res = await exe(`
+	let arr = [
+		{
+			a: 1;
+			b: 2;
+		}
+	]
+
+	arr[1].a += 1
+	arr[1].b -= 1
+
+	<: arr
+	`);
+	eq(res, ARR([
+		OBJ(new Map([
+			['a', NUM(2)],
+			['b', NUM(1)]
+		]))
+	]));
+});
+
+it('chained inc/dec left side (prop + index)', async () => {
+	const res = await exe(`
+	let obj = {
+		a: {
+			b: [1, 2, 3];
+		};
+	}
+
+	obj.a.b[2] += 1
+	obj.a.b[3] -= 1
+
+	<: obj
+	`);
+	eq(res, OBJ(new Map([
+		['a', OBJ(new Map([
+			['b', ARR([NUM(1), NUM(3), NUM(2)])]
+		]))]
+	])));
 });
 
 describe('Template syntax', () => {

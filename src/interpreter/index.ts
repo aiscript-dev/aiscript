@@ -184,10 +184,10 @@ export class AiScript {
 
 		switch (node.type) {
 			case 'call': {
-				const val = scope.get(node.name);
-				assertFunction(val);
+				const callee = await this._eval(node.target, scope);
+				assertFunction(callee);
 				const args = await Promise.all(node.args.map(async expr => await this._eval(expr, scope)));
-				return this._fn(val, args);
+				return this._fn(callee, args);
 			}
 
 			case 'if': {
@@ -304,39 +304,29 @@ export class AiScript {
 			}
 
 			case 'assign': {
-				scope.assign(node.name, await this._eval(node.expr, scope));
-				return NULL;
-			}
-
-			case 'propAssign': {
-				const obj = scope.get(node.obj);
-				let x = obj;
-				const lastProp = node.path[node.path.length - 1];
-				for (const prop of node.path.slice(0, node.path.length - 1)) {
-					assertObject(x);
-					if (!x.value.has(prop)) {
-						x = NULL;
-						break;
-					} else {
-						x = x.value.get(prop)!;
-					}
+				const v = await this._eval(node.expr, scope);
+				if (node.dest.type === 'var') {
+					scope.assign(node.dest.name, v);
+					return NULL;
+				} else if (node.dest.type === 'index') {
+					const assignee = await this._eval(node.dest.target, scope);
+					assertArray(assignee);
+					const i = await this._eval(node.dest.index, scope);
+					assertNumber(i);
+					assignee.value[i.value - 1] = v; // TODO: 存在チェック
+					return NULL;
+				} else if (node.dest.type === 'prop') {
+					const assignee = await this._eval(node.dest.target, scope);
+					assertObject(assignee);
+					assignee.value.set(node.dest.name, v);
+					return NULL;
+				} else {
+					throw new AiScriptError('The left-hand side of an assignment expression must be a variable or a property/index access.');
 				}
-				assertObject(x);
-				x.value.set(lastProp, await this._eval(node.expr, scope));
-				return NULL;
-			}
-
-			case 'indexAssign': {
-				const arr = scope.get(node.arr);
-				assertArray(arr);
-				const i = await this._eval(node.i, scope);
-				assertNumber(i);
-				arr.value[i.value - 1] = await this._eval(node.expr, scope); // TODO: 存在チェック
-				return NULL;
 			}
 
 			case 'inc': {
-				const target = scope.get(node.name);
+				const target = await this._eval(node.dest, scope);
 				assertNumber(target);
 				const v = await this._eval(node.expr, scope);
 				assertNumber(v);
@@ -345,7 +335,7 @@ export class AiScript {
 			}
 
 			case 'dec': {
-				const target = scope.get(node.name);
+				const target = await this._eval(node.dest, scope);
 				assertNumber(target);
 				const v = await this._eval(node.expr, scope);
 				assertNumber(v);
@@ -372,43 +362,21 @@ export class AiScript {
 			}
 
 			case 'prop': {
-				const obj = scope.get(node.obj);
-				let x = obj;
-				for (const prop of node.path) {
-					assertObject(x);
-					if (!x.value.has(prop)) {
-						x = NULL;
-						break;
-					} else {
-						x = x.value.get(prop)!;
-					}
+				const obj = await this._eval(node.target, scope);
+				assertObject(obj);
+				if (obj.value.has(node.name)) {
+					return obj.value.get(node.name)!;
+				} else {
+					return NULL; // エラーにしてもよさそう
 				}
-				return x;
-			}
-
-			case 'propCall': {
-				const obj = scope.get(node.obj);
-				let x = obj;
-				for (const prop of node.path) {
-					assertObject(x);
-					if (!x.value.has(prop)) {
-						x = NULL;
-						break;
-					} else {
-						x = x.value.get(prop)!;
-					}
-				}
-				assertFunction(x);
-				const args = await Promise.all(node.args.map(async expr => await this._eval(expr, scope)));
-				return this._fn(x, args);
 			}
 
 			case 'index': {
-				const arr = scope.get(node.arr);
-				assertArray(arr);
-				const i = await this._eval(node.i, scope);
+				const target = await this._eval(node.target, scope);
+				assertArray(target);
+				const i = await this._eval(node.index, scope);
 				assertNumber(i);
-				return arr.value[i.value - 1]; // TODO: 存在チェック
+				return target.value[i.value - 1]; // TODO: 存在チェック
 			}
 
 			case 'fn': {
