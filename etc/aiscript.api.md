@@ -4,17 +4,35 @@
 
 ```ts
 
+// Warning: (ae-forgotten-export) The symbol "NodeBase" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+type AddAssign = NodeBase & {
+    type: 'inc';
+    dest: Expression;
+    expr: Expression;
+};
+
+// Warning: (ae-forgotten-export) The symbol "NodeBase" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+type AddAssign_2 = NodeBase_2 & {
+    type: 'inc';
+    dest: Expression_2;
+    expr: Expression_2;
+};
+
 // @public (undocumented)
 export class AiScript {
     constructor(vars: AiScript['vars'], opts?: AiScript['opts']);
     // (undocumented)
     abort(): void;
     // (undocumented)
-    static collectMetadata(script?: Node_2[]): Map<any, any> | undefined;
-    // Warning: (ae-forgotten-export) The symbol "Node" needs to be exported by the entry point index.d.ts
+    static collectMetadata(script?: N.Node[]): Map<any, any> | undefined;
+    // Warning: (ae-forgotten-export) The symbol "N" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
-    exec(script?: Node_2[]): Promise<void>;
+    exec(script?: N.Node[]): Promise<void>;
     // (undocumented)
     execFn(fn: VFn, args: Value[]): Promise<Value>;
     // (undocumented)
@@ -36,6 +54,20 @@ const ARR: (arr: VArr['value']) => {
 };
 
 // @public (undocumented)
+type Arr = NodeBase & {
+    type: 'arr';
+    value: Expression[];
+};
+
+// Warning: (ae-forgotten-export) The symbol "ChainProp" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+type Arr_2 = NodeBase_2 & ChainProp & {
+    type: 'arr';
+    value: Expression_2[];
+};
+
+// @public (undocumented)
 function assertArray(val: Value): asserts val is VArr;
 
 // @public (undocumented)
@@ -54,6 +86,20 @@ function assertObject(val: Value): asserts val is VObj;
 function assertString(val: Value): asserts val is VStr;
 
 // @public (undocumented)
+type Assign = NodeBase & {
+    type: 'assign';
+    dest: Expression;
+    expr: Expression;
+};
+
+// @public (undocumented)
+type Assign_2 = NodeBase_2 & {
+    type: 'assign';
+    dest: Expression_2;
+    expr: Expression_2;
+};
+
+// @public (undocumented)
 type Attr_2 = {
     attr?: {
         name: string;
@@ -62,8 +108,46 @@ type Attr_2 = {
 };
 
 // @public (undocumented)
+type Attribute = NodeBase & {
+    type: 'attr';
+    name: string;
+    value: Expression;
+};
+
+// @public (undocumented)
+type Attribute_2 = NodeBase_2 & {
+    type: 'attr';
+    name: string;
+    value: Expression_2;
+};
+
+// @public (undocumented)
+type Block = NodeBase & {
+    type: 'block';
+    statements: (Statement | Expression)[];
+};
+
+// @public (undocumented)
+type Block_2 = NodeBase_2 & ChainProp & {
+    type: 'block';
+    statements: (Statement_2 | Expression_2)[];
+};
+
+// @public (undocumented)
 const BOOL: (bool: VBool['value']) => {
     type: "bool";
+    value: boolean;
+};
+
+// @public (undocumented)
+type Bool = NodeBase & {
+    type: 'bool';
+    value: boolean;
+};
+
+// @public (undocumented)
+type Bool_2 = NodeBase_2 & ChainProp & {
+    type: 'bool';
     value: boolean;
 };
 
@@ -74,13 +158,106 @@ const BREAK: () => {
 };
 
 // @public (undocumented)
+type Break = NodeBase & {
+    type: 'break';
+};
+
+// @public (undocumented)
+type Break_2 = NodeBase_2 & {
+    type: 'break';
+};
+
+// @public (undocumented)
+function CALL(target: Call_2['target'], args: Call_2['args'], loc?: {
+    start: number;
+    end: number;
+}): Call_2;
+
+// @public (undocumented)
+type Call = NodeBase & {
+    type: 'call';
+    target: Expression;
+    args: Expression[];
+};
+
+// @public (undocumented)
+type Call_2 = NodeBase_2 & {
+    type: 'call';
+    target: Expression_2;
+    args: Expression_2[];
+};
+
+// @public (undocumented)
+type CallChain = NodeBase_2 & {
+    type: 'callChain';
+    args: Expression_2[];
+};
+
+// @public (undocumented)
+type ChainMember = CallChain | IndexChain | PropChain;
+
+// @public (undocumented)
 const CONTINUE: () => {
     type: "continue";
     value: null;
 };
 
 // @public (undocumented)
+type Continue = NodeBase & {
+    type: 'continue';
+};
+
+// @public (undocumented)
+type Continue_2 = NodeBase_2 & {
+    type: 'continue';
+};
+
+// @public (undocumented)
+type Definition = NodeBase & {
+    type: 'def';
+    name: string;
+    varType?: TypeSource;
+    expr: Expression;
+    mut: boolean;
+    attr: Attribute[];
+};
+
+// @public (undocumented)
+type Definition_2 = NodeBase_2 & {
+    type: 'def';
+    name: string;
+    varType?: TypeSource;
+    expr: Expression_2;
+    mut: boolean;
+    attr?: Attribute_2[];
+};
+
+// @public (undocumented)
+type Each = NodeBase & {
+    type: 'forOf';
+    var: string;
+    items: Expression;
+    for: Statement | Expression;
+};
+
+// @public (undocumented)
+type Each_2 = NodeBase_2 & {
+    type: 'forOf';
+    var: string;
+    items: Expression_2;
+    for: Statement_2 | Expression_2;
+};
+
+// @public (undocumented)
 function eq(a: Value, b: Value): boolean;
+
+// @public (undocumented)
+type Expression = Infix | If | Fn | Match | Block | Tmpl | Str | Num | Bool | Null | Obj | Arr | Var | Call | Index | Prop;
+
+// @public (undocumented)
+type Expression_2 = Infix_2 | If_2 | Fn_2 | Match_2 | Block_2 | Tmpl_2 | Str_2 | Num_2 | Bool_2 | Null_2 | Obj_2 | Arr_2 | Var_2 | Call_2 | // IR
+Index_2 | // IR
+Prop_2;
 
 // @public (undocumented)
 const FALSE: {
@@ -97,6 +274,28 @@ const FN: (args: VFn['args'], statements: VFn['statements'], scope: VFn['scope']
 };
 
 // @public (undocumented)
+type Fn = NodeBase & {
+    type: 'fn';
+    args: {
+        name: string;
+        type?: TypeSource;
+    }[];
+    ret?: TypeSource;
+    children: (Statement | Expression)[];
+};
+
+// @public (undocumented)
+type Fn_2 = NodeBase_2 & ChainProp & {
+    type: 'fn';
+    args: {
+        name: string;
+        type?: TypeSource;
+    }[];
+    ret?: TypeSource;
+    children: (Statement_2 | Expression_2)[];
+};
+
+// @public (undocumented)
 const FN_NATIVE: (fn: VFn['native']) => {
     type: "fn";
     native: ((args: Value[], opts: {
@@ -107,13 +306,189 @@ const FN_NATIVE: (fn: VFn['native']) => {
 };
 
 // @public (undocumented)
+type For = NodeBase & {
+    type: 'for';
+    var?: string;
+    from?: Expression;
+    to?: Expression;
+    times?: Expression;
+    for: Statement | Expression;
+};
+
+// @public (undocumented)
+type For_2 = NodeBase_2 & {
+    type: 'for';
+    var?: string;
+    from?: Expression_2;
+    to?: Expression_2;
+    times?: Expression_2;
+    for: Statement_2 | Expression_2;
+};
+
+// @public (undocumented)
 function getLangVersion(input: string): string | null;
+
+// @public (undocumented)
+function hasChainProp(x: Node_3): x is Node_3 & ChainProp;
+
+// @public (undocumented)
+type If = NodeBase & {
+    type: 'if';
+    cond: Expression;
+    then: Statement | Expression;
+    elseif: {
+        cond: Expression;
+        then: Statement | Expression;
+    }[];
+    else?: Statement | Expression;
+};
+
+// @public (undocumented)
+type If_2 = NodeBase_2 & {
+    type: 'if';
+    cond: Expression_2;
+    then: Statement_2 | Expression_2;
+    elseif: {
+        cond: Expression_2;
+        then: Statement_2 | Expression_2;
+    }[];
+    else?: Statement_2 | Expression_2;
+};
+
+// @public (undocumented)
+function INDEX(target: Index_2['target'], index: Index_2['index'], loc?: {
+    start: number;
+    end: number;
+}): Index_2;
+
+// @public (undocumented)
+type Index = NodeBase & {
+    type: 'index';
+    target: Expression;
+    index: Expression;
+};
+
+// @public (undocumented)
+type Index_2 = NodeBase_2 & {
+    type: 'index';
+    target: Expression_2;
+    index: Expression_2;
+};
+
+// @public (undocumented)
+type IndexChain = NodeBase_2 & {
+    type: 'indexChain';
+    index: Expression_2;
+};
+
+// @public (undocumented)
+type Infix = NodeBase & {
+    type: 'infix';
+    operands: Expression[];
+    operators: InfixOperator[];
+};
+
+// @public (undocumented)
+type Infix_2 = NodeBase_2 & {
+    type: 'infix';
+    operands: Expression_2[];
+    operators: InfixOperator_2[];
+};
+
+// @public (undocumented)
+type InfixOperator = "||" | "&&" | "==" | "!=" | "<=" | ">=" | "<" | ">" | "+" | "-" | "*" | "|" | "%";
+
+// @public (undocumented)
+type InfixOperator_2 = "||" | "&&" | "==" | "!=" | "<=" | ">=" | "<" | ">" | "+" | "-" | "*" | "|" | "%";
+
+// @public (undocumented)
+function isExpression(x: Node_2): x is Expression;
+
+// @public (undocumented)
+function isExpression_2(x: Node_3): x is Expression_2;
+
+// @public (undocumented)
+function isStatement(x: Node_2): x is Statement;
+
+// @public (undocumented)
+function isStatement_2(x: Node_3): x is Statement_2;
 
 // @public (undocumented)
 function jsToVal(val: any): Value;
 
 // @public (undocumented)
-function nodeToString(node: Node_2): string;
+type Loc = {
+    start: number;
+    end: number;
+};
+
+// @public (undocumented)
+type Loop = NodeBase & {
+    type: 'loop';
+    statements: (Statement | Expression)[];
+};
+
+// @public (undocumented)
+type Loop_2 = NodeBase_2 & {
+    type: 'loop';
+    statements: (Statement_2 | Expression_2)[];
+};
+
+// @public (undocumented)
+type Match = NodeBase & {
+    type: 'match';
+    about: Expression;
+    qs: {
+        q: Expression;
+        a: Statement | Expression;
+    }[];
+    default?: Statement | Expression;
+};
+
+// @public (undocumented)
+type Match_2 = NodeBase_2 & ChainProp & {
+    type: 'match';
+    about: Expression_2;
+    qs: {
+        q: Expression_2;
+        a: Statement_2 | Expression_2;
+    }[];
+    default?: Statement_2 | Expression_2;
+};
+
+// @public (undocumented)
+type Meta = NodeBase & {
+    type: 'meta';
+    name: string | null;
+    value: Expression;
+};
+
+// @public (undocumented)
+type Meta_2 = NodeBase_2 & {
+    type: 'meta';
+    name: string | null;
+    value: Expression_2;
+};
+
+// @public (undocumented)
+type Namespace = NodeBase & {
+    type: 'ns';
+    name: string;
+    members: (Definition | Namespace)[];
+};
+
+// @public (undocumented)
+type Namespace_2 = NodeBase_2 & {
+    type: 'ns';
+    name: string;
+    members: (Definition_2 | Namespace_2)[];
+};
+
+// @public (undocumented)
+type Node_2 = Namespace | Meta | Statement | Expression;
+
+// @public (undocumented)
+type Node_3 = Namespace_2 | Meta_2 | Statement_2 | Expression_2 | ChainMember;
 
 // @public (undocumented)
 const NULL: {
@@ -121,8 +496,30 @@ const NULL: {
 };
 
 // @public (undocumented)
+type Null = NodeBase & {
+    type: 'null';
+};
+
+// @public (undocumented)
+type Null_2 = NodeBase_2 & ChainProp & {
+    type: 'null';
+};
+
+// @public (undocumented)
 const NUM: (num: VNum['value']) => {
     type: "num";
+    value: number;
+};
+
+// @public (undocumented)
+type Num = NodeBase & {
+    type: 'num';
+    value: number;
+};
+
+// @public (undocumented)
+type Num_2 = NodeBase_2 & ChainProp & {
+    type: 'num';
     value: number;
 };
 
@@ -133,7 +530,19 @@ const OBJ: (obj: VObj['value']) => {
 };
 
 // @public (undocumented)
-export function parse(input: string): Node_2[];
+type Obj = NodeBase & {
+    type: 'obj';
+    value: Map<string, Expression>;
+};
+
+// @public (undocumented)
+type Obj_2 = NodeBase_2 & ChainProp & {
+    type: 'obj';
+    value: Map<string, Expression_2>;
+};
+
+// @public (undocumented)
+export function parse(input: string): N.Node[];
 
 // @public (undocumented)
 export class Parser {
@@ -141,13 +550,41 @@ export class Parser {
     // (undocumented)
     addPlugin(plugin: ParserPlugin): void;
     // (undocumented)
-    static parse(input: string): Node_2[];
+    static parse(input: string): N.Node[];
     // (undocumented)
-    parse(input: string): Node_2[];
+    parse(input: string): N.Node[];
 }
 
+// Warning: (ae-forgotten-export) The symbol "Ast" needs to be exported by the entry point index.d.ts
+//
 // @public (undocumented)
-export type ParserPlugin = (nodes: Node_2[]) => Node_2[];
+export type ParserPlugin = (nodes: Ast.Node[]) => Ast.Node[];
+
+// @public (undocumented)
+function PROP(target: Prop_2['target'], name: Prop_2['name'], loc?: {
+    start: number;
+    end: number;
+}): Prop_2;
+
+// @public (undocumented)
+type Prop = NodeBase & {
+    type: 'prop';
+    target: Expression;
+    name: string;
+};
+
+// @public (undocumented)
+type Prop_2 = NodeBase_2 & {
+    type: 'prop';
+    target: Expression_2;
+    name: string;
+};
+
+// @public (undocumented)
+type PropChain = NodeBase_2 & {
+    type: 'propChain';
+    name: string;
+};
 
 // @public (undocumented)
 const RETURN: (v: VReturn['value']) => {
@@ -156,9 +593,28 @@ const RETURN: (v: VReturn['value']) => {
 };
 
 // @public (undocumented)
+type Return = NodeBase & {
+    type: 'return';
+    expr: Expression;
+};
+
+// @public (undocumented)
+type Return_2 = NodeBase_2 & {
+    type: 'return';
+    expr: Expression_2;
+};
+
+// @public (undocumented)
 export class SemanticError extends Error {
     constructor(details?: string);
 }
+
+// @public (undocumented)
+type Statement = Definition | Return | Each | For | Loop | Break | Continue | Assign | AddAssign | SubAssign;
+
+// @public (undocumented)
+type Statement_2 = Definition_2 | Return_2 | Attribute_2 | // AST
+Each_2 | For_2 | Loop_2 | Break_2 | Continue_2 | Assign_2 | AddAssign_2 | SubAssign_2;
 
 // @public (undocumented)
 const STR: (str: VStr['value']) => {
@@ -167,10 +623,48 @@ const STR: (str: VStr['value']) => {
 };
 
 // @public (undocumented)
+type Str = NodeBase & {
+    type: 'str';
+    value: string;
+};
+
+// @public (undocumented)
+type Str_2 = NodeBase_2 & ChainProp & {
+    type: 'str';
+    value: string;
+};
+
+// @public (undocumented)
+type SubAssign = NodeBase & {
+    type: 'dec';
+    dest: Expression;
+    expr: Expression;
+};
+
+// @public (undocumented)
+type SubAssign_2 = NodeBase_2 & {
+    type: 'dec';
+    dest: Expression_2;
+    expr: Expression_2;
+};
+
+// @public (undocumented)
 class SyntaxError_2 extends Error {
     constructor(details?: string);
 }
 export { SyntaxError_2 as SyntaxError }
+
+// @public (undocumented)
+type Tmpl = NodeBase & {
+    type: 'tmpl';
+    tmpl: (string | Expression)[];
+};
+
+// @public (undocumented)
+type Tmpl_2 = NodeBase_2 & ChainProp & {
+    type: 'tmpl';
+    tmpl: (string | Expression_2)[];
+};
 
 // @public (undocumented)
 const TRUE: {
@@ -191,7 +685,6 @@ declare namespace utils {
         assertArray,
         eq,
         valToString,
-        nodeToString,
         valToJs,
         jsToVal,
         getLangVersion
@@ -203,7 +696,7 @@ export { utils }
 function valToJs(val: Value): any;
 
 // @public (undocumented)
-function valToString(val: Value, simple?: boolean): any;
+function valToString(val: Value, simple?: boolean): string;
 
 // @public (undocumented)
 type Value = (VNull | VBool | VNum | VStr | VArr | VObj | VFn | VReturn | VBreak | VContinue) & Attr_2;
@@ -239,6 +732,18 @@ declare namespace values {
     }
 }
 export { values }
+
+// @public (undocumented)
+type Var = NodeBase & {
+    type: 'var';
+    name: string;
+};
+
+// @public (undocumented)
+type Var_2 = NodeBase_2 & ChainProp & {
+    type: 'var';
+    name: string;
+};
 
 // @public (undocumented)
 type VArr = {
@@ -305,6 +810,10 @@ type VStr = {
     type: 'str';
     value: string;
 };
+
+// Warnings were encountered during analysis:
+//
+// src/node.ts:82:2 - (ae-forgotten-export) The symbol "TypeSource" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

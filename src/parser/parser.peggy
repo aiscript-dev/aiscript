@@ -111,24 +111,22 @@ Statement
 	/ Loop        // "loop"
 	/ Break       // "break"
 	/ Continue    // "continue"
-	/ Assign      // NAME_WITH_NAMESPACE "="
-	/ PropAssign  // NAME_WITH_NAMESPACE "."
-	/ IndexAssign // NAME_WITH_NAMESPACE "["
-	/ Inc         // NAME_WITH_NAMESPACE "+="
-	/ Dec         // NAME_WITH_NAMESPACE "-="
+	/ Assign      // Expr "=" | Expr "+=" | Expr "-="
 	/ Expr
 
 // list of expression
 
 Expr
 	= Infix
-	/ Term
+	/ Expr2
 
-// list of term expression
-
-Term
+Expr2
 	= If          // "if"
-	/ Fn          // "@("
+	/ Chain       // Expr3 "(" | Expr3 "[" | Expr3 "."
+	/ Expr3
+
+Expr3
+	= Fn          // "@("
 	/ Match       // "match"
 	/ Eval        // "eval"
 	/ Tmpl        // "`"
@@ -138,10 +136,6 @@ Term
 	/ Null        // "null"
 	/ Obj         // "{"
 	/ Arr         // "["
-	/ Call        // NAME_WITH_NAMESPACE "("
-	/ IndexRef    // NAME_WITH_NAMESPACE "["
-	/ PropCall    // NAME_WITH_NAMESPACE "."
-	/ PropRef     // NAME_WITH_NAMESPACE "."
 	/ VarRef      // NAME_WITH_NAMESPACE
 	/ "(" _* e:Expr _* ")" { return e; }
 
@@ -191,10 +185,15 @@ VarDef
 
 // output statement
 
-// NOTE: syntax sugar for print()
+// NOTE: out is syntax sugar for print(expr)
 Out
 	= "<:" _* expr:Expr
-{ return createNode('call', { name: 'print', args: [expr] }); }
+{
+	return createNode('var', {
+		name: 'print',
+		chain: [createNode('callChain', { args: [expr] })],
+	});
+}
 
 // attribute statement
 
@@ -291,33 +290,15 @@ Continue
 // assign statement
 
 Assign
-	= name:NAME_WITH_NAMESPACE _* "=" _* expr:Expr
-{ return createNode('assign', { name, expr }); }
-
-// property assign statement
-
-PropAssign
-	= head:NAME_WITH_NAMESPACE tails:("." name:NAME { return name; })+ _* "=" _* expr:Expr
-{ return createNode('propAssign', { obj: head, path: tails, expr }); }
-
-
-// indexer assign statement
-
-IndexAssign
-	= v:NAME_WITH_NAMESPACE "[" _* i:Expr _* "]" _* "=" _* expr:Expr
-{ return createNode('indexAssign', { arr: v, i: i, expr }); }
-
-// increment statement
-
-Inc
-	= name:NAME_WITH_NAMESPACE _* "+=" _* expr:Expr
-{ return createNode('inc', { name, expr }); }
-
-// decrement statement
-
-Dec
-	= name:NAME_WITH_NAMESPACE _* "-=" _* expr:Expr
-{ return createNode('dec', { name, expr }); }
+	= dest:Expr _* op:("+=" / "-=" / "=") _* expr:Expr
+{
+	if (op === '+=')
+		return createNode('inc', { dest, expr });
+	else if (op === '-=')
+		return createNode('dec', { dest, expr });
+	else
+		return createNode('assign', { dest, expr });
+}
 
 
 
@@ -328,7 +309,7 @@ Dec
 // infix expression
 
 Infix
-	= head:Term tail:(InfixSp* op:Op InfixSp* term:Term { return {op, term}; })+
+	= head:Expr2 tail:(InfixSp* op:Op InfixSp* term:Expr2 { return {op, term}; })+
 {
 	return createNode('infix', {
 		operands: [head, ...tail.map(i => i.term)],
@@ -343,6 +324,28 @@ InfixSp
 Op
 	= ("||" / "&&" / "==" / "!=" / "<=" / ">=" / "<" / ">" / "+" / "-" / "*" / "/" / "%") ![-+*/%&|=~<>!?]
 { return text(); }
+
+// chain
+
+Chain
+	= e:Expr3 chain:(CallChain / IndexChain / PropChain)+
+{ return { ...e, chain }; }
+
+CallChain
+	= "(" _* args:CallArgs? _* ")"
+{ return createNode('callChain', { args: args || [] }); }
+
+CallArgs
+	= head:Expr tails:(SEP expr:Expr { return expr; })*
+{ return [head, ...tails]; }
+
+IndexChain
+	= "[" _* index:Expr _* "]"
+{ return createNode('indexChain', { index }); }
+
+PropChain
+	= "." name:NAME
+{ return createNode('propChain', { name }); }
 
 // if statement
 
@@ -387,35 +390,7 @@ Eval
 	= "eval" _* "{" _* s:Statements _* "}"
 { return createNode('block', { statements: s }); }
 
-// function call expression
-
-Call
-	= name:NAME_WITH_NAMESPACE "(" _* args:CallArgs? _* ")"
-{ return createNode('call', { name, args: args || [] }); }
-
-CallArgs
-	= head:Expr tails:(SEP expr:Expr { return expr; })*
-{ return [head, ...tails]; }
-
-// reference of indexer expression
-
-IndexRef
-	= v:NAME_WITH_NAMESPACE "[" _* i:Expr _* "]"
-{ return createNode('index', { arr: v, i: i }); }
-
-// property call
-
-PropCall
-	= head:NAME_WITH_NAMESPACE tails:("." name:NAME { return name; })+ "(" _* args:CallArgs? _* ")"
-{ return createNode('propCall', { obj: head, path: tails, args: args || [] }); }
-
-// reference of property expression
-
-PropRef
-	= head:NAME_WITH_NAMESPACE tails:("." name:NAME { return name; })+
-{ return createNode('prop', { obj: head, path: tails }); }
-
-// reference of variable expression
+// variable reference expression
 
 VarRef
 	= name:NAME_WITH_NAMESPACE

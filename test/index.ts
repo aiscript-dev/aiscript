@@ -7,13 +7,14 @@ import * as assert from 'assert';
 import { parse, Parser, utils } from '../src';
 import { AiScript } from '../src/interpreter';
 import { NUM, STR, NULL, ARR, OBJ, BOOL } from '../src/interpreter/value';
-import { NAttr, Node } from '../src/node';
+import * as N from '../src/node';
 
 const exe = (program: string): Promise<any> => new Promise((ok, err) => {
 	const aiscript = new AiScript({}, {
 		out(value) {
 			ok(value);
 		},
+		maxStep: 9999,
 	});
 
 	const parser = new Parser();
@@ -277,6 +278,17 @@ it('var', async () => {
 	<: a
 	`);
 	eq(res, NUM(42));
+});
+
+it('参照が繋がらない', async () => {
+	const res = await exe(`
+	var f = @() { "a" }
+	var g = f
+	f = @() { "b" }
+
+	<: g()
+	`);
+	eq(res, STR('a'));
 });
 
 describe('Cannot put multiple statements in a line', () => {
@@ -639,6 +651,96 @@ it('Array item assign', async () => {
 	<: arr
 	`);
 	eq(res, ARR([STR('ai'), STR('taso'), STR('kawaii')]));
+});
+
+it('chain access (prop + index + call)', async () => {
+	const res = await exe(`
+	let obj = {
+		a: {
+			b: [@(name) { name }, @(str) { "chan" }, @() { "kawaii" }];
+		};
+	}
+
+	<: obj.a.b[1]("ai")
+	`);
+	eq(res, STR('ai'));
+});
+
+it('chained assign left side (prop + index)', async () => {
+	const res = await exe(`
+	let obj = {
+		a: {
+			b: ["ai", "chan", "kawaii"];
+		};
+	}
+
+	obj.a.b[2] = "taso"
+
+	<: obj
+	`);
+	eq(res, OBJ(new Map([
+		['a', OBJ(new Map([
+			['b', ARR([STR('ai'), STR('taso'), STR('kawaii')])]
+		]))]
+	])));
+});
+
+it('chained assign right side (prop + index + call)', async () => {
+	const res = await exe(`
+	let obj = {
+		a: {
+			b: ["ai", "chan", "kawaii"];
+		};
+	}
+
+	var x = null
+	x = obj.a.b[1]
+
+	<: x
+	`);
+	eq(res, STR('ai'));
+});
+
+it('chained inc/dec left side (index + prop)', async () => {
+	const res = await exe(`
+	let arr = [
+		{
+			a: 1;
+			b: 2;
+		}
+	]
+
+	arr[1].a += 1
+	arr[1].b -= 1
+
+	<: arr
+	`);
+	eq(res, ARR([
+		OBJ(new Map([
+			['a', NUM(2)],
+			['b', NUM(1)]
+		]))
+	]));
+});
+
+it('chained inc/dec left side (prop + index)', async () => {
+	const res = await exe(`
+	let obj = {
+		a: {
+			b: [1, 2, 3];
+		};
+	}
+
+	obj.a.b[2] += 1
+	obj.a.b[3] -= 1
+
+	<: obj
+	`);
+	eq(res, OBJ(new Map([
+		['a', OBJ(new Map([
+			['b', ARR([NUM(1), NUM(3), NUM(2)])]
+		]))]
+	])));
 });
 
 describe('Template syntax', () => {
@@ -1651,8 +1753,8 @@ describe('lang version', () => {
 
 describe('Attribute', () => {
 	it('single attribute with function (str)', async () => {
-		let node: Node;
-		let attr: NAttr;
+		let node: N.Node;
+		let attr: N.Attribute;
 		const parser = new Parser();
 		const nodes = parser.parse(`
 		#[Event "Recieved"]
@@ -1674,8 +1776,8 @@ describe('Attribute', () => {
 	});
 
 	it('multiple attributes with function (obj, str, bool)', async () => {
-		let node: Node;
-		let attr: NAttr;
+		let node: N.Node;
+		let attr: N.Attribute;
 		const parser = new Parser();
 		const nodes = parser.parse(`
 		#[Endpoint { path: "/notes/create"; }]
@@ -1723,8 +1825,8 @@ describe('Attribute', () => {
 	// TODO: attribute target does not exist
 
 	it('single attribute (no value)', async () => {
-		let node: Node;
-		let attr: NAttr;
+		let node: N.Node;
+		let attr: N.Attribute;
 		const parser = new Parser();
 		const nodes = parser.parse(`
 		#[serializable]
@@ -1746,7 +1848,7 @@ describe('Attribute', () => {
 
 describe('Location', () => {
 	it('function', async () => {
-		let node: Node;
+		let node: N.Node;
 		const parser = new Parser();
 		const nodes = parser.parse(`
 		@f(a) { a }

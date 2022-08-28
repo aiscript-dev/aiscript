@@ -1,9 +1,9 @@
 import * as aiscript from '../..';
 import { SemanticError } from '../../error';
-import { Node } from '../../node';
+import * as Ast from '../node';
 import { getTypeBySource } from '../../type';
 
-function validate(node: Node) {
+function validate(node: Ast.Node) {
 	switch (node.type) {
 		case 'def': {
 			if (node.varType != null) {
@@ -30,7 +30,7 @@ function validate(node: Node) {
 	// TODO: ブロックも全部スキャン
 }
 
-export function validateType(nodes: Node[]): Node[] {
+export function validateType(nodes: Ast.Node[]): Ast.Node[] {
 	for (const node of nodes) {
 		validate(node);
 	}
