@@ -122,12 +122,12 @@ Expr
 
 Expr2
 	= If          // "if"
+	/ Fn          // "@("
 	/ Chain       // Expr3 "(" | Expr3 "[" | Expr3 "."
 	/ Expr3
 
 Expr3
-	= Fn          // "@("
-	/ Match       // "match"
+	= Match       // "match"
 	/ Eval        // "eval"
 	/ Tmpl        // "`"
 	/ Str         // "\""
