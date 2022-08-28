@@ -690,6 +690,28 @@ it('chained assign right side (prop + index + call)', async () => {
 	eq(res, STR('ai'));
 });
 
+it('chained inc/dec left side (index + prop)', async () => {
+	const res = await exe(`
+	let arr = [
+		{
+			a: 1;
+			b: 2;
+		}
+	]
+
+	arr[1].a++
+	arr[1].b--
+
+	<: arr
+	`);
+	eq(res, ARR([
+		OBJ(new Map([
+			['a', NUM(2)],
+			['b', NUM(1)]
+		]))
+	]));
+});
+
 it('chained inc/dec left side (prop + index)', async () => {
 	const res = await exe(`
 	let obj = {
