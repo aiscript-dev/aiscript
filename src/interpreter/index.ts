@@ -304,20 +304,21 @@ export class AiScript {
 			}
 
 			case 'assign': {
+				const v = await this._eval(node.expr, scope);
 				if (node.dest.type === 'var') {
-					scope.assign(node.dest.name, await this._eval(node.expr, scope));
+					scope.assign(node.dest.name, v);
 					return NULL;
 				} else if (node.dest.type === 'index') {
 					const assignee = await this._eval(node.dest.target, scope);
 					assertArray(assignee);
 					const i = await this._eval(node.dest.index, scope);
 					assertNumber(i);
-					assignee.value[i.value - 1] = await this._eval(node.expr, scope); // TODO: 存在チェック
+					assignee.value[i.value - 1] = v; // TODO: 存在チェック
 					return NULL;
 				} else if (node.dest.type === 'prop') {
 					const assignee = await this._eval(node.dest.target, scope);
 					assertObject(assignee);
-					assignee.value.set(node.dest.name, await this._eval(node.expr, scope));
+					assignee.value.set(node.dest.name, v);
 					return NULL;
 				} else {
 					throw new AiScriptError('The left-hand side of an assignment expression must be a variable or a property/index access.');
