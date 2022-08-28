@@ -500,9 +500,6 @@ type Node_2 = Namespace | Meta | Statement | Expression | StaticLiteral;
 type Node_3 = Namespace_2 | Meta_2 | Statement_2 | Expression_2 | StaticLiteral_2 | ChainMember;
 
 // @public (undocumented)
-function nodeToString(node: Node_2): string;
-
-// @public (undocumented)
 const NULL: {
     type: "null";
 };
@@ -727,7 +724,6 @@ declare namespace utils {
         assertArray,
         eq,
         valToString,
-        nodeToString,
         valToJs,
         jsToVal,
         getLangVersion
@@ -739,7 +735,7 @@ export { utils }
 function valToJs(val: Value): any;
 
 // @public (undocumented)
-function valToString(val: Value, simple?: boolean): any;
+function valToString(val: Value, simple?: boolean): string;
 
 // @public (undocumented)
 type Value = (VNull | VBool | VNum | VStr | VArr | VObj | VFn | VReturn | VBreak | VContinue) & Attr_2;
