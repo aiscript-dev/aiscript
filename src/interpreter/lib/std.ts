@@ -20,10 +20,14 @@ export const std: Record<string, Value> = {
 	}),
 
 	'Core:eq': FN_NATIVE(([a, b]) => {
+		expectAny(a);
+		expectAny(b);
 		return eq(a, b) ? TRUE : FALSE;
 	}),
 
 	'Core:neq': FN_NATIVE(([a, b]) => {
+		expectAny(a);
+		expectAny(b);
 		return eq(a, b) ? FALSE : TRUE;
 	}),
 
