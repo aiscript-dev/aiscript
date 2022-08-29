@@ -3,7 +3,7 @@ import { visitNode } from '../visit';
 
 function transformNode(node: Ast.Node): Ast.Node {
 	// chain
-	if (Ast.hasChainProp(node) && node.chain != null) {
+	if (Ast.isExpression(node) && Ast.hasChainProp(node) && node.chain != null) {
 		const { chain, ...hostNode } = node;
 		let parent: Ast.Expression = hostNode;
 		for (const item of chain) {

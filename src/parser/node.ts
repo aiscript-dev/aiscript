@@ -231,7 +231,7 @@ type ChainProp = {
 };
 
 // AST
-export function hasChainProp(x: Node): x is Node & ChainProp {
+export function hasChainProp<T extends Node>(x: T): x is T & ChainProp {
 	return ((x as any).chain != null);
 }
 
