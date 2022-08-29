@@ -548,7 +548,7 @@ export function parse(input: string): N.Node[];
 export class Parser {
     constructor();
     // (undocumented)
-    addPlugin(plugin: ParserPlugin): void;
+    addPlugin(type: PluginType, plugin: ParserPlugin): void;
     // (undocumented)
     static parse(input: string): N.Node[];
     // (undocumented)
@@ -559,6 +559,9 @@ export class Parser {
 //
 // @public (undocumented)
 export type ParserPlugin = (nodes: Ast.Node[]) => Ast.Node[];
+
+// @public (undocumented)
+export type PluginType = 'validate' | 'transform';
 
 // @public (undocumented)
 function PROP(target: Prop_2['target'], name: Prop_2['name'], loc?: {

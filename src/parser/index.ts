@@ -9,18 +9,26 @@ import { setAttribute } from './plugins/set-attribute';
 import { transformChain } from './plugins/transform-chain';
 
 export type ParserPlugin = (nodes: Ast.Node[]) => Ast.Node[];
+export type PluginType = 'validate' | 'transform';
 
 export class Parser {
 	private static instance?: Parser;
-	private plugins: ParserPlugin[];
+	private plugins: {
+		validate: ParserPlugin[];
+		transform: ParserPlugin[];
+	};
 
 	constructor() {
-		this.plugins = [
-			validateKeyword,
-			validateType,
-			setAttribute,
-			transformChain,
-		];
+		this.plugins = {
+			validate: [
+				validateKeyword,
+				validateType,
+			],
+			transform: [
+				setAttribute,
+				transformChain,
+			],
+		};
 	}
 
 	public static parse(input: string): N.Node[] {
@@ -30,8 +38,17 @@ export class Parser {
 		return Parser.instance.parse(input);
 	}
 
-	public addPlugin(plugin: ParserPlugin) {
-		this.plugins.push(plugin);
+	public addPlugin(type: PluginType, plugin: ParserPlugin) {
+		switch (type) {
+			case 'validate':
+				this.plugins.validate.push(plugin);
+				break;
+			case 'transform':
+				this.plugins.transform.push(plugin);
+				break;
+			default:
+				throw new Error('unknown plugin type');
+		}
 	}
 
 	public parse(input: string): N.Node[] {
@@ -54,8 +71,13 @@ export class Parser {
 			throw e;
 		}
 
-		// validate and transform the node tree
-		for (const plugin of this.plugins) {
+		// validate the node tree
+		for (const plugin of this.plugins.validate) {
+			nodes = plugin(nodes);
+		}
+
+		// transform the node tree
+		for (const plugin of this.plugins.transform) {
 			nodes = plugin(nodes);
 		}
 
