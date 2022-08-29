@@ -723,24 +723,26 @@ describe('Object', () => {
 	*/
 });
 
-it('Array item access', async () => {
-	const res = await exe(`
-	let arr = ["ai", "chan", "kawaii"]
+describe('Array', () => {
+	it('Array item access', async () => {
+		const res = await exe(`
+		let arr = ["ai", "chan", "kawaii"]
 
-	<: arr[1]
-	`);
-	eq(res, STR('chan'));
-});
+		<: arr[1]
+		`);
+		eq(res, STR('chan'));
+	});
 
-it('Array item assign', async () => {
-	const res = await exe(`
-	let arr = ["ai", "chan", "kawaii"]
+	it('Array item assign', async () => {
+		const res = await exe(`
+		let arr = ["ai", "chan", "kawaii"]
 
-	arr[1] = "taso"
+		arr[1] = "taso"
 
-	<: arr
-	`);
-	eq(res, ARR([STR('ai'), STR('taso'), STR('kawaii')]));
+		<: arr
+		`);
+		eq(res, ARR([STR('ai'), STR('taso'), STR('kawaii')]));
+	});
 });
 
 describe('chain', () => {
@@ -944,73 +946,6 @@ it('Throws error when divied by zero', async () => {
 		return;
 	}
 	assert.fail();
-});
-
-it('Fizz Buzz', async () => {
-	const res = await exe(`
-	let res = []
-	for (let i, 15) {
-		let msg =
-			if (i % 15 == 0) "FizzBuzz"
-			elif (i % 3 == 0) "Fizz"
-			elif (i % 5 == 0) "Buzz"
-			else i
-		Arr:push(res msg)
-	}
-	<: res
-	`);
-	eq(res, ARR([
-		NUM(1),
-		NUM(2),
-		STR('Fizz'),
-		NUM(4),
-		STR('Buzz'),
-		STR('Fizz'),
-		NUM(7),
-		NUM(8),
-		STR('Fizz'),
-		STR('Buzz'),
-		NUM(11),
-		STR('Fizz'),
-		NUM(13),
-		NUM(14),
-		STR('FizzBuzz'),
-	]));
-});
-
-it('SKI', async () => {
-	const res = await exe(`
-	let s = @(x) { @(y) { @(z) {
-		//let f = x(z) f(@(a){ let g = y(z) g(a) })
-		let f = x(z)
-		f(y(z))
-	}}}
-	let k = @(x){ @(y) { x } }
-	let i = @(x){ x }
-
-	// combine
-	@c(l) {
-		let L = Arr:len(l)
-
-		// extract
-		@x(v) {
-			if (Core:type(v) == "arr") { c(v) } else { v }
-		}
-
-		// rec
-		@r(f, n) {
-			if (n < L) {
-				r(f(x(l[n])), (n + 1))
-			} else { f }
-		}
-
-		r(x(l[0]), 1)
-	}
-
-	let sksik = [s, [k, [s, i]], k]
-	c([sksik, "foo", print])
-	`);
-	eq(res, STR('foo'));
 });
 
 describe('Function call', () => {
@@ -2094,5 +2029,74 @@ describe('std', () => {
 			eq(await exe('<: Core:range(1, 1)'), ARR([NUM(1)]));
 			eq(await exe('<: Core:range(9, 7)'), ARR([NUM(9), NUM(8), NUM(7)]));
 		});
+	});
+});
+
+describe('extra', () => {
+	it('Fizz Buzz', async () => {
+		const res = await exe(`
+		let res = []
+		for (let i, 15) {
+			let msg =
+				if (i % 15 == 0) "FizzBuzz"
+				elif (i % 3 == 0) "Fizz"
+				elif (i % 5 == 0) "Buzz"
+				else i
+			Arr:push(res msg)
+		}
+		<: res
+		`);
+		eq(res, ARR([
+			NUM(1),
+			NUM(2),
+			STR('Fizz'),
+			NUM(4),
+			STR('Buzz'),
+			STR('Fizz'),
+			NUM(7),
+			NUM(8),
+			STR('Fizz'),
+			STR('Buzz'),
+			NUM(11),
+			STR('Fizz'),
+			NUM(13),
+			NUM(14),
+			STR('FizzBuzz'),
+		]));
+	});
+
+	it('SKI', async () => {
+		const res = await exe(`
+		let s = @(x) { @(y) { @(z) {
+			//let f = x(z) f(@(a){ let g = y(z) g(a) })
+			let f = x(z)
+			f(y(z))
+		}}}
+		let k = @(x){ @(y) { x } }
+		let i = @(x){ x }
+
+		// combine
+		@c(l) {
+			let L = Arr:len(l)
+
+			// extract
+			@x(v) {
+				if (Core:type(v) == "arr") { c(v) } else { v }
+			}
+
+			// rec
+			@r(f, n) {
+				if (n < L) {
+					r(f(x(l[n])), (n + 1))
+				} else { f }
+			}
+
+			r(x(l[0]), 1)
+		}
+
+		let sksik = [s, [k, [s, i]], k]
+		c([sksik, "foo", print])
+		`);
+		eq(res, STR('foo'));
 	});
 });
