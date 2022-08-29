@@ -313,7 +313,7 @@ export class AiScript {
 					assertArray(assignee);
 					const i = await this._eval(node.dest.index, scope);
 					assertNumber(i);
-					assignee.value[i.value - 1] = v; // TODO: 存在チェック
+					assignee.value[i.value] = v; // TODO: 存在チェック
 					return NULL;
 				} else if (node.dest.type === 'prop') {
 					const assignee = await this._eval(node.dest.target, scope);
@@ -376,7 +376,7 @@ export class AiScript {
 				assertArray(target);
 				const i = await this._eval(node.index, scope);
 				assertNumber(i);
-				return target.value[i.value - 1]; // TODO: 存在チェック
+				return target.value[i.value]; // TODO: 存在チェック
 			}
 
 			case 'fn': {

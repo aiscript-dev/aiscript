@@ -727,7 +727,7 @@ it('Array item access', async () => {
 	const res = await exe(`
 	let arr = ["ai", "chan", "kawaii"]
 
-	<: arr[2]
+	<: arr[1]
 	`);
 	eq(res, STR('chan'));
 });
@@ -736,7 +736,7 @@ it('Array item assign', async () => {
 	const res = await exe(`
 	let arr = ["ai", "chan", "kawaii"]
 
-	arr[2] = "taso"
+	arr[1] = "taso"
 
 	<: arr
 	`);
@@ -752,7 +752,7 @@ describe('chain', () => {
 			};
 		}
 
-		<: obj.a.b[1]("ai")
+		<: obj.a.b[0]("ai")
 		`);
 		eq(res, STR('ai'));
 	});
@@ -765,7 +765,7 @@ describe('chain', () => {
 			};
 		}
 
-		obj.a.b[2] = "taso"
+		obj.a.b[1] = "taso"
 
 		<: obj
 		`);
@@ -789,7 +789,7 @@ describe('chain', () => {
 
 		<: x
 		`);
-		eq(res, STR('ai'));
+		eq(res, STR('chan'));
 	});
 
 	it('chained inc/dec left side (index + prop)', async () => {
@@ -801,8 +801,8 @@ describe('chain', () => {
 			}
 		]
 
-		arr[1].a += 1
-		arr[1].b -= 1
+		arr[0].a += 1
+		arr[0].b -= 1
 
 		<: arr
 		`);
@@ -822,8 +822,8 @@ describe('chain', () => {
 			};
 		}
 
-		obj.a.b[2] += 1
-		obj.a.b[3] -= 1
+		obj.a.b[1] += 1
+		obj.a.b[2] -= 1
 
 		<: obj
 		`);
@@ -990,7 +990,7 @@ it('SKI', async () => {
 
 	// combine
 	@c(l) {
-		let L = (Arr:len(l) + 1)
+		let L = Arr:len(l)
 
 		// extract
 		@x(v) {
@@ -1004,7 +1004,7 @@ it('SKI', async () => {
 			} else { f }
 		}
 
-		r(x(l[1]), 2)
+		r(x(l[0]), 1)
 	}
 
 	let sksik = [s, [k, [s, i]], k]
@@ -1698,10 +1698,10 @@ describe('type declaration', () => {
 	it('fn def', async () => {
 		const res = await exe(`
 		@f(x: arr<num>, y: str, z: @(num) => bool): arr<num> {
-			x[4] = 0
+			x[3] = 0
 			y = "abc"
-			var r: bool = z(x[1])
-			x[5] = if r 5 else 10
+			var r: bool = z(x[0])
+			x[4] = if r 5 else 10
 			x
 		}
 

@@ -78,10 +78,11 @@ print(message)
 ["ai" "chan" "kawaii"]
 ```
 
-配列の要素にアクセスするときは、`[<index>]`と書きます。インデックスは1始まりです。
+配列の要素にアクセスするときは、`[<index>]`と書きます。
 ```
 let arr = ["ai" "chan" "kawaii"]
-<: arr[1] // "ai"
+<: arr[0] // "ai"
+<: arr[2] // "kawaii"
 ```
 
 ## オブジェクト
