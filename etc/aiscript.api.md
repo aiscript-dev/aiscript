@@ -68,22 +68,22 @@ type Arr_2 = NodeBase_2 & ChainProp & {
 };
 
 // @public (undocumented)
-function assertArray(val: Value): asserts val is VArr;
+function assertArray(val: Value | null | undefined): asserts val is VArr;
 
 // @public (undocumented)
-function assertBoolean(val: Value): asserts val is VBool;
+function assertBoolean(val: Value | null | undefined): asserts val is VBool;
 
 // @public (undocumented)
-function assertFunction(val: Value): asserts val is VFn;
+function assertFunction(val: Value | null | undefined): asserts val is VFn;
 
 // @public (undocumented)
-function assertNumber(val: Value): asserts val is VNum;
+function assertNumber(val: Value | null | undefined): asserts val is VNum;
 
 // @public (undocumented)
-function assertObject(val: Value): asserts val is VObj;
+function assertObject(val: Value | null | undefined): asserts val is VObj;
 
 // @public (undocumented)
-function assertString(val: Value): asserts val is VStr;
+function assertString(val: Value | null | undefined): asserts val is VStr;
 
 // @public (undocumented)
 type Assign = NodeBase & {
@@ -252,6 +252,9 @@ type Each_2 = NodeBase_2 & {
 function eq(a: Value, b: Value): boolean;
 
 // @public (undocumented)
+function expectAny(val: Value | null | undefined): asserts val is Value;
+
+// @public (undocumented)
 type Expression = Infix | If | Fn | Match | Block | Tmpl | Str | Num | Bool | Null | Obj | Arr | Var | Call | Index | Prop;
 
 // @public (undocumented)
@@ -298,7 +301,7 @@ type Fn_2 = NodeBase_2 & ChainProp & {
 // @public (undocumented)
 const FN_NATIVE: (fn: VFn['native']) => {
     type: "fn";
-    native: ((args: Value[], opts: {
+    native: ((args: (Value | undefined)[], opts: {
         call: (fn: VFn, args: Value[]) => Promise<Value>;
         registerAbortHandler: (handler: () => void) => void;
         unregisterAbortHandler: (handler: () => void) => void;
@@ -402,16 +405,34 @@ type InfixOperator = "||" | "&&" | "==" | "!=" | "<=" | ">=" | "<" | ">" | "+" |
 type InfixOperator_2 = '||' | '&&' | '==' | '!=' | '<=' | '>=' | '<' | '>' | '+' | '-' | '*' | '|' | '%';
 
 // @public (undocumented)
+function isArray(val: Value): val is VArr;
+
+// @public (undocumented)
+function isBoolean(val: Value): val is VBool;
+
+// @public (undocumented)
 function isExpression(x: Node_2): x is Expression;
 
 // @public (undocumented)
 function isExpression_2(x: Node_3): x is Expression_2;
 
 // @public (undocumented)
+function isFunction(val: Value): val is VFn;
+
+// @public (undocumented)
+function isNumber(val: Value): val is VNum;
+
+// @public (undocumented)
+function isObject(val: Value): val is VObj;
+
+// @public (undocumented)
 function isStatement(x: Node_2): x is Statement;
 
 // @public (undocumented)
 function isStatement_2(x: Node_3): x is Statement_2;
+
+// @public (undocumented)
+function isString(val: Value): val is VStr;
 
 // @public (undocumented)
 function jsToVal(val: any): Value;
@@ -677,12 +698,19 @@ const unWrapRet: (v: Value) => Value;
 
 declare namespace utils {
     export {
+        expectAny,
         assertBoolean,
         assertFunction,
         assertString,
         assertNumber,
         assertObject,
         assertArray,
+        isBoolean,
+        isFunction,
+        isString,
+        isNumber,
+        isObject,
+        isArray,
         eq,
         valToString,
         valToJs,
@@ -774,7 +802,7 @@ type VFn = {
     type: 'fn';
     args?: string[];
     statements?: Node_2[];
-    native?: (args: Value[], opts: {
+    native?: (args: (Value | undefined)[], opts: {
         call: (fn: VFn, args: Value[]) => Promise<Value>;
         registerAbortHandler: (handler: () => void) => void;
         unregisterAbortHandler: (handler: () => void) => void;
