@@ -8,5 +8,5 @@ import * as values from './interpreter/value';
 export { AiScript };
 export { utils };
 export { values };
-export { Parser, ParserPlugin, PluginType, parse } from './parser';
+export { Parser, ParserPlugin, PluginType } from './parser';
 export { SyntaxError, SemanticError } from './error';
