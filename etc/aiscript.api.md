@@ -542,9 +542,6 @@ type Obj_2 = NodeBase_2 & ChainProp & {
 };
 
 // @public (undocumented)
-export function parse(input: string): N.Node[];
-
-// @public (undocumented)
 export class Parser {
     constructor();
     // (undocumented)

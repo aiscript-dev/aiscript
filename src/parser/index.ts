@@ -84,9 +84,3 @@ export class Parser {
 		return nodes as N.Node[];
 	}
 }
-
-// alias of legacy api
-
-export function parse(input: string): N.Node[] {
-	return Parser.parse(input);
-}
