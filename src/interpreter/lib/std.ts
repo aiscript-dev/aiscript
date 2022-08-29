@@ -3,7 +3,7 @@ import { v4 as uuid } from 'uuid';
 import { substring, length, indexOf, toArray } from 'stringz';
 import seedrandom from 'seedrandom';
 import { Value, NUM, STR, FN_NATIVE, FALSE, TRUE, VArr, ARR, NULL, BOOL, OBJ } from '../value';
-import { assertNumber, assertString, assertArray, assertBoolean, valToJs, jsToVal, assertFunction, assertObject, eq } from '../util';
+import { assertNumber, assertString, assertArray, assertBoolean, valToJs, jsToVal, assertFunction, assertObject, eq, expectAny } from '../util';
 import { AiScriptError } from '../error';
 
 export const std: Record<string, Value> = {
@@ -96,10 +96,12 @@ export const std: Record<string, Value> = {
 	}),
 
 	'Core:type': FN_NATIVE(([v]) => {
+		expectAny(v);
 		return STR(v.type);
 	}),
 
 	'Core:to_str': FN_NATIVE(([v]) => {
+		expectAny(v);
 		if (v.type === 'str') return v;
 		if (v.type === 'num') return STR(v.value.toString());
 		return STR('?');
@@ -126,6 +128,7 @@ export const std: Record<string, Value> = {
 
 	//#region Json
 	'Json:stringify': FN_NATIVE(([v]) => {
+		expectAny(v);
 		return STR(JSON.stringify(valToJs(v)));
 	}),
 
@@ -225,6 +228,7 @@ export const std: Record<string, Value> = {
 	}),
 
 	'Math:gen_rng': FN_NATIVE(([seed]) => {
+		expectAny(seed);
 		if (seed.type !== 'num' && seed.type !== 'str') return NULL;
 
 		const rng = seedrandom(seed.value.toString());
@@ -254,6 +258,7 @@ export const std: Record<string, Value> = {
 	'Str:lf': STR('\n'),
 
 	'Str:to_num': FN_NATIVE(([v]) => {
+		expectAny(v);
 		if (v.type === 'num') return v;
 		if (v.type === 'str') {
 			const parsed = parseInt(v.value, 10);
@@ -264,6 +269,7 @@ export const std: Record<string, Value> = {
 	}),
 
 	'Str:len': FN_NATIVE(([v]) => {
+		expectAny(v);
 		if (v.type !== 'str') return NUM(0);
 		return NUM(length(v.value));
 	}),
@@ -330,18 +336,21 @@ export const std: Record<string, Value> = {
 
 	//#region Arr
 	'Arr:len': FN_NATIVE(([arr]) => {
+		expectAny(arr);
 		if (arr.type !== 'arr') return NUM(0);
 		return NUM(arr.value.length);
 	}),
 
 	'Arr:push': FN_NATIVE(([arr, val]) => {
 		assertArray(arr);
+		expectAny(val);
 		arr.value.push(val);
 		return NULL;
 	}),
 
 	'Arr:unshift': FN_NATIVE(([arr, val]) => {
 		assertArray(arr);
+		expectAny(val);
 		arr.value.unshift(val);
 		return NULL;
 	}),
@@ -377,6 +386,7 @@ export const std: Record<string, Value> = {
 
 	'Arr:incl': FN_NATIVE(([arr, val]) => {
 		assertArray(arr);
+		expectAny(val);
 		if (val.type !== 'str' && val.type !== 'num' && val.type !== 'bool' && val.type !== 'null') return FALSE;
 		const getValue = (v: VArr) => {
 			return v.value.map(i => {
@@ -468,6 +478,7 @@ export const std: Record<string, Value> = {
 	'Obj:set': FN_NATIVE(([obj, key, value]) => {
 		assertObject(obj);
 		assertString(key);
+		expectAny(value);
 		obj.value.set(key.value, value);
 		return NULL;
 	}),

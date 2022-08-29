@@ -7,7 +7,7 @@ import * as N from '../node';
 import { Scope } from './scope';
 import { AiScriptError } from './error';
 import { std } from './lib/std';
-import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray, eq } from './util';
+import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray, eq, isObject, isArray, isString, expectAny } from './util';
 import { Value, NULL, RETURN, unWrapRet, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, VFn, BREAK, CONTINUE } from './value';
 import { infixToFnCall } from './infix-to-fncall';
 
@@ -28,8 +28,9 @@ export class AiScript {
 		this.opts = opts || {};
 
 		const io = {
-			print: FN_NATIVE(args => {
-				if (this.opts.out) this.opts.out(args[0]);
+			print: FN_NATIVE(([v]) => {
+				expectAny(v);
+				if (this.opts.out) this.opts.out(v);
 			}),
 			readline: FN_NATIVE(async args => {
 				const q = args[0];
