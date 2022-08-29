@@ -18,6 +18,7 @@
 - `+ attributeName attributeValue` → `#[attributeName attributeValue]`
 - 真理値の`+`/`-`表記方法を廃止
 - for、およびeachは配列を返さなくなりました
+- ブロック式は`{ }`→`eval { }`に
 
 ## Features
 - `continue`
