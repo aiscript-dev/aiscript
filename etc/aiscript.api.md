@@ -329,7 +329,7 @@ type For_2 = NodeBase_2 & {
 function getLangVersion(input: string): string | null;
 
 // @public (undocumented)
-function hasChainProp(x: Node_3): x is Node_3 & ChainProp;
+function hasChainProp<T extends Node_3>(x: T): x is T & ChainProp;
 
 // @public (undocumented)
 type If = NodeBase & {
@@ -399,7 +399,7 @@ type Infix_2 = NodeBase_2 & {
 type InfixOperator = "||" | "&&" | "==" | "!=" | "<=" | ">=" | "<" | ">" | "+" | "-" | "*" | "|" | "%";
 
 // @public (undocumented)
-type InfixOperator_2 = "||" | "&&" | "==" | "!=" | "<=" | ">=" | "<" | ">" | "+" | "-" | "*" | "|" | "%";
+type InfixOperator_2 = '||' | '&&' | '==' | '!=' | '<=' | '>=' | '<' | '>' | '+' | '-' | '*' | '|' | '%';
 
 // @public (undocumented)
 function isExpression(x: Node_2): x is Expression;
