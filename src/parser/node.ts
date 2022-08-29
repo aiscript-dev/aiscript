@@ -24,7 +24,7 @@ export type Statement =
 	SubAssign;
 
 const statementTypes = [
-	'def', 'return', 'attr', 'forOf', 'for', 'loop', 'break', 'continue', 'assign', 'inc', 'dec'
+	'def', 'return', 'attr', 'forOf', 'for', 'loop', 'break', 'continue', 'assign', 'inc', 'dec',
 ];
 export function isStatement(x: Node): x is Statement {
 	return statementTypes.includes(x.type);
@@ -49,7 +49,7 @@ export type Expression =
 	Prop; // IR
 
 const expressionTypes = [
-	'infix', 'if', 'fn', 'match', 'block', 'tmpl', 'str', 'num', 'bool', 'null', 'obj', 'arr', 'var', 'cal', 'index', 'prop'
+	'infix', 'if', 'fn', 'match', 'block', 'tmpl', 'str', 'num', 'bool', 'null', 'obj', 'arr', 'var', 'cal', 'index', 'prop',
 ];
 export function isExpression(x: Node): x is Expression {
 	return expressionTypes.includes(x.type);
@@ -142,7 +142,7 @@ export type Assign = NodeBase & {
 	expr: Expression;
 };
 
-export type InfixOperator = "||" | "&&" | "==" | "!=" | "<=" | ">=" | "<" | ">" | "+" | "-" | "*" | "|" | "%";
+export type InfixOperator = '||' | '&&' | '==' | '!=' | '<=' | '>=' | '<' | '>' | '+' | '-' | '*' | '|' | '%';
 
 export type Infix = NodeBase & {
 	type: 'infix';
@@ -263,7 +263,7 @@ export type Call = NodeBase & {
 	args: Expression[];
 };
 export function CALL(target: Call['target'], args: Call['args'], loc?: { start: number, end: number }): Call {
-	return { type: 'call', target, args, loc, } as Call;
+	return { type: 'call', target, args, loc } as Call;
 }
 
 // IR
@@ -274,7 +274,7 @@ export type Index = NodeBase & {
 };
 
 export function INDEX(target: Index['target'], index: Index['index'], loc?: { start: number, end: number }): Index {
-	return { type: 'index', target, index, loc, } as Index;
+	return { type: 'index', target, index, loc } as Index;
 }
 
 // IR
@@ -285,5 +285,5 @@ export type Prop = NodeBase & {
 };
 
 export function PROP(target: Prop['target'], name: Prop['name'], loc?: { start: number, end: number }): Prop {
-	return { type: 'prop', target, name, loc, } as Prop;
+	return { type: 'prop', target, name, loc } as Prop;
 }
