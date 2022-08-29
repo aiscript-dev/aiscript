@@ -1935,6 +1935,15 @@ describe('std', () => {
 			eq(res, ARR([STR('ai!'), STR('chan!'), STR('kawaii!')]));
 		});
 
+		it('map (as method)', async () => {
+			const res = await exe(`
+			let arr = ["ai", "chan", "kawaii"]
+
+			<: arr.map(@(item) { Arr:join([item, "!"]) })
+			`);
+			eq(res, ARR([STR('ai!'), STR('chan!'), STR('kawaii!')]));
+		});
+
 		it('filter', async () => {
 			const res = await exe(`
 			let arr = ["ai", "chan", "kawaii"]

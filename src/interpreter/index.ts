@@ -10,6 +10,7 @@ import { std } from './lib/std';
 import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray, eq, isObject, isArray, isString, expectAny } from './util';
 import { Value, NULL, RETURN, unWrapRet, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, VFn, BREAK, CONTINUE } from './value';
 import { infixToFnCall } from './infix-to-fncall';
+import { PRIMITIVE_METHODS } from './primitive-methods';
 
 export class AiScript {
 	private vars: Record<string, Value>;
@@ -363,12 +364,29 @@ export class AiScript {
 			}
 
 			case 'prop': {
-				const obj = await this._eval(node.target, scope);
-				assertObject(obj);
-				if (obj.value.has(node.name)) {
-					return obj.value.get(node.name)!;
+				const target = await this._eval(node.target, scope);
+				if (isObject(target)) {
+					if (target.value.has(node.name)) {
+						return target.value.get(node.name)!;
+					} else {
+						return NULL; // エラーにしてもよさそう
+					}
+				} else if (isString(target)) {
+					const method = PRIMITIVE_METHODS.str.get[node.name];
+					if (method) {
+						return method(target);
+					} else {
+						return NULL; // エラーにしてもよさそう
+					}
+				} else if (isArray(target)) {
+					const method = PRIMITIVE_METHODS.arr.get[node.name];
+					if (method) {
+						return method(target);
+					} else {
+						return NULL; // エラーにしてもよさそう
+					}
 				} else {
-					return NULL; // エラーにしてもよさそう
+					throw new AiScriptError(`Cannot read prop of ${target.type}.`);
 				}
 			}
 
