@@ -4,7 +4,7 @@
  */
 
 import * as assert from 'assert';
-import { parse, Parser, utils } from '../src';
+import { Parser, utils } from '../src';
 import { AiScript } from '../src/interpreter';
 import { NUM, STR, NULL, ARR, OBJ, BOOL } from '../src/interpreter/value';
 import * as N from '../src/node';
@@ -45,22 +45,6 @@ it('empty script', async () => {
 	const parser = new Parser();
 	const ast = parser.parse('');
 	assert.deepEqual(ast, []);
-});
-
-it('legacy parser api', async () => {
-	const exeLegacy = (program: string): Promise<any> => new Promise((ok, err) => {
-		const aiscript = new AiScript({}, {
-			out(value) {
-				ok(value);
-			},
-		});
-
-		const ast = parse(program);
-		aiscript.exec(ast).catch(err);
-	});
-
-	const res = await exeLegacy('<: "Hello, world!"');
-	eq(res, STR('Hello, world!'));
 });
 
 describe('Interpreter', () => {
