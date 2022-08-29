@@ -372,16 +372,14 @@ export class AiScript {
 						return NULL; // エラーにしてもよさそう
 					}
 				} else if (isString(target)) {
-					const method = PRIMITIVE_METHODS.str.get[node.name];
-					if (method) {
-						return method(target);
+					if (Object.hasOwn(PRIMITIVE_METHODS.str, node.name)) {
+						return PRIMITIVE_METHODS.str[node.name as keyof typeof PRIMITIVE_METHODS['str']](target);
 					} else {
 						return NULL; // エラーにしてもよさそう
 					}
 				} else if (isArray(target)) {
-					const method = PRIMITIVE_METHODS.arr.get[node.name];
-					if (method) {
-						return method(target);
+					if (Object.hasOwn(PRIMITIVE_METHODS.arr, node.name)) {
+						return PRIMITIVE_METHODS.arr[node.name as keyof typeof PRIMITIVE_METHODS['arr']](target);
 					} else {
 						return NULL; // エラーにしてもよさそう
 					}
