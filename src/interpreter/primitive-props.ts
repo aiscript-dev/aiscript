@@ -2,7 +2,7 @@ import { substring, length, indexOf, toArray } from 'stringz';
 import { assertArray, assertBoolean, assertFunction, assertString, expectAny } from './util';
 import { ARR, FN_NATIVE, NULL, NUM, STR, Value, VArr, VFn, VNum, VStr } from './value';
 
-export const PRIMITIVE_METHODS = {
+export const PRIMITIVE_PROPS = {
 	str: {
 		to_num: (target: VStr): VFn => FN_NATIVE(async ([], opts) => {
 			const parsed = parseInt(target.value, 10);

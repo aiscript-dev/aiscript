@@ -6,6 +6,7 @@
 import * as assert from 'assert';
 import { Parser, utils } from '../src';
 import { AiScript } from '../src/interpreter';
+import { AiScriptError } from '../src/interpreter/error';
 import { NUM, STR, NULL, ARR, OBJ, BOOL } from '../src/interpreter/value';
 import * as N from '../src/node';
 
@@ -912,12 +913,17 @@ it('Cannot access js native property via var', async () => {
 });
 
 it('Cannot access js native property via object', async () => {
-	const res = await exe(`
-	let obj = {}
+	try {
+		await exe(`
+		let obj = {}
 
-	<: obj.constructor
-	`);
-	eq(res, NULL);
+		<: obj.constructor
+		`);
+	} catch (e) {
+		assert.equal(e instanceof AiScriptError, true);
+		return;
+	}
+	assert.fail();
 });
 
 it('Throws error when divied by zero', async () => {
@@ -1924,7 +1930,7 @@ describe('Location', () => {
 	});
 });
 
-describe('primitive methods', () => {
+describe('primitive props', () => {
 	describe('str', () => {
 		it('len', async () => {
 			const res = await exe(`
