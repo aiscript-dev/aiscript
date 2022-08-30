@@ -54,7 +54,7 @@ describe('Interpreter', () => {
 			const aiscript = new AiScript({});
 			await aiscript.exec(Parser.parse(`
 			let a = 1
-			@b() {
+			fn b() {
 				let x = a + 1
 				x
 			}
@@ -266,9 +266,9 @@ it('var', async () => {
 
 it('参照が繋がらない', async () => {
 	const res = await exe(`
-	var f = @() { "a" }
+	var f = () => { "a" }
 	var g = f
-	f = @() { "b" }
+	f = () => { "b" }
 
 	<: g()
 	`);
@@ -303,7 +303,7 @@ describe('Cannot put multiple statements in a line', () => {
 
 it('empty function', async () => {
 	const res = await exe(`
-	@hoge() { }
+	fn hoge() { }
 	<: hoge()
 	`);
 	eq(res, NULL);
@@ -311,7 +311,7 @@ it('empty function', async () => {
 
 it('empty lambda', async () => {
 	const res = await exe(`
-	let hoge = @() { }
+	let hoge = () => { }
 	<: hoge()
 	`);
 	eq(res, NULL);
@@ -319,7 +319,7 @@ it('empty lambda', async () => {
 
 it('lambda that returns an object', async () => {
 	const res = await exe(`
-	let hoge = @() {{}}
+	let hoge = () => {{}}
 	<: hoge()
 	`);
 	eq(res, OBJ(new Map()));
@@ -327,9 +327,9 @@ it('lambda that returns an object', async () => {
 
 it('Closure', async () => {
 	const res = await exe(`
-	@store(v) {
+	fn store(v) {
 		let state = v
-		@() {
+		() => {
 			state
 		}
 	}
@@ -341,11 +341,11 @@ it('Closure', async () => {
 
 it('Closure (counter)', async () => {
 	const res = await exe(`
-	@create_counter() {
+	fn create_counter() {
 		var count = 0
 		{
-			get_count: @() { count };
-			count: @() { count = (count + 1) };
+			get_count: () => { count };
+			count: () => { count = (count + 1) };
 		}
 	}
 
@@ -364,7 +364,7 @@ it('Closure (counter)', async () => {
 
 it('Recursion', async () => {
 	const res = await exe(`
-	@fact(n) {
+	fn fact(n) {
 		if (n == 0) { 1 } else { (fact((n - 1)) * n) }
 	}
 
@@ -376,7 +376,7 @@ it('Recursion', async () => {
 describe('Var name starts with reserved word', () => {
 	it('let', async () => {
 		const res = await exe(`
-		@f() {
+		fn f() {
 			let letcat = "ai"
 			letcat
 		}
@@ -387,7 +387,7 @@ describe('Var name starts with reserved word', () => {
 
 	it('var', async () => {
 		const res = await exe(`
-		@f() {
+		fn f() {
 			let varcat = "ai"
 			varcat
 		}
@@ -398,7 +398,7 @@ describe('Var name starts with reserved word', () => {
 
 	it('return', async () => {
 		const res = await exe(`
-		@f() {
+		fn f() {
 			let returncat = "ai"
 			returncat
 		}
@@ -409,7 +409,7 @@ describe('Var name starts with reserved word', () => {
 
 	it('each', async () => {
 		const res = await exe(`
-		@f() {
+		fn f() {
 			let eachcat = "ai"
 			eachcat
 		}
@@ -420,7 +420,7 @@ describe('Var name starts with reserved word', () => {
 
 	it('for', async () => {
 		const res = await exe(`
-		@f() {
+		fn f() {
 			let forcat = "ai"
 			forcat
 		}
@@ -431,7 +431,7 @@ describe('Var name starts with reserved word', () => {
 
 	it('loop', async () => {
 		const res = await exe(`
-		@f() {
+		fn f() {
 			let loopcat = "ai"
 			loopcat
 		}
@@ -442,7 +442,7 @@ describe('Var name starts with reserved word', () => {
 
 	it('break', async () => {
 		const res = await exe(`
-		@f() {
+		fn f() {
 			let breakcat = "ai"
 			breakcat
 		}
@@ -453,7 +453,7 @@ describe('Var name starts with reserved word', () => {
 
 	it('continue', async () => {
 		const res = await exe(`
-		@f() {
+		fn f() {
 			let continuecat = "ai"
 			continuecat
 		}
@@ -464,7 +464,7 @@ describe('Var name starts with reserved word', () => {
 
 	it('if', async () => {
 		const res = await exe(`
-		@f() {
+		fn f() {
 			let ifcat = "ai"
 			ifcat
 		}
@@ -475,7 +475,7 @@ describe('Var name starts with reserved word', () => {
 
 	it('match', async () => {
 		const res = await exe(`
-		@f() {
+		fn f() {
 			let matchcat = "ai"
 			matchcat
 		}
@@ -486,7 +486,7 @@ describe('Var name starts with reserved word', () => {
 
 	it('true', async () => {
 		const res = await exe(`
-		@f() {
+		fn f() {
 			let truecat = "ai"
 			truecat
 		}
@@ -497,7 +497,7 @@ describe('Var name starts with reserved word', () => {
 
 	it('false', async () => {
 		const res = await exe(`
-		@f() {
+		fn f() {
 			let falsecat = "ai"
 			falsecat
 		}
@@ -508,7 +508,7 @@ describe('Var name starts with reserved word', () => {
 
 	it('null', async () => {
 		const res = await exe(`
-		@f() {
+		fn f() {
 			let nullcat = "ai"
 			nullcat
 		}
@@ -535,7 +535,7 @@ describe('name validation of reserved word', () => {
 		try {
 			await exe(`
 			#[let 1]
-			@f() { 1 }
+			fn f() { 1 }
 			`);
 		} catch (e) {
 			assert.ok(true);
@@ -548,7 +548,7 @@ describe('name validation of reserved word', () => {
 		try {
 			await exe(`
 			:: let {
-				@f() { 1 }
+				fn f() { 1 }
 			}
 			`);
 		} catch (e) {
@@ -598,7 +598,7 @@ describe('name validation of reserved word', () => {
 	it('fn', async () => {
 		try {
 			await exe(`
-			@let() { 1 }
+			fn let() { 1 }
 			`);
 		} catch (e) {
 			assert.ok(true);
@@ -626,7 +626,7 @@ describe('Object', () => {
 
 	it('property access (fn call)', async () => {
 		const res = await exe(`
-		@f() { 42 }
+		fn f() { 42 }
 
 		let obj = {
 			a: {
@@ -734,7 +734,7 @@ describe('chain', () => {
 		const res = await exe(`
 		let obj = {
 			a: {
-				b: [@(name) { name }, @(str) { "chan" }, @() { "kawaii" }];
+				b: [(name) => { name }, (str) => { "chan" }, () => { "kawaii" }];
 			};
 		}
 
@@ -822,7 +822,7 @@ describe('chain', () => {
 
 	it('prop in def', async () => {
 		const res = await exe(`
-		let x = @() {
+		let x = () => {
 			let obj = {
 				a: 1
 			}
@@ -836,7 +836,7 @@ describe('chain', () => {
 
 	it('prop in return', async () => {
 		const res = await exe(`
-		let x = @() {
+		let x = () => {
 			let obj = {
 				a: 1
 			}
@@ -935,7 +935,7 @@ it('Throws error when divied by zero', async () => {
 describe('Function call', () => {
 	it('without args', async () => {
 		const res = await exe(`
-		@f() {
+		fn f() {
 			42
 		}
 		<: f()
@@ -945,7 +945,7 @@ describe('Function call', () => {
 
 	it('with args', async () => {
 		const res = await exe(`
-		@f(x) {
+		fn f(x) {
 			x
 		}
 		<: f(42)
@@ -955,7 +955,7 @@ describe('Function call', () => {
 
 	it('with args (separated by comma)', async () => {
 		const res = await exe(`
-		@f(x, y) {
+		fn f(x, y) {
 			(x + y)
 		}
 		<: f(1, 1)
@@ -965,7 +965,7 @@ describe('Function call', () => {
 
 	it('with args (separated by space)', async () => {
 		const res = await exe(`
-		@f(x y) {
+		fn f(x y) {
 			(x + y)
 		}
 		<: f(1 1)
@@ -989,7 +989,7 @@ describe('Function call', () => {
 describe('Return', () => {
 	it('Early return', async () => {
 		const res = await exe(`
-		@f() {
+		fn f() {
 			if true {
 				return "ai"
 			}
@@ -1003,7 +1003,7 @@ describe('Return', () => {
 
 	it('Early return (nested)', async () => {
 		const res = await exe(`
-		@f() {
+		fn f() {
 			if true {
 				if true {
 					return "ai"
@@ -1019,7 +1019,7 @@ describe('Return', () => {
 
 	it('Early return (nested) 2', async () => {
 		const res = await exe(`
-		@f() {
+		fn f() {
 			if true {
 				return "ai"
 			}
@@ -1027,7 +1027,7 @@ describe('Return', () => {
 			"pope"
 		}
 
-		@g() {
+		fn g() {
 			if (f() == "ai") {
 				return "kawaii"
 			}
@@ -1042,7 +1042,7 @@ describe('Return', () => {
 
 	it('Early return without block', async () => {
 		const res = await exe(`
-		@f() {
+		fn f() {
 			if true return "ai"
 
 			"pope"
@@ -1054,7 +1054,7 @@ describe('Return', () => {
 
 	it('return inside for', async () => {
 		const res = await exe(`
-		@f() {
+		fn f() {
 			var count = 0
 			for (let i, 100) {
 				count += 1
@@ -1070,7 +1070,7 @@ describe('Return', () => {
 
 	it('return inside loop', async () => {
 		const res = await exe(`
-		@f() {
+		fn f() {
 			var count = 0
 			loop {
 				count += 1
@@ -1262,7 +1262,7 @@ describe('match', () => {
 
 	it('With return', async () => {
 		const res = await exe(`
-		@f(x) {
+		fn f(x) {
 			match x {
 				1 => {
 					return "ai"
@@ -1413,7 +1413,7 @@ describe('namespace', () => {
 		<: Foo:bar()
 
 		:: Foo {
-			@bar() { "ai" }
+			fn bar() { "ai" }
 		}
 		`);
 		eq(res, STR('ai'));
@@ -1425,7 +1425,7 @@ describe('namespace', () => {
 
 		:: Foo {
 			let ai = "kawaii"
-			@bar() { ai }
+			fn bar() { ai }
 		}
 		`);
 		eq(res, STR('kawaii'));
@@ -1438,8 +1438,8 @@ describe('namespace', () => {
 
 		:: Foo {
 			var msg = "ai"
-			@setMsg(value) { Foo:msg = value }
-			@getMsg() { Foo:msg }
+			fn setMsg(value) { Foo:msg = value }
+			fn getMsg() { Foo:msg }
 		}
 		`);
 		eq(res, STR('hello'));
@@ -1628,7 +1628,7 @@ describe('type declaration', () => {
 
 	it('fn def', async () => {
 		const res = await exe(`
-		@f(x: arr<num>, y: str, z: @(num) => bool): arr<num> {
+		fn f(x: arr<num>, y: str, z: (num) => bool) => arr<num> {
 			x[3] = 0
 			y = "abc"
 			var r: bool = z(x[0])
@@ -1636,7 +1636,7 @@ describe('type declaration', () => {
 			x
 		}
 
-		<: f([1, 2, 3], "a", @(n) { n == 1 })
+		<: f([1, 2, 3], "a", (n) => { n == 1 })
 		`);
 		eq(res, ARR([NUM(1), NUM(2), NUM(3), NUM(0), NUM(5)]));
 	});
@@ -1788,7 +1788,7 @@ describe('lang version', () => {
 	it('number', async () => {
 		const res = utils.getLangVersion(`
 		/// @2021
-		@f(x) {
+		fn f(x) {
 			x
 		}
 		`);
@@ -1799,7 +1799,7 @@ describe('lang version', () => {
 		const res = utils.getLangVersion(`
 		/// @ canary
 		const a = 1
-		@f(x) {
+		fn f(x) {
 			x
 		}
 		f(a)
@@ -1810,7 +1810,7 @@ describe('lang version', () => {
 	it('complex', async () => {
 		const res = utils.getLangVersion(`
 		/// @ 2.0-Alpha
-		@f(x) {
+		fn f(x) {
 			x
 		}
 		`);
@@ -1819,7 +1819,7 @@ describe('lang version', () => {
 
 	it('no specified', async () => {
 		const res = utils.getLangVersion(`
-		@f(x) {
+		fn f(x) {
 			x
 		}
 		`);
@@ -1834,7 +1834,7 @@ describe('Attribute', () => {
 		const parser = new Parser();
 		const nodes = parser.parse(`
 		#[Event "Recieved"]
-		@onRecieved(data) {
+		fn onRecieved(data) {
 			data
 		}
 		`);
@@ -1859,7 +1859,7 @@ describe('Attribute', () => {
 		#[Endpoint { path: "/notes/create"; }]
 		#[Desc "Create a note."]
 		#[Cat true]
-		@createNote(text) {
+		fn createNote(text) {
 			<: text
 		}
 		`);
@@ -1927,12 +1927,12 @@ describe('Location', () => {
 		let node: N.Node;
 		const parser = new Parser();
 		const nodes = parser.parse(`
-		@f(a) { a }
+		fn f(a) { a }
 		`);
 		assert.equal(nodes.length, 1);
 		node = nodes[0];
 		if (!node.loc) assert.fail();
-		assert.deepEqual(node.loc, { start: 3, end: 13 });
+		assert.deepEqual(node.loc, { start: 3, end: 15 });
 	});
 });
 
@@ -2117,7 +2117,7 @@ describe('primitive props', () => {
 		it('map', async () => {
 			const res = await exe(`
 			let arr = [1, 2, 3]
-			<: arr.map(@(item) { item * 2 })
+			<: arr.map((item) => { item * 2 })
 			`);
 			eq(res, ARR([NUM(2), NUM(4), NUM(6)]));
 		});
@@ -2125,7 +2125,7 @@ describe('primitive props', () => {
 		it('filter', async () => {
 			const res = await exe(`
 			let arr = [1, 2, 3]
-			<: arr.filter(@(item) { item != 2 })
+			<: arr.filter((item) => { item != 2 })
 			`);
 			eq(res, ARR([NUM(1), NUM(3)]));
 		});
@@ -2133,7 +2133,7 @@ describe('primitive props', () => {
 		it('reduce', async () => {
 			const res = await exe(`
 			let arr = [1, 2, 3, 4]
-			<: arr.reduce(@(accumulator, currentValue) { (accumulator + currentValue) })
+			<: arr.reduce((accumulator, currentValue) => { (accumulator + currentValue) })
 			`);
 			eq(res, NUM(10));
 		});
@@ -2141,7 +2141,7 @@ describe('primitive props', () => {
 		it('find', async () => {
 			const res = await exe(`
 			let arr = ["abc", "def", "ghi"]
-			<: arr.find(@(item) { item.incl("e") })
+			<: arr.find((item) => { item.incl("e") })
 			`);
 			eq(res, STR('def'));
 		});
@@ -2289,23 +2289,23 @@ describe('extra', () => {
 
 	it('SKI', async () => {
 		const res = await exe(`
-		let s = @(x) { @(y) { @(z) {
-			//let f = x(z) f(@(a){ let g = y(z) g(a) })
+		let s = (x) => { (y) => { (z) => {
+			//let f = x(z) f((a) => { let g = y(z) g(a) })
 			let f = x(z)
 			f(y(z))
 		}}}
-		let k = @(x){ @(y) { x } }
-		let i = @(x){ x }
+		let k = (x) => { (y) => { x } }
+		let i = (x) => { x }
 
 		// combine
-		@c(l) {
+		fn c(l) {
 			// extract
-			@x(v) {
+			fn x(v) {
 				if (Core:type(v) == "arr") { c(v) } else { v }
 			}
 
 			// rec
-			@r(f, n) {
+			fn r(f, n) {
 				if (n < l.len) {
 					r(f(x(l[n])), (n + 1))
 				} else { f }
