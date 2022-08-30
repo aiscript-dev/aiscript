@@ -913,17 +913,12 @@ it('Cannot access js native property via var', async () => {
 });
 
 it('Cannot access js native property via object', async () => {
-	try {
-		await exe(`
-		let obj = {}
+	const res = await exe(`
+	let obj = {}
 
-		<: obj.constructor
-		`);
-	} catch (e) {
-		assert.equal(e instanceof AiScriptError, true);
-		return;
-	}
-	assert.fail();
+	<: obj.constructor
+	`);
+	eq(res, NULL);
 });
 
 it('Throws error when divied by zero', async () => {

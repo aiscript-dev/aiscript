@@ -369,7 +369,7 @@ export class AiScript {
 					if (target.value.has(node.name)) {
 						return target.value.get(node.name)!;
 					} else {
-						throw new AiScriptError(`No such prop (${node.name}) in ${target.type}.`);
+						return NULL;
 					}
 				} else if (isString(target)) {
 					if (Object.hasOwn(PRIMITIVE_PROPS.str, node.name)) {
