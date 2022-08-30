@@ -899,27 +899,6 @@ describe('Template syntax', () => {
 	});
 });
 
-it('Cannot access js native property via var', async () => {
-	try {
-		await exe(`
-		<: constructor
-		`);
-	} catch (e) {
-		assert.ok(true);
-		return;
-	}
-	assert.fail();
-});
-
-it('Cannot access js native property via object', async () => {
-	const res = await exe(`
-	let obj = {}
-
-	<: obj.constructor
-	`);
-	eq(res, NULL);
-});
-
 it('Throws error when divied by zero', async () => {
 	try {
 		await exe(`
@@ -2251,6 +2230,89 @@ describe('Unicode', () => {
 		<: "👍🏽🍆🌮".split()
 		`);
 		eq(res, ARR([STR('👍🏽'), STR('🍆'), STR('🌮')]));
+	});
+});
+
+describe('Security', () => {
+	it('Cannot access js native property via var', async () => {
+		try {
+			await exe(`
+			<: constructor
+			`);
+			assert.fail();
+		} catch (e) {
+			assert.equal(e instanceof AiScriptError, true);
+		}
+
+		try {
+			await exe(`
+			<: prototype
+			`);
+			assert.fail();
+		} catch (e) {
+			assert.equal(e instanceof AiScriptError, true);
+		}
+
+		try {
+			await exe(`
+			<: __proto__
+			`);
+			assert.fail();
+		} catch (e) {
+			assert.equal(e instanceof AiScriptError, true);
+		}
+	});
+
+	it('Cannot access js native property via object', async () => {
+		const res1 = await exe(`
+		let obj = {}
+
+		<: obj.constructor
+		`);
+		eq(res1, NULL);
+
+		const res2 = await exe(`
+		let obj = {}
+
+		<: obj.prototype
+		`);
+		eq(res2, NULL);
+
+		const res3 = await exe(`
+		let obj = {}
+
+		<: obj.__proto__
+		`);
+		eq(res3, NULL);
+	});
+
+	it('Cannot access js native property via primitive prop', async () => {
+		try {
+			await exe(`
+			<: "".constructor
+			`);
+			assert.fail();
+		} catch (e) {
+			assert.equal(e instanceof AiScriptError, true);
+		}
+
+		try {
+			await exe(`
+			<: "".prototype
+			`);
+			assert.fail();
+		} catch (e) {
+			assert.equal(e instanceof AiScriptError, true);
+		}
+
+		try {
+			await exe(`
+			<: "".__proto__
+			`);
+			assert.fail();
+		} catch (e) {
+			assert.equal(e instanceof AiScriptError, true);
+		}
 	});
 });
 
