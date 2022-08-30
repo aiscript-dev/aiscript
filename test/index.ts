@@ -228,7 +228,7 @@ it('//', async () => {
 it('式にコロンがあってもオブジェクトと判定されない', async () => {
 	const res = await exe(`
 	<: eval {
-		Str:incl("ai", "a")
+		Core:eq("ai", "ai")
 	}
 	`);
 	eq(res, BOOL(true));
@@ -855,7 +855,7 @@ describe('chain', () => {
 		let x = { a: ["ai", "chan", "kawaii"] }
 		each let item, x.a {
 			let y = { a: item }
-			Arr:push(msgs, Arr:join([y.a, "!"]))
+			msgs.push([y.a, "!"].join())
 		}
 		<: msgs
 		`);
@@ -1294,10 +1294,10 @@ describe('loop', () => {
 		var a = ["ai" "chan" "kawaii" "!"]
 		var b = []
 		loop {
-			var x = Arr:shift(a)
+			var x = a.shift()
 			if (x == "chan") continue
 			if (x == "!") break
-			Arr:push(b, x)
+			b.push(x)
 		}
 		<: b
 		`);
@@ -1378,7 +1378,7 @@ describe('for of', () => {
 		const res = await exe(`
 		let msgs = []
 		each let item, ["ai", "chan", "kawaii"] {
-			Arr:push(msgs, Arr:join([item, "!"]))
+			msgs.push([item, "!"].join())
 		}
 		<: msgs
 		`);
@@ -1390,7 +1390,7 @@ describe('for of', () => {
 		let msgs = []
 		each let item, ["ai", "chan", "kawaii"] {
 			if (item == "kawaii") break
-			Arr:push(msgs, Arr:join([item, "!"]))
+			msgs.push([item, "!"].join())
 		}
 		<: msgs
 		`);
@@ -1400,7 +1400,7 @@ describe('for of', () => {
 	it('single statement', async () => {
 		const res = await exe(`
 		let msgs = []
-		each let item, ["ai", "chan", "kawaii"] Arr:push(msgs, Arr:join([item, "!"]))
+		each let item, ["ai", "chan", "kawaii"] msgs.push([item, "!"].join())
 		<: msgs
 		`);
 		eq(res, ARR([STR('ai!'), STR('chan!'), STR('kawaii!')]));
@@ -2153,37 +2153,41 @@ describe('primitive props', () => {
 			`);
 			eq(res, ARR([TRUE, FALSE]));
 		});
+
+		it('reverse', async () => {
+			const res = await exe(`
+			let arr = [1, 2, 3]
+			arr.reverse()
+			<: arr
+			`);
+			eq(res, ARR([NUM(3), NUM(2), NUM(1)]));
+		});
+
+		it('copy', async () => {
+			const res = await exe(`
+			let arr = [1, 2, 3]
+			let copied = arr.copy()
+			copied.reverse()
+			<: [copied, arr]
+			`);
+			eq(res, ARR([
+				ARR([NUM(3), NUM(2), NUM(1)]),
+				ARR([NUM(1), NUM(2), NUM(3)])
+			]));
+		});
 	});
 });
 
 describe('std', () => {
+	describe('Core', () => {
+		it('range', async () => {
+			eq(await exe('<: Core:range(1, 10)'), ARR([NUM(1), NUM(2), NUM(3), NUM(4), NUM(5), NUM(6), NUM(7), NUM(8), NUM(9), NUM(10)]));
+			eq(await exe('<: Core:range(1, 1)'), ARR([NUM(1)]));
+			eq(await exe('<: Core:range(9, 7)'), ARR([NUM(9), NUM(8), NUM(7)]));
+		});
+	});
+
 	describe('Arr', () => {
-		it('map', async () => {
-			const res = await exe(`
-			let arr = ["ai", "chan", "kawaii"]
-
-			<: Arr:map(arr, @(item) { Arr:join([item, "!"]) })
-			`);
-			eq(res, ARR([STR('ai!'), STR('chan!'), STR('kawaii!')]));
-		});
-
-		it('filter', async () => {
-			const res = await exe(`
-			let arr = ["ai", "chan", "kawaii"]
-
-			<: Arr:filter(arr, @(item) { Str:incl(item, "ai") })
-			`);
-			eq(res, ARR([STR('ai'), STR('kawaii')]));
-		});
-
-		it('reduce', async () => {
-			const res = await exe(`
-			let arr = [1, 2, 3, 4]
-
-			<: Arr:reduce(arr, @(accumulator, currentValue) { (accumulator + currentValue) })
-			`);
-			eq(res, NUM(10));
-		});
 	});
 
 	describe('Obj', () => {
@@ -2211,39 +2215,42 @@ describe('std', () => {
 	});
 
 	describe('Str', () => {
-		it('len', async () => {
+		it('lf', async () => {
 			const res = await exe(`
-			<: Str:len("👍🏽🍆🌮")
+			<: Str:lf
 			`);
-			eq(res, NUM(3));
+			eq(res, STR('\n'));
 		});
+	});
+});
 
-		it('pick', async () => {
-			const res = await exe(`
-			<: Str:pick("👍🏽🍆🌮", 2)
-			`);
-			eq(res, STR('🍆'));
-		});
+describe('Unicode', () => {
+	it('len', async () => {
+		const res = await exe(`
+		<: "👍🏽🍆🌮".len
+		`);
+		eq(res, NUM(3));
+	});
 
-		it('slice', async () => {
-			const res = await exe(`
-			<: Str:slice("Emojis 👍🏽 are 🍆 poison. 🌮s are bad.", 8, 15)
-			`);
-			eq(res, STR('👍🏽 are 🍆'));
-		});
+	it('pick', async () => {
+		const res = await exe(`
+		<: "👍🏽🍆🌮".pick(1)
+		`);
+		eq(res, STR('🍆'));
+	});
 
-		it('split', async () => {
-			const res = await exe(`
-			<: Str:split("👍🏽🍆🌮")
-			`);
-			eq(res, ARR([STR('👍🏽'), STR('🍆'), STR('🌮')]));
-		});
+	it('slice', async () => {
+		const res = await exe(`
+		<: "Emojis 👍🏽 are 🍆 poison. 🌮s are bad.".slice(7, 14)
+		`);
+		eq(res, STR('👍🏽 are 🍆'));
+	});
 
-		it('range', async () => {
-			eq(await exe('<: Core:range(1, 10)'), ARR([NUM(1), NUM(2), NUM(3), NUM(4), NUM(5), NUM(6), NUM(7), NUM(8), NUM(9), NUM(10)]));
-			eq(await exe('<: Core:range(1, 1)'), ARR([NUM(1)]));
-			eq(await exe('<: Core:range(9, 7)'), ARR([NUM(9), NUM(8), NUM(7)]));
-		});
+	it('split', async () => {
+		const res = await exe(`
+		<: "👍🏽🍆🌮".split()
+		`);
+		eq(res, ARR([STR('👍🏽'), STR('🍆'), STR('🌮')]));
 	});
 });
 
@@ -2257,7 +2264,7 @@ describe('extra', () => {
 				elif (i % 3 == 0) "Fizz"
 				elif (i % 5 == 0) "Buzz"
 				else i
-			Arr:push(res msg)
+			res.push(msg)
 		}
 		<: res
 		`);
@@ -2292,8 +2299,6 @@ describe('extra', () => {
 
 		// combine
 		@c(l) {
-			let L = Arr:len(l)
-
 			// extract
 			@x(v) {
 				if (Core:type(v) == "arr") { c(v) } else { v }
@@ -2301,7 +2306,7 @@ describe('extra', () => {
 
 			// rec
 			@r(f, n) {
-				if (n < L) {
+				if (n < l.len) {
 					r(f(x(l[n])), (n + 1))
 				} else { f }
 			}

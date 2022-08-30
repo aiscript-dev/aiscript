@@ -164,5 +164,14 @@ export const PRIMITIVE_PROPS = {
 			};
 			return getValue(target).includes(val.type === 'null' ? null : val.value) ? TRUE : FALSE;
 		}),
+
+		reverse: (target: VArr): VFn => FN_NATIVE(async ([], opts) => {
+			target.value.reverse();
+			return NULL;
+		}),
+
+		copy: (target: VArr): VFn => FN_NATIVE(async ([], opts) => {
+			return ARR([...target.value]);
+		}),
 	},
 } as const;
