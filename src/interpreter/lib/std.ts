@@ -282,7 +282,7 @@ export const std: Record<string, Value> = {
 		assertString(v);
 		assertNumber(i);
 		const chars = toArray(v.value);
-		const char = chars[i.value - 1];
+		const char = chars[i.value];
 		return char ? STR(char) : NULL;
 	}),
 
@@ -296,7 +296,7 @@ export const std: Record<string, Value> = {
 		assertString(v);
 		assertNumber(begin);
 		assertNumber(end);
-		return STR(substring(v.value, begin.value - 1, end.value - 1));
+		return STR(substring(v.value, begin.value, end.value));
 	}),
 
 	'Str:split': FN_NATIVE(([v, splitter]) => {
