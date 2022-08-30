@@ -385,7 +385,7 @@ export const std: Record<string, Value> = {
 		assertArray(arr);
 		assertNumber(begin);
 		assertNumber(end);
-		return ARR(arr.value.slice(begin.value - 1, end.value - 1));
+		return ARR(arr.value.slice(begin.value, end.value));
 	}),
 
 	'Arr:incl': FN_NATIVE(([arr, val]) => {

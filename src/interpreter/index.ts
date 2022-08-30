@@ -7,7 +7,7 @@ import * as N from '../node';
 import { Scope } from './scope';
 import { AiScriptError } from './error';
 import { std } from './lib/std';
-import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray, eq, isObject, isArray, isString, expectAny } from './util';
+import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray, eq, isObject, isArray, isString, expectAny, isNumber } from './util';
 import { Value, NULL, RETURN, unWrapRet, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, VFn, BREAK, CONTINUE } from './value';
 import { infixToFnCall } from './infix-to-fncall';
 import { PRIMITIVE_PROPS } from './primitive-props';
@@ -370,6 +370,12 @@ export class AiScript {
 						return target.value.get(node.name)!;
 					} else {
 						return NULL;
+					}
+				} else if (isNumber(target)) {
+					if (Object.hasOwn(PRIMITIVE_PROPS.num, node.name)) {
+						return PRIMITIVE_PROPS.num[node.name as keyof typeof PRIMITIVE_PROPS['num']](target);
+					} else {
+						throw new AiScriptError(`No such prop (${node.name}) in ${target.type}.`);
 					}
 				} else if (isString(target)) {
 					if (Object.hasOwn(PRIMITIVE_PROPS.str, node.name)) {

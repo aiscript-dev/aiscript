@@ -1926,6 +1926,16 @@ describe('Location', () => {
 });
 
 describe('primitive props', () => {
+	describe('num', () => {
+		it('to_str', async () => {
+			const res = await exe(`
+			let num = 123
+			<: num.to_str()
+			`);
+			eq(res, STR('123'));
+		});
+	});
+
 	describe('str', () => {
 		it('len', async () => {
 			const res = await exe(`
@@ -1998,6 +2008,22 @@ describe('primitive props', () => {
 			`);
 			eq(res, ARR([STR('a'), STR('b'), STR('c')]));
 		});
+
+		it('pick', async () => {
+			const res = await exe(`
+			let str = "hello"
+			<: str.pick(1)
+			`);
+			eq(res, STR('e'));
+		});
+
+		it('slice', async () => {
+			const res = await exe(`
+			let str = "hello"
+			<: str.slice(1, 3)
+			`);
+			eq(res, STR('el'));
+		});
 	});
 
 	describe('arr', () => {
@@ -2055,6 +2081,26 @@ describe('primitive props', () => {
 				ARR([NUM(1), NUM(2), NUM(3), NUM(4), NUM(5)]),
 				ARR([NUM(1), NUM(2), NUM(3)])
 			]));
+		});
+
+		it('slice', async () => {
+			const res = await exe(`
+			let arr = ["ant", "bison", "camel", "duck", "elephant"]
+			let sliced = arr.slice(2, 4)
+			<: [sliced, arr]
+			`);
+			eq(res, ARR([
+				ARR([STR('camel'), STR('duck')]),
+				ARR([STR('ant'), STR('bison'), STR('camel'), STR('duck'), STR('elephant')])
+			]));
+		});
+
+		it('join', async () => {
+			const res = await exe(`
+			let arr = ["a", "b", "c"]
+			<: arr.join("-")
+			`);
+			eq(res, STR('a-b-c'));
 		});
 
 		it('map', async () => {
