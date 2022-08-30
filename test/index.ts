@@ -213,7 +213,6 @@ describe('Infix expression', () => {
 			1 + 1
 		`), NUM(3));
 	});
-
 });
 
 it('Escaped double quote', async () => {
@@ -972,6 +971,18 @@ describe('Function call', () => {
 		<: f(1 1)
 		`);
 		eq(res, NUM(2));
+	});
+	
+	it('std: throw AiScript error when required arg missing', async () => {
+		try {
+			await exe(`
+			<: Core:eq(1)
+			`);
+		} catch (e) {
+			assert.equal(e instanceof AiScriptError, true);
+			return;
+		}
+		assert.fail();
 	});
 });
 
