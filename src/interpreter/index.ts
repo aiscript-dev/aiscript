@@ -7,9 +7,10 @@ import * as N from '../node';
 import { Scope } from './scope';
 import { AiScriptError } from './error';
 import { std } from './lib/std';
-import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray, eq, isObject, isArray, isString, expectAny } from './util';
+import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray, eq, isObject, isArray, isString, expectAny, isNumber } from './util';
 import { Value, NULL, RETURN, unWrapRet, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, VFn, BREAK, CONTINUE } from './value';
 import { infixToFnCall } from './infix-to-fncall';
+import { PRIMITIVE_PROPS } from './primitive-props';
 
 export class AiScript {
 	private vars: Record<string, Value>;
@@ -363,12 +364,33 @@ export class AiScript {
 			}
 
 			case 'prop': {
-				const obj = await this._eval(node.target, scope);
-				assertObject(obj);
-				if (obj.value.has(node.name)) {
-					return obj.value.get(node.name)!;
+				const target = await this._eval(node.target, scope);
+				if (isObject(target)) {
+					if (target.value.has(node.name)) {
+						return target.value.get(node.name)!;
+					} else {
+						return NULL;
+					}
+				} else if (isNumber(target)) {
+					if (Object.hasOwn(PRIMITIVE_PROPS.num, node.name)) {
+						return PRIMITIVE_PROPS.num[node.name as keyof typeof PRIMITIVE_PROPS['num']](target);
+					} else {
+						throw new AiScriptError(`No such prop (${node.name}) in ${target.type}.`);
+					}
+				} else if (isString(target)) {
+					if (Object.hasOwn(PRIMITIVE_PROPS.str, node.name)) {
+						return PRIMITIVE_PROPS.str[node.name as keyof typeof PRIMITIVE_PROPS['str']](target);
+					} else {
+						throw new AiScriptError(`No such prop (${node.name}) in ${target.type}.`);
+					}
+				} else if (isArray(target)) {
+					if (Object.hasOwn(PRIMITIVE_PROPS.arr, node.name)) {
+						return PRIMITIVE_PROPS.arr[node.name as keyof typeof PRIMITIVE_PROPS['arr']](target);
+					} else {
+						throw new AiScriptError(`No such prop (${node.name}) in ${target.type}.`);
+					}
 				} else {
-					return NULL; // エラーにしてもよさそう
+					throw new AiScriptError(`Cannot read prop (${node.name}) of ${target.type}.`);
 				}
 			}
 

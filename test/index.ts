@@ -7,7 +7,7 @@ import * as assert from 'assert';
 import { Parser, utils } from '../src';
 import { AiScript } from '../src/interpreter';
 import { AiScriptError } from '../src/interpreter/error';
-import { NUM, STR, NULL, ARR, OBJ, BOOL } from '../src/interpreter/value';
+import { NUM, STR, NULL, ARR, OBJ, BOOL, TRUE, FALSE } from '../src/interpreter/value';
 import * as N from '../src/node';
 
 const exe = (program: string): Promise<any> => new Promise((ok, err) => {
@@ -228,7 +228,7 @@ it('//', async () => {
 it('式にコロンがあってもオブジェクトと判定されない', async () => {
 	const res = await exe(`
 	<: eval {
-		Str:incl("ai", "a")
+		Core:eq("ai", "ai")
 	}
 	`);
 	eq(res, BOOL(true));
@@ -855,7 +855,7 @@ describe('chain', () => {
 		let x = { a: ["ai", "chan", "kawaii"] }
 		each let item, x.a {
 			let y = { a: item }
-			Arr:push(msgs, Arr:join([y.a, "!"]))
+			msgs.push([y.a, "!"].join())
 		}
 		<: msgs
 		`);
@@ -1294,10 +1294,10 @@ describe('loop', () => {
 		var a = ["ai" "chan" "kawaii" "!"]
 		var b = []
 		loop {
-			var x = Arr:shift(a)
+			var x = a.shift()
 			if (x == "chan") continue
 			if (x == "!") break
-			Arr:push(b, x)
+			b.push(x)
 		}
 		<: b
 		`);
@@ -1378,7 +1378,7 @@ describe('for of', () => {
 		const res = await exe(`
 		let msgs = []
 		each let item, ["ai", "chan", "kawaii"] {
-			Arr:push(msgs, Arr:join([item, "!"]))
+			msgs.push([item, "!"].join())
 		}
 		<: msgs
 		`);
@@ -1390,7 +1390,7 @@ describe('for of', () => {
 		let msgs = []
 		each let item, ["ai", "chan", "kawaii"] {
 			if (item == "kawaii") break
-			Arr:push(msgs, Arr:join([item, "!"]))
+			msgs.push([item, "!"].join())
 		}
 		<: msgs
 		`);
@@ -1400,7 +1400,7 @@ describe('for of', () => {
 	it('single statement', async () => {
 		const res = await exe(`
 		let msgs = []
-		each let item, ["ai", "chan", "kawaii"] Arr:push(msgs, Arr:join([item, "!"]))
+		each let item, ["ai", "chan", "kawaii"] msgs.push([item, "!"].join())
 		<: msgs
 		`);
 		eq(res, ARR([STR('ai!'), STR('chan!'), STR('kawaii!')]));
@@ -1936,34 +1936,258 @@ describe('Location', () => {
 	});
 });
 
-describe('std', () => {
-	describe('Arr', () => {
+describe('primitive props', () => {
+	describe('num', () => {
+		it('to_str', async () => {
+			const res = await exe(`
+			let num = 123
+			<: num.to_str()
+			`);
+			eq(res, STR('123'));
+		});
+	});
+
+	describe('str', () => {
+		it('len', async () => {
+			const res = await exe(`
+			let str = "hello"
+			<: str.len
+			`);
+			eq(res, NUM(5));
+		});
+
+		it('to_num', async () => {
+			const res = await exe(`
+			let str = "123"
+			<: str.to_num()
+			`);
+			eq(res, NUM(123));
+		});
+
+		it('upper', async () => {
+			const res = await exe(`
+			let str = "hello"
+			<: str.upper()
+			`);
+			eq(res, STR('HELLO'));
+		});
+
+		it('lower', async () => {
+			const res = await exe(`
+			let str = "HELLO"
+			<: str.lower()
+			`);
+			eq(res, STR('hello'));
+		});
+
+		it('trim', async () => {
+			const res = await exe(`
+			let str = " hello  "
+			<: str.trim()
+			`);
+			eq(res, STR('hello'));
+		});
+
+		it('replace', async () => {
+			const res = await exe(`
+			let str = "hello"
+			<: str.replace("l", "x")
+			`);
+			eq(res, STR('hexxo'));
+		});
+
+		it('index_of', async () => {
+			const res = await exe(`
+			let str = "hello"
+			<: str.index_of("l")
+			`);
+			eq(res, NUM(2));
+		});
+
+		it('incl', async () => {
+			const res = await exe(`
+			let str = "hello"
+			<: [str.incl("ll"), str.incl("x")]
+			`);
+			eq(res, ARR([TRUE, FALSE]));
+		});
+
+		it('split', async () => {
+			const res = await exe(`
+			let str = "a,b,c"
+			<: str.split(",")
+			`);
+			eq(res, ARR([STR('a'), STR('b'), STR('c')]));
+		});
+
+		it('pick', async () => {
+			const res = await exe(`
+			let str = "hello"
+			<: str.pick(1)
+			`);
+			eq(res, STR('e'));
+		});
+
+		it('slice', async () => {
+			const res = await exe(`
+			let str = "hello"
+			<: str.slice(1, 3)
+			`);
+			eq(res, STR('el'));
+		});
+	});
+
+	describe('arr', () => {
+		it('len', async () => {
+			const res = await exe(`
+			let arr = [1, 2, 3]
+			<: arr.len
+			`);
+			eq(res, NUM(3));
+		});
+
+		it('push', async () => {
+			const res = await exe(`
+			let arr = [1, 2, 3]
+			arr.push(4)
+			<: arr
+			`);
+			eq(res, ARR([NUM(1), NUM(2), NUM(3), NUM(4)]));
+		});
+
+		it('unshift', async () => {
+			const res = await exe(`
+			let arr = [1, 2, 3]
+			arr.unshift(4)
+			<: arr
+			`);
+			eq(res, ARR([NUM(4), NUM(1), NUM(2), NUM(3)]));
+		});
+
+		it('pop', async () => {
+			const res = await exe(`
+			let arr = [1, 2, 3]
+			let popped = arr.pop()
+			<: [popped, arr]
+			`);
+			eq(res, ARR([NUM(3), ARR([NUM(1), NUM(2)])]));
+		});
+
+		it('shift', async () => {
+			const res = await exe(`
+			let arr = [1, 2, 3]
+			let shifted = arr.shift()
+			<: [shifted, arr]
+			`);
+			eq(res, ARR([NUM(1), ARR([NUM(2), NUM(3)])]));
+		});
+
+		it('concat', async () => {
+			const res = await exe(`
+			let arr = [1, 2, 3]
+			let concated = arr.concat([4, 5])
+			<: [concated, arr]
+			`);
+			eq(res, ARR([
+				ARR([NUM(1), NUM(2), NUM(3), NUM(4), NUM(5)]),
+				ARR([NUM(1), NUM(2), NUM(3)])
+			]));
+		});
+
+		it('slice', async () => {
+			const res = await exe(`
+			let arr = ["ant", "bison", "camel", "duck", "elephant"]
+			let sliced = arr.slice(2, 4)
+			<: [sliced, arr]
+			`);
+			eq(res, ARR([
+				ARR([STR('camel'), STR('duck')]),
+				ARR([STR('ant'), STR('bison'), STR('camel'), STR('duck'), STR('elephant')])
+			]));
+		});
+
+		it('join', async () => {
+			const res = await exe(`
+			let arr = ["a", "b", "c"]
+			<: arr.join("-")
+			`);
+			eq(res, STR('a-b-c'));
+		});
+
 		it('map', async () => {
 			const res = await exe(`
-			let arr = ["ai", "chan", "kawaii"]
-
-			<: Arr:map(arr, @(item) { Arr:join([item, "!"]) })
+			let arr = [1, 2, 3]
+			<: arr.map(@(item) { item * 2 })
 			`);
-			eq(res, ARR([STR('ai!'), STR('chan!'), STR('kawaii!')]));
+			eq(res, ARR([NUM(2), NUM(4), NUM(6)]));
 		});
 
 		it('filter', async () => {
 			const res = await exe(`
-			let arr = ["ai", "chan", "kawaii"]
-
-			<: Arr:filter(arr, @(item) { Str:incl(item, "ai") })
+			let arr = [1, 2, 3]
+			<: arr.filter(@(item) { item != 2 })
 			`);
-			eq(res, ARR([STR('ai'), STR('kawaii')]));
+			eq(res, ARR([NUM(1), NUM(3)]));
 		});
 
 		it('reduce', async () => {
 			const res = await exe(`
 			let arr = [1, 2, 3, 4]
-
-			<: Arr:reduce(arr, @(accumulator, currentValue) { (accumulator + currentValue) })
+			<: arr.reduce(@(accumulator, currentValue) { (accumulator + currentValue) })
 			`);
 			eq(res, NUM(10));
 		});
+
+		it('find', async () => {
+			const res = await exe(`
+			let arr = ["abc", "def", "ghi"]
+			<: arr.find(@(item) { item.incl("e") })
+			`);
+			eq(res, STR('def'));
+		});
+
+		it('incl', async () => {
+			const res = await exe(`
+			let arr = ["abc", "def", "ghi"]
+			<: [arr.incl("def"), arr.incl("jkl")]
+			`);
+			eq(res, ARR([TRUE, FALSE]));
+		});
+
+		it('reverse', async () => {
+			const res = await exe(`
+			let arr = [1, 2, 3]
+			arr.reverse()
+			<: arr
+			`);
+			eq(res, ARR([NUM(3), NUM(2), NUM(1)]));
+		});
+
+		it('copy', async () => {
+			const res = await exe(`
+			let arr = [1, 2, 3]
+			let copied = arr.copy()
+			copied.reverse()
+			<: [copied, arr]
+			`);
+			eq(res, ARR([
+				ARR([NUM(3), NUM(2), NUM(1)]),
+				ARR([NUM(1), NUM(2), NUM(3)])
+			]));
+		});
+	});
+});
+
+describe('std', () => {
+	describe('Core', () => {
+		it('range', async () => {
+			eq(await exe('<: Core:range(1, 10)'), ARR([NUM(1), NUM(2), NUM(3), NUM(4), NUM(5), NUM(6), NUM(7), NUM(8), NUM(9), NUM(10)]));
+			eq(await exe('<: Core:range(1, 1)'), ARR([NUM(1)]));
+			eq(await exe('<: Core:range(9, 7)'), ARR([NUM(9), NUM(8), NUM(7)]));
+		});
+	});
+
+	describe('Arr', () => {
 	});
 
 	describe('Obj', () => {
@@ -1991,40 +2215,42 @@ describe('std', () => {
 	});
 
 	describe('Str', () => {
-		it('len', async () => {
+		it('lf', async () => {
 			const res = await exe(`
-			<: Str:len("👍🏽🍆🌮")
+			<: Str:lf
 			`);
-			eq(res, NUM(3));
+			eq(res, STR('\n'));
 		});
+	});
+});
 
-		it('pick', async () => {
-			const res = await exe(`
-			<: Str:pick("👍🏽🍆🌮", 2)
-			`);
-			eq(res, STR('🍆'));
-		});
+describe('Unicode', () => {
+	it('len', async () => {
+		const res = await exe(`
+		<: "👍🏽🍆🌮".len
+		`);
+		eq(res, NUM(3));
+	});
 
-		it('slice', async () => {
-			const res = await exe(`
-			<: Str:slice("Emojis 👍🏽 are 🍆 poison. 🌮s are bad.", 8, 15)
-			`);
-			eq(res, STR('👍🏽 are 🍆'));
-		});
+	it('pick', async () => {
+		const res = await exe(`
+		<: "👍🏽🍆🌮".pick(1)
+		`);
+		eq(res, STR('🍆'));
+	});
 
-		it('split', async () => {
-			const res = await exe(`
-			<: Str:split("👍🏽🍆🌮")
-			`);
-			eq(res, ARR([STR('👍🏽'), STR('🍆'), STR('🌮')]));
-		});
+	it('slice', async () => {
+		const res = await exe(`
+		<: "Emojis 👍🏽 are 🍆 poison. 🌮s are bad.".slice(7, 14)
+		`);
+		eq(res, STR('👍🏽 are 🍆'));
+	});
 
-
-		it('range', async () => {
-			eq(await exe('<: Core:range(1, 10)'), ARR([NUM(1), NUM(2), NUM(3), NUM(4), NUM(5), NUM(6), NUM(7), NUM(8), NUM(9), NUM(10)]));
-			eq(await exe('<: Core:range(1, 1)'), ARR([NUM(1)]));
-			eq(await exe('<: Core:range(9, 7)'), ARR([NUM(9), NUM(8), NUM(7)]));
-		});
+	it('split', async () => {
+		const res = await exe(`
+		<: "👍🏽🍆🌮".split()
+		`);
+		eq(res, ARR([STR('👍🏽'), STR('🍆'), STR('🌮')]));
 	});
 });
 
@@ -2038,7 +2264,7 @@ describe('extra', () => {
 				elif (i % 3 == 0) "Fizz"
 				elif (i % 5 == 0) "Buzz"
 				else i
-			Arr:push(res msg)
+			res.push(msg)
 		}
 		<: res
 		`);
@@ -2073,8 +2299,6 @@ describe('extra', () => {
 
 		// combine
 		@c(l) {
-			let L = Arr:len(l)
-
 			// extract
 			@x(v) {
 				if (Core:type(v) == "arr") { c(v) } else { v }
@@ -2082,7 +2306,7 @@ describe('extra', () => {
 
 			// rec
 			@r(f, n) {
-				if (n < L) {
+				if (n < l.len) {
 					r(f(x(l[n])), (n + 1))
 				} else { f }
 			}
