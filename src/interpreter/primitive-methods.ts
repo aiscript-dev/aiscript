@@ -1,6 +1,6 @@
 import { substring, length, indexOf, toArray } from 'stringz';
 import { assertArray, assertBoolean, assertFunction, assertString, expectAny } from './util';
-import { ARR, FN_NATIVE, NULL, NUM, STR, Value, VArr, VFn, VStr } from './value';
+import { ARR, FN_NATIVE, NULL, NUM, STR, Value, VArr, VFn, VNum, VStr } from './value';
 
 export const PRIMITIVE_METHODS = {
 	str: {
@@ -9,9 +9,7 @@ export const PRIMITIVE_METHODS = {
 			if (isNaN(parsed)) return NULL;
 			return NUM(parsed);
 		}),
-		len: (target: VStr): VFn => FN_NATIVE(async ([], opts) => {
-			return NUM(length(target.value));
-		}),
+		len: (target: VStr): VNum => NUM(length(target.value)),
 		replace: (target: VStr): VFn => FN_NATIVE(async ([a, b], opts) => {
 			assertString(a);
 			assertString(b);
@@ -19,7 +17,7 @@ export const PRIMITIVE_METHODS = {
 		}),
 		index_of: (target: VStr): VFn => FN_NATIVE(async ([search], opts) => {
 			assertString(search);
-			return NUM(indexOf(target.value, search.value) + 1);
+			return NUM(indexOf(target.value, search.value));
 		}),
 		trim: (target: VStr): VFn => FN_NATIVE(async ([], opts) => {
 			return STR(target.value.trim());
@@ -30,11 +28,17 @@ export const PRIMITIVE_METHODS = {
 		lower: (target: VStr): VFn => FN_NATIVE(async ([], opts) => {
 			return STR(target.value.toLowerCase());
 		}),
+		split: (target: VStr): VFn => FN_NATIVE(async ([splitter], opts) => {
+			if (splitter) assertString(splitter);
+			if (splitter) {
+				return ARR(target.value.split(splitter ? splitter.value : '').map(s => STR(s)));
+			} else {
+				return ARR(toArray(target.value).map(s => STR(s)));
+			}
+		}),
 	},
 	arr: {
-		len: (target: VArr): VFn => FN_NATIVE(async ([], opts) => {
-			return NUM(target.value.length);
-		}),
+		len: (target: VArr): VNum => NUM(target.value.length),
 		push: (target: VArr): VFn => FN_NATIVE(async ([val], opts) => {
 			expectAny(val);
 			target.value.push(val);

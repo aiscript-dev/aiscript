@@ -1924,6 +1924,148 @@ describe('Location', () => {
 	});
 });
 
+describe('primitive methods', () => {
+	describe('str', () => {
+		it('len', async () => {
+			const res = await exe(`
+			let str = "hello"
+			<: str.len
+			`);
+			eq(res, NUM(5));
+		});
+
+		it('to_num', async () => {
+			const res = await exe(`
+			let str = "123"
+			<: str.to_num()
+			`);
+			eq(res, NUM(123));
+		});
+
+		it('upper', async () => {
+			const res = await exe(`
+			let str = "hello"
+			<: str.upper()
+			`);
+			eq(res, STR('HELLO'));
+		});
+
+		it('lower', async () => {
+			const res = await exe(`
+			let str = "HELLO"
+			<: str.lower()
+			`);
+			eq(res, STR('hello'));
+		});
+
+		it('trim', async () => {
+			const res = await exe(`
+			let str = " hello  "
+			<: str.trim()
+			`);
+			eq(res, STR('hello'));
+		});
+
+		it('replace', async () => {
+			const res = await exe(`
+			let str = "hello"
+			<: str.replace("l", "x")
+			`);
+			eq(res, STR('hexxo'));
+		});
+
+		it('index_of', async () => {
+			const res = await exe(`
+			let str = "hello"
+			<: str.index_of("l")
+			`);
+			eq(res, NUM(2));
+		});
+
+		it('split', async () => {
+			const res = await exe(`
+			let str = "a,b,c"
+			<: str.split(",")
+			`);
+			eq(res, ARR([STR('a'), STR('b'), STR('c')]));
+		});
+	});
+
+	describe('arr', () => {
+		it('len', async () => {
+			const res = await exe(`
+			let arr = [1, 2, 3]
+			<: arr.len
+			`);
+			eq(res, NUM(3));
+		});
+
+		it('push', async () => {
+			const res = await exe(`
+			let arr = [1, 2, 3]
+			arr.push(4)
+			<: arr
+			`);
+			eq(res, ARR([NUM(1), NUM(2), NUM(3), NUM(4)]));
+		});
+
+		it('unshift', async () => {
+			const res = await exe(`
+			let arr = [1, 2, 3]
+			arr.unshift(4)
+			<: arr
+			`);
+			eq(res, ARR([NUM(4), NUM(1), NUM(2), NUM(3)]));
+		});
+
+		it('pop', async () => {
+			const res = await exe(`
+			let arr = [1, 2, 3]
+			let popped = arr.pop()
+			<: [popped, arr]
+			`);
+			eq(res, ARR([NUM(3), ARR([NUM(1), NUM(2)])]));
+		});
+
+		it('shift', async () => {
+			const res = await exe(`
+			let arr = [1, 2, 3]
+			let shifted = arr.shift()
+			<: [shifted, arr]
+			`);
+			eq(res, ARR([NUM(1), ARR([NUM(2), NUM(3)])]));
+		});
+
+		it('concat', async () => {
+			const res = await exe(`
+			let arr = [1, 2, 3]
+			let concated = arr.concat([4, 5])
+			<: [concated, arr]
+			`);
+			eq(res, ARR([
+				ARR([NUM(1), NUM(2), NUM(3), NUM(4), NUM(5)]),
+				ARR([NUM(1), NUM(2), NUM(3)])
+			]));
+		});
+
+		it('map', async () => {
+			const res = await exe(`
+			let arr = [1, 2, 3]
+			<: arr.map(@(item) { item * 2 })
+			`);
+			eq(res, ARR([NUM(2), NUM(4), NUM(6)]));
+		});
+
+		it('filter', async () => {
+			const res = await exe(`
+			let arr = [1, 2, 3]
+			<: arr.filter(@(item) { item != 2 })
+			`);
+			eq(res, ARR([NUM(1), NUM(3)]));
+		});
+	});
+});
+
 describe('std', () => {
 	describe('Arr', () => {
 		it('map', async () => {
@@ -1931,15 +2073,6 @@ describe('std', () => {
 			let arr = ["ai", "chan", "kawaii"]
 
 			<: Arr:map(arr, @(item) { Arr:join([item, "!"]) })
-			`);
-			eq(res, ARR([STR('ai!'), STR('chan!'), STR('kawaii!')]));
-		});
-
-		it('map (as method)', async () => {
-			const res = await exe(`
-			let arr = ["ai", "chan", "kawaii"]
-
-			<: arr.map(@(item) { Arr:join([item, "!"]) })
 			`);
 			eq(res, ARR([STR('ai!'), STR('chan!'), STR('kawaii!')]));
 		});

@@ -319,7 +319,7 @@ export const std: Record<string, Value> = {
 	'Str:index_of': FN_NATIVE(([v, search]) => {
 		assertString(v);
 		assertString(search);
-		return NUM(indexOf(v.value, search.value) + 1);
+		return NUM(indexOf(v.value, search.value));
 	}),
 
 	'Str:trim': FN_NATIVE(([v]) => {
