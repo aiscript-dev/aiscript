@@ -7,7 +7,7 @@ import * as assert from 'assert';
 import { Parser, utils } from '../src';
 import { AiScript } from '../src/interpreter';
 import { AiScriptError } from '../src/interpreter/error';
-import { NUM, STR, NULL, ARR, OBJ, BOOL } from '../src/interpreter/value';
+import { NUM, STR, NULL, ARR, OBJ, BOOL, TRUE, FALSE } from '../src/interpreter/value';
 import * as N from '../src/node';
 
 const exe = (program: string): Promise<any> => new Promise((ok, err) => {
@@ -1983,6 +1983,14 @@ describe('primitive props', () => {
 			eq(res, NUM(2));
 		});
 
+		it('incl', async () => {
+			const res = await exe(`
+			let str = "hello"
+			<: [str.incl("ll"), str.incl("x")]
+			`);
+			eq(res, ARR([TRUE, FALSE]));
+		});
+
 		it('split', async () => {
 			const res = await exe(`
 			let str = "a,b,c"
@@ -2063,6 +2071,30 @@ describe('primitive props', () => {
 			<: arr.filter(@(item) { item != 2 })
 			`);
 			eq(res, ARR([NUM(1), NUM(3)]));
+		});
+
+		it('reduce', async () => {
+			const res = await exe(`
+			let arr = [1, 2, 3, 4]
+			<: arr.reduce(@(accumulator, currentValue) { (accumulator + currentValue) })
+			`);
+			eq(res, NUM(10));
+		});
+
+		it('find', async () => {
+			const res = await exe(`
+			let arr = ["abc", "def", "ghi"]
+			<: arr.find(@(item) { item.incl("e") })
+			`);
+			eq(res, STR('def'));
+		});
+
+		it('incl', async () => {
+			const res = await exe(`
+			let arr = ["abc", "def", "ghi"]
+			<: [arr.incl("def"), arr.incl("jkl")]
+			`);
+			eq(res, ARR([TRUE, FALSE]));
 		});
 	});
 });
@@ -2149,7 +2181,6 @@ describe('std', () => {
 			`);
 			eq(res, ARR([STR('👍🏽'), STR('🍆'), STR('🌮')]));
 		});
-
 
 		it('range', async () => {
 			eq(await exe('<: Core:range(1, 10)'), ARR([NUM(1), NUM(2), NUM(3), NUM(4), NUM(5), NUM(6), NUM(7), NUM(8), NUM(9), NUM(10)]));

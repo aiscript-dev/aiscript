@@ -1,6 +1,6 @@
 import { substring, length, indexOf, toArray } from 'stringz';
 import { assertArray, assertBoolean, assertFunction, assertString, expectAny } from './util';
-import { ARR, FN_NATIVE, NULL, NUM, STR, Value, VArr, VFn, VNum, VStr } from './value';
+import { ARR, FALSE, FN_NATIVE, NULL, NUM, STR, TRUE, Value, VArr, VFn, VNum, VStr } from './value';
 
 export const PRIMITIVE_PROPS = {
 	str: {
@@ -18,6 +18,10 @@ export const PRIMITIVE_PROPS = {
 		index_of: (target: VStr): VFn => FN_NATIVE(async ([search], opts) => {
 			assertString(search);
 			return NUM(indexOf(target.value, search.value));
+		}),
+		incl: (target: VStr): VFn => FN_NATIVE(async ([search], opts) => {
+			assertString(search);
+			return target.value.includes(search.value) ? TRUE : FALSE;
 		}),
 		trim: (target: VStr): VFn => FN_NATIVE(async ([], opts) => {
 			return STR(target.value.trim());
@@ -80,6 +84,40 @@ export const PRIMITIVE_PROPS = {
 				if (res.value) vals.push(item);
 			}
 			return ARR(vals);
+		}),
+		reduce: (target: VArr): VFn => FN_NATIVE(async ([fn, initialValue], opts) => {
+			assertFunction(fn);
+			const withInitialValue = initialValue != null;
+			let accumulator = withInitialValue ? initialValue : target.value[0];
+			for (let i = withInitialValue ? 0 : 1; i < target.value.length; i++) {
+				const item = target.value[i];
+				accumulator = await opts.call(fn, [accumulator, item, NUM(i + 1)]);
+			}
+			return accumulator;
+		}),
+		find: (target: VArr): VFn => FN_NATIVE(async ([fn], opts) => {
+			assertFunction(fn);
+			for (let i = 0; i < target.value.length; i++) {
+				const item = target.value[i];
+				const res = await opts.call(fn, [item, NUM(i + 1)]);
+				assertBoolean(res);
+				if (res.value) return item;
+			}
+			return NULL;
+		}),
+		incl: (target: VArr): VFn => FN_NATIVE(async ([val], opts) => {
+			expectAny(val);
+			if (val.type !== 'str' && val.type !== 'num' && val.type !== 'bool' && val.type !== 'null') return FALSE;
+			const getValue = (v: VArr) => {
+				return v.value.map(i => {
+					if (i.type === 'str') return i.value;
+					if (i.type === 'num') return i.value;
+					if (i.type === 'bool') return i.value;
+					if (i.type === 'null') return null;
+					return Symbol();
+				});
+			};
+			return getValue(target).includes(val.type === 'null' ? null : val.value) ? TRUE : FALSE;
 		}),
 	},
 } as const;
