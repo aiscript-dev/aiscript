@@ -13,38 +13,11 @@ type AddAssign = NodeBase & {
     expr: Expression;
 };
 
-// Warning: (ae-forgotten-export) The symbol "NodeBase" needs to be exported by the entry point index.d.ts
-//
 // @public (undocumented)
-type AddAssign_2 = NodeBase_2 & {
-    type: 'inc';
-    dest: Expression_2;
-    expr: Expression_2;
-};
-
-// @public (undocumented)
-export class AiScript {
-    constructor(vars: AiScript['vars'], opts?: AiScript['opts']);
+export class AiScriptError extends Error {
+    constructor(message: string, info?: any);
     // (undocumented)
-    abort(): void;
-    // (undocumented)
-    static collectMetadata(script?: N.Node[]): Map<any, any> | undefined;
-    // Warning: (ae-forgotten-export) The symbol "N" needs to be exported by the entry point index.d.ts
-    //
-    // (undocumented)
-    exec(script?: N.Node[]): Promise<void>;
-    // (undocumented)
-    execFn(fn: VFn, args: Value[]): Promise<Value>;
-    // (undocumented)
-    registerAbortHandler(handler: () => void): void;
-    // Warning: (ae-forgotten-export) The symbol "Scope" needs to be exported by the entry point index.d.ts
-    //
-    // (undocumented)
-    scope: Scope;
-    // (undocumented)
-    stepCount: number;
-    // (undocumented)
-    unregisterAbortHandler(handler: () => void): void;
+    info?: any;
 }
 
 // @public (undocumented)
@@ -57,14 +30,6 @@ const ARR: (arr: VArr['value']) => {
 type Arr = NodeBase & {
     type: 'arr';
     value: Expression[];
-};
-
-// Warning: (ae-forgotten-export) The symbol "ChainProp" needs to be exported by the entry point index.d.ts
-//
-// @public (undocumented)
-type Arr_2 = NodeBase_2 & ChainProp & {
-    type: 'arr';
-    value: Expression_2[];
 };
 
 // @public (undocumented)
@@ -93,13 +58,6 @@ type Assign = NodeBase & {
 };
 
 // @public (undocumented)
-type Assign_2 = NodeBase_2 & {
-    type: 'assign';
-    dest: Expression_2;
-    expr: Expression_2;
-};
-
-// @public (undocumented)
 type Attr_2 = {
     attr?: {
         name: string;
@@ -115,22 +73,9 @@ type Attribute = NodeBase & {
 };
 
 // @public (undocumented)
-type Attribute_2 = NodeBase_2 & {
-    type: 'attr';
-    name: string;
-    value: Expression_2;
-};
-
-// @public (undocumented)
 type Block = NodeBase & {
     type: 'block';
     statements: (Statement | Expression)[];
-};
-
-// @public (undocumented)
-type Block_2 = NodeBase_2 & ChainProp & {
-    type: 'block';
-    statements: (Statement_2 | Expression_2)[];
 };
 
 // @public (undocumented)
@@ -141,12 +86,6 @@ const BOOL: (bool: VBool['value']) => {
 
 // @public (undocumented)
 type Bool = NodeBase & {
-    type: 'bool';
-    value: boolean;
-};
-
-// @public (undocumented)
-type Bool_2 = NodeBase_2 & ChainProp & {
     type: 'bool';
     value: boolean;
 };
@@ -163,38 +102,11 @@ type Break = NodeBase & {
 };
 
 // @public (undocumented)
-type Break_2 = NodeBase_2 & {
-    type: 'break';
-};
-
-// @public (undocumented)
-function CALL(target: Call_2['target'], args: Call_2['args'], loc?: {
-    start: number;
-    end: number;
-}): Call_2;
-
-// @public (undocumented)
 type Call = NodeBase & {
     type: 'call';
     target: Expression;
     args: Expression[];
 };
-
-// @public (undocumented)
-type Call_2 = NodeBase_2 & {
-    type: 'call';
-    target: Expression_2;
-    args: Expression_2[];
-};
-
-// @public (undocumented)
-type CallChain = NodeBase_2 & {
-    type: 'callChain';
-    args: Expression_2[];
-};
-
-// @public (undocumented)
-type ChainMember = CallChain | IndexChain | PropChain;
 
 // @public (undocumented)
 const CONTINUE: () => {
@@ -204,11 +116,6 @@ const CONTINUE: () => {
 
 // @public (undocumented)
 type Continue = NodeBase & {
-    type: 'continue';
-};
-
-// @public (undocumented)
-type Continue_2 = NodeBase_2 & {
     type: 'continue';
 };
 
@@ -223,29 +130,11 @@ type Definition = NodeBase & {
 };
 
 // @public (undocumented)
-type Definition_2 = NodeBase_2 & {
-    type: 'def';
-    name: string;
-    varType?: TypeSource;
-    expr: Expression_2;
-    mut: boolean;
-    attr?: Attribute_2[];
-};
-
-// @public (undocumented)
 type Each = NodeBase & {
     type: 'forOf';
     var: string;
     items: Expression;
     for: Statement | Expression;
-};
-
-// @public (undocumented)
-type Each_2 = NodeBase_2 & {
-    type: 'forOf';
-    var: string;
-    items: Expression_2;
-    for: Statement_2 | Expression_2;
 };
 
 // @public (undocumented)
@@ -256,11 +145,6 @@ function expectAny(val: Value | null | undefined): asserts val is Value;
 
 // @public (undocumented)
 type Expression = Infix | If | Fn | Match | Block | Tmpl | Str | Num | Bool | Null | Obj | Arr | Var | Call | Index | Prop;
-
-// @public (undocumented)
-type Expression_2 = Infix_2 | If_2 | Fn_2 | Match_2 | Block_2 | Tmpl_2 | Str_2 | Num_2 | Bool_2 | Null_2 | Obj_2 | Arr_2 | Var_2 | Call_2 | // IR
-Index_2 | // IR
-Prop_2;
 
 // @public (undocumented)
 const FALSE: {
@@ -288,17 +172,6 @@ type Fn = NodeBase & {
 };
 
 // @public (undocumented)
-type Fn_2 = NodeBase_2 & ChainProp & {
-    type: 'fn';
-    args: {
-        name: string;
-        type?: TypeSource;
-    }[];
-    ret?: TypeSource;
-    children: (Statement_2 | Expression_2)[];
-};
-
-// @public (undocumented)
 const FN_NATIVE: (fn: VFn['native']) => {
     type: "fn";
     native: ((args: (Value | undefined)[], opts: {
@@ -319,20 +192,7 @@ type For = NodeBase & {
 };
 
 // @public (undocumented)
-type For_2 = NodeBase_2 & {
-    type: 'for';
-    var?: string;
-    from?: Expression_2;
-    to?: Expression_2;
-    times?: Expression_2;
-    for: Statement_2 | Expression_2;
-};
-
-// @public (undocumented)
 function getLangVersion(input: string): string | null;
-
-// @public (undocumented)
-function hasChainProp<T extends Node_3>(x: T): x is T & ChainProp;
 
 // @public (undocumented)
 type If = NodeBase & {
@@ -347,41 +207,10 @@ type If = NodeBase & {
 };
 
 // @public (undocumented)
-type If_2 = NodeBase_2 & {
-    type: 'if';
-    cond: Expression_2;
-    then: Statement_2 | Expression_2;
-    elseif: {
-        cond: Expression_2;
-        then: Statement_2 | Expression_2;
-    }[];
-    else?: Statement_2 | Expression_2;
-};
-
-// @public (undocumented)
-function INDEX(target: Index_2['target'], index: Index_2['index'], loc?: {
-    start: number;
-    end: number;
-}): Index_2;
-
-// @public (undocumented)
 type Index = NodeBase & {
     type: 'index';
     target: Expression;
     index: Expression;
-};
-
-// @public (undocumented)
-type Index_2 = NodeBase_2 & {
-    type: 'index';
-    target: Expression_2;
-    index: Expression_2;
-};
-
-// @public (undocumented)
-type IndexChain = NodeBase_2 & {
-    type: 'indexChain';
-    index: Expression_2;
 };
 
 // @public (undocumented)
@@ -392,17 +221,28 @@ type Infix = NodeBase & {
 };
 
 // @public (undocumented)
-type Infix_2 = NodeBase_2 & {
-    type: 'infix';
-    operands: Expression_2[];
-    operators: InfixOperator_2[];
-};
-
-// @public (undocumented)
 type InfixOperator = "||" | "&&" | "==" | "!=" | "<=" | ">=" | "<" | ">" | "+" | "-" | "*" | "|" | "%";
 
 // @public (undocumented)
-type InfixOperator_2 = '||' | '&&' | '==' | '!=' | '<=' | '>=' | '<' | '>' | '+' | '-' | '*' | '|' | '%';
+export class Interpreter {
+    constructor(vars: Interpreter['vars'], opts?: Interpreter['opts']);
+    // (undocumented)
+    abort(): void;
+    // (undocumented)
+    static collectMetadata(script?: N.Node[]): Map<any, any> | undefined;
+    // (undocumented)
+    exec(script?: N.Node[]): Promise<void>;
+    // (undocumented)
+    execFn(fn: VFn, args: Value[]): Promise<Value>;
+    // (undocumented)
+    registerAbortHandler(handler: () => void): void;
+    // (undocumented)
+    scope: Scope;
+    // (undocumented)
+    stepCount: number;
+    // (undocumented)
+    unregisterAbortHandler(handler: () => void): void;
+}
 
 // @public (undocumented)
 function isArray(val: Value): val is VArr;
@@ -412,9 +252,6 @@ function isBoolean(val: Value): val is VBool;
 
 // @public (undocumented)
 function isExpression(x: Node_2): x is Expression;
-
-// @public (undocumented)
-function isExpression_2(x: Node_3): x is Expression_2;
 
 // @public (undocumented)
 function isFunction(val: Value): val is VFn;
@@ -427,9 +264,6 @@ function isObject(val: Value): val is VObj;
 
 // @public (undocumented)
 function isStatement(x: Node_2): x is Statement;
-
-// @public (undocumented)
-function isStatement_2(x: Node_3): x is Statement_2;
 
 // @public (undocumented)
 function isString(val: Value): val is VStr;
@@ -450,12 +284,6 @@ type Loop = NodeBase & {
 };
 
 // @public (undocumented)
-type Loop_2 = NodeBase_2 & {
-    type: 'loop';
-    statements: (Statement_2 | Expression_2)[];
-};
-
-// @public (undocumented)
 type Match = NodeBase & {
     type: 'match';
     about: Expression;
@@ -467,29 +295,53 @@ type Match = NodeBase & {
 };
 
 // @public (undocumented)
-type Match_2 = NodeBase_2 & ChainProp & {
-    type: 'match';
-    about: Expression_2;
-    qs: {
-        q: Expression_2;
-        a: Statement_2 | Expression_2;
-    }[];
-    default?: Statement_2 | Expression_2;
-};
-
-// @public (undocumented)
 type Meta = NodeBase & {
     type: 'meta';
     name: string | null;
     value: Expression;
 };
 
-// @public (undocumented)
-type Meta_2 = NodeBase_2 & {
-    type: 'meta';
-    name: string | null;
-    value: Expression_2;
-};
+declare namespace N {
+    export {
+        isStatement,
+        isExpression,
+        Loc,
+        Node_2 as Node,
+        Statement,
+        Expression,
+        Namespace,
+        Meta,
+        Definition,
+        Attribute,
+        Return,
+        Each,
+        For,
+        Loop,
+        Break,
+        Continue,
+        AddAssign,
+        SubAssign,
+        Assign,
+        InfixOperator,
+        Infix,
+        If,
+        Fn,
+        Match,
+        Block,
+        Tmpl,
+        Str,
+        Num,
+        Bool,
+        Null,
+        Obj,
+        Arr,
+        Var,
+        Call,
+        Index,
+        Prop
+    }
+}
+export { N }
 
 // @public (undocumented)
 type Namespace = NodeBase & {
@@ -499,17 +351,7 @@ type Namespace = NodeBase & {
 };
 
 // @public (undocumented)
-type Namespace_2 = NodeBase_2 & {
-    type: 'ns';
-    name: string;
-    members: (Definition_2 | Namespace_2)[];
-};
-
-// @public (undocumented)
 type Node_2 = Namespace | Meta | Statement | Expression;
-
-// @public (undocumented)
-type Node_3 = Namespace_2 | Meta_2 | Statement_2 | Expression_2 | ChainMember;
 
 // @public (undocumented)
 const NULL: {
@@ -522,11 +364,6 @@ type Null = NodeBase & {
 };
 
 // @public (undocumented)
-type Null_2 = NodeBase_2 & ChainProp & {
-    type: 'null';
-};
-
-// @public (undocumented)
 const NUM: (num: VNum['value']) => {
     type: "num";
     value: number;
@@ -534,12 +371,6 @@ const NUM: (num: VNum['value']) => {
 
 // @public (undocumented)
 type Num = NodeBase & {
-    type: 'num';
-    value: number;
-};
-
-// @public (undocumented)
-type Num_2 = NodeBase_2 & ChainProp & {
     type: 'num';
     value: number;
 };
@@ -557,53 +388,9 @@ type Obj = NodeBase & {
 };
 
 // @public (undocumented)
-type Obj_2 = NodeBase_2 & ChainProp & {
-    type: 'obj';
-    value: Map<string, Expression_2>;
-};
-
-// @public (undocumented)
-export class Parser {
-    constructor();
-    // (undocumented)
-    addPlugin(type: PluginType, plugin: ParserPlugin): void;
-    // (undocumented)
-    static parse(input: string): N.Node[];
-    // (undocumented)
-    parse(input: string): N.Node[];
-}
-
-// Warning: (ae-forgotten-export) The symbol "Ast" needs to be exported by the entry point index.d.ts
-//
-// @public (undocumented)
-export type ParserPlugin = (nodes: Ast.Node[]) => Ast.Node[];
-
-// @public (undocumented)
-export type PluginType = 'validate' | 'transform';
-
-// @public (undocumented)
-function PROP(target: Prop_2['target'], name: Prop_2['name'], loc?: {
-    start: number;
-    end: number;
-}): Prop_2;
-
-// @public (undocumented)
 type Prop = NodeBase & {
     type: 'prop';
     target: Expression;
-    name: string;
-};
-
-// @public (undocumented)
-type Prop_2 = NodeBase_2 & {
-    type: 'prop';
-    target: Expression_2;
-    name: string;
-};
-
-// @public (undocumented)
-type PropChain = NodeBase_2 & {
-    type: 'propChain';
     name: string;
 };
 
@@ -620,10 +407,22 @@ type Return = NodeBase & {
 };
 
 // @public (undocumented)
-type Return_2 = NodeBase_2 & {
-    type: 'return';
-    expr: Expression_2;
-};
+export class Scope {
+    constructor(layerdStates?: Scope['layerdStates'], parent?: Scope, name?: Scope['name']);
+    add(name: string, val: Value): void;
+    assign(name: string, val: Value): void;
+    // (undocumented)
+    createChildScope(states?: Map<string, Value>, name?: Scope['name']): Scope;
+    get(name: string): Value;
+    getAll(): Map<string, Value>;
+    // (undocumented)
+    name: string;
+    // (undocumented)
+    opts: {
+        log?(type: string, params: Record<string, any>): void;
+        onUpdated?(name: string, value: Value): void;
+    };
+}
 
 // @public (undocumented)
 export class SemanticError extends Error {
@@ -632,10 +431,6 @@ export class SemanticError extends Error {
 
 // @public (undocumented)
 type Statement = Definition | Return | Each | For | Loop | Break | Continue | Assign | AddAssign | SubAssign;
-
-// @public (undocumented)
-type Statement_2 = Definition_2 | Return_2 | Attribute_2 | // AST
-Each_2 | For_2 | Loop_2 | Break_2 | Continue_2 | Assign_2 | AddAssign_2 | SubAssign_2;
 
 // @public (undocumented)
 const STR: (str: VStr['value']) => {
@@ -650,23 +445,10 @@ type Str = NodeBase & {
 };
 
 // @public (undocumented)
-type Str_2 = NodeBase_2 & ChainProp & {
-    type: 'str';
-    value: string;
-};
-
-// @public (undocumented)
 type SubAssign = NodeBase & {
     type: 'dec';
     dest: Expression;
     expr: Expression;
-};
-
-// @public (undocumented)
-type SubAssign_2 = NodeBase_2 & {
-    type: 'dec';
-    dest: Expression_2;
-    expr: Expression_2;
 };
 
 // @public (undocumented)
@@ -679,12 +461,6 @@ export { SyntaxError_2 as SyntaxError }
 type Tmpl = NodeBase & {
     type: 'tmpl';
     tmpl: (string | Expression)[];
-};
-
-// @public (undocumented)
-type Tmpl_2 = NodeBase_2 & ChainProp & {
-    type: 'tmpl';
-    tmpl: (string | Expression_2)[];
 };
 
 // @public (undocumented)
@@ -763,12 +539,6 @@ export { values }
 
 // @public (undocumented)
 type Var = NodeBase & {
-    type: 'var';
-    name: string;
-};
-
-// @public (undocumented)
-type Var_2 = NodeBase_2 & ChainProp & {
     type: 'var';
     name: string;
 };

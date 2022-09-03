@@ -43,7 +43,7 @@ export class Scope {
 
 	/**
 	 * 指定した名前の変数を取得します
-	 * @param name 変数名
+	 * @param name - 変数名
 	 */
 	@autobind
 	public get(name: string): Value {
@@ -74,8 +74,8 @@ export class Scope {
 
 	/**
 	 * 指定した名前の変数を現在のスコープに追加します
-	 * @param name 変数名
-	 * @param val 初期値
+	 * @param name - 変数名
+	 * @param val - 初期値
 	 */
 	@autobind
 	public add(name: string, val: Value) {
@@ -92,8 +92,8 @@ export class Scope {
 
 	/**
 	 * 指定した名前の変数に値を再代入します
-	 * @param name 変数名
-	 * @param val 値
+	 * @param name - 変数名
+	 * @param val - 値
 	 */
 	@autobind
 	public assign(name: string, val: Value) {
