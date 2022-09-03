@@ -2,10 +2,10 @@
 //export * from './interpreter/index';
 //export * as utils from './interpreter/util';
 //export * as values from './interpreter/value';
-import { AiScript } from './interpreter/index';
+import { Interpreter } from './interpreter/index';
 import * as utils from './interpreter/util';
 import * as values from './interpreter/value';
-export { AiScript };
+export { Interpreter };
 export { utils };
 export { values };
 export { Parser, ParserPlugin, PluginType } from './parser';
