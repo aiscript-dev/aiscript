@@ -42,7 +42,7 @@
 
 <script setup>
 import { ref, watch } from 'vue';
-import { AiScript, Parser, utils, serialize } from '../../src';
+import { Interpreter, Parser, utils, serialize } from '../../src';
 
 import { PrismEditor } from 'vue-prism-editor';
 import 'vue-prism-editor/dist/prismeditor.min.css';
@@ -84,7 +84,7 @@ const setCode = () => {
 const run = async () => {
 	logs.value = [];
 
-	const aiscript = new AiScript({}, {
+	const interpreter = new Interpreter({}, {
 		in: (q) => {
 			return new Promise(ok => {
 				const res = window.prompt(q);
@@ -112,7 +112,7 @@ const run = async () => {
 	});
 
 	try {
-		await aiscript.exec(ast.value);
+		await interpreter.exec(ast.value);
 	} catch (e) {
 		console.error(e);
 		window.alert('Error: ' + e);
