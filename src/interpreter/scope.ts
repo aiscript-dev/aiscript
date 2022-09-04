@@ -1,5 +1,5 @@
 import autobind from 'autobind-decorator';
-import { AiScriptError } from '../error';
+import { RuntimeError } from '../error';
 import { Value } from './value';
 
 export class Scope {
@@ -55,7 +55,7 @@ export class Scope {
 			}
 		}
 
-		throw new AiScriptError(
+		throw new RuntimeError(
 			`No such variable '${name}' in scope '${this.name}'`, {
 				scope: this.layerdStates,
 			});
@@ -81,7 +81,7 @@ export class Scope {
 	public add(name: string, val: Value) {
 		this.log('add', { var: name, val: val });
 		if (this.layerdStates[0].has(name)) {
-			throw new AiScriptError(
+			throw new RuntimeError(
 				`Variable '${name}' is alerady exists in scope '${this.name}'`, {
 					scope: this.layerdStates,
 				});
@@ -108,7 +108,7 @@ export class Scope {
 			i++;
 		}
 
-		throw new AiScriptError(
+		throw new RuntimeError(
 			`No such variable '${name}' in scope '${this.name}'`, {
 				scope: this.layerdStates,
 			});

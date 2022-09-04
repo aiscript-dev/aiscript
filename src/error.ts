@@ -1,4 +1,4 @@
-export class AiScriptError extends Error {
+export abstract class AiScriptError extends Error {
 	public info?: any;
 
 	constructor(message: string, info?: any) {
@@ -10,5 +10,17 @@ export class AiScriptError extends Error {
 		if (Error.captureStackTrace) {
 			Error.captureStackTrace(this, AiScriptError);
 		}
+	}
+}
+
+export class SyntaxError extends AiScriptError {
+	constructor(message: string, info?: any) {
+		super(message, info);
+	}
+}
+
+export class RuntimeError extends AiScriptError {
+	constructor(message: string, info?: any) {
+		super(message, info);
 	}
 }

@@ -1,4 +1,4 @@
-import { AiScriptError } from './error';
+import { SyntaxError } from './error';
 import { Loc } from './node';
 
 // Type source (AST)
@@ -165,7 +165,7 @@ export function getTypeBySource(typeSource: TypeSource): Type {
 				return T_GENERIC(typeSource.name, [innerType]);
 			}
 		}
-		throw new AiScriptError(`Unknown type: '${ getTypeNameBySource(typeSource) }'`);
+		throw new SyntaxError(`Unknown type: '${ getTypeNameBySource(typeSource) }'`);
 	} else {
 		const argTypes = typeSource.args.map(arg => getTypeBySource(arg));
 		return T_FN(argTypes, getTypeBySource(typeSource.result));
