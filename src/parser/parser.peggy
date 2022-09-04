@@ -136,7 +136,7 @@ Expr3
 	/ Null        // "null"
 	/ Obj         // "{"
 	/ Arr         // "["
-	/ VarRef      // NAME_WITH_NAMESPACE
+	/ Identifier  // NAME_WITH_NAMESPACE
 	/ "(" _* e:Expr _* ")" { return e; }
 
 // list of static literal
@@ -189,7 +189,7 @@ VarDef
 Out
 	= "<:" _* expr:Expr
 {
-	return createNode('var', {
+	return createNode('identifier', {
 		name: 'print',
 		chain: [createNode('callChain', { args: [expr] })],
 	});
@@ -212,7 +212,7 @@ Attr
 Each
 	= "each" _* "(" "let" _* varn:NAME _* ","? _* items:Expr ")" _* x:BlockOrStatement
 {
-	return createNode('forOf', {
+	return createNode('each', {
 		var: varn,
 		items: items,
 		for: x,
@@ -220,7 +220,7 @@ Each
 }
 	/ "each" _+ "let" _* varn:NAME _* ","? _* items:Expr _+ x:BlockOrStatement
 {
-	return createNode('forOf', {
+	return createNode('each', {
 		var: varn,
 		items: items,
 		for: x,
@@ -293,9 +293,9 @@ Assign
 	= dest:Expr _* op:("+=" / "-=" / "=") _* expr:Expr
 {
 	if (op === '+=')
-		return createNode('inc', { dest, expr });
+		return createNode('addAssign', { dest, expr });
 	else if (op === '-=')
-		return createNode('dec', { dest, expr });
+		return createNode('subAssign', { dest, expr });
 	else
 		return createNode('assign', { dest, expr });
 }
@@ -392,9 +392,9 @@ Eval
 
 // variable reference expression
 
-VarRef
+Identifier
 	= name:NAME_WITH_NAMESPACE
-{ return createNode('var', { name }); }
+{ return createNode('identifier', { name }); }
 
 
 

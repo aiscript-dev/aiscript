@@ -24,7 +24,7 @@ export type Statement =
 	SubAssign;
 
 const statementTypes = [
-	'def', 'return', 'attr', 'forOf', 'for', 'loop', 'break', 'continue', 'assign', 'inc', 'dec',
+	'def', 'return', 'attr', 'each', 'for', 'loop', 'break', 'continue', 'assign', 'addAssign', 'subAssign',
 ];
 export function isStatement(x: Node): x is Statement {
 	return statementTypes.includes(x.type);
@@ -43,13 +43,13 @@ export type Expression =
 	Null |
 	Obj |
 	Arr |
-	Var |
+	Identifier |
 	Call | // IR
 	Index | // IR
 	Prop; // IR
 
 const expressionTypes = [
-	'infix', 'if', 'fn', 'match', 'block', 'tmpl', 'str', 'num', 'bool', 'null', 'obj', 'arr', 'var', 'cal', 'index', 'prop',
+	'infix', 'if', 'fn', 'match', 'block', 'tmpl', 'str', 'num', 'bool', 'null', 'obj', 'arr', 'identifier', 'call', 'index', 'prop',
 ];
 export function isExpression(x: Node): x is Expression {
 	return expressionTypes.includes(x.type);
@@ -96,7 +96,7 @@ export type Return = NodeBase & {
 };
 
 export type Each = NodeBase & {
-	type: 'forOf';
+	type: 'each';
 	var: string;
 	items: Expression;
 	for: Statement | Expression;
@@ -125,13 +125,13 @@ export type Continue = NodeBase & {
 };
 
 export type AddAssign = NodeBase & {
-	type: 'inc';
+	type: 'addAssign';
 	dest: Expression;
 	expr: Expression;
 };
 
 export type SubAssign = NodeBase & {
-	type: 'dec';
+	type: 'subAssign';
 	dest: Expression;
 	expr: Expression;
 };
@@ -220,8 +220,8 @@ export type Arr = NodeBase & ChainProp & {
 	value: Expression[];
 };
 
-export type Var = NodeBase & ChainProp & {
-	type: 'var';
+export type Identifier = NodeBase & ChainProp & {
+	type: 'identifier';
 	name: string;
 };
 

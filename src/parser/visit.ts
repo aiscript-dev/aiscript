@@ -13,7 +13,7 @@ export function visitNode(node: Ast.Node, fn: (node: Ast.Node) => Ast.Node): Ast
 			result.expr = visitNode(result.expr, fn) as Ast.Return['expr'];
 			break;
 		}
-		case 'forOf': {
+		case 'each': {
 			result.items = visitNode(result.items, fn) as Ast.Each['items'];
 			result.for = visitNode(result.for, fn) as Ast.Each['for'];
 			break;
@@ -37,8 +37,8 @@ export function visitNode(node: Ast.Node, fn: (node: Ast.Node) => Ast.Node): Ast
 			}
 			break;
 		}
-		case 'inc':
-		case 'dec':
+		case 'addAssign':
+		case 'subAssign':
 		case 'assign': {
 			result.expr = visitNode(result.expr, fn) as Ast.Assign['expr'];
 			result.dest = visitNode(result.dest, fn) as Ast.Assign['dest'];

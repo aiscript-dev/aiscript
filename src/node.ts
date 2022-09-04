@@ -26,7 +26,7 @@ export type Statement =
 	SubAssign;
 
 const statementTypes = [
-	'def', 'return', 'forOf', 'for', 'loop', 'break', 'continue', 'assign', 'inc', 'dec'
+	'def', 'return', 'each', 'for', 'loop', 'break', 'continue', 'assign', 'addAssign', 'subAssign',
 ];
 export function isStatement(x: Node): x is Statement {
 	return statementTypes.includes(x.type);
@@ -44,13 +44,13 @@ export type Expression =
 	Null |
 	Obj |
 	Arr |
-	Var |
+	Identifier |
 	Call |
 	Index |
 	Prop;
 
 const expressionTypes = [
-	'if', 'fn', 'match', 'block', 'tmpl', 'str', 'num', 'bool', 'null', 'obj', 'arr', 'var', 'cal', 'index', 'prop'
+	'if', 'fn', 'match', 'block', 'tmpl', 'str', 'num', 'bool', 'null', 'obj', 'arr', 'identifier', 'call', 'index', 'prop',
 ];
 export function isExpression(x: Node): x is Expression {
 	return expressionTypes.includes(x.type);
@@ -96,7 +96,7 @@ export type Return = NodeBase & {
 };
 
 export type Each = NodeBase & {
-	type: 'forOf'; // each文
+	type: 'each'; // each文
 	var: string; // イテレータ変数名
 	items: Expression; // 配列
 	for: Statement | Expression; // 本体処理
@@ -125,13 +125,13 @@ export type Continue = NodeBase & {
 };
 
 export type AddAssign = NodeBase & {
-	type: 'inc'; // 加算代入文
+	type: 'addAssign'; // 加算代入文
 	dest: Expression; // 代入先
 	expr: Expression; // 式
 };
 
 export type SubAssign = NodeBase & {
-	type: 'dec'; // 減算代入文
+	type: 'subAssign'; // 減算代入文
 	dest: Expression; // 代入先
 	expr: Expression; // 式
 };
@@ -212,8 +212,8 @@ export type Arr = NodeBase & {
 	value: Expression[]; // アイテム
 };
 
-export type Var = NodeBase & {
-	type: 'var'; // 変数
+export type Identifier = NodeBase & {
+	type: 'identifier'; // 変数などの識別子
 	name: string; // 変数名
 };
 
