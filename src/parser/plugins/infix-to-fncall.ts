@@ -111,7 +111,7 @@ function transform(node: Ast.Infix): Ast.Node {
 export function infixToFnCall(nodes: Ast.Node[]): Ast.Node[] {
 	for (let i = 0; i < nodes.length; i++) {
 		nodes[i] = visitNode(nodes[i], (node) => {
-			if (node.type == 'infix') {
+			if (node.type === 'infix') {
 				return transform(node);
 			}
 			return node;
