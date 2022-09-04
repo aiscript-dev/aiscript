@@ -237,10 +237,10 @@ function eq(a: Value, b: Value): boolean;
 function expectAny(val: Value | null | undefined): asserts val is Value;
 
 // @public (undocumented)
-type Expression = Infix | If | Fn | Match | Block | Tmpl | Str | Num | Bool | Null | Obj | Arr | Var | Call | Index | Prop;
+type Expression = If | Fn | Match | Block | Tmpl | Str | Num | Bool | Null | Obj | Arr | Var | Call | Index | Prop;
 
 // @public (undocumented)
-type Expression_2 = Infix_2 | If_2 | Fn_2 | Match_2 | Block_2 | Tmpl_2 | Str_2 | Num_2 | Bool_2 | Null_2 | Obj_2 | Arr_2 | Var_2 | Call_2 | // IR
+type Expression_2 = Infix | If_2 | Fn_2 | Match_2 | Block_2 | Tmpl_2 | Str_2 | Num_2 | Bool_2 | Null_2 | Obj_2 | Arr_2 | Var_2 | Call_2 | // IR
 Index_2 | // IR
 Prop_2;
 
@@ -367,24 +367,14 @@ type IndexChain = NodeBase_2 & {
 };
 
 // @public (undocumented)
-type Infix = NodeBase & {
+type Infix = NodeBase_2 & {
     type: 'infix';
-    operands: Expression[];
+    operands: Expression_2[];
     operators: InfixOperator[];
 };
 
 // @public (undocumented)
-type Infix_2 = NodeBase_2 & {
-    type: 'infix';
-    operands: Expression_2[];
-    operators: InfixOperator_2[];
-};
-
-// @public (undocumented)
-type InfixOperator = "||" | "&&" | "==" | "!=" | "<=" | ">=" | "<" | ">" | "+" | "-" | "*" | "|" | "%";
-
-// @public (undocumented)
-type InfixOperator_2 = '||' | '&&' | '==' | '!=' | '<=' | '>=' | '<' | '>' | '+' | '-' | '*' | '|' | '%';
+type InfixOperator = '||' | '&&' | '==' | '!=' | '<=' | '>=' | '<' | '>' | '+' | '-' | '*' | '|' | '%';
 
 // @public (undocumented)
 export class Interpreter {
@@ -515,8 +505,6 @@ declare namespace N {
         AddAssign,
         SubAssign,
         Assign,
-        InfixOperator,
-        Infix,
         If,
         Fn,
         Match,
@@ -904,7 +892,7 @@ type VStr = {
 
 // Warnings were encountered during analysis:
 //
-// src/node.ts:82:2 - (ae-forgotten-export) The symbol "TypeSource" needs to be exported by the entry point index.d.ts
+// src/node.ts:81:2 - (ae-forgotten-export) The symbol "TypeSource" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

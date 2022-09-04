@@ -9,7 +9,6 @@ import { AiScriptError } from './error';
 import { std } from './lib/std';
 import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray, eq, isObject, isArray, isString, expectAny, isNumber } from './util';
 import { Value, NULL, RETURN, unWrapRet, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, VFn, BREAK, CONTINUE } from './value';
-import { infixToFnCall } from './infix-to-fncall';
 import { PRIMITIVE_PROPS } from './primitive-props';
 
 export class Interpreter {
@@ -425,10 +424,6 @@ export class Interpreter {
 					}
 				}
 				return STR(str);
-			}
-
-			case 'infix': {
-				return this._eval(infixToFnCall(node), scope);
 			}
 
 			case 'return': {

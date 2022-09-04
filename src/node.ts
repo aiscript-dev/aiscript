@@ -33,7 +33,6 @@ export function isStatement(x: Node): x is Statement {
 }
 
 export type Expression =
-	Infix |
 	If |
 	Fn |
 	Match |
@@ -51,7 +50,7 @@ export type Expression =
 	Prop;
 
 const expressionTypes = [
-	'infix', 'if', 'fn', 'match', 'block', 'tmpl', 'str', 'num', 'bool', 'null', 'obj', 'arr', 'var', 'cal', 'index', 'prop'
+	'if', 'fn', 'match', 'block', 'tmpl', 'str', 'num', 'bool', 'null', 'obj', 'arr', 'var', 'cal', 'index', 'prop'
 ];
 export function isExpression(x: Node): x is Expression {
 	return expressionTypes.includes(x.type);
@@ -141,15 +140,6 @@ export type Assign = NodeBase & {
 	type: 'assign'; // 代入文
 	dest: Expression; // 代入先
 	expr: Expression; // 式
-};
-
-export type InfixOperator = "||" | "&&" | "==" | "!=" | "<=" | ">=" | "<" | ">" | "+" | "-" | "*" | "|" | "%";
-
-// TODO: remove by transform plugin
-export type Infix = NodeBase & {
-	type: 'infix'; // 中置演算子式
-	operands: Expression[]; // 項のリスト
-	operators: InfixOperator[]; // 演算子のリスト
 };
 
 export type If = NodeBase & {

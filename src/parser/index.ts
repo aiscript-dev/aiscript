@@ -7,6 +7,7 @@ import { validateKeyword } from './plugins/validate-keyword';
 import { validateType } from './plugins/validate-type';
 import { setAttribute } from './plugins/set-attribute';
 import { transformChain } from './plugins/transform-chain';
+import { infixToFnCall } from './plugins/infix-to-fncall';
 
 export type ParserPlugin = (nodes: Ast.Node[]) => Ast.Node[];
 export type PluginType = 'validate' | 'transform';
@@ -27,6 +28,7 @@ export class Parser {
 			transform: [
 				setAttribute,
 				transformChain,
+				infixToFnCall,
 			],
 		};
 	}

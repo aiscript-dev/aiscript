@@ -1,5 +1,6 @@
-import * as N from '../node';
-import { AiScriptError } from './error';
+import * as Ast from '../node';
+import { visitNode } from '../visit';
+import { SemanticError } from '../../error';
 
 /**
  * 中置演算子式を表す木
@@ -11,15 +12,15 @@ import { AiScriptError } from './error';
  */
 type InfixTree = {
 	type: 'infixTree';
-	left: InfixTree | N.Node;
-	right: InfixTree | N.Node;
+	left: InfixTree | Ast.Node;
+	right: InfixTree | Ast.Node;
 	info: {
 		func: string; // 対応する関数名
 		priority: number; // 優先度（高いほど優先して計算される値）
 	};
 };
 
-function INFIX_TREE(left: InfixTree | N.Node, right: InfixTree | N.Node, info: InfixTree["info"]): InfixTree {
+function INFIX_TREE(left: InfixTree | Ast.Node, right: InfixTree | Ast.Node, info: InfixTree["info"]): InfixTree {
 	return { type: 'infixTree', left, right, info };
 }
 
@@ -46,7 +47,7 @@ function INFIX_TREE(left: InfixTree | N.Node, right: InfixTree | N.Node, info: I
  * - NOTE: 右結合性の演算子としては代入演算子などが挙げられる
  * - NOTE: 比較の演算子などは非結合性とされる
  */
-function insertTree(currTree: InfixTree | N.Node, nextTree: InfixTree | N.Node, nextOpInfo: InfixTree["info"]): InfixTree {
+function insertTree(currTree: InfixTree | Ast.Node, nextTree: InfixTree | Ast.Node, nextOpInfo: InfixTree["info"]): InfixTree {
 	if (currTree.type !== 'infixTree') {
 		return INFIX_TREE(currTree, nextTree, nextOpInfo);
 	}
@@ -62,7 +63,7 @@ function insertTree(currTree: InfixTree | N.Node, nextTree: InfixTree | N.Node, 
 /**
  * 中置演算子式を表す木を対応する関数呼び出しの構造体に変換する
  */
-function treeToNode(tree: InfixTree | N.Node): N.Node {
+function treeToNode(tree: InfixTree | Ast.Node): Ast.Node {
 	if (tree.type !== 'infixTree') {
 		return tree;
 	}
@@ -70,7 +71,7 @@ function treeToNode(tree: InfixTree | N.Node): N.Node {
 		type: 'call',
 		target: { type: 'var', name: tree.info.func },
 		args: [treeToNode(tree.left), treeToNode(tree.right)],
-	} as N.Call;
+	} as Ast.Call;
 }
 
 const infoTable: Record<string, InfixTree["info"]> = {
@@ -92,11 +93,11 @@ const infoTable: Record<string, InfixTree["info"]> = {
 /**
  * NInfix を関数呼び出し形式に変換する
  */
-export function infixToFnCall(node: N.Infix): N.Node {
+function transform(node: Ast.Infix): Ast.Node {
 	const infos = node.operators.map(op => {
 		const info = infoTable[op];
 		if (info == null) {
-			throw new AiScriptError(`No such operator: ${op}.`);
+			throw new SemanticError(`No such operator: ${op}.`);
 		}
 		return info;
 	});
@@ -105,4 +106,16 @@ export function infixToFnCall(node: N.Infix): N.Node {
 		currTree = insertTree(currTree, node.operands[2 + i], infos[1 + i]);
 	}
 	return treeToNode(currTree);
+}
+
+export function infixToFnCall(nodes: Ast.Node[]): Ast.Node[] {
+	for (let i = 0; i < nodes.length; i++) {
+		nodes[i] = visitNode(nodes[i], (node) => {
+			if (node.type === 'infix') {
+				return transform(node);
+			}
+			return node;
+		});
+	}
+	return nodes;
 }
