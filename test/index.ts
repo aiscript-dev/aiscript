@@ -4,11 +4,8 @@
  */
 
 import * as assert from 'assert';
-import { Parser, utils } from '../src';
-import { Interpreter } from '../src/interpreter';
-import { AiScriptError } from '../src/interpreter/error';
+import { Parser, Interpreter, utils, errors, N } from '../src';
 import { NUM, STR, NULL, ARR, OBJ, BOOL, TRUE, FALSE } from '../src/interpreter/value';
-import * as N from '../src/node';
 
 const exe = (program: string): Promise<any> => new Promise((ok, err) => {
 	const aiscript = new Interpreter({}, {
@@ -958,7 +955,7 @@ describe('Function call', () => {
 			<: Core:eq(1)
 			`);
 		} catch (e) {
-			assert.equal(e instanceof AiScriptError, true);
+			assert.equal(e instanceof errors.RuntimeError, true);
 			return;
 		}
 		assert.fail();
@@ -2241,7 +2238,7 @@ describe('Security', () => {
 			`);
 			assert.fail();
 		} catch (e) {
-			assert.equal(e instanceof AiScriptError, true);
+			assert.equal(e instanceof errors.RuntimeError, true);
 		}
 
 		try {
@@ -2250,7 +2247,7 @@ describe('Security', () => {
 			`);
 			assert.fail();
 		} catch (e) {
-			assert.equal(e instanceof AiScriptError, true);
+			assert.equal(e instanceof errors.RuntimeError, true);
 		}
 
 		try {
@@ -2259,7 +2256,7 @@ describe('Security', () => {
 			`);
 			assert.fail();
 		} catch (e) {
-			assert.equal(e instanceof AiScriptError, true);
+			assert.equal(e instanceof errors.RuntimeError, true);
 		}
 	});
 
@@ -2293,7 +2290,7 @@ describe('Security', () => {
 			`);
 			assert.fail();
 		} catch (e) {
-			assert.equal(e instanceof AiScriptError, true);
+			assert.equal(e instanceof errors.RuntimeError, true);
 		}
 
 		try {
@@ -2302,7 +2299,7 @@ describe('Security', () => {
 			`);
 			assert.fail();
 		} catch (e) {
-			assert.equal(e instanceof AiScriptError, true);
+			assert.equal(e instanceof errors.RuntimeError, true);
 		}
 
 		try {
@@ -2311,7 +2308,7 @@ describe('Security', () => {
 			`);
 			assert.fail();
 		} catch (e) {
-			assert.equal(e instanceof AiScriptError, true);
+			assert.equal(e instanceof errors.RuntimeError, true);
 		}
 	});
 });

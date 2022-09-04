@@ -1,4 +1,4 @@
-import * as aiscript from '../..';
+import { SyntaxError } from '../../error';
 import * as Ast from '../node';
 
 export function setAttribute(node: Ast.Expression[]): Ast.Expression[]
@@ -25,7 +25,7 @@ export function setAttribute(nodes: Ast.Node[]): Ast.Node[] {
 			result.push(node);
 		} else {
 			if (stockedAttrs.length > 0) {
-				throw new aiscript.SemanticError('invalid attribute.');
+				throw new SyntaxError('invalid attribute.');
 			}
 			switch (node.type) {
 				case 'fn': {
@@ -41,7 +41,7 @@ export function setAttribute(nodes: Ast.Node[]): Ast.Node[] {
 		}
 	}
 	if (stockedAttrs.length > 0) {
-		throw new aiscript.SemanticError('invalid attribute.');
+		throw new SyntaxError('invalid attribute.');
 	}
 
 	return result;

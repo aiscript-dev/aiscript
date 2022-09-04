@@ -4,7 +4,7 @@ import { substring, length, indexOf, toArray } from 'stringz';
 import seedrandom from 'seedrandom';
 import { Value, NUM, STR, FN_NATIVE, FALSE, TRUE, VArr, ARR, NULL, BOOL, OBJ } from '../value';
 import { assertNumber, assertString, assertArray, assertBoolean, valToJs, jsToVal, assertFunction, assertObject, eq, expectAny } from '../util';
-import { AiScriptError } from '../error';
+import { RuntimeError } from '../../error';
 
 export const std: Record<string, Value> = {
 	'help': STR('SEE: https://github.com/syuilo/aiscript/blob/master/docs/get-started.md'),
@@ -65,7 +65,7 @@ export const std: Record<string, Value> = {
 		assertNumber(a);
 		assertNumber(b);
 		const res = a.value / b.value;
-		if (isNaN(res)) throw new AiScriptError('Invalid operation.');
+		if (isNaN(res)) throw new RuntimeError('Invalid operation.');
 		return NUM(res);
 	}),
 
@@ -198,7 +198,7 @@ export const std: Record<string, Value> = {
 	'Math:sqrt': FN_NATIVE(([v]) => {
 		assertNumber(v);
 		const res = Math.sqrt(v.value);
-		if (isNaN(res)) throw new AiScriptError('Invalid operation.');
+		if (isNaN(res)) throw new RuntimeError('Invalid operation.');
 		return NUM(res);
 	}),
 

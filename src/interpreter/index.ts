@@ -5,7 +5,7 @@
 import autobind from 'autobind-decorator';
 import * as N from '../node';
 import { Scope } from './scope';
-import { AiScriptError } from './error';
+import { RuntimeError } from '../error';
 import { std } from './lib/std';
 import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray, eq, isObject, isArray, isString, expectAny, isNumber } from './util';
 import { Value, NULL, RETURN, unWrapRet, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, VFn, BREAK, CONTINUE } from './value';
@@ -180,7 +180,7 @@ export class Interpreter {
 		this.log('node', { node: node });
 		this.stepCount++;
 		if (this.opts.maxStep && this.stepCount > this.opts.maxStep) {
-			throw new AiScriptError('max step exceeded');
+			throw new RuntimeError('max step exceeded');
 		}
 
 		switch (node.type) {
@@ -322,7 +322,7 @@ export class Interpreter {
 					assignee.value.set(node.dest.name, v);
 					return NULL;
 				} else {
-					throw new AiScriptError('The left-hand side of an assignment expression must be a variable or a property/index access.');
+					throw new RuntimeError('The left-hand side of an assignment expression must be a variable or a property/index access.');
 				}
 			}
 
@@ -374,22 +374,22 @@ export class Interpreter {
 					if (Object.hasOwn(PRIMITIVE_PROPS.num, node.name)) {
 						return PRIMITIVE_PROPS.num[node.name as keyof typeof PRIMITIVE_PROPS['num']](target);
 					} else {
-						throw new AiScriptError(`No such prop (${node.name}) in ${target.type}.`);
+						throw new RuntimeError(`No such prop (${node.name}) in ${target.type}.`);
 					}
 				} else if (isString(target)) {
 					if (Object.hasOwn(PRIMITIVE_PROPS.str, node.name)) {
 						return PRIMITIVE_PROPS.str[node.name as keyof typeof PRIMITIVE_PROPS['str']](target);
 					} else {
-						throw new AiScriptError(`No such prop (${node.name}) in ${target.type}.`);
+						throw new RuntimeError(`No such prop (${node.name}) in ${target.type}.`);
 					}
 				} else if (isArray(target)) {
 					if (Object.hasOwn(PRIMITIVE_PROPS.arr, node.name)) {
 						return PRIMITIVE_PROPS.arr[node.name as keyof typeof PRIMITIVE_PROPS['arr']](target);
 					} else {
-						throw new AiScriptError(`No such prop (${node.name}) in ${target.type}.`);
+						throw new RuntimeError(`No such prop (${node.name}) in ${target.type}.`);
 					}
 				} else {
-					throw new AiScriptError(`Cannot read prop (${node.name}) of ${target.type}.`);
+					throw new RuntimeError(`Cannot read prop (${node.name}) of ${target.type}.`);
 				}
 			}
 

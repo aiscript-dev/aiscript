@@ -1,19 +1,26 @@
-export class SyntaxError extends Error {
-	constructor(details?: string) {
-		let message = 'Syntax error.';
-		if (details) {
-			message += ` ${details}`;
-		}
+export abstract class AiScriptError extends Error {
+	public info?: any;
+
+	constructor(message: string, info?: any) {
 		super(message);
+
+		this.info = info;
+
+		// Maintains proper stack trace for where our error was thrown (only available on V8)
+		if (Error.captureStackTrace) {
+			Error.captureStackTrace(this, AiScriptError);
+		}
 	}
 }
 
-export class SemanticError extends Error {
-	constructor(details?: string) {
-		let message = 'Semantic error.';
-		if (details) {
-			message += ` ${details}`;
-		}
-		super(message);
+export class SyntaxError extends AiScriptError {
+	constructor(message: string, info?: any) {
+		super(message, info);
+	}
+}
+
+export class RuntimeError extends AiScriptError {
+	constructor(message: string, info?: any) {
+		super(message, info);
 	}
 }

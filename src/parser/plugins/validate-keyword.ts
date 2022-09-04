@@ -1,4 +1,4 @@
-import * as aiscript from '../..';
+import { SyntaxError } from '../../error';
 import * as Ast from '../node';
 import { visitNode } from '../visit';
 
@@ -42,7 +42,7 @@ const reservedWord = [
 ];
 
 function throwReservedWordError(name: string) {
-	throw new aiscript.SemanticError(`Reserved word "${name}" cannot be used as variable name.`);
+	throw new SyntaxError(`Reserved word "${name}" cannot be used as variable name.`);
 }
 
 function validateNode(node: Ast.Node): Ast.Node {

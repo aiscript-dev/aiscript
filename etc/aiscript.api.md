@@ -23,7 +23,7 @@ type AddAssign_2 = NodeBase_2 & {
 };
 
 // @public (undocumented)
-export class AiScriptError extends Error {
+abstract class AiScriptError extends Error {
     constructor(message: string, info?: any);
     // (undocumented)
     info?: any;
@@ -232,6 +232,15 @@ type Each_2 = NodeBase_2 & {
 
 // @public (undocumented)
 function eq(a: Value, b: Value): boolean;
+
+declare namespace errors {
+    export {
+        AiScriptError,
+        SyntaxError_2 as SyntaxError,
+        RuntimeError
+    }
+}
+export { errors }
 
 // @public (undocumented)
 function expectAny(val: Value | null | undefined): asserts val is Value;
@@ -659,6 +668,11 @@ type Return_2 = NodeBase_2 & {
 };
 
 // @public (undocumented)
+class RuntimeError extends AiScriptError {
+    constructor(message: string, info?: any);
+}
+
+// @public (undocumented)
 export class Scope {
     constructor(layerdStates?: Scope['layerdStates'], parent?: Scope, name?: Scope['name']);
     add(name: string, val: Value): void;
@@ -674,11 +688,6 @@ export class Scope {
         log?(type: string, params: Record<string, any>): void;
         onUpdated?(name: string, value: Value): void;
     };
-}
-
-// @public (undocumented)
-export class SemanticError extends Error {
-    constructor(details?: string);
 }
 
 // @public (undocumented)
@@ -721,10 +730,9 @@ type SubAssign_2 = NodeBase_2 & {
 };
 
 // @public (undocumented)
-class SyntaxError_2 extends Error {
-    constructor(details?: string);
+class SyntaxError_2 extends AiScriptError {
+    constructor(message: string, info?: any);
 }
-export { SyntaxError_2 as SyntaxError }
 
 // @public (undocumented)
 type Tmpl = NodeBase & {

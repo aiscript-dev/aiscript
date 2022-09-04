@@ -1,5 +1,3 @@
-import * as aiscript from '../..';
-import { SemanticError } from '../../error';
 import * as Ast from '../node';
 import { getTypeBySource } from '../../type';
 import { visitNode } from '../visit';
