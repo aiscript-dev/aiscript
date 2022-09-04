@@ -8,7 +8,7 @@
 //
 // @public (undocumented)
 type AddAssign = NodeBase & {
-    type: 'inc';
+    type: 'addAssign';
     dest: Expression;
     expr: Expression;
 };
@@ -17,7 +17,7 @@ type AddAssign = NodeBase & {
 //
 // @public (undocumented)
 type AddAssign_2 = NodeBase_2 & {
-    type: 'inc';
+    type: 'addAssign';
     dest: Expression_2;
     expr: Expression_2;
 };
@@ -216,7 +216,7 @@ type Definition_2 = NodeBase_2 & {
 
 // @public (undocumented)
 type Each = NodeBase & {
-    type: 'forOf';
+    type: 'each';
     var: string;
     items: Expression;
     for: Statement | Expression;
@@ -224,7 +224,7 @@ type Each = NodeBase & {
 
 // @public (undocumented)
 type Each_2 = NodeBase_2 & {
-    type: 'forOf';
+    type: 'each';
     var: string;
     items: Expression_2;
     for: Statement_2 | Expression_2;
@@ -246,10 +246,10 @@ export { errors }
 function expectAny(val: Value | null | undefined): asserts val is Value;
 
 // @public (undocumented)
-type Expression = If | Fn | Match | Block | Tmpl | Str | Num | Bool | Null | Obj | Arr | Var | Call | Index | Prop;
+type Expression = If | Fn | Match | Block | Tmpl | Str | Num | Bool | Null | Obj | Arr | Identifier | Call | Index | Prop;
 
 // @public (undocumented)
-type Expression_2 = Infix | If_2 | Fn_2 | Match_2 | Block_2 | Tmpl_2 | Str_2 | Num_2 | Bool_2 | Null_2 | Obj_2 | Arr_2 | Var_2 | Call_2 | // IR
+type Expression_2 = Infix | If_2 | Fn_2 | Match_2 | Block_2 | Tmpl_2 | Str_2 | Num_2 | Bool_2 | Null_2 | Obj_2 | Arr_2 | Identifier_2 | Call_2 | // IR
 Index_2 | // IR
 Prop_2;
 
@@ -324,6 +324,18 @@ function getLangVersion(input: string): string | null;
 
 // @public (undocumented)
 function hasChainProp<T extends Node_3>(x: T): x is T & ChainProp;
+
+// @public (undocumented)
+type Identifier = NodeBase & {
+    type: 'identifier';
+    name: string;
+};
+
+// @public (undocumented)
+type Identifier_2 = NodeBase_2 & ChainProp & {
+    type: 'identifier';
+    name: string;
+};
 
 // @public (undocumented)
 type If = NodeBase & {
@@ -525,7 +537,7 @@ declare namespace N {
         Null,
         Obj,
         Arr,
-        Var,
+        Identifier,
         Call,
         Index,
         Prop
@@ -717,14 +729,14 @@ type Str_2 = NodeBase_2 & ChainProp & {
 
 // @public (undocumented)
 type SubAssign = NodeBase & {
-    type: 'dec';
+    type: 'subAssign';
     dest: Expression;
     expr: Expression;
 };
 
 // @public (undocumented)
 type SubAssign_2 = NodeBase_2 & {
-    type: 'dec';
+    type: 'subAssign';
     dest: Expression_2;
     expr: Expression_2;
 };
@@ -819,18 +831,6 @@ declare namespace values {
     }
 }
 export { values }
-
-// @public (undocumented)
-type Var = NodeBase & {
-    type: 'var';
-    name: string;
-};
-
-// @public (undocumented)
-type Var_2 = NodeBase_2 & ChainProp & {
-    type: 'var';
-    name: string;
-};
 
 // @public (undocumented)
 type VArr = {

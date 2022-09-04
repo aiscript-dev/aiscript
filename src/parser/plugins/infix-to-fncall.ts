@@ -69,7 +69,7 @@ function treeToNode(tree: InfixTree | Ast.Node): Ast.Node {
 	}
 	return {
 		type: 'call',
-		target: { type: 'var', name: tree.info.func },
+		target: { type: 'identifier', name: tree.info.func },
 		args: [treeToNode(tree.left), treeToNode(tree.right)],
 	} as Ast.Call;
 }

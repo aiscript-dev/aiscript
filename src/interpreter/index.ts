@@ -273,7 +273,7 @@ export class Interpreter {
 				return NULL;
 			}
 
-			case 'forOf': {
+			case 'each': {
 				const items = await this._eval(node.items, scope);
 				assertArray(items);
 				for (const item of items.value) {
@@ -300,13 +300,13 @@ export class Interpreter {
 				return NULL;
 			}
 
-			case 'var': {
+			case 'identifier': {
 				return scope.get(node.name);
 			}
 
 			case 'assign': {
 				const v = await this._eval(node.expr, scope);
-				if (node.dest.type === 'var') {
+				if (node.dest.type === 'identifier') {
 					scope.assign(node.dest.name, v);
 					return NULL;
 				} else if (node.dest.type === 'index') {
@@ -326,7 +326,7 @@ export class Interpreter {
 				}
 			}
 
-			case 'inc': {
+			case 'addAssign': {
 				const target = await this._eval(node.dest, scope);
 				assertNumber(target);
 				const v = await this._eval(node.expr, scope);
@@ -335,7 +335,7 @@ export class Interpreter {
 				return NULL;
 			}
 
-			case 'dec': {
+			case 'subAssign': {
 				const target = await this._eval(node.dest, scope);
 				assertNumber(target);
 				const v = await this._eval(node.expr, scope);

@@ -50,7 +50,7 @@ function validateNode(node: Ast.Node): Ast.Node {
 		case 'def':
 		case 'attr':
 		case 'ns':
-		case 'var':
+		case 'identifier':
 		case 'propChain': {
 			if (reservedWord.includes(node.name)) {
 				throwReservedWordError(node.name);
