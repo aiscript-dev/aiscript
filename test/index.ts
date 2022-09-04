@@ -5,13 +5,13 @@
 
 import * as assert from 'assert';
 import { Parser, utils } from '../src';
-import { AiScript } from '../src/interpreter';
+import { Interpreter } from '../src/interpreter';
 import { AiScriptError } from '../src/interpreter/error';
 import { NUM, STR, NULL, ARR, OBJ, BOOL, TRUE, FALSE } from '../src/interpreter/value';
 import * as N from '../src/node';
 
 const exe = (program: string): Promise<any> => new Promise((ok, err) => {
-	const aiscript = new AiScript({}, {
+	const aiscript = new Interpreter({}, {
 		out(value) {
 			ok(value);
 		},
@@ -27,7 +27,7 @@ const getMeta = (program: string) => {
 	const parser = new Parser();
 	const ast = parser.parse(program);
 
-	const metadata = AiScript.collectMetadata(ast);
+	const metadata = Interpreter.collectMetadata(ast);
 
 	return metadata;
 };
@@ -51,7 +51,7 @@ it('empty script', async () => {
 describe('Interpreter', () => {
 	describe('Scope', () => {
 		it('getAll', async () => {
-			const aiscript = new AiScript({});
+			const aiscript = new Interpreter({});
 			await aiscript.exec(Parser.parse(`
 			let a = 1
 			@b() {

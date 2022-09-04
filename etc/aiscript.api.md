@@ -23,28 +23,10 @@ type AddAssign_2 = NodeBase_2 & {
 };
 
 // @public (undocumented)
-export class AiScript {
-    constructor(vars: AiScript['vars'], opts?: AiScript['opts']);
+export class AiScriptError extends Error {
+    constructor(message: string, info?: any);
     // (undocumented)
-    abort(): void;
-    // (undocumented)
-    static collectMetadata(script?: N.Node[]): Map<any, any> | undefined;
-    // Warning: (ae-forgotten-export) The symbol "N" needs to be exported by the entry point index.d.ts
-    //
-    // (undocumented)
-    exec(script?: N.Node[]): Promise<void>;
-    // (undocumented)
-    execFn(fn: VFn, args: Value[]): Promise<Value>;
-    // (undocumented)
-    registerAbortHandler(handler: () => void): void;
-    // Warning: (ae-forgotten-export) The symbol "Scope" needs to be exported by the entry point index.d.ts
-    //
-    // (undocumented)
-    scope: Scope;
-    // (undocumented)
-    stepCount: number;
-    // (undocumented)
-    unregisterAbortHandler(handler: () => void): void;
+    info?: any;
 }
 
 // @public (undocumented)
@@ -395,6 +377,27 @@ type Infix = NodeBase_2 & {
 type InfixOperator = '||' | '&&' | '==' | '!=' | '<=' | '>=' | '<' | '>' | '+' | '-' | '*' | '|' | '%';
 
 // @public (undocumented)
+export class Interpreter {
+    constructor(vars: Interpreter['vars'], opts?: Interpreter['opts']);
+    // (undocumented)
+    abort(): void;
+    // (undocumented)
+    static collectMetadata(script?: N.Node[]): Map<any, any> | undefined;
+    // (undocumented)
+    exec(script?: N.Node[]): Promise<void>;
+    // (undocumented)
+    execFn(fn: VFn, args: Value[]): Promise<Value>;
+    // (undocumented)
+    registerAbortHandler(handler: () => void): void;
+    // (undocumented)
+    scope: Scope;
+    // (undocumented)
+    stepCount: number;
+    // (undocumented)
+    unregisterAbortHandler(handler: () => void): void;
+}
+
+// @public (undocumented)
 function isArray(val: Value): val is VArr;
 
 // @public (undocumented)
@@ -480,6 +483,48 @@ type Meta_2 = NodeBase_2 & {
     name: string | null;
     value: Expression_2;
 };
+
+declare namespace N {
+    export {
+        isStatement,
+        isExpression,
+        Loc,
+        Node_2 as Node,
+        Statement,
+        Expression,
+        Namespace,
+        Meta,
+        Definition,
+        Attribute,
+        Return,
+        Each,
+        For,
+        Loop,
+        Break,
+        Continue,
+        AddAssign,
+        SubAssign,
+        Assign,
+        InfixOperator,
+        Infix,
+        If,
+        Fn,
+        Match,
+        Block,
+        Tmpl,
+        Str,
+        Num,
+        Bool,
+        Null,
+        Obj,
+        Arr,
+        Var,
+        Call,
+        Index,
+        Prop
+    }
+}
+export { N }
 
 // @public (undocumented)
 type Namespace = NodeBase & {
@@ -614,6 +659,24 @@ type Return_2 = NodeBase_2 & {
     type: 'return';
     expr: Expression_2;
 };
+
+// @public (undocumented)
+export class Scope {
+    constructor(layerdStates?: Scope['layerdStates'], parent?: Scope, name?: Scope['name']);
+    add(name: string, val: Value): void;
+    assign(name: string, val: Value): void;
+    // (undocumented)
+    createChildScope(states?: Map<string, Value>, name?: Scope['name']): Scope;
+    get(name: string): Value;
+    getAll(): Map<string, Value>;
+    // (undocumented)
+    name: string;
+    // (undocumented)
+    opts: {
+        log?(type: string, params: Record<string, any>): void;
+        onUpdated?(name: string, value: Value): void;
+    };
+}
 
 // @public (undocumented)
 export class SemanticError extends Error {

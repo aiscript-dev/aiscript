@@ -11,7 +11,7 @@ import { assertNumber, assertString, assertFunction, assertBoolean, assertObject
 import { Value, NULL, RETURN, unWrapRet, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, VFn, BREAK, CONTINUE } from './value';
 import { PRIMITIVE_PROPS } from './primitive-props';
 
-export class AiScript {
+export class Interpreter {
 	private vars: Record<string, Value>;
 	private opts: {
 		in?(q: string): Promise<string>;
@@ -24,7 +24,7 @@ export class AiScript {
 	public scope: Scope;
 	private abortHandlers: (() => void)[] = [];
 
-	constructor(vars: AiScript['vars'], opts?: AiScript['opts']) {
+	constructor(vars: Interpreter['vars'], opts?: Interpreter['opts']) {
 		this.opts = opts || {};
 
 		const io = {
