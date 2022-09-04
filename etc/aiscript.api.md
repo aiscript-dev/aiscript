@@ -505,8 +505,6 @@ declare namespace N {
         AddAssign,
         SubAssign,
         Assign,
-        InfixOperator,
-        Infix,
         If,
         Fn,
         Match,
