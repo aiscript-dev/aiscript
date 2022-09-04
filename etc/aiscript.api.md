@@ -677,11 +677,6 @@ export class Scope {
 }
 
 // @public (undocumented)
-export class SemanticError extends Error {
-    constructor(details?: string);
-}
-
-// @public (undocumented)
 type Statement = Definition | Return | Each | For | Loop | Break | Continue | Assign | AddAssign | SubAssign;
 
 // @public (undocumented)
@@ -719,12 +714,6 @@ type SubAssign_2 = NodeBase_2 & {
     dest: Expression_2;
     expr: Expression_2;
 };
-
-// @public (undocumented)
-class SyntaxError_2 extends Error {
-    constructor(details?: string);
-}
-export { SyntaxError_2 as SyntaxError }
 
 // @public (undocumented)
 type Tmpl = NodeBase & {

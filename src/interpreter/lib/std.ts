@@ -4,7 +4,7 @@ import { substring, length, indexOf, toArray } from 'stringz';
 import seedrandom from 'seedrandom';
 import { Value, NUM, STR, FN_NATIVE, FALSE, TRUE, VArr, ARR, NULL, BOOL, OBJ } from '../value';
 import { assertNumber, assertString, assertArray, assertBoolean, valToJs, jsToVal, assertFunction, assertObject, eq, expectAny } from '../util';
-import { AiScriptError } from '../error';
+import { AiScriptError } from '../../error';
 
 export const std: Record<string, Value> = {
 	'help': STR('SEE: https://github.com/syuilo/aiscript/blob/master/docs/get-started.md'),

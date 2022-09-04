@@ -1,5 +1,5 @@
 import autobind from 'autobind-decorator';
-import { AiScriptError } from './error';
+import { AiScriptError } from '../error';
 import { Value } from './value';
 
 export class Scope {

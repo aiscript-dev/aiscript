@@ -1,6 +1,6 @@
-import * as aiscript from '..';
 import * as N from '../node';
 import * as Ast from './node';
+import { AiScriptError } from '../error';
 import * as parser from './parser.js';
 
 import { validateKeyword } from './plugins/validate-keyword';
@@ -65,9 +65,9 @@ export class Parser {
 		} catch (e) {
 			if (e.location) {
 				if (e.expected) {
-					throw new aiscript.SyntaxError(`Line ${e.location.start.line}:${e.location.start.column}`);
+					throw new AiScriptError(`Line ${e.location.start.line}:${e.location.start.column}`);
 				} else {
-					throw new aiscript.SyntaxError(`${e.message} Line ${e.location.start.line}:${e.location.start.column}`);
+					throw new AiScriptError(`${e.message} Line ${e.location.start.line}:${e.location.start.column}`);
 				}
 			}
 			throw e;

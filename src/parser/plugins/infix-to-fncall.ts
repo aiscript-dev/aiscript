@@ -1,6 +1,6 @@
 import * as Ast from '../node';
 import { visitNode } from '../visit';
-import { SemanticError } from '../../error';
+import { AiScriptError } from '../../error';
 
 /**
  * 中置演算子式を表す木
@@ -97,7 +97,7 @@ function transform(node: Ast.Infix): Ast.Node {
 	const infos = node.operators.map(op => {
 		const info = infoTable[op];
 		if (info == null) {
-			throw new SemanticError(`No such operator: ${op}.`);
+			throw new AiScriptError(`No such operator: ${op}.`);
 		}
 		return info;
 	});

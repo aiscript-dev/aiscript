@@ -6,7 +6,7 @@
 import * as assert from 'assert';
 import { Parser, utils } from '../src';
 import { Interpreter } from '../src/interpreter';
-import { AiScriptError } from '../src/interpreter/error';
+import { AiScriptError } from '../src/error';
 import { NUM, STR, NULL, ARR, OBJ, BOOL, TRUE, FALSE } from '../src/interpreter/value';
 import * as N from '../src/node';
 

@@ -5,7 +5,7 @@
 import autobind from 'autobind-decorator';
 import * as N from '../node';
 import { Scope } from './scope';
-import { AiScriptError } from './error';
+import { AiScriptError } from '../error';
 import { std } from './lib/std';
 import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray, eq, isObject, isArray, isString, expectAny, isNumber } from './util';
 import { Value, NULL, RETURN, unWrapRet, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, VFn, BREAK, CONTINUE } from './value';

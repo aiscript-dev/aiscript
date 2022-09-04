@@ -1,5 +1,5 @@
 import { Value, VStr, VNum, VBool, VFn, VObj, VArr, STR, NUM, ARR, OBJ, NULL, BOOL } from './value';
-import { AiScriptError } from './error';
+import { AiScriptError } from '../error';
 
 export function expectAny(val: Value | null | undefined): asserts val is Value {
 	if (val == null) {
