@@ -1,5 +1,5 @@
 import { SyntaxError } from '../../error';
-import * as Ast from '../node';
+import * as Cst from '../node';
 import { visitNode } from '../visit';
 
 const reservedWord = [
@@ -45,7 +45,7 @@ function throwReservedWordError(name: string) {
 	throw new SyntaxError(`Reserved word "${name}" cannot be used as variable name.`);
 }
 
-function validateNode(node: Ast.Node): Ast.Node {
+function validateNode(node: Cst.Node): Cst.Node {
 	switch (node.type) {
 		case 'def':
 		case 'attr':
@@ -76,7 +76,7 @@ function validateNode(node: Ast.Node): Ast.Node {
 	return node;
 }
 
-export function validateKeyword(nodes: Ast.Node[]): Ast.Node[] {
+export function validateKeyword(nodes: Cst.Node[]): Cst.Node[] {
 	for (const inner of nodes) {
 		visitNode(inner, validateNode);
 	}

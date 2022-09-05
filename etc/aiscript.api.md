@@ -81,6 +81,49 @@ type Assign_2 = NodeBase_2 & {
     expr: Expression_2;
 };
 
+declare namespace Ast {
+    export {
+        isStatement,
+        isExpression,
+        Loc,
+        Node_2 as Node,
+        Statement,
+        Expression,
+        Namespace,
+        Meta,
+        Definition,
+        Attribute,
+        Return,
+        Each,
+        For,
+        Loop,
+        Break,
+        Continue,
+        AddAssign,
+        SubAssign,
+        Assign,
+        If,
+        Fn,
+        Match,
+        Block,
+        Tmpl,
+        Str,
+        Num,
+        Bool,
+        Null,
+        Obj,
+        Arr,
+        Identifier,
+        Call,
+        Index,
+        Prop,
+        TypeSource,
+        NamedTypeSource,
+        FnTypeSource
+    }
+}
+export { Ast }
+
 // @public (undocumented)
 type Attr_2 = {
     attr?: {
@@ -194,6 +237,58 @@ type Continue_2 = NodeBase_2 & {
     type: 'continue';
 };
 
+declare namespace Cst {
+    export {
+        isStatement_2 as isStatement,
+        isExpression_2 as isExpression,
+        hasChainProp,
+        CALL,
+        INDEX,
+        PROP,
+        Node_3 as Node,
+        Statement_2 as Statement,
+        Expression_2 as Expression,
+        Namespace_2 as Namespace,
+        Meta_2 as Meta,
+        Definition_2 as Definition,
+        Attribute_2 as Attribute,
+        Return_2 as Return,
+        Each_2 as Each,
+        For_2 as For,
+        Loop_2 as Loop,
+        Break_2 as Break,
+        Continue_2 as Continue,
+        AddAssign_2 as AddAssign,
+        SubAssign_2 as SubAssign,
+        Assign_2 as Assign,
+        InfixOperator,
+        Infix,
+        If_2 as If,
+        Fn_2 as Fn,
+        Match_2 as Match,
+        Block_2 as Block,
+        Tmpl_2 as Tmpl,
+        Str_2 as Str,
+        Num_2 as Num,
+        Bool_2 as Bool,
+        Null_2 as Null,
+        Obj_2 as Obj,
+        Arr_2 as Arr,
+        Identifier_2 as Identifier,
+        ChainMember,
+        CallChain,
+        IndexChain,
+        PropChain,
+        Call_2 as Call,
+        Index_2 as Index,
+        Prop_2 as Prop,
+        TypeSource_2 as TypeSource,
+        NamedTypeSource_2 as NamedTypeSource,
+        FnTypeSource_2 as FnTypeSource
+    }
+}
+export { Cst }
+
 // @public (undocumented)
 type Definition = NodeBase & {
     type: 'def';
@@ -208,7 +303,7 @@ type Definition = NodeBase & {
 type Definition_2 = NodeBase_2 & {
     type: 'def';
     name: string;
-    varType?: TypeSource;
+    varType?: TypeSource_2;
     expr: Expression_2;
     mut: boolean;
     attr?: Attribute_2[];
@@ -272,9 +367,9 @@ type Fn = NodeBase & {
     type: 'fn';
     args: {
         name: string;
-        type?: TypeSource;
+        argType?: TypeSource;
     }[];
-    ret?: TypeSource;
+    retType?: TypeSource;
     children: (Statement | Expression)[];
 };
 
@@ -283,9 +378,9 @@ type Fn_2 = NodeBase_2 & ChainProp & {
     type: 'fn';
     args: {
         name: string;
-        type?: TypeSource;
+        argType?: TypeSource_2;
     }[];
-    ret?: TypeSource;
+    retType?: TypeSource_2;
     children: (Statement_2 | Expression_2)[];
 };
 
@@ -297,6 +392,20 @@ const FN_NATIVE: (fn: VFn['native']) => {
         registerAbortHandler: (handler: () => void) => void;
         unregisterAbortHandler: (handler: () => void) => void;
     }) => Value | Promise<Value> | void) | undefined;
+};
+
+// @public (undocumented)
+type FnTypeSource = NodeBase & {
+    type: 'fnTypeSource';
+    args: TypeSource[];
+    result: TypeSource;
+};
+
+// @public (undocumented)
+type FnTypeSource_2 = NodeBase_2 & {
+    type: 'fnTypeSource';
+    args: TypeSource_2[];
+    result: TypeSource_2;
 };
 
 // @public (undocumented)
@@ -403,9 +512,9 @@ export class Interpreter {
     // (undocumented)
     abort(): void;
     // (undocumented)
-    static collectMetadata(script?: N.Node[]): Map<any, any> | undefined;
+    static collectMetadata(script?: Ast.Node[]): Map<any, any> | undefined;
     // (undocumented)
-    exec(script?: N.Node[]): Promise<void>;
+    exec(script?: Ast.Node[]): Promise<void>;
     // (undocumented)
     execFn(fn: VFn, args: Value[]): Promise<Value>;
     // (undocumented)
@@ -451,7 +560,7 @@ function isString(val: Value): val is VStr;
 // @public (undocumented)
 function jsToVal(val: any): Value;
 
-// @public (undocumented)
+// @public
 type Loc = {
     start: number;
     end: number;
@@ -505,45 +614,19 @@ type Meta_2 = NodeBase_2 & {
     value: Expression_2;
 };
 
-declare namespace N {
-    export {
-        isStatement,
-        isExpression,
-        Loc,
-        Node_2 as Node,
-        Statement,
-        Expression,
-        Namespace,
-        Meta,
-        Definition,
-        Attribute,
-        Return,
-        Each,
-        For,
-        Loop,
-        Break,
-        Continue,
-        AddAssign,
-        SubAssign,
-        Assign,
-        If,
-        Fn,
-        Match,
-        Block,
-        Tmpl,
-        Str,
-        Num,
-        Bool,
-        Null,
-        Obj,
-        Arr,
-        Identifier,
-        Call,
-        Index,
-        Prop
-    }
-}
-export { N }
+// @public (undocumented)
+type NamedTypeSource = NodeBase & {
+    type: 'namedTypeSource';
+    name: string;
+    inner?: TypeSource;
+};
+
+// @public (undocumented)
+type NamedTypeSource_2 = NodeBase_2 & {
+    type: 'namedTypeSource';
+    name: string;
+    inner?: TypeSource_2;
+};
 
 // @public (undocumented)
 type Namespace = NodeBase & {
@@ -560,10 +643,10 @@ type Namespace_2 = NodeBase_2 & {
 };
 
 // @public (undocumented)
-type Node_2 = Namespace | Meta | Statement | Expression;
+type Node_2 = Namespace | Meta | Statement | Expression | TypeSource;
 
-// @public (undocumented)
-type Node_3 = Namespace_2 | Meta_2 | Statement_2 | Expression_2 | ChainMember;
+// @public
+type Node_3 = Namespace_2 | Meta_2 | Statement_2 | Expression_2 | ChainMember | TypeSource_2;
 
 // @public (undocumented)
 const NULL: {
@@ -622,15 +705,13 @@ export class Parser {
     // (undocumented)
     addPlugin(type: PluginType, plugin: ParserPlugin): void;
     // (undocumented)
-    static parse(input: string): N.Node[];
+    static parse(input: string): Ast.Node[];
     // (undocumented)
-    parse(input: string): N.Node[];
+    parse(input: string): Ast.Node[];
 }
 
-// Warning: (ae-forgotten-export) The symbol "Ast" needs to be exported by the entry point index.d.ts
-//
 // @public (undocumented)
-export type ParserPlugin = (nodes: Ast.Node[]) => Ast.Node[];
+export type ParserPlugin = (nodes: Cst.Node[]) => Cst.Node[];
 
 // @public (undocumented)
 export type PluginType = 'validate' | 'transform';
@@ -765,6 +846,12 @@ const TRUE: {
 };
 
 // @public (undocumented)
+type TypeSource = NamedTypeSource | FnTypeSource;
+
+// @public (undocumented)
+type TypeSource_2 = NamedTypeSource_2 | FnTypeSource_2;
+
+// @public (undocumented)
 const unWrapRet: (v: Value) => Value;
 
 declare namespace utils {
@@ -897,10 +984,6 @@ type VStr = {
     type: 'str';
     value: string;
 };
-
-// Warnings were encountered during analysis:
-//
-// src/node.ts:81:2 - (ae-forgotten-export) The symbol "TypeSource" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

@@ -3,7 +3,7 @@
  */
 
 import autobind from 'autobind-decorator';
-import * as N from '../node';
+import * as Ast from '../node';
 import { Scope } from './scope';
 import { RuntimeError } from '../error';
 import { std } from './lib/std';
@@ -55,7 +55,7 @@ export class Interpreter {
 	}
 
 	@autobind
-	public async exec(script?: N.Node[]) {
+	public async exec(script?: Ast.Node[]) {
 		if (script == null || script.length === 0) return;
 
 		await this.collectNs(script);
@@ -71,10 +71,10 @@ export class Interpreter {
 	}
 
 	@autobind
-	public static collectMetadata(script?: N.Node[]) {
+	public static collectMetadata(script?: Ast.Node[]) {
 		if (script == null || script.length === 0) return;
 
-		function nodeToJs(node: N.Node): any {
+		function nodeToJs(node: Ast.Node): any {
 			switch (node.type) {
 				case 'arr': return node.value.map(item => nodeToJs(item));
 				case 'bool': return node.value;
@@ -116,7 +116,7 @@ export class Interpreter {
 	}
 
 	@autobind
-	private async collectNs(script: N.Node[]): Promise<void> {
+	private async collectNs(script: Ast.Node[]): Promise<void> {
 		for (const node of script) {
 			switch (node.type) {
 				case 'ns': {
@@ -132,7 +132,7 @@ export class Interpreter {
 	}
 
 	@autobind
-	private async collectNsMember(ns: N.Namespace): Promise<void> {
+	private async collectNsMember(ns: Ast.Namespace): Promise<void> {
 		const scope = this.scope.createChildScope();
 
 		for (const node of ns.members) {
@@ -149,7 +149,7 @@ export class Interpreter {
 				}
 
 				default: {
-					throw new Error('invalid ns member type: ' + (node as N.Node).type);
+					throw new Error('invalid ns member type: ' + (node as Ast.Node).type);
 				}
 			}
 		}
@@ -175,7 +175,7 @@ export class Interpreter {
 	}
 
 	@autobind
-	private async _eval(node: N.Node, scope: Scope): Promise<Value> {
+	private async _eval(node: Ast.Node, scope: Scope): Promise<Value> {
 		if (this.stop) return NULL;
 		this.log('node', { node: node });
 		this.stepCount++;
@@ -457,7 +457,7 @@ export class Interpreter {
 	}
 
 	@autobind
-	private async _run(program: N.Node[], scope: Scope): Promise<Value> {
+	private async _run(program: Ast.Node[], scope: Scope): Promise<Value> {
 		this.log('block:enter', { scope: scope.name });
 
 		let v: Value = NULL;

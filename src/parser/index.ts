@@ -1,5 +1,5 @@
-import * as N from '../node';
-import * as Ast from './node';
+import * as Ast from '../node';
+import * as Cst from './node';
 import { SyntaxError } from '../error';
 import * as parser from './parser.js';
 
@@ -9,7 +9,7 @@ import { setAttribute } from './plugins/set-attribute';
 import { transformChain } from './plugins/transform-chain';
 import { infixToFnCall } from './plugins/infix-to-fncall';
 
-export type ParserPlugin = (nodes: Ast.Node[]) => Ast.Node[];
+export type ParserPlugin = (nodes: Cst.Node[]) => Cst.Node[];
 export type PluginType = 'validate' | 'transform';
 
 export class Parser {
@@ -33,7 +33,7 @@ export class Parser {
 		};
 	}
 
-	public static parse(input: string): N.Node[] {
+	public static parse(input: string): Ast.Node[] {
 		if (Parser.instance == null) {
 			Parser.instance = new Parser();
 		}
@@ -53,8 +53,8 @@ export class Parser {
 		}
 	}
 
-	public parse(input: string): N.Node[] {
-		let nodes: Ast.Node[];
+	public parse(input: string): Ast.Node[] {
+		let nodes: Cst.Node[];
 
 		// generate a node tree
 		try {
@@ -83,6 +83,6 @@ export class Parser {
 			nodes = plugin(nodes);
 		}
 
-		return nodes as N.Node[];
+		return nodes as Ast.Node[];
 	}
 }

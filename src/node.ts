@@ -1,17 +1,15 @@
 /**
- * IRノード
+ * ASTノード
  *
- * IRノードはASTノードをインタプリタ等から操作しやすい構造に変形したものです。
+ * ASTノードはCSTノードをインタプリタ等から操作しやすい構造に変形したものです。
 */
-
-import { TypeSource } from './type';
 
 export type Loc = {
 	start: number;
 	end: number;
 };
 
-export type Node = Namespace | Meta | Statement | Expression;
+export type Node = Namespace | Meta | Statement | Expression | TypeSource;
 
 export type Statement =
 	Definition |
@@ -157,9 +155,9 @@ export type Fn = NodeBase & {
 	type: 'fn'; // 関数
 	args: {
 		name: string; // 引数名
-		type?: TypeSource; // 引数の型
+		argType?: TypeSource; // 引数の型
 	}[];
-	ret?: TypeSource; // 戻り値の型
+	retType?: TypeSource; // 戻り値の型
 	children: (Statement | Expression)[]; // 本体処理
 };
 
@@ -241,4 +239,20 @@ export type Prop = NodeBase & {
 	type: 'prop'; // プロパティアクセス
 	target: Expression; // 対象
 	name: string; // プロパティ名
+};
+
+// Type source
+
+export type TypeSource = NamedTypeSource | FnTypeSource;
+
+export type NamedTypeSource = NodeBase & {
+	type: 'namedTypeSource'; // 名前付き型
+	name: string; // 型名
+	inner?: TypeSource; // 内側の型
+};
+
+export type FnTypeSource = NodeBase & {
+	type: 'fnTypeSource'; // 関数の型
+	args: TypeSource[]; // 引数の型
+	result: TypeSource; // 戻り値の型
 };
