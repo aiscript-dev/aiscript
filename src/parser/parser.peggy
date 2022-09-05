@@ -508,7 +508,7 @@ FnDef
 	}
 	return createNode('def', {
 		name: name,
-		expr: createNode('fn', { args: args || [], ret: ret }, content || []),
+		expr: createNode('fn', { args: args || [], retType: ret }, content || []),
 		mut: false,
 		attr: []
 	});
@@ -517,7 +517,7 @@ FnDef
 // function expression
 
 Fn = "@(" _* args:Args? _* ")" ret:(_* ":" _* @Type)? _* "{" _* content:Statements? _* "}"
-{ return createNode('fn', { args: args || [], ret: ret }, content || []); }
+{ return createNode('fn', { args: args || [], retType: ret }, content || []); }
 
 
 
