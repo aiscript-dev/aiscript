@@ -1,14 +1,12 @@
 /**
- * ASTノード
+ * CSTノード
  *
  * パーサーが生成する直接的な処理結果です。
  * パーサーが生成しやすい形式になっているため、インタプリタ等では操作しにくい構造になっていることがあります。
- * この処理結果がプラグインによって処理されるとIRノードとなります。
+ * この処理結果がプラグインによって処理されるとASTノードとなります。
 */
 
-import { TypeSource } from '../type';
-
-export type Node = Namespace | Meta | Statement | Expression | ChainMember;
+export type Node = Namespace | Meta | Statement | Expression | ChainMember | TypeSource;
 
 export type Statement =
 	Definition |
@@ -165,9 +163,9 @@ export type Fn = NodeBase & ChainProp & {
 	type: 'fn';
 	args: {
 		name: string;
-		type?: TypeSource;
+		argType?: TypeSource;
 	}[];
-	ret?: TypeSource; 
+	retType?: TypeSource;
 	children: (Statement | Expression)[];
 };
 
@@ -287,3 +285,19 @@ export type Prop = NodeBase & {
 export function PROP(target: Prop['target'], name: Prop['name'], loc?: { start: number, end: number }): Prop {
 	return { type: 'prop', target, name, loc } as Prop;
 }
+
+// Type source
+
+export type TypeSource = NamedTypeSource | FnTypeSource;
+
+export type NamedTypeSource = NodeBase & {
+	type: 'namedTypeSource';
+	name: string;
+	inner?: TypeSource;
+};
+
+export type FnTypeSource = NodeBase & {
+	type: 'fnTypeSource';
+	args: TypeSource[];
+	result: TypeSource;
+};

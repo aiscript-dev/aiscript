@@ -492,7 +492,7 @@ Arr
 
 Arg
 	= name:NAME type:(_* ":" _* @Type)?
-{ return { name, type }; }
+{ return { name, argType: type }; }
 
 Args
 	= head:Arg tails:(SEP @Arg)*
@@ -508,7 +508,7 @@ FnDef
 	}
 	return createNode('def', {
 		name: name,
-		expr: createNode('fn', { args: args || [], ret: ret }, content || []),
+		expr: createNode('fn', { args: args || [], retType: ret }, content || []),
 		mut: false,
 		attr: []
 	});
@@ -517,7 +517,7 @@ FnDef
 // function expression
 
 Fn = "@(" _* args:Args? _* ")" ret:(_* ":" _* @Type)? _* "{" _* content:Statements? _* "}"
-{ return createNode('fn', { args: args || [], ret: ret }, content || []); }
+{ return createNode('fn', { args: args || [], retType: ret }, content || []); }
 
 
 
@@ -555,7 +555,7 @@ Type
 
 FnType
 	= "@(" _* args:ArgTypes? _* ")" _* "=>" _* result:Type
-{ return createNode('fn', { args: args || [], result }); }
+{ return createNode('fnTypeSource', { args: args || [], result }); }
 
 ArgTypes
 	= head:Type tails:(SEP @Type)*
@@ -563,9 +563,9 @@ ArgTypes
 
 NamedType
 	= name:NAME __* "<" __* inner:Type __* ">"
-{ return createNode('named', { name, inner }); }
+{ return createNode('namedTypeSource', { name, inner }); }
 	/ name:NAME
-{ return createNode('named', { name, inner: null }); }
+{ return createNode('namedTypeSource', { name, inner: null }); }
 
 
 

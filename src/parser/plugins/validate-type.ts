@@ -1,8 +1,8 @@
-import * as Ast from '../node';
+import * as Cst from '../node';
 import { getTypeBySource } from '../../type';
 import { visitNode } from '../visit';
 
-function validateNode(node: Ast.Node): Ast.Node {
+function validateNode(node: Cst.Node): Cst.Node {
 	switch (node.type) {
 		case 'def': {
 			if (node.varType != null) {
@@ -12,12 +12,12 @@ function validateNode(node: Ast.Node): Ast.Node {
 		}
 		case 'fn': {
 			for (const arg of node.args) {
-				if (arg.type != null) {
-					getTypeBySource(arg.type);
+				if (arg.argType != null) {
+					getTypeBySource(arg.argType);
 				}
 			}
-			if (node.ret != null) {
-				getTypeBySource(node.ret);
+			if (node.retType != null) {
+				getTypeBySource(node.retType);
 			}
 			break;
 		}
@@ -26,7 +26,7 @@ function validateNode(node: Ast.Node): Ast.Node {
 	return node;
 }
 
-export function validateType(nodes: Ast.Node[]): Ast.Node[] {
+export function validateType(nodes: Cst.Node[]): Cst.Node[] {
 	for (const node of nodes) {
 		visitNode(node, validateNode);
 	}

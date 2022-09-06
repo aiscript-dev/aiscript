@@ -1,25 +1,7 @@
+import * as Ast from './node';
 import { SyntaxError } from './error';
-import { Loc } from './node';
 
-// Type source (AST)
-
-export type NamedTypeSource = {
-	type: 'named'; // 名前付き型
-	loc?: Loc; // コード位置
-	name: string; // 型名
-	inner?: TypeSource; // 内側の型
-};
-
-export type FnTypeSource = {
-	type: 'fn' // 関数の型
-	loc?: Loc; // コード位置
-	args: TypeSource[]; // 引数の型
-	result: TypeSource; // 戻り値の型
-};
-
-export type TypeSource = NamedTypeSource | FnTypeSource;
-
-// Type (IR)
+// Type (Semantic analyzed)
 
 export type TSimple<N extends string = string> = {
 	type: 'simple';
@@ -115,14 +97,14 @@ export function getTypeName(type: Type): string {
 			return `${ type.name }<${ type.inners.map(inner => getTypeName(inner)).join(', ') }>`;
 		}
 		case 'fn': {
-			return `@(${ type.args.map(arg => getTypeName(arg)).join(', ') }) => ${ getTypeName(type.result) }`;
+			return `@(${ type.args.map(arg => getTypeName(arg)).join(', ') }) { ${ getTypeName(type.result) } }`;
 		}
 	}
 }
 
-export function getTypeNameBySource(typeSource: TypeSource): string {
+export function getTypeNameBySource(typeSource: Ast.TypeSource): string {
 	switch (typeSource.type) {
-		case 'named': {
+		case 'namedTypeSource': {
 			if (typeSource.inner) {
 				const inner = getTypeNameBySource(typeSource.inner);
 				return `${ typeSource.name }<${ inner }>`;
@@ -130,16 +112,16 @@ export function getTypeNameBySource(typeSource: TypeSource): string {
 				return typeSource.name;
 			}
 		}
-		case 'fn': {
+		case 'fnTypeSource': {
 			const args = typeSource.args.map(arg => getTypeNameBySource(arg)).join(', ');
 			const result = getTypeNameBySource(typeSource.result);
-			return `@(${ args }) => ${ result }`;
+			return `@(${ args }) { ${ result } }`;
 		}
 	}
 }
 
-export function getTypeBySource(typeSource: TypeSource): Type {
-	if (typeSource.type === 'named') {
+export function getTypeBySource(typeSource: Ast.TypeSource): Type {
+	if (typeSource.type === 'namedTypeSource') {
 		switch (typeSource.name) {
 			// simple types
 			case 'null':

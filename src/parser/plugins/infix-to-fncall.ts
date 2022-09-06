@@ -1,4 +1,4 @@
-import * as Ast from '../node';
+import * as Cst from '../node';
 import { visitNode } from '../visit';
 import { SyntaxError } from '../../error';
 
@@ -12,15 +12,15 @@ import { SyntaxError } from '../../error';
  */
 type InfixTree = {
 	type: 'infixTree';
-	left: InfixTree | Ast.Node;
-	right: InfixTree | Ast.Node;
+	left: InfixTree | Cst.Node;
+	right: InfixTree | Cst.Node;
 	info: {
 		func: string; // 対応する関数名
 		priority: number; // 優先度（高いほど優先して計算される値）
 	};
 };
 
-function INFIX_TREE(left: InfixTree | Ast.Node, right: InfixTree | Ast.Node, info: InfixTree["info"]): InfixTree {
+function INFIX_TREE(left: InfixTree | Cst.Node, right: InfixTree | Cst.Node, info: InfixTree["info"]): InfixTree {
 	return { type: 'infixTree', left, right, info };
 }
 
@@ -47,7 +47,7 @@ function INFIX_TREE(left: InfixTree | Ast.Node, right: InfixTree | Ast.Node, inf
  * - NOTE: 右結合性の演算子としては代入演算子などが挙げられる
  * - NOTE: 比較の演算子などは非結合性とされる
  */
-function insertTree(currTree: InfixTree | Ast.Node, nextTree: InfixTree | Ast.Node, nextOpInfo: InfixTree["info"]): InfixTree {
+function insertTree(currTree: InfixTree | Cst.Node, nextTree: InfixTree | Cst.Node, nextOpInfo: InfixTree["info"]): InfixTree {
 	if (currTree.type !== 'infixTree') {
 		return INFIX_TREE(currTree, nextTree, nextOpInfo);
 	}
@@ -63,7 +63,7 @@ function insertTree(currTree: InfixTree | Ast.Node, nextTree: InfixTree | Ast.No
 /**
  * 中置演算子式を表す木を対応する関数呼び出しの構造体に変換する
  */
-function treeToNode(tree: InfixTree | Ast.Node): Ast.Node {
+function treeToNode(tree: InfixTree | Cst.Node): Cst.Node {
 	if (tree.type !== 'infixTree') {
 		return tree;
 	}
@@ -71,7 +71,7 @@ function treeToNode(tree: InfixTree | Ast.Node): Ast.Node {
 		type: 'call',
 		target: { type: 'identifier', name: tree.info.func },
 		args: [treeToNode(tree.left), treeToNode(tree.right)],
-	} as Ast.Call;
+	} as Cst.Call;
 }
 
 const infoTable: Record<string, InfixTree["info"]> = {
@@ -93,7 +93,7 @@ const infoTable: Record<string, InfixTree["info"]> = {
 /**
  * NInfix を関数呼び出し形式に変換する
  */
-function transform(node: Ast.Infix): Ast.Node {
+function transform(node: Cst.Infix): Cst.Node {
 	const infos = node.operators.map(op => {
 		const info = infoTable[op];
 		if (info == null) {
@@ -108,7 +108,7 @@ function transform(node: Ast.Infix): Ast.Node {
 	return treeToNode(currTree);
 }
 
-export function infixToFnCall(nodes: Ast.Node[]): Ast.Node[] {
+export function infixToFnCall(nodes: Cst.Node[]): Cst.Node[] {
 	for (let i = 0; i < nodes.length; i++) {
 		nodes[i] = visitNode(nodes[i], (node) => {
 			if (node.type === 'infix') {

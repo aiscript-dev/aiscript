@@ -4,7 +4,7 @@
  */
 
 import * as assert from 'assert';
-import { Parser, Interpreter, utils, errors, N } from '../src';
+import { Parser, Interpreter, utils, errors, Ast } from '../src';
 import { NUM, STR, NULL, ARR, OBJ, BOOL, TRUE, FALSE } from '../src/interpreter/value';
 
 const exe = (program: string): Promise<any> => new Promise((ok, err) => {
@@ -1805,8 +1805,8 @@ describe('lang version', () => {
 
 describe('Attribute', () => {
 	it('single attribute with function (str)', async () => {
-		let node: N.Node;
-		let attr: N.Attribute;
+		let node: Ast.Node;
+		let attr: Ast.Attribute;
 		const parser = new Parser();
 		const nodes = parser.parse(`
 		#[Event "Recieved"]
@@ -1828,8 +1828,8 @@ describe('Attribute', () => {
 	});
 
 	it('multiple attributes with function (obj, str, bool)', async () => {
-		let node: N.Node;
-		let attr: N.Attribute;
+		let node: Ast.Node;
+		let attr: Ast.Attribute;
 		const parser = new Parser();
 		const nodes = parser.parse(`
 		#[Endpoint { path: "/notes/create"; }]
@@ -1877,8 +1877,8 @@ describe('Attribute', () => {
 	// TODO: attribute target does not exist
 
 	it('single attribute (no value)', async () => {
-		let node: N.Node;
-		let attr: N.Attribute;
+		let node: Ast.Node;
+		let attr: Ast.Attribute;
 		const parser = new Parser();
 		const nodes = parser.parse(`
 		#[serializable]
@@ -1900,7 +1900,7 @@ describe('Attribute', () => {
 
 describe('Location', () => {
 	it('function', async () => {
-		let node: N.Node;
+		let node: Ast.Node;
 		const parser = new Parser();
 		const nodes = parser.parse(`
 		@f(a) { a }
