@@ -246,7 +246,7 @@ export class Interpreter {
 				if (node.times) {
 					const times = await this._eval(node.times, scope);
 					assertNumber(times);
-					for (let i = 1; i < times.value + 1; i++) {
+					for (let i = 0; i < times.value; i++) {
 						const v = await this._eval(node.for, scope);
 						if (v.type === 'break') {
 							break;
@@ -259,7 +259,7 @@ export class Interpreter {
 					const to = await this._eval(node.to!, scope);
 					assertNumber(from);
 					assertNumber(to);
-					for (let i = from.value + 1; i < to.value + 1; i++) {
+					for (let i = from.value; i < from.value + to.value; i++) {
 						const v = await this._eval(node.for, scope.createChildScope(new Map([
 							[node.var!, NUM(i)],
 						])));
