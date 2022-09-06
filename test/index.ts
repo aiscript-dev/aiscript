@@ -1286,7 +1286,18 @@ describe('for', () => {
 		const res = await exe(`
 		var count = 0
 		for (let i, 10) {
-			count = (count + i)
+			count += i + 1
+		}
+		<: count
+		`);
+		eq(res, NUM(55));
+	});
+
+	it('initial value', async () => {
+		const res = await exe(`
+		var count = 0
+		for (let i = 1, 10) {
+			count += i
 		}
 		<: count
 		`);
@@ -1320,7 +1331,7 @@ describe('for', () => {
 		var count = 0
 		for (let i, 20) {
 			if (i == 11) break
-			count = (count + i)
+			count += i
 		}
 		<: count
 		`);
