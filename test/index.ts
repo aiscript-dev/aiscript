@@ -34,12 +34,12 @@ const eq = (a, b) => {
 	assert.deepEqual(a.value, b.value);
 };
 
-it('Hello, world!', async () => {
+test.concurrent('Hello, world!', async () => {
 	const res = await exe('<: "Hello, world!"');
 	eq(res, STR('Hello, world!'));
 });
 
-it('empty script', async () => {
+test.concurrent('empty script', async () => {
 	const parser = new Parser();
 	const ast = parser.parse('');
 	assert.deepEqual(ast, []);
@@ -47,7 +47,7 @@ it('empty script', async () => {
 
 describe('Interpreter', () => {
 	describe('Scope', () => {
-		it('getAll', async () => {
+		test.concurrent('getAll', async () => {
 			const aiscript = new Interpreter({});
 			await aiscript.exec(Parser.parse(`
 			let a = 1
@@ -71,75 +71,75 @@ describe('Interpreter', () => {
 });
 
 describe('ops', () => {
-	it('==', async () => {
+	test.concurrent('==', async () => {
 		eq(await exe('<: (1 == 1)'), BOOL(true));
 		eq(await exe('<: (1 == 2)'), BOOL(false));
 	});
 
-	it('!=', async () => {
+	test.concurrent('!=', async () => {
 		eq(await exe('<: (1 != 2)'), BOOL(true));
 		eq(await exe('<: (1 != 1)'), BOOL(false));
 	});
 
-	it('&&', async () => {
+	test.concurrent('&&', async () => {
 		eq(await exe('<: (true && true)'), BOOL(true));
 		eq(await exe('<: (true && false)'), BOOL(false));
 		eq(await exe('<: (false && true)'), BOOL(false));
 		eq(await exe('<: (false && false)'), BOOL(false));
 	});
 
-	it('||', async () => {
+	test.concurrent('||', async () => {
 		eq(await exe('<: (true || true)'), BOOL(true));
 		eq(await exe('<: (true || false)'), BOOL(true));
 		eq(await exe('<: (false || true)'), BOOL(true));
 		eq(await exe('<: (false || false)'), BOOL(false));
 	});
 
-	it('+', async () => {
+	test.concurrent('+', async () => {
 		eq(await exe('<: (1 + 1)'), NUM(2));
 	});
 
-	it('-', async () => {
+	test.concurrent('-', async () => {
 		eq(await exe('<: (1 - 1)'), NUM(0));
 	});
 
-	it('*', async () => {
+	test.concurrent('*', async () => {
 		eq(await exe('<: (1 * 1)'), NUM(1));
 	});
 
-	it('/', async () => {
+	test.concurrent('/', async () => {
 		eq(await exe('<: (1 / 1)'), NUM(1));
 	});
 
-	it('%', async () => {
+	test.concurrent('%', async () => {
 		eq(await exe('<: (1 % 1)'), NUM(0));
 	});
 
-	it('>', async () => {
+	test.concurrent('>', async () => {
 		eq(await exe('<: (2 > 1)'), BOOL(true));
 		eq(await exe('<: (1 > 1)'), BOOL(false));
 		eq(await exe('<: (0 > 1)'), BOOL(false));
 	});
 
-	it('<', async () => {
+	test.concurrent('<', async () => {
 		eq(await exe('<: (2 < 1)'), BOOL(false));
 		eq(await exe('<: (1 < 1)'), BOOL(false));
 		eq(await exe('<: (0 < 1)'), BOOL(true));
 	});
 
-	it('>=', async () => {
+	test.concurrent('>=', async () => {
 		eq(await exe('<: (2 >= 1)'), BOOL(true));
 		eq(await exe('<: (1 >= 1)'), BOOL(true));
 		eq(await exe('<: (0 >= 1)'), BOOL(false));
 	});
 
-	it('<=', async () => {
+	test.concurrent('<=', async () => {
 		eq(await exe('<: (2 <= 1)'), BOOL(false));
 		eq(await exe('<: (1 <= 1)'), BOOL(true));
 		eq(await exe('<: (0 <= 1)'), BOOL(true));
 	});
 
-	it('precedence', async () => {
+	test.concurrent('precedence', async () => {
 		eq(await exe('<: 1 + 2 * 3 + 4'), NUM(11));
 		eq(await exe('<: 1 + 4 / 4 + 1'), NUM(3));
 		eq(await exe('<: 1 + 1 == 2 && 2 * 2 == 4'), BOOL(true));
@@ -149,21 +149,21 @@ describe('ops', () => {
 });
 
 describe('Infix expression', () => {
-	it('simple infix expression', async () => {
+	test.concurrent('simple infix expression', async () => {
 		eq(await exe('<: 0 < 1'), BOOL(true));
 		eq(await exe('<: 1 + 1'), NUM(2));
 	});
 
-	it('combination', async () => {
+	test.concurrent('combination', async () => {
 		eq(await exe('<: 1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9 + 10'), NUM(55));
 		eq(await exe('<: Core:add(1, 3) * Core:mul(2, 5)'), NUM(40));
 	});
 
-	it('use parentheses to distinguish expr', async () => {
+	test.concurrent('use parentheses to distinguish expr', async () => {
 		eq(await exe('<: (1 + 10) * (2 + 5)'), NUM(77));
 	});
 
-	it('syntax symbols vs infix operators', async () => {
+	test.concurrent('syntax symbols vs infix operators', async () => {
 		const res = await exe(`
 		<: match true {
 			1 == 1 => "true"
@@ -173,11 +173,11 @@ describe('Infix expression', () => {
 		eq(res, STR('true'));
 	});
 
-	it('number + if expression', async () => {
+	test.concurrent('number + if expression', async () => {
 		eq(await exe('<: 1 + if true 1 else 2'), NUM(2));
 	});
 
-	it('number + match expression', async () => {
+	test.concurrent('number + match expression', async () => {
 		const res = await exe(`
 			<: 1 + match 2 == 2 {
 				true => 3
@@ -187,11 +187,11 @@ describe('Infix expression', () => {
 		eq(res, NUM(4));
 	});
 
-	it('eval + eval', async () => {
+	test.concurrent('eval + eval', async () => {
 		eq(await exe('<: eval { 1 } + eval { 1 }'), NUM(2));
 	});
 
-	it('disallow line break', async () => {
+	test.concurrent('disallow line break', async () => {
 		try {
 			await exe(`
 			<: 1 +
@@ -204,7 +204,7 @@ describe('Infix expression', () => {
 		assert.fail();
 	});
 
-	it('escaped line break', async () => {
+	test.concurrent('escaped line break', async () => {
 		eq(await exe(`
 			<: 1 + \\
 			1 + 1
@@ -212,17 +212,17 @@ describe('Infix expression', () => {
 	});
 });
 
-it('Escaped double quote', async () => {
+test.concurrent('Escaped double quote', async () => {
 	const res = await exe('<: "ai saw a note \\"bebeyo\\"."');
 	eq(res, STR('ai saw a note "bebeyo".'));
 });
 
-it('//', async () => {
+test.concurrent('//', async () => {
 	const res = await exe('<: "//"');
 	eq(res, STR('//'));
 });
 
-it('式にコロンがあってもオブジェクトと判定されない', async () => {
+test.concurrent('式にコロンがあってもオブジェクトと判定されない', async () => {
 	const res = await exe(`
 	<: eval {
 		Core:eq("ai", "ai")
@@ -231,7 +231,7 @@ it('式にコロンがあってもオブジェクトと判定されない', asyn
 	eq(res, BOOL(true));
 });
 
-it('inc', async () => {
+test.concurrent('inc', async () => {
 	const res = await exe(`
 	var a = 0
 	a += 1
@@ -242,7 +242,7 @@ it('inc', async () => {
 	eq(res, NUM(6));
 });
 
-it('dec', async () => {
+test.concurrent('dec', async () => {
 	const res = await exe(`
 	var a = 0
 	a -= 1
@@ -253,7 +253,7 @@ it('dec', async () => {
 	eq(res, NUM(-6));
 });
 
-it('var', async () => {
+test.concurrent('var', async () => {
 	const res = await exe(`
 	let a = 42
 	<: a
@@ -261,7 +261,7 @@ it('var', async () => {
 	eq(res, NUM(42));
 });
 
-it('参照が繋がらない', async () => {
+test.concurrent('参照が繋がらない', async () => {
 	const res = await exe(`
 	var f = @() { "a" }
 	var g = f
@@ -273,7 +273,7 @@ it('参照が繋がらない', async () => {
 });
 
 describe('Cannot put multiple statements in a line', () => {
-	it('var def', async () => {
+	test.concurrent('var def', async () => {
 		try {
 			await exe(`
 			let a = 42 let b = 11
@@ -285,7 +285,7 @@ describe('Cannot put multiple statements in a line', () => {
 		assert.fail();
 	});
 
-	it('var def (op)', async () => {
+	test.concurrent('var def (op)', async () => {
 		try {
 			await exe(`
 			let a = 13 + 75 let b = 24 + 146
@@ -298,7 +298,7 @@ describe('Cannot put multiple statements in a line', () => {
 	});
 });
 
-it('empty function', async () => {
+test.concurrent('empty function', async () => {
 	const res = await exe(`
 	@hoge() { }
 	<: hoge()
@@ -306,7 +306,7 @@ it('empty function', async () => {
 	eq(res, NULL);
 });
 
-it('empty lambda', async () => {
+test.concurrent('empty lambda', async () => {
 	const res = await exe(`
 	let hoge = @() { }
 	<: hoge()
@@ -314,7 +314,7 @@ it('empty lambda', async () => {
 	eq(res, NULL);
 });
 
-it('lambda that returns an object', async () => {
+test.concurrent('lambda that returns an object', async () => {
 	const res = await exe(`
 	let hoge = @() {{}}
 	<: hoge()
@@ -322,7 +322,7 @@ it('lambda that returns an object', async () => {
 	eq(res, OBJ(new Map()));
 });
 
-it('Closure', async () => {
+test.concurrent('Closure', async () => {
 	const res = await exe(`
 	@store(v) {
 		let state = v
@@ -336,7 +336,7 @@ it('Closure', async () => {
 	eq(res, STR('ai'));
 });
 
-it('Closure (counter)', async () => {
+test.concurrent('Closure (counter)', async () => {
 	const res = await exe(`
 	@create_counter() {
 		var count = 0
@@ -359,7 +359,7 @@ it('Closure (counter)', async () => {
 	eq(res, NUM(3));
 });
 
-it('Recursion', async () => {
+test.concurrent('Recursion', async () => {
 	const res = await exe(`
 	@fact(n) {
 		if (n == 0) { 1 } else { (fact((n - 1)) * n) }
@@ -371,7 +371,7 @@ it('Recursion', async () => {
 });
 
 describe('Var name starts with reserved word', () => {
-	it('let', async () => {
+	test.concurrent('let', async () => {
 		const res = await exe(`
 		@f() {
 			let letcat = "ai"
@@ -382,7 +382,7 @@ describe('Var name starts with reserved word', () => {
 		eq(res, STR('ai'));
 	});
 
-	it('var', async () => {
+	test.concurrent('var', async () => {
 		const res = await exe(`
 		@f() {
 			let varcat = "ai"
@@ -393,7 +393,7 @@ describe('Var name starts with reserved word', () => {
 		eq(res, STR('ai'));
 	});
 
-	it('return', async () => {
+	test.concurrent('return', async () => {
 		const res = await exe(`
 		@f() {
 			let returncat = "ai"
@@ -404,7 +404,7 @@ describe('Var name starts with reserved word', () => {
 		eq(res, STR('ai'));
 	});
 
-	it('each', async () => {
+	test.concurrent('each', async () => {
 		const res = await exe(`
 		@f() {
 			let eachcat = "ai"
@@ -415,7 +415,7 @@ describe('Var name starts with reserved word', () => {
 		eq(res, STR('ai'));
 	});
 
-	it('for', async () => {
+	test.concurrent('for', async () => {
 		const res = await exe(`
 		@f() {
 			let forcat = "ai"
@@ -426,7 +426,7 @@ describe('Var name starts with reserved word', () => {
 		eq(res, STR('ai'));
 	});
 
-	it('loop', async () => {
+	test.concurrent('loop', async () => {
 		const res = await exe(`
 		@f() {
 			let loopcat = "ai"
@@ -437,7 +437,7 @@ describe('Var name starts with reserved word', () => {
 		eq(res, STR('ai'));
 	});
 
-	it('break', async () => {
+	test.concurrent('break', async () => {
 		const res = await exe(`
 		@f() {
 			let breakcat = "ai"
@@ -448,7 +448,7 @@ describe('Var name starts with reserved word', () => {
 		eq(res, STR('ai'));
 	});
 
-	it('continue', async () => {
+	test.concurrent('continue', async () => {
 		const res = await exe(`
 		@f() {
 			let continuecat = "ai"
@@ -459,7 +459,7 @@ describe('Var name starts with reserved word', () => {
 		eq(res, STR('ai'));
 	});
 
-	it('if', async () => {
+	test.concurrent('if', async () => {
 		const res = await exe(`
 		@f() {
 			let ifcat = "ai"
@@ -470,7 +470,7 @@ describe('Var name starts with reserved word', () => {
 		eq(res, STR('ai'));
 	});
 
-	it('match', async () => {
+	test.concurrent('match', async () => {
 		const res = await exe(`
 		@f() {
 			let matchcat = "ai"
@@ -481,7 +481,7 @@ describe('Var name starts with reserved word', () => {
 		eq(res, STR('ai'));
 	});
 
-	it('true', async () => {
+	test.concurrent('true', async () => {
 		const res = await exe(`
 		@f() {
 			let truecat = "ai"
@@ -492,7 +492,7 @@ describe('Var name starts with reserved word', () => {
 		eq(res, STR('ai'));
 	});
 
-	it('false', async () => {
+	test.concurrent('false', async () => {
 		const res = await exe(`
 		@f() {
 			let falsecat = "ai"
@@ -503,7 +503,7 @@ describe('Var name starts with reserved word', () => {
 		eq(res, STR('ai'));
 	});
 
-	it('null', async () => {
+	test.concurrent('null', async () => {
 		const res = await exe(`
 		@f() {
 			let nullcat = "ai"
@@ -516,7 +516,7 @@ describe('Var name starts with reserved word', () => {
 });
 
 describe('name validation of reserved word', () => {
-	it('def', async () => {
+	test.concurrent('def', async () => {
 		try {
 			await exe(`
 			let let = 1
@@ -528,7 +528,7 @@ describe('name validation of reserved word', () => {
 		assert.fail();
 	});
 
-	it('attr', async () => {
+	test.concurrent('attr', async () => {
 		try {
 			await exe(`
 			#[let 1]
@@ -541,7 +541,7 @@ describe('name validation of reserved word', () => {
 		assert.fail();
 	});
 
-	it('ns', async () => {
+	test.concurrent('ns', async () => {
 		try {
 			await exe(`
 			:: let {
@@ -555,7 +555,7 @@ describe('name validation of reserved word', () => {
 		assert.fail();
 	});
 
-	it('var', async () => {
+	test.concurrent('var', async () => {
 		try {
 			await exe(`
 			let
@@ -567,7 +567,7 @@ describe('name validation of reserved word', () => {
 		assert.fail();
 	});
 
-	it('prop', async () => {
+	test.concurrent('prop', async () => {
 		try {
 			await exe(`
 			let x = { let: 1 }
@@ -580,7 +580,7 @@ describe('name validation of reserved word', () => {
 		assert.fail();
 	});
 
-	it('meta', async () => {
+	test.concurrent('meta', async () => {
 		try {
 			await exe(`
 			### let 1
@@ -592,7 +592,7 @@ describe('name validation of reserved word', () => {
 		assert.fail();
 	});
 
-	it('fn', async () => {
+	test.concurrent('fn', async () => {
 		try {
 			await exe(`
 			@let() { 1 }
@@ -606,7 +606,7 @@ describe('name validation of reserved word', () => {
 });
 
 describe('Object', () => {
-	it('property access', async () => {
+	test.concurrent('property access', async () => {
 		const res = await exe(`
 		let obj = {
 			a: {
@@ -621,7 +621,7 @@ describe('Object', () => {
 		eq(res, NUM(42));
 	});
 
-	it('property access (fn call)', async () => {
+	test.concurrent('property access (fn call)', async () => {
 		const res = await exe(`
 		@f() { 42 }
 
@@ -638,7 +638,7 @@ describe('Object', () => {
 		eq(res, NUM(42));
 	});
 
-	it('property assign', async () => {
+	test.concurrent('property assign', async () => {
 		const res = await exe(`
 		let obj = {
 			a: 1
@@ -667,7 +667,7 @@ describe('Object', () => {
 	});
 
 	/* 未実装
-	it('string key', async () => {
+	test.concurrent('string key', async () => {
 		const res = await exe(`
 		let obj = {
 			"藍": 42;
@@ -678,7 +678,7 @@ describe('Object', () => {
 		eq(res, NUM(42));
 	});
 
-	it('string key including colon and period', async () => {
+	test.concurrent('string key including colon and period', async () => {
 		const res = await exe(`
 		let obj = {
 			":.:": 42;
@@ -689,7 +689,7 @@ describe('Object', () => {
 		eq(res, NUM(42));
 	});
 
-	it('expression key', async () => {
+	test.concurrent('expression key', async () => {
 		const res = await exe(`
 		let key = "藍"
 
@@ -705,7 +705,7 @@ describe('Object', () => {
 });
 
 describe('Array', () => {
-	it('Array item access', async () => {
+	test.concurrent('Array item access', async () => {
 		const res = await exe(`
 		let arr = ["ai", "chan", "kawaii"]
 
@@ -714,7 +714,7 @@ describe('Array', () => {
 		eq(res, STR('chan'));
 	});
 
-	it('Array item assign', async () => {
+	test.concurrent('Array item assign', async () => {
 		const res = await exe(`
 		let arr = ["ai", "chan", "kawaii"]
 
@@ -727,7 +727,7 @@ describe('Array', () => {
 });
 
 describe('chain', () => {
-	it('chain access (prop + index + call)', async () => {
+	test.concurrent('chain access (prop + index + call)', async () => {
 		const res = await exe(`
 		let obj = {
 			a: {
@@ -740,7 +740,7 @@ describe('chain', () => {
 		eq(res, STR('ai'));
 	});
 
-	it('chained assign left side (prop + index)', async () => {
+	test.concurrent('chained assign left side (prop + index)', async () => {
 		const res = await exe(`
 		let obj = {
 			a: {
@@ -759,7 +759,7 @@ describe('chain', () => {
 		])));
 	});
 
-	it('chained assign right side (prop + index + call)', async () => {
+	test.concurrent('chained assign right side (prop + index + call)', async () => {
 		const res = await exe(`
 		let obj = {
 			a: {
@@ -775,7 +775,7 @@ describe('chain', () => {
 		eq(res, STR('chan'));
 	});
 
-	it('chained inc/dec left side (index + prop)', async () => {
+	test.concurrent('chained inc/dec left side (index + prop)', async () => {
 		const res = await exe(`
 		let arr = [
 			{
@@ -797,7 +797,7 @@ describe('chain', () => {
 		]));
 	});
 
-	it('chained inc/dec left side (prop + index)', async () => {
+	test.concurrent('chained inc/dec left side (prop + index)', async () => {
 		const res = await exe(`
 		let obj = {
 			a: {
@@ -817,7 +817,7 @@ describe('chain', () => {
 		])));
 	});
 
-	it('prop in def', async () => {
+	test.concurrent('prop in def', async () => {
 		const res = await exe(`
 		let x = @() {
 			let obj = {
@@ -831,7 +831,7 @@ describe('chain', () => {
 		eq(res, NUM(1));
 	});
 
-	it('prop in return', async () => {
+	test.concurrent('prop in return', async () => {
 		const res = await exe(`
 		let x = @() {
 			let obj = {
@@ -846,7 +846,7 @@ describe('chain', () => {
 		eq(res, NUM(1));
 	});
 
-	it('prop in each', async () => {
+	test.concurrent('prop in each', async () => {
 		const res = await exe(`
 		let msgs = []
 		let x = { a: ["ai", "chan", "kawaii"] }
@@ -859,7 +859,7 @@ describe('chain', () => {
 		eq(res, ARR([STR('ai!'), STR('chan!'), STR('kawaii!')]));
 	});
 
-	it('prop in for', async () => {
+	test.concurrent('prop in for', async () => {
 		const res = await exe(`
 		let x = { times: 10, count: 0 }
 		for (let i, x.times) {
@@ -872,7 +872,7 @@ describe('chain', () => {
 });
 
 describe('Template syntax', () => {
-	it('Basic', async () => {
+	test.concurrent('Basic', async () => {
 		const res = await exe(`
 		let str = "kawaii"
 		<: \`Ai is {str}!\`
@@ -880,14 +880,14 @@ describe('Template syntax', () => {
 		eq(res, STR('Ai is kawaii!'));
 	});
 
-	it('convert to str', async () => {
+	test.concurrent('convert to str', async () => {
 		const res = await exe(`
 		<: \`1 + 1 = {(1 + 1)}\`
 		`);
 		eq(res, STR('1 + 1 = 2'));
 	});
 
-	it('Escape', async () => {
+	test.concurrent('Escape', async () => {
 		const res = await exe(`
 		let message = "Hello"
 		<: \`\\\`a\\{b\\}c\\\`\`
@@ -896,7 +896,7 @@ describe('Template syntax', () => {
 	});
 });
 
-it('Throws error when divied by zero', async () => {
+test.concurrent('Throws error when divied by zero', async () => {
 	try {
 		await exe(`
 		<: (0 / 0)
@@ -909,7 +909,7 @@ it('Throws error when divied by zero', async () => {
 });
 
 describe('Function call', () => {
-	it('without args', async () => {
+	test.concurrent('without args', async () => {
 		const res = await exe(`
 		@f() {
 			42
@@ -919,7 +919,7 @@ describe('Function call', () => {
 		eq(res, NUM(42));
 	});
 
-	it('with args', async () => {
+	test.concurrent('with args', async () => {
 		const res = await exe(`
 		@f(x) {
 			x
@@ -929,7 +929,7 @@ describe('Function call', () => {
 		eq(res, NUM(42));
 	});
 
-	it('with args (separated by comma)', async () => {
+	test.concurrent('with args (separated by comma)', async () => {
 		const res = await exe(`
 		@f(x, y) {
 			(x + y)
@@ -939,7 +939,7 @@ describe('Function call', () => {
 		eq(res, NUM(2));
 	});
 
-	it('with args (separated by space)', async () => {
+	test.concurrent('with args (separated by space)', async () => {
 		const res = await exe(`
 		@f(x y) {
 			(x + y)
@@ -949,7 +949,7 @@ describe('Function call', () => {
 		eq(res, NUM(2));
 	});
 	
-	it('std: throw AiScript error when required arg missing', async () => {
+	test.concurrent('std: throw AiScript error when required arg missing', async () => {
 		try {
 			await exe(`
 			<: Core:eq(1)
@@ -963,7 +963,7 @@ describe('Function call', () => {
 });
 
 describe('Return', () => {
-	it('Early return', async () => {
+	test.concurrent('Early return', async () => {
 		const res = await exe(`
 		@f() {
 			if true {
@@ -977,7 +977,7 @@ describe('Return', () => {
 		eq(res, STR('ai'));
 	});
 
-	it('Early return (nested)', async () => {
+	test.concurrent('Early return (nested)', async () => {
 		const res = await exe(`
 		@f() {
 			if true {
@@ -993,7 +993,7 @@ describe('Return', () => {
 		eq(res, STR('ai'));
 	});
 
-	it('Early return (nested) 2', async () => {
+	test.concurrent('Early return (nested) 2', async () => {
 		const res = await exe(`
 		@f() {
 			if true {
@@ -1016,7 +1016,7 @@ describe('Return', () => {
 		eq(res, STR('kawaii'));
 	});
 
-	it('Early return without block', async () => {
+	test.concurrent('Early return without block', async () => {
 		const res = await exe(`
 		@f() {
 			if true return "ai"
@@ -1028,7 +1028,7 @@ describe('Return', () => {
 		eq(res, STR('ai'));
 	});
 
-	it('return inside for', async () => {
+	test.concurrent('return inside for', async () => {
 		const res = await exe(`
 		@f() {
 			var count = 0
@@ -1044,7 +1044,7 @@ describe('Return', () => {
 		eq(res, NUM(43));
 	});
 
-	it('return inside loop', async () => {
+	test.concurrent('return inside loop', async () => {
 		const res = await exe(`
 		@f() {
 			var count = 0
@@ -1062,7 +1062,7 @@ describe('Return', () => {
 });
 
 describe('Eval', () => {
-	it('returns value', async () => {
+	test.concurrent('returns value', async () => {
 		const res = await exe(`
 		let foo = eval {
 			let a = 1
@@ -1077,7 +1077,7 @@ describe('Eval', () => {
 });
 
 describe('if', () => {
-	it('if', async () => {
+	test.concurrent('if', async () => {
 		const res1 = await exe(`
 		var msg = "ai"
 		if true {
@@ -1097,7 +1097,7 @@ describe('if', () => {
 		eq(res2, STR('ai'));
 	});
 
-	it('else', async () => {
+	test.concurrent('else', async () => {
 		const res1 = await exe(`
 		var msg = null
 		if true {
@@ -1121,7 +1121,7 @@ describe('if', () => {
 		eq(res2, STR('kawaii'));
 	});
 
-	it('elif', async () => {
+	test.concurrent('elif', async () => {
 		const res1 = await exe(`
 		var msg = "bebeyo"
 		if false {
@@ -1145,7 +1145,7 @@ describe('if', () => {
 		eq(res2, STR('bebeyo'));
 	});
 
-	it('if ~ elif ~ else', async () => {
+	test.concurrent('if ~ elif ~ else', async () => {
 		const res1 = await exe(`
 		var msg = null
 		if false {
@@ -1173,7 +1173,7 @@ describe('if', () => {
 		eq(res2, STR('kawaii'));
 	});
 
-	it('expr', async () => {
+	test.concurrent('expr', async () => {
 		const res1 = await exe(`
 		<: if true "ai" else "kawaii"
 		`);
@@ -1187,7 +1187,7 @@ describe('if', () => {
 });
 
 describe('match', () => {
-	it('Basic', async () => {
+	test.concurrent('Basic', async () => {
 		const res = await exe(`
 		<: match 2 {
 			1 => "a"
@@ -1198,7 +1198,7 @@ describe('match', () => {
 		eq(res, STR('b'));
 	});
 
-	it('When default not provided, returns null', async () => {
+	test.concurrent('When default not provided, returns null', async () => {
 		const res = await exe(`
 		<: match 42 {
 			1 => "a"
@@ -1209,7 +1209,7 @@ describe('match', () => {
 		eq(res, NULL);
 	});
 
-	it('With default', async () => {
+	test.concurrent('With default', async () => {
 		const res = await exe(`
 		<: match 42 {
 			1 => "a"
@@ -1221,7 +1221,7 @@ describe('match', () => {
 		eq(res, STR('d'));
 	});
 
-	it('With block', async () => {
+	test.concurrent('With block', async () => {
 		const res = await exe(`
 		<: match 2 {
 			1 => 1
@@ -1236,7 +1236,7 @@ describe('match', () => {
 		eq(res, NUM(3));
 	});
 
-	it('With return', async () => {
+	test.concurrent('With return', async () => {
 		const res = await exe(`
 		@f(x) {
 			match x {
@@ -1253,7 +1253,7 @@ describe('match', () => {
 });
 
 describe('loop', () => {
-	it('Basic', async () => {
+	test.concurrent('Basic', async () => {
 		const res = await exe(`
 		var count = 0
 		loop {
@@ -1265,7 +1265,7 @@ describe('loop', () => {
 		eq(res, NUM(10));
 	});
 
-	it('with continue', async () => {
+	test.concurrent('with continue', async () => {
 		const res = await exe(`
 		var a = ["ai" "chan" "kawaii" "!"]
 		var b = []
@@ -1282,7 +1282,7 @@ describe('loop', () => {
 });
 
 describe('for', () => {
-	it('Basic', async () => {
+	test.concurrent('Basic', async () => {
 		const res = await exe(`
 		var count = 0
 		for (let i, 10) {
@@ -1293,7 +1293,7 @@ describe('for', () => {
 		eq(res, NUM(55));
 	});
 
-	it('initial value', async () => {
+	test.concurrent('initial value', async () => {
 		const res = await exe(`
 		var count = 0
 		for (let i = 2, 10) {
@@ -1304,7 +1304,7 @@ describe('for', () => {
 		eq(res, NUM(65));
 	});
 
-	it('wuthout iterator', async () => {
+	test.concurrent('wuthout iterator', async () => {
 		const res = await exe(`
 		var count = 0
 		for (10) {
@@ -1315,7 +1315,7 @@ describe('for', () => {
 		eq(res, NUM(10));
 	});
 
-	it('without brackets', async () => {
+	test.concurrent('without brackets', async () => {
 		const res = await exe(`
 		var count = 0
 		for let i, 10 {
@@ -1326,7 +1326,7 @@ describe('for', () => {
 		eq(res, NUM(45));
 	});
 
-	it('Break', async () => {
+	test.concurrent('Break', async () => {
 		const res = await exe(`
 		var count = 0
 		for (let i, 20) {
@@ -1338,7 +1338,7 @@ describe('for', () => {
 		eq(res, NUM(55));
 	});
 
-	it('continue', async () => {
+	test.concurrent('continue', async () => {
 		const res = await exe(`
 		var count = 0
 		for (let i, 10) {
@@ -1350,7 +1350,7 @@ describe('for', () => {
 		eq(res, NUM(9));
 	});
 
-	it('single statement', async () => {
+	test.concurrent('single statement', async () => {
 		const res = await exe(`
 		var count = 0
 		for 10 count += 1
@@ -1361,7 +1361,7 @@ describe('for', () => {
 });
 
 describe('for of', () => {
-	it('standard', async () => {
+	test.concurrent('standard', async () => {
 		const res = await exe(`
 		let msgs = []
 		each let item, ["ai", "chan", "kawaii"] {
@@ -1372,7 +1372,7 @@ describe('for of', () => {
 		eq(res, ARR([STR('ai!'), STR('chan!'), STR('kawaii!')]));
 	});
 
-	it('Break', async () => {
+	test.concurrent('Break', async () => {
 		const res = await exe(`
 		let msgs = []
 		each let item, ["ai", "chan", "kawaii"] {
@@ -1384,7 +1384,7 @@ describe('for of', () => {
 		eq(res, ARR([STR('ai!'), STR('chan!')]));
 	});
 
-	it('single statement', async () => {
+	test.concurrent('single statement', async () => {
 		const res = await exe(`
 		let msgs = []
 		each let item, ["ai", "chan", "kawaii"] msgs.push([item, "!"].join())
@@ -1395,7 +1395,7 @@ describe('for of', () => {
 });
 
 describe('namespace', () => {
-	it('standard', async () => {
+	test.concurrent('standard', async () => {
 		const res = await exe(`
 		<: Foo:bar()
 
@@ -1406,7 +1406,7 @@ describe('namespace', () => {
 		eq(res, STR('ai'));
 	});
 
-	it('self ref', async () => {
+	test.concurrent('self ref', async () => {
 		const res = await exe(`
 		<: Foo:bar()
 
@@ -1418,7 +1418,7 @@ describe('namespace', () => {
 		eq(res, STR('kawaii'));
 	});
 
-	it('assign variable', async () => {
+	test.concurrent('assign variable', async () => {
 		const res = await exe(`
 		Foo:setMsg("hello")
 		<: Foo:getMsg()
@@ -1432,7 +1432,7 @@ describe('namespace', () => {
 		eq(res, STR('hello'));
 	});
 
-	it('increment', async () => {
+	test.concurrent('increment', async () => {
 		const res = await exe(`
 		Foo:value += 10
 		Foo:value -= 5
@@ -1447,49 +1447,49 @@ describe('namespace', () => {
 });
 
 describe('literal', () => {
-	it('bool (true)', async () => {
+	test.concurrent('bool (true)', async () => {
 		const res = await exe(`
 		<: true
 		`);
 		eq(res, BOOL(true));
 	});
 
-	it('bool (false)', async () => {
+	test.concurrent('bool (false)', async () => {
 		const res = await exe(`
 		<: false
 		`);
 		eq(res, BOOL(false));
 	});
 
-	it('number (Int)', async () => {
+	test.concurrent('number (Int)', async () => {
 		const res = await exe(`
 		<: 10
 		`);
 		eq(res, NUM(10));
 	});
 
-	it('number (Float)', async () => {
+	test.concurrent('number (Float)', async () => {
 		const res = await exe(`
 		<: 0.5
 		`);
 		eq(res, NUM(0.5));
 	});
 
-	it('arr (separated by comma)', async () => {
+	test.concurrent('arr (separated by comma)', async () => {
 		const res = await exe(`
 		<: [1, 2, 3]
 		`);
 		eq(res, ARR([NUM(1), NUM(2), NUM(3)]));
 	});
 
-	it('arr (separated by comma) (with trailing comma)', async () => {
+	test.concurrent('arr (separated by comma) (with trailing comma)', async () => {
 		const res = await exe(`
 		<: [1, 2, 3,]
 		`);
 		eq(res, ARR([NUM(1), NUM(2), NUM(3)]));
 	});
 
-	it('arr (separated by line break)', async () => {
+	test.concurrent('arr (separated by line break)', async () => {
 		const res = await exe(`
 		<: [
 			1
@@ -1500,7 +1500,7 @@ describe('literal', () => {
 		eq(res, ARR([NUM(1), NUM(2), NUM(3)]));
 	});
 
-	it('arr (separated by line break and comma)', async () => {
+	test.concurrent('arr (separated by line break and comma)', async () => {
 		const res = await exe(`
 		<: [
 			1,
@@ -1511,7 +1511,7 @@ describe('literal', () => {
 		eq(res, ARR([NUM(1), NUM(2), NUM(3)]));
 	});
 
-	it('arr (separated by line break and comma) (with trailing comma)', async () => {
+	test.concurrent('arr (separated by line break and comma) (with trailing comma)', async () => {
 		const res = await exe(`
 		<: [
 			1,
@@ -1522,35 +1522,35 @@ describe('literal', () => {
 		eq(res, ARR([NUM(1), NUM(2), NUM(3)]));
 	});
 
-	it('obj (separated by comma)', async () => {
+	test.concurrent('obj (separated by comma)', async () => {
 		const res = await exe(`
 		<: { a: 1, b: 2, c: 3 }
 		`);
 		eq(res, OBJ(new Map([['a', NUM(1)], ['b', NUM(2)], ['c', NUM(3)]])));
 	});
 
-	it('obj (separated by comma) (with trailing comma)', async () => {
+	test.concurrent('obj (separated by comma) (with trailing comma)', async () => {
 		const res = await exe(`
 		<: { a: 1, b: 2, c: 3, }
 		`);
 		eq(res, OBJ(new Map([['a', NUM(1)], ['b', NUM(2)], ['c', NUM(3)]])));
 	});
 
-	it('obj (separated by semicolon)', async () => {
+	test.concurrent('obj (separated by semicolon)', async () => {
 		const res = await exe(`
 		<: { a: 1; b: 2; c: 3 }
 		`);
 		eq(res, OBJ(new Map([['a', NUM(1)], ['b', NUM(2)], ['c', NUM(3)]])));
 	});
 
-	it('obj (separated by semicolon) (with trailing semicolon)', async () => {
+	test.concurrent('obj (separated by semicolon) (with trailing semicolon)', async () => {
 		const res = await exe(`
 		<: { a: 1; b: 2; c: 3; }
 		`);
 		eq(res, OBJ(new Map([['a', NUM(1)], ['b', NUM(2)], ['c', NUM(3)]])));
 	});
 
-	it('obj (separated by line break)', async () => {
+	test.concurrent('obj (separated by line break)', async () => {
 		const res = await exe(`
 		<: {
 			a: 1
@@ -1561,7 +1561,7 @@ describe('literal', () => {
 		eq(res, OBJ(new Map([['a', NUM(1)], ['b', NUM(2)], ['c', NUM(3)]])));
 	});
 
-	it('obj (separated by line break and semicolon)', async () => {
+	test.concurrent('obj (separated by line break and semicolon)', async () => {
 		const res = await exe(`
 		<: {
 			a: 1;
@@ -1572,7 +1572,7 @@ describe('literal', () => {
 		eq(res, OBJ(new Map([['a', NUM(1)], ['b', NUM(2)], ['c', NUM(3)]])));
 	});
 
-	it('obj (separated by line break and semicolon) (with trailing semicolon)', async () => {
+	test.concurrent('obj (separated by line break and semicolon) (with trailing semicolon)', async () => {
 		const res = await exe(`
 		<: {
 			a: 1;
@@ -1583,7 +1583,7 @@ describe('literal', () => {
 		eq(res, OBJ(new Map([['a', NUM(1)], ['b', NUM(2)], ['c', NUM(3)]])));
 	});
 
-	it('obj and arr (separated by line break)', async () => {
+	test.concurrent('obj and arr (separated by line break)', async () => {
 		const res = await exe(`
 		<: {
 			a: 1
@@ -1604,7 +1604,7 @@ describe('literal', () => {
 });
 
 describe('type declaration', () => {
-	it('def', async () => {
+	test.concurrent('def', async () => {
 		const res = await exe(`
 		let abc: num = 1
 		var xyz: str = "abc"
@@ -1613,7 +1613,7 @@ describe('type declaration', () => {
 		eq(res, ARR([NUM(1), STR('abc')]));
 	});
 
-	it('fn def', async () => {
+	test.concurrent('fn def', async () => {
 		const res = await exe(`
 		@f(x: arr<num>, y: str, z: @(num) => bool): arr<num> {
 			x[3] = 0
@@ -1630,7 +1630,7 @@ describe('type declaration', () => {
 });
 
 describe('meta', () => {
-	it('default meta', async () => {
+	test.concurrent('default meta', async () => {
 		const res = getMeta(`
 		### { a: 1; b: 2; c: 3; }
 		`);
@@ -1649,7 +1649,7 @@ describe('meta', () => {
 	});
 
 	describe('String', () => {
-		it('valid', async () => {
+		test.concurrent('valid', async () => {
 			const res = getMeta(`
 			### x "hoge"
 			`);
@@ -1660,7 +1660,7 @@ describe('meta', () => {
 	});
 
 	describe('Number', () => {
-		it('valid', async () => {
+		test.concurrent('valid', async () => {
 			const res = getMeta(`
 			### x 42
 			`);
@@ -1671,7 +1671,7 @@ describe('meta', () => {
 	});
 
 	describe('Boolean', () => {
-		it('valid', async () => {
+		test.concurrent('valid', async () => {
 			const res = getMeta(`
 			### x true
 			`);
@@ -1682,7 +1682,7 @@ describe('meta', () => {
 	});
 
 	describe('Null', () => {
-		it('valid', async () => {
+		test.concurrent('valid', async () => {
 			const res = getMeta(`
 			### x null
 			`);
@@ -1693,7 +1693,7 @@ describe('meta', () => {
 	});
 
 	describe('Array', () => {
-		it('valid', async () => {
+		test.concurrent('valid', async () => {
 			const res = getMeta(`
 			### x [1 2 3]
 			`);
@@ -1702,7 +1702,7 @@ describe('meta', () => {
 			]));
 		});
 
-		it('invalid', async () => {
+		test.concurrent('invalid', async () => {
 			try {
 				getMeta(`
 				### x [1 (2 + 2) 3]
@@ -1716,7 +1716,7 @@ describe('meta', () => {
 	});
 
 	describe('Object', () => {
-		it('valid', async () => {
+		test.concurrent('valid', async () => {
 			const res = getMeta(`
 			### x { a: 1; b: 2; c: 3; }
 			`);
@@ -1729,7 +1729,7 @@ describe('meta', () => {
 			]));
 		});
 
-		it('invalid', async () => {
+		test.concurrent('invalid', async () => {
 			try {
 				getMeta(`
 				### x { a: 1; b: (2 + 2); c: 3; }
@@ -1743,7 +1743,7 @@ describe('meta', () => {
 	});
 
 	describe('Template', () => {
-		it('invalid', async () => {
+		test.concurrent('invalid', async () => {
 			try {
 				getMeta(`
 				### x \`foo {bar} baz\`
@@ -1757,7 +1757,7 @@ describe('meta', () => {
 	});
 
 	describe('Expression', () => {
-		it('invalid', async () => {
+		test.concurrent('invalid', async () => {
 			try {
 				getMeta(`
 				### x (1 + 1)
@@ -1772,7 +1772,7 @@ describe('meta', () => {
 });
 
 describe('lang version', () => {
-	it('number', async () => {
+	test.concurrent('number', async () => {
 		const res = utils.getLangVersion(`
 		/// @2021
 		@f(x) {
@@ -1782,7 +1782,7 @@ describe('lang version', () => {
 		assert.strictEqual(res, '2021');
 	});
 
-	it('chars', async () => {
+	test.concurrent('chars', async () => {
 		const res = utils.getLangVersion(`
 		/// @ canary
 		const a = 1
@@ -1794,7 +1794,7 @@ describe('lang version', () => {
 		assert.strictEqual(res, 'canary');
 	});
 
-	it('complex', async () => {
+	test.concurrent('complex', async () => {
 		const res = utils.getLangVersion(`
 		/// @ 2.0-Alpha
 		@f(x) {
@@ -1804,7 +1804,7 @@ describe('lang version', () => {
 		assert.strictEqual(res, '2.0-Alpha');
 	});
 
-	it('no specified', async () => {
+	test.concurrent('no specified', async () => {
 		const res = utils.getLangVersion(`
 		@f(x) {
 			x
@@ -1815,7 +1815,7 @@ describe('lang version', () => {
 });
 
 describe('Attribute', () => {
-	it('single attribute with function (str)', async () => {
+	test.concurrent('single attribute with function (str)', async () => {
 		let node: Ast.Node;
 		let attr: Ast.Attribute;
 		const parser = new Parser();
@@ -1838,7 +1838,7 @@ describe('Attribute', () => {
 		assert.equal(attr.value.value, 'Recieved');
 	});
 
-	it('multiple attributes with function (obj, str, bool)', async () => {
+	test.concurrent('multiple attributes with function (obj, str, bool)', async () => {
 		let node: Ast.Node;
 		let attr: Ast.Attribute;
 		const parser = new Parser();
@@ -1887,7 +1887,7 @@ describe('Attribute', () => {
 	// TODO: attributed function in block
 	// TODO: attribute target does not exist
 
-	it('single attribute (no value)', async () => {
+	test.concurrent('single attribute (no value)', async () => {
 		let node: Ast.Node;
 		let attr: Ast.Attribute;
 		const parser = new Parser();
@@ -1910,7 +1910,7 @@ describe('Attribute', () => {
 });
 
 describe('Location', () => {
-	it('function', async () => {
+	test.concurrent('function', async () => {
 		let node: Ast.Node;
 		const parser = new Parser();
 		const nodes = parser.parse(`
@@ -1925,7 +1925,7 @@ describe('Location', () => {
 
 describe('primitive props', () => {
 	describe('num', () => {
-		it('to_str', async () => {
+		test.concurrent('to_str', async () => {
 			const res = await exe(`
 			let num = 123
 			<: num.to_str()
@@ -1935,7 +1935,7 @@ describe('primitive props', () => {
 	});
 
 	describe('str', () => {
-		it('len', async () => {
+		test.concurrent('len', async () => {
 			const res = await exe(`
 			let str = "hello"
 			<: str.len
@@ -1943,7 +1943,7 @@ describe('primitive props', () => {
 			eq(res, NUM(5));
 		});
 
-		it('to_num', async () => {
+		test.concurrent('to_num', async () => {
 			const res = await exe(`
 			let str = "123"
 			<: str.to_num()
@@ -1951,7 +1951,7 @@ describe('primitive props', () => {
 			eq(res, NUM(123));
 		});
 
-		it('upper', async () => {
+		test.concurrent('upper', async () => {
 			const res = await exe(`
 			let str = "hello"
 			<: str.upper()
@@ -1959,7 +1959,7 @@ describe('primitive props', () => {
 			eq(res, STR('HELLO'));
 		});
 
-		it('lower', async () => {
+		test.concurrent('lower', async () => {
 			const res = await exe(`
 			let str = "HELLO"
 			<: str.lower()
@@ -1967,7 +1967,7 @@ describe('primitive props', () => {
 			eq(res, STR('hello'));
 		});
 
-		it('trim', async () => {
+		test.concurrent('trim', async () => {
 			const res = await exe(`
 			let str = " hello  "
 			<: str.trim()
@@ -1975,7 +1975,7 @@ describe('primitive props', () => {
 			eq(res, STR('hello'));
 		});
 
-		it('replace', async () => {
+		test.concurrent('replace', async () => {
 			const res = await exe(`
 			let str = "hello"
 			<: str.replace("l", "x")
@@ -1983,7 +1983,7 @@ describe('primitive props', () => {
 			eq(res, STR('hexxo'));
 		});
 
-		it('index_of', async () => {
+		test.concurrent('index_of', async () => {
 			const res = await exe(`
 			let str = "hello"
 			<: str.index_of("l")
@@ -1991,7 +1991,7 @@ describe('primitive props', () => {
 			eq(res, NUM(2));
 		});
 
-		it('incl', async () => {
+		test.concurrent('incl', async () => {
 			const res = await exe(`
 			let str = "hello"
 			<: [str.incl("ll"), str.incl("x")]
@@ -1999,7 +1999,7 @@ describe('primitive props', () => {
 			eq(res, ARR([TRUE, FALSE]));
 		});
 
-		it('split', async () => {
+		test.concurrent('split', async () => {
 			const res = await exe(`
 			let str = "a,b,c"
 			<: str.split(",")
@@ -2007,7 +2007,7 @@ describe('primitive props', () => {
 			eq(res, ARR([STR('a'), STR('b'), STR('c')]));
 		});
 
-		it('pick', async () => {
+		test.concurrent('pick', async () => {
 			const res = await exe(`
 			let str = "hello"
 			<: str.pick(1)
@@ -2015,7 +2015,7 @@ describe('primitive props', () => {
 			eq(res, STR('e'));
 		});
 
-		it('slice', async () => {
+		test.concurrent('slice', async () => {
 			const res = await exe(`
 			let str = "hello"
 			<: str.slice(1, 3)
@@ -2025,7 +2025,7 @@ describe('primitive props', () => {
 	});
 
 	describe('arr', () => {
-		it('len', async () => {
+		test.concurrent('len', async () => {
 			const res = await exe(`
 			let arr = [1, 2, 3]
 			<: arr.len
@@ -2033,7 +2033,7 @@ describe('primitive props', () => {
 			eq(res, NUM(3));
 		});
 
-		it('push', async () => {
+		test.concurrent('push', async () => {
 			const res = await exe(`
 			let arr = [1, 2, 3]
 			arr.push(4)
@@ -2042,7 +2042,7 @@ describe('primitive props', () => {
 			eq(res, ARR([NUM(1), NUM(2), NUM(3), NUM(4)]));
 		});
 
-		it('unshift', async () => {
+		test.concurrent('unshift', async () => {
 			const res = await exe(`
 			let arr = [1, 2, 3]
 			arr.unshift(4)
@@ -2051,7 +2051,7 @@ describe('primitive props', () => {
 			eq(res, ARR([NUM(4), NUM(1), NUM(2), NUM(3)]));
 		});
 
-		it('pop', async () => {
+		test.concurrent('pop', async () => {
 			const res = await exe(`
 			let arr = [1, 2, 3]
 			let popped = arr.pop()
@@ -2060,7 +2060,7 @@ describe('primitive props', () => {
 			eq(res, ARR([NUM(3), ARR([NUM(1), NUM(2)])]));
 		});
 
-		it('shift', async () => {
+		test.concurrent('shift', async () => {
 			const res = await exe(`
 			let arr = [1, 2, 3]
 			let shifted = arr.shift()
@@ -2069,7 +2069,7 @@ describe('primitive props', () => {
 			eq(res, ARR([NUM(1), ARR([NUM(2), NUM(3)])]));
 		});
 
-		it('concat', async () => {
+		test.concurrent('concat', async () => {
 			const res = await exe(`
 			let arr = [1, 2, 3]
 			let concated = arr.concat([4, 5])
@@ -2081,7 +2081,7 @@ describe('primitive props', () => {
 			]));
 		});
 
-		it('slice', async () => {
+		test.concurrent('slice', async () => {
 			const res = await exe(`
 			let arr = ["ant", "bison", "camel", "duck", "elephant"]
 			let sliced = arr.slice(2, 4)
@@ -2093,7 +2093,7 @@ describe('primitive props', () => {
 			]));
 		});
 
-		it('join', async () => {
+		test.concurrent('join', async () => {
 			const res = await exe(`
 			let arr = ["a", "b", "c"]
 			<: arr.join("-")
@@ -2101,7 +2101,7 @@ describe('primitive props', () => {
 			eq(res, STR('a-b-c'));
 		});
 
-		it('map', async () => {
+		test.concurrent('map', async () => {
 			const res = await exe(`
 			let arr = [1, 2, 3]
 			<: arr.map(@(item) { item * 2 })
@@ -2109,7 +2109,7 @@ describe('primitive props', () => {
 			eq(res, ARR([NUM(2), NUM(4), NUM(6)]));
 		});
 
-		it('filter', async () => {
+		test.concurrent('filter', async () => {
 			const res = await exe(`
 			let arr = [1, 2, 3]
 			<: arr.filter(@(item) { item != 2 })
@@ -2117,7 +2117,7 @@ describe('primitive props', () => {
 			eq(res, ARR([NUM(1), NUM(3)]));
 		});
 
-		it('reduce', async () => {
+		test.concurrent('reduce', async () => {
 			const res = await exe(`
 			let arr = [1, 2, 3, 4]
 			<: arr.reduce(@(accumulator, currentValue) { (accumulator + currentValue) })
@@ -2125,7 +2125,7 @@ describe('primitive props', () => {
 			eq(res, NUM(10));
 		});
 
-		it('find', async () => {
+		test.concurrent('find', async () => {
 			const res = await exe(`
 			let arr = ["abc", "def", "ghi"]
 			<: arr.find(@(item) { item.incl("e") })
@@ -2133,7 +2133,7 @@ describe('primitive props', () => {
 			eq(res, STR('def'));
 		});
 
-		it('incl', async () => {
+		test.concurrent('incl', async () => {
 			const res = await exe(`
 			let arr = ["abc", "def", "ghi"]
 			<: [arr.incl("def"), arr.incl("jkl")]
@@ -2141,7 +2141,7 @@ describe('primitive props', () => {
 			eq(res, ARR([TRUE, FALSE]));
 		});
 
-		it('reverse', async () => {
+		test.concurrent('reverse', async () => {
 			const res = await exe(`
 			let arr = [1, 2, 3]
 			arr.reverse()
@@ -2150,7 +2150,7 @@ describe('primitive props', () => {
 			eq(res, ARR([NUM(3), NUM(2), NUM(1)]));
 		});
 
-		it('copy', async () => {
+		test.concurrent('copy', async () => {
 			const res = await exe(`
 			let arr = [1, 2, 3]
 			let copied = arr.copy()
@@ -2167,7 +2167,7 @@ describe('primitive props', () => {
 
 describe('std', () => {
 	describe('Core', () => {
-		it('range', async () => {
+		test.concurrent('range', async () => {
 			eq(await exe('<: Core:range(1, 10)'), ARR([NUM(1), NUM(2), NUM(3), NUM(4), NUM(5), NUM(6), NUM(7), NUM(8), NUM(9), NUM(10)]));
 			eq(await exe('<: Core:range(1, 1)'), ARR([NUM(1)]));
 			eq(await exe('<: Core:range(9, 7)'), ARR([NUM(9), NUM(8), NUM(7)]));
@@ -2178,7 +2178,7 @@ describe('std', () => {
 	});
 
 	describe('Obj', () => {
-		it('keys', async () => {
+		test.concurrent('keys', async () => {
 			const res = await exe(`
 			let o = { a: 1; b: 2; c: 3; }
 
@@ -2187,7 +2187,7 @@ describe('std', () => {
 			eq(res, ARR([STR('a'), STR('b'), STR('c')]));
 		});
 
-		it('kvs', async () => {
+		test.concurrent('kvs', async () => {
 			const res = await exe(`
 			let o = { a: 1; b: 2; c: 3; }
 
@@ -2202,7 +2202,7 @@ describe('std', () => {
 	});
 
 	describe('Str', () => {
-		it('lf', async () => {
+		test.concurrent('lf', async () => {
 			const res = await exe(`
 			<: Str:lf
 			`);
@@ -2212,28 +2212,28 @@ describe('std', () => {
 });
 
 describe('Unicode', () => {
-	it('len', async () => {
+	test.concurrent('len', async () => {
 		const res = await exe(`
 		<: "👍🏽🍆🌮".len
 		`);
 		eq(res, NUM(3));
 	});
 
-	it('pick', async () => {
+	test.concurrent('pick', async () => {
 		const res = await exe(`
 		<: "👍🏽🍆🌮".pick(1)
 		`);
 		eq(res, STR('🍆'));
 	});
 
-	it('slice', async () => {
+	test.concurrent('slice', async () => {
 		const res = await exe(`
 		<: "Emojis 👍🏽 are 🍆 poison. 🌮s are bad.".slice(7, 14)
 		`);
 		eq(res, STR('👍🏽 are 🍆'));
 	});
 
-	it('split', async () => {
+	test.concurrent('split', async () => {
 		const res = await exe(`
 		<: "👍🏽🍆🌮".split()
 		`);
@@ -2242,7 +2242,7 @@ describe('Unicode', () => {
 });
 
 describe('Security', () => {
-	it('Cannot access js native property via var', async () => {
+	test.concurrent('Cannot access js native property via var', async () => {
 		try {
 			await exe(`
 			<: constructor
@@ -2271,7 +2271,7 @@ describe('Security', () => {
 		}
 	});
 
-	it('Cannot access js native property via object', async () => {
+	test.concurrent('Cannot access js native property via object', async () => {
 		const res1 = await exe(`
 		let obj = {}
 
@@ -2294,7 +2294,7 @@ describe('Security', () => {
 		eq(res3, NULL);
 	});
 
-	it('Cannot access js native property via primitive prop', async () => {
+	test.concurrent('Cannot access js native property via primitive prop', async () => {
 		try {
 			await exe(`
 			<: "".constructor
@@ -2325,7 +2325,7 @@ describe('Security', () => {
 });
 
 describe('extra', () => {
-	it('Fizz Buzz', async () => {
+	test.concurrent('Fizz Buzz', async () => {
 		const res = await exe(`
 		let res = []
 		for (let i = 1, 15) {
@@ -2357,7 +2357,7 @@ describe('extra', () => {
 		]));
 	});
 
-	it('SKI', async () => {
+	test.concurrent('SKI', async () => {
 		const res = await exe(`
 		let s = @(x) { @(y) { @(z) {
 			//let f = x(z) f(@(a){ let g = y(z) g(a) })
