@@ -867,7 +867,7 @@ describe('chain', () => {
 		}
 		<: x.count
 		`);
-		eq(res, NUM(55));
+		eq(res, NUM(45));
 	});
 });
 
@@ -1041,7 +1041,7 @@ describe('Return', () => {
 		}
 		<: f()
 		`);
-		eq(res, NUM(42));
+		eq(res, NUM(43));
 	});
 
 	it('return inside loop', async () => {
@@ -1286,11 +1286,22 @@ describe('for', () => {
 		const res = await exe(`
 		var count = 0
 		for (let i, 10) {
-			count = (count + i)
+			count += i + 1
 		}
 		<: count
 		`);
 		eq(res, NUM(55));
+	});
+
+	it('initial value', async () => {
+		const res = await exe(`
+		var count = 0
+		for (let i = 2, 10) {
+			count += i
+		}
+		<: count
+		`);
+		eq(res, NUM(65));
 	});
 
 	it('wuthout iterator', async () => {
@@ -1312,7 +1323,7 @@ describe('for', () => {
 		}
 		<: count
 		`);
-		eq(res, NUM(55));
+		eq(res, NUM(45));
 	});
 
 	it('Break', async () => {
@@ -1320,7 +1331,7 @@ describe('for', () => {
 		var count = 0
 		for (let i, 20) {
 			if (i == 11) break
-			count = (count + i)
+			count += i
 		}
 		<: count
 		`);
@@ -2317,7 +2328,7 @@ describe('extra', () => {
 	it('Fizz Buzz', async () => {
 		const res = await exe(`
 		let res = []
-		for (let i, 15) {
+		for (let i = 1, 15) {
 			let msg =
 				if (i % 15 == 0) "FizzBuzz"
 				elif (i % 3 == 0) "Fizz"
