@@ -18,7 +18,7 @@ module.exports = {
 	rules: {
 		'indent': ['warn', 'tab', {
 			'SwitchCase': 1,
-			'MemberExpression': 'off',
+			'MemberExpression': 1,
 			'flatTernaryExpressions': true,
 			'ArrayExpression': 'first',
 			'ObjectExpression': 'first',
