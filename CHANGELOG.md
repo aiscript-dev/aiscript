@@ -1,6 +1,6 @@
 [Read translated version (en)](./translations/en/CHANGELOG.md)
 
-# (unreleased)
+# 0.12.0
 ## Breaking changes
 - 変数定義の`#` → `let`
 - 変数定義の`$` → `var`
