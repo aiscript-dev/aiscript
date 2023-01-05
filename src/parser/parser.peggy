@@ -422,12 +422,18 @@ TmplEsc
 // string literal
 
 Str
-	= "\"" value:(!"\"" c:(StrEsc / .) { return c; })* "\""
+	= "\"" value:(!"\"" c:(StrDoubleQuoteEsc / .) { return c; })* "\""
+{ return createNode('str', { value: value.join('') }); }
+	/ "'" value:(!"'" c:(StrSingleQuoteEsc / .) { return c; })* "'"
 { return createNode('str', { value: value.join('') }); }
 
-StrEsc
+StrDoubleQuoteEsc
 	= "\\\""
 { return '"'; }
+
+StrSingleQuoteEsc
+	= "\\\'"
+{ return '\''; }
 
 // number literal
 Num

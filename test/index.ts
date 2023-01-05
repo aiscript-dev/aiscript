@@ -212,11 +212,6 @@ describe('Infix expression', () => {
 	});
 });
 
-test.concurrent('Escaped double quote', async () => {
-	const res = await exe('<: "ai saw a note \\"bebeyo\\"."');
-	eq(res, STR('ai saw a note "bebeyo".'));
-});
-
 test.concurrent('//', async () => {
 	const res = await exe('<: "//"');
 	eq(res, STR('//'));
@@ -1460,6 +1455,30 @@ describe('namespace', () => {
 });
 
 describe('literal', () => {
+	test.concurrent('string (single quote)', async () => {
+		const res = await exe(`
+		<: 'foo'
+		`);
+		eq(res, STR('foo'));
+	});
+
+	test.concurrent('string (double quote)', async () => {
+		const res = await exe(`
+		<: "foo"
+		`);
+		eq(res, STR('foo'));
+	});
+
+	test.concurrent('Escaped double quote', async () => {
+		const res = await exe('<: "ai saw a note \\"bebeyo\\"."');
+		eq(res, STR('ai saw a note "bebeyo".'));
+	});
+	
+	test.concurrent('Escaped single quote', async () => {
+		const res = await exe('<: \'ai saw a note \\\'bebeyo\\\'.\'');
+		eq(res, STR('ai saw a note \'bebeyo\'.'));
+	});
+
 	test.concurrent('bool (true)', async () => {
 		const res = await exe(`
 		<: true
