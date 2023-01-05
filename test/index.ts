@@ -1044,6 +1044,19 @@ describe('Return', () => {
 		eq(res, NUM(43));
 	});
 
+	test.concurrent('return inside for 2', async () => {
+		const res = await exe(`
+		@f() {
+  		for (let i, 10) {
+    		return 1
+  		}
+  		2
+		}
+		<: f()
+		`);
+		eq(res, NUM(1));
+	});
+
 	test.concurrent('return inside loop', async () => {
 		const res = await exe(`
 		@f() {
