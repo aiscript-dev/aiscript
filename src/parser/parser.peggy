@@ -136,6 +136,7 @@ Expr3
 	/ Null        // "null"
 	/ Obj         // "{"
 	/ Arr         // "["
+	/ Not         // "!"
 	/ Identifier  // NAME_WITH_NAMESPACE
 	/ "(" _* e:Expr _* ")" { return e; }
 
@@ -324,6 +325,15 @@ InfixSp
 Op
 	= ("||" / "&&" / "==" / "!=" / "<=" / ">=" / "<" / ">" / "+" / "-" / "*" / "/" / "%") ![-+*/%&|=~<>!?]
 { return text(); }
+
+Not
+	= "!" expr:Expr
+{
+	return createNode('not', {
+		expr: expr,
+	});
+}
+
 
 // chain
 

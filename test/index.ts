@@ -1415,6 +1415,15 @@ describe('for of', () => {
 	});
 });
 
+describe('not', () => {
+	test.concurrent('Basic', async () => {
+		const res = await exe(`
+		<: !true
+		`);
+		eq(res, BOOL(false));
+	});
+});
+
 describe('namespace', () => {
 	test.concurrent('standard', async () => {
 		const res = await exe(`

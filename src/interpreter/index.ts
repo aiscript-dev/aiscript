@@ -405,6 +405,12 @@ export class Interpreter {
 				return target.value[i.value]; // TODO: 存在チェック
 			}
 
+			case 'not': {
+				const v = await this._eval(node.expr, scope);
+				assertBoolean(v);
+				return BOOL(!v.value);
+			}
+
 			case 'fn': {
 				return FN(node.args.map(arg => arg.name), node.children, scope);
 			}
