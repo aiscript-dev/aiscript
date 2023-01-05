@@ -2,7 +2,7 @@
 
 # 0.12.1
 - 文字列をシングルクォートでも定義可能に
-- for文の中でreturnが動作しない問題を修正
+- for文、loop文の中でreturnが動作しない問題を修正
 
 # 0.12.0
 ## Breaking changes

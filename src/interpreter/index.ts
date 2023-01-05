@@ -237,7 +237,7 @@ export class Interpreter {
 					if (v.type === 'break') {
 						break;
 					} else if (v.type === 'return') {
-						return v.value;
+						return v;
 					}
 				}
 				return NULL;

@@ -1042,10 +1042,10 @@ describe('Return', () => {
 	test.concurrent('return inside for 2', async () => {
 		const res = await exe(`
 		@f() {
-  		for (let i, 10) {
-    		return 1
-  		}
-  		2
+			for (let i, 10) {
+				return 1
+			}
+			2
 		}
 		<: f()
 		`);
@@ -1066,6 +1066,19 @@ describe('Return', () => {
 		<: f()
 		`);
 		eq(res, NUM(42));
+	});
+
+	test.concurrent('return inside loop 2', async () => {
+		const res = await exe(`
+		@f() {
+			loop {
+				return 1
+			}
+			2
+		}
+		<: f()
+		`);
+		eq(res, NUM(1));
 	});
 });
 
