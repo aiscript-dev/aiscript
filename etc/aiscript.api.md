@@ -13,7 +13,7 @@ type AddAssign = NodeBase & {
     expr: Expression;
 };
 
-// Warning: (ae-forgotten-export) The symbol "NodeBase" needs to be exported by the entry point index.d.ts
+// Warning: (ae-forgotten-export) The symbol "NodeBase_2" needs to be exported by the entry point index.d.ts
 //
 // @public (undocumented)
 type AddAssign_2 = NodeBase_2 & {
