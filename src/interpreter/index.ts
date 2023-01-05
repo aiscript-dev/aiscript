@@ -178,7 +178,6 @@ export class Interpreter {
 	@autobind
 	private async _eval(node: Ast.Node, scope: Scope): Promise<Value> {
 		if (this.stop) return NULL;
-		this.log('node', { node: node });
 		this.stepCount++;
 		if (this.opts.maxStep && this.stepCount > this.opts.maxStep) {
 			throw new RuntimeError('max step exceeded');
