@@ -1,5 +1,9 @@
 [Read translated version (en)](./translations/en/CHANGELOG.md)
 
+# 0.12.1
+- 文字列をシングルクォートでも定義可能に
+- for文の中でreturnが動作しない問題を修正
+
 # 0.12.0
 ## Breaking changes
 - 変数定義の`#` → `let`
