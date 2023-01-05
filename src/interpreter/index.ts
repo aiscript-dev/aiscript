@@ -3,13 +3,14 @@
  */
 
 import autobind from 'autobind-decorator';
-import * as Ast from '../node';
-import { Scope } from './scope';
 import { RuntimeError } from '../error';
+import { Scope } from './scope';
 import { std } from './lib/std';
 import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray, eq, isObject, isArray, isString, expectAny, isNumber } from './util';
-import { Value, NULL, RETURN, unWrapRet, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, VFn, BREAK, CONTINUE } from './value';
+import { NULL, RETURN, unWrapRet, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, BREAK, CONTINUE } from './value';
 import { PRIMITIVE_PROPS } from './primitive-props';
+import type { Value, VFn } from './value';
+import type * as Ast from '../node';
 
 export class Interpreter {
 	private vars: Record<string, Value>;

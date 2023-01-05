@@ -2,9 +2,10 @@
 import { v4 as uuid } from 'uuid';
 import { substring, length, indexOf, toArray } from 'stringz';
 import seedrandom from 'seedrandom';
-import { Value, NUM, STR, FN_NATIVE, FALSE, TRUE, VArr, ARR, NULL, BOOL, OBJ } from '../value';
+import { NUM, STR, FN_NATIVE, FALSE, TRUE, VArr, ARR, NULL, BOOL, OBJ } from '../value';
 import { assertNumber, assertString, assertArray, assertBoolean, valToJs, jsToVal, assertFunction, assertObject, eq, expectAny } from '../util';
 import { RuntimeError } from '../../error';
+import type { Value } from '../value';
 
 export const std: Record<string, Value> = {
 	'help': STR('SEE: https://github.com/syuilo/aiscript/blob/master/docs/get-started.md'),

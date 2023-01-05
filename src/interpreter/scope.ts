@@ -1,6 +1,6 @@
 import autobind from 'autobind-decorator';
 import { RuntimeError } from '../error';
-import { Value } from './value';
+import type { Value } from './value';
 
 export class Scope {
 	private parent?: Scope;

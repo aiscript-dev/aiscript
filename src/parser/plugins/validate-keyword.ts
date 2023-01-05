@@ -1,6 +1,6 @@
 import { SyntaxError } from '../../error';
-import * as Cst from '../node';
 import { visitNode } from '../visit';
+import type * as Cst from '../node';
 
 const reservedWord = [
 	'null',

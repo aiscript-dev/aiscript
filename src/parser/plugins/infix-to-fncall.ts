@@ -1,6 +1,6 @@
-import * as Cst from '../node';
 import { visitNode } from '../visit';
 import { SyntaxError } from '../../error';
+import type * as Cst from '../node';
 
 /**
  * 中置演算子式を表す木
@@ -20,7 +20,7 @@ type InfixTree = {
 	};
 };
 
-function INFIX_TREE(left: InfixTree | Cst.Node, right: InfixTree | Cst.Node, info: InfixTree["info"]): InfixTree {
+function INFIX_TREE(left: InfixTree | Cst.Node, right: InfixTree | Cst.Node, info: InfixTree['info']): InfixTree {
 	return { type: 'infixTree', left, right, info };
 }
 
@@ -47,7 +47,7 @@ function INFIX_TREE(left: InfixTree | Cst.Node, right: InfixTree | Cst.Node, inf
  * - NOTE: 右結合性の演算子としては代入演算子などが挙げられる
  * - NOTE: 比較の演算子などは非結合性とされる
  */
-function insertTree(currTree: InfixTree | Cst.Node, nextTree: InfixTree | Cst.Node, nextOpInfo: InfixTree["info"]): InfixTree {
+function insertTree(currTree: InfixTree | Cst.Node, nextTree: InfixTree | Cst.Node, nextOpInfo: InfixTree['info']): InfixTree {
 	if (currTree.type !== 'infixTree') {
 		return INFIX_TREE(currTree, nextTree, nextOpInfo);
 	}
@@ -74,7 +74,7 @@ function treeToNode(tree: InfixTree | Cst.Node): Cst.Node {
 	} as Cst.Call;
 }
 
-const infoTable: Record<string, InfixTree["info"]> = {
+const infoTable: Record<string, InfixTree['info']> = {
 	'*': { func: 'Core:mul', priority: 7 },
 	'/': { func: 'Core:div', priority: 7 },
 	'%': { func: 'Core:mod', priority: 7 },

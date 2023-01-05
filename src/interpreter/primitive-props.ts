@@ -1,6 +1,7 @@
 import { substring, length, indexOf, toArray } from 'stringz';
 import { assertArray, assertBoolean, assertFunction, assertNumber, assertString, expectAny } from './util';
-import { ARR, FALSE, FN_NATIVE, NULL, NUM, STR, TRUE, Value, VArr, VFn, VNum, VStr } from './value';
+import { ARR, FALSE, FN_NATIVE, NULL, NUM, STR, TRUE } from './value';
+import type { Value, VArr, VFn, VNum, VStr } from './value';
 
 export const PRIMITIVE_PROPS = {
 	num: {

@@ -1,5 +1,5 @@
-import * as Ast from './node';
 import { SyntaxError } from './error';
+import type * as Ast from './node';
 
 // Type (Semantic analyzed)
 

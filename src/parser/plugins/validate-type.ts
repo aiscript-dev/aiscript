@@ -1,6 +1,6 @@
-import * as Cst from '../node';
 import { getTypeBySource } from '../../type';
 import { visitNode } from '../visit';
+import type * as Cst from '../node';
 
 function validateNode(node: Cst.Node): Cst.Node {
 	switch (node.type) {
