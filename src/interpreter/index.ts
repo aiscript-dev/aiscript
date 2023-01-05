@@ -177,7 +177,7 @@ export class Interpreter {
 
 	@autobind
 	private async _eval(node: Ast.Node, scope: Scope): Promise<Value> {
-		await new Promise(resolve => setTimeout(resolve, 1));
+		await new Promise(resolve => setTimeout(resolve, 0));
 
 		if (this.stop) return NULL;
 		this.stepCount++;
