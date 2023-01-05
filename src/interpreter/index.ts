@@ -12,6 +12,9 @@ import { PRIMITIVE_PROPS } from './primitive-props';
 import type { Value, VFn } from './value';
 import type * as Ast from '../node';
 
+const IRQ_RATE = 30;
+const IRQ_AT = IRQ_RATE - 1;
+
 export class Interpreter {
 	private vars: Record<string, Value>;
 	private opts: {
@@ -177,9 +180,8 @@ export class Interpreter {
 
 	@autobind
 	private async _eval(node: Ast.Node, scope: Scope): Promise<Value> {
-		await new Promise(resolve => setTimeout(resolve, 0));
-
 		if (this.stop) return NULL;
+		if (this.stepCount % IRQ_RATE === IRQ_AT) await new Promise(resolve => setTimeout(resolve, 5));
 		this.stepCount++;
 		if (this.opts.maxStep && this.stepCount > this.opts.maxStep) {
 			throw new RuntimeError('max step exceeded');
