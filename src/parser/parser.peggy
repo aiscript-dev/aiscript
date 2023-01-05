@@ -70,7 +70,7 @@ Comment
 
 Main
 	= _* content:GlobalStatements? _*
-{ return content || []; }
+{ return content ?? []; }
 
 GlobalStatements
 	= head:GlobalStatement tails:(__* LF _* s:GlobalStatement { return s; })*
@@ -203,7 +203,7 @@ Attr
 {
 	return createNode('attr', {
 		name: name,
-		value: value || createNode('bool', { value: true })
+		value: value ?? createNode('bool', { value: true })
 	});
 }
 
@@ -234,7 +234,7 @@ For
 {
 	return createNode('for', {
 		var: varn,
-		from: from || createNode('num', { value: 0 }),
+		from: from ?? createNode('num', { value: 0 }),
 		to: to,
 		for: x,
 	});
@@ -243,7 +243,7 @@ For
 {
 	return createNode('for', {
 		var: varn,
-		from: from || createNode('num', { value: 0 }),
+		from: from ?? createNode('num', { value: 0 }),
 		to: to,
 		for: x,
 	});
@@ -333,7 +333,7 @@ Chain
 
 CallChain
 	= "(" _* args:CallArgs? _* ")"
-{ return createNode('callChain', { args: args || [] }); }
+{ return createNode('callChain', { args: args ?? [] }); }
 
 CallArgs
 	= head:Expr tails:(SEP expr:Expr { return expr; })*
@@ -355,7 +355,7 @@ If
 	return createNode('if', {
 		cond: cond,
 		then: then,
-		elseif: elseif || [],
+		elseif: elseif ?? [],
 		else: elseBlock
 	});
 }
@@ -379,7 +379,7 @@ Match
 {
 	return createNode('match', {
 		about: about,
-		qs: qs || [],
+		qs: qs ?? [],
 		default: x
 	});
 }
@@ -508,7 +508,7 @@ FnDef
 	}
 	return createNode('def', {
 		name: name,
-		expr: createNode('fn', { args: args || [], retType: ret }, content || []),
+		expr: createNode('fn', { args: args ?? [], retType: ret }, content ?? []),
 		mut: false,
 		attr: []
 	});
@@ -517,7 +517,7 @@ FnDef
 // function expression
 
 Fn = "@(" _* args:Args? _* ")" ret:(_* ":" _* @Type)? _* "{" _* content:Statements? _* "}"
-{ return createNode('fn', { args: args || [], retType: ret }, content || []); }
+{ return createNode('fn', { args: args ?? [], retType: ret }, content ?? []); }
 
 
 
@@ -555,7 +555,7 @@ Type
 
 FnType
 	= "@(" _* args:ArgTypes? _* ")" _* "=>" _* result:Type
-{ return createNode('fnTypeSource', { args: args || [], result }); }
+{ return createNode('fnTypeSource', { args: args ?? [], result }); }
 
 ArgTypes
 	= head:Type tails:(SEP @Type)*
@@ -587,7 +587,7 @@ SEP
 
 BlockOrStatement
 	= "{" _* s:Statements? _* "}"
-{ return createNode('block', { statements: (s || []) }); }
+{ return createNode('block', { statements: (s ?? []) }); }
 	/ Statement
 
 LF

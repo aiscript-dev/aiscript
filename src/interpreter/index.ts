@@ -26,7 +26,7 @@ export class Interpreter {
 	private abortHandlers: (() => void)[] = [];
 
 	constructor(vars: Interpreter['vars'], opts?: Interpreter['opts']) {
-		this.opts = opts || {};
+		this.opts = opts ?? {};
 
 		const io = {
 			print: FN_NATIVE(([v]) => {
@@ -164,10 +164,10 @@ export class Interpreter {
 				registerAbortHandler: this.registerAbortHandler,
 				unregisterAbortHandler: this.unregisterAbortHandler,
 			}));
-			return result || NULL;
+			return result ?? NULL;
 		} else {
 			const _args = new Map() as Map<string, any>;
-			for (let i = 0; i < (fn.args || []).length; i++) {
+			for (let i = 0; i < (fn.args ?? []).length; i++) {
 				_args.set(fn.args![i], args[i]);
 			}
 			const fnScope = fn.scope!.createChildScope(_args);

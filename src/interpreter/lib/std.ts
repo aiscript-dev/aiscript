@@ -280,7 +280,7 @@ export const std: Record<string, Value> = {
 	'Obj:get': FN_NATIVE(([obj, key]) => {
 		assertObject(obj);
 		assertString(key);
-		return obj.value.get(key.value) || NULL;
+		return obj.value.get(key.value) ?? NULL;
 	}),
 
 	'Obj:set': FN_NATIVE(([obj, key, value]) => {
