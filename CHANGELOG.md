@@ -1,5 +1,9 @@
 [Read translated version (en)](./translations/en/CHANGELOG.md)
 
+# 0.12.2
+- 否定構文`!`
+- インタプリタ処理速度の調整
+
 # 0.12.1
 - 文字列をシングルクォートでも定義可能に
 - for文、loop文の中でreturnが動作しない問題を修正
