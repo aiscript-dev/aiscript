@@ -12,7 +12,7 @@ import { PRIMITIVE_PROPS } from './primitive-props';
 import type { Value, VFn } from './value';
 import type * as Ast from '../node';
 
-const IRQ_RATE = 100
+const IRQ_RATE = 100;
 const IRQ_AT = IRQ_RATE - 1;
 
 export class Interpreter {
