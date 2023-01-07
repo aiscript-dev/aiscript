@@ -30,6 +30,7 @@ export function isStatement(x: Node): x is Statement {
 
 export type Expression =
 	Infix |
+	Not |
 	If |
 	Fn |
 	Match |
@@ -146,6 +147,11 @@ export type Infix = NodeBase & {
 	type: 'infix';
 	operands: Expression[];
 	operators: InfixOperator[];
+};
+
+export type Not = NodeBase & {
+	type: 'not';
+	expr: Expression;
 };
 
 export type If = NodeBase & {

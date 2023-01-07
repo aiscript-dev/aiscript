@@ -42,6 +42,7 @@ export type Expression =
 	Null |
 	Obj |
 	Arr |
+	Not |
 	Identifier |
 	Call |
 	Index |
@@ -137,6 +138,11 @@ export type SubAssign = NodeBase & {
 export type Assign = NodeBase & {
 	type: 'assign'; // 代入文
 	dest: Expression; // 代入先
+	expr: Expression; // 式
+};
+
+export type Not = NodeBase & {
+	type: 'not'; // 否定
 	expr: Expression; // 式
 };
 

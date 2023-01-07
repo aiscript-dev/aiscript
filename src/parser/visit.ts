@@ -50,6 +50,10 @@ export function visitNode(node: Cst.Node, fn: (node: Cst.Node) => Cst.Node): Cst
 			}
 			break;
 		}
+		case 'not': {
+			result.expr = visitNode(result.expr, fn) as Cst.Return['expr'];
+			break;
+		}
 		case 'if': {
 			result.cond = visitNode(result.cond, fn) as Cst.If['cond'];
 			result.then = visitNode(result.then, fn) as Cst.If['then'];

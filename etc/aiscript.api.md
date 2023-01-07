@@ -102,6 +102,7 @@ declare namespace Ast {
         AddAssign,
         SubAssign,
         Assign,
+        Not,
         If,
         Fn,
         Match,
@@ -263,6 +264,7 @@ declare namespace Cst {
         Assign_2 as Assign,
         InfixOperator,
         Infix,
+        Not_2 as Not,
         If_2 as If,
         Fn_2 as Fn,
         Match_2 as Match,
@@ -341,10 +343,10 @@ export { errors }
 function expectAny(val: Value | null | undefined): asserts val is Value;
 
 // @public (undocumented)
-type Expression = If | Fn | Match | Block | Tmpl | Str | Num | Bool | Null | Obj | Arr | Identifier | Call | Index | Prop;
+type Expression = If | Fn | Match | Block | Tmpl | Str | Num | Bool | Null | Obj | Arr | Not | Identifier | Call | Index | Prop;
 
 // @public (undocumented)
-type Expression_2 = Infix | If_2 | Fn_2 | Match_2 | Block_2 | Tmpl_2 | Str_2 | Num_2 | Bool_2 | Null_2 | Obj_2 | Arr_2 | Identifier_2 | Call_2 | // IR
+type Expression_2 = Infix | Not_2 | If_2 | Fn_2 | Match_2 | Block_2 | Tmpl_2 | Str_2 | Num_2 | Bool_2 | Null_2 | Obj_2 | Arr_2 | Identifier_2 | Call_2 | // IR
 Index_2 | // IR
 Prop_2;
 
@@ -647,6 +649,18 @@ type Node_2 = Namespace | Meta | Statement | Expression | TypeSource;
 
 // @public
 type Node_3 = Namespace_2 | Meta_2 | Statement_2 | Expression_2 | ChainMember | TypeSource_2;
+
+// @public (undocumented)
+type Not = NodeBase & {
+    type: 'not';
+    expr: Expression;
+};
+
+// @public (undocumented)
+type Not_2 = NodeBase_2 & {
+    type: 'not';
+    expr: Expression_2;
+};
 
 // @public (undocumented)
 const NULL: {
