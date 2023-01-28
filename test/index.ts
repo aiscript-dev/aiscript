@@ -1080,6 +1080,37 @@ describe('Return', () => {
 		`);
 		eq(res, NUM(1));
 	});
+
+	test.concurrent('return inside each', async () =>
+	{
+		const res = await exe(`
+		@f() {
+			var count = 0
+			each (let item, ["ai", "chan", "kawaii"]) {
+				count += 1
+				if (item == "chan") {
+					return count
+				}
+			}
+		}
+		<: f()
+		`);
+		eq(res, NUM(2));
+	});
+
+	test.concurrent('return inside each 2', async () =>
+	{
+		const res = await exe(`
+		@f() {
+			each (let item, ["ai", "chan", "kawaii"]) {
+				return 1
+			}
+			2
+		}
+		<: f()
+		`);
+		eq(res, NUM(1));
+	});
 });
 
 describe('Eval', () => {
@@ -1288,12 +1319,12 @@ describe('loop', () => {
 
 	test.concurrent('with continue', async () => {
 		const res = await exe(`
-		var a = ["ai" "chan" "kawaii" "!"]
+		var a = ["ai" "chan" "kawaii" "yo" "!"]
 		var b = []
 		loop {
 			var x = a.shift()
 			if (x == "chan") continue
-			if (x == "!") break
+			if (x == "yo") break
 			b.push(x)
 		}
 		<: b
@@ -1396,7 +1427,7 @@ describe('for of', () => {
 	test.concurrent('Break', async () => {
 		const res = await exe(`
 		let msgs = []
-		each let item, ["ai", "chan", "kawaii"] {
+		each let item, ["ai", "chan", "kawaii" "yo"] {
 			if (item == "kawaii") break
 			msgs.push([item, "!"].join())
 		}
