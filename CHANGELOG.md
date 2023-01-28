@@ -1,9 +1,10 @@
 [Read translated version (en)](./translations/en/CHANGELOG.md)
 
+- each文の中でbreakとreturnが動作しない問題を修正
+
 # 0.12.2
 - 否定構文`!`
 - インタプリタ処理速度の調整
-- each文の中でbreakとreturnが動作しない問題を修正
 
 # 0.12.1
 - 文字列をシングルクォートでも定義可能に
