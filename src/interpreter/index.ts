@@ -281,9 +281,14 @@ export class Interpreter {
 				const items = await this._eval(node.items, scope);
 				assertArray(items);
 				for (const item of items.value) {
-					await this._eval(node.for, scope.createChildScope(new Map([
+					const v = await this._eval(node.for, scope.createChildScope(new Map([
 						[node.var, item],
 					])));
+					if (v.type === 'break') {
+						break;
+					} else if (v.type === 'return') {
+						return v;
+					}
 				}
 				return NULL;
 			}
