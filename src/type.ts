@@ -68,7 +68,7 @@ export function isCompatibleType(a: Type, b: Type): boolean {
 			// inners
 			if (a.inners.length !== b.inners.length) return false;
 			for (let i = 0; i < a.inners.length; i++) {
-				if (!isCompatibleType(a.inners[i], b.inners[i])) return false;
+				if (!isCompatibleType(a.inners[i]!, b.inners[i]!)) return false;
 			}
 			break;
 		}
@@ -79,7 +79,7 @@ export function isCompatibleType(a: Type, b: Type): boolean {
 			// fn args
 			if (a.args.length !== b.args.length) return false;
 			for (let i = 0; i < a.args.length; i++) {
-				if (!isCompatibleType(a.args[i], b.args[i])) return false;
+				if (!isCompatibleType(a.args[i]!, b.args[i]!)) return false;
 			}
 			break;
 		}

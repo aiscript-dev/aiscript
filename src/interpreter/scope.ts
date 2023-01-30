@@ -80,13 +80,14 @@ export class Scope {
 	@autobind
 	public add(name: string, val: Value) {
 		this.log('add', { var: name, val: val });
-		if (this.layerdStates[0].has(name)) {
+		const states = this.layerdStates[0]!;
+		if (states.has(name)) {
 			throw new RuntimeError(
 				`Variable '${name}' is alerady exists in scope '${this.name}'`, {
 					scope: this.layerdStates,
 				});
 		}
-		this.layerdStates[0].set(name, val);
+		states.set(name, val);
 		if (this.parent == null) this.onUpdated(name, val);
 	}
 

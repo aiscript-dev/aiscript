@@ -1,6 +1,7 @@
 [Read translated version (en)](./translations/en/CHANGELOG.md)
 
 - each文の中でbreakとreturnが動作しない問題を修正
+- 配列の境界外にアクセスした際にIndexOutOfRangeエラーを発生させるように
 
 # 0.12.2
 - 否定構文`!`

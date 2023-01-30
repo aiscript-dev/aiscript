@@ -334,7 +334,8 @@ declare namespace errors {
     export {
         AiScriptError,
         SyntaxError_2 as SyntaxError,
-        RuntimeError
+        RuntimeError,
+        IndexOutOfRangeError
     }
 }
 export { errors }
@@ -497,6 +498,11 @@ type IndexChain = NodeBase_2 & {
     type: 'indexChain';
     index: Expression_2;
 };
+
+// @public (undocumented)
+class IndexOutOfRangeError extends RuntimeError {
+    constructor(message: string, info?: any);
+}
 
 // @public (undocumented)
 type Infix = NodeBase_2 & {

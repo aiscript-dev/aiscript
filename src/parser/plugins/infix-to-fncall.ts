@@ -101,16 +101,16 @@ function transform(node: Cst.Infix): Cst.Node {
 		}
 		return info;
 	});
-	let currTree = INFIX_TREE(node.operands[0], node.operands[1], infos[0]);
+	let currTree = INFIX_TREE(node.operands[0]!, node.operands[1]!, infos[0]!);
 	for (let i = 0; i < infos.length - 1; i++) {
-		currTree = insertTree(currTree, node.operands[2 + i], infos[1 + i]);
+		currTree = insertTree(currTree, node.operands[2 + i]!, infos[1 + i]!);
 	}
 	return treeToNode(currTree);
 }
 
 export function infixToFnCall(nodes: Cst.Node[]): Cst.Node[] {
 	for (let i = 0; i < nodes.length; i++) {
-		nodes[i] = visitNode(nodes[i], (node) => {
+		nodes[i] = visitNode(nodes[i]!, (node) => {
 			if (node.type === 'infix') {
 				return transform(node);
 			}

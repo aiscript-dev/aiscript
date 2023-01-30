@@ -24,3 +24,9 @@ export class RuntimeError extends AiScriptError {
 		super(message, info);
 	}
 }
+
+export class IndexOutOfRangeError extends RuntimeError {
+	constructor(message: string, info?: any) {
+		super(message, info);
+	}
+}

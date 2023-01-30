@@ -719,6 +719,18 @@ describe('Array', () => {
 		`);
 		eq(res, ARR([STR('ai'), STR('taso'), STR('kawaii')]));
 	});
+
+	test.concurrent('index out of range error', async () => {
+		try {
+			await exe(`
+			<: [42][1]
+			`);
+		} catch (e) {
+			assert.equal(e instanceof errors.IndexOutOfRangeError, true);
+			return;
+		}
+		assert.fail();
+	});
 });
 
 describe('chain', () => {

@@ -33,7 +33,7 @@ function transformNode(node: Cst.Node): Cst.Node {
 
 export function transformChain(nodes: Cst.Node[]): Cst.Node[] {
 	for (let i = 0; i < nodes.length; i++) {
-		nodes[i] = visitNode(nodes[i], transformNode);
+		nodes[i] = visitNode(nodes[i]!, transformNode);
 	}
 	return nodes;
 }

@@ -3,7 +3,7 @@
  */
 
 import autobind from 'autobind-decorator';
-import { RuntimeError } from '../error';
+import { IndexOutOfRangeError, RuntimeError } from '../error';
 import { Scope } from './scope';
 import { std } from './lib/std';
 import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray, eq, isObject, isArray, isString, expectAny, isNumber } from './util';
@@ -171,7 +171,7 @@ export class Interpreter {
 		} else {
 			const _args = new Map() as Map<string, any>;
 			for (let i = 0; i < (fn.args ?? []).length; i++) {
-				_args.set(fn.args![i], args[i]);
+				_args.set(fn.args![i]!, args[i]);
 			}
 			const fnScope = fn.scope!.createChildScope(_args);
 			return unWrapRet(await this._run(fn.statements!, fnScope));
@@ -407,7 +407,11 @@ export class Interpreter {
 				assertArray(target);
 				const i = await this._eval(node.index, scope);
 				assertNumber(i);
-				return target.value[i.value]; // TODO: 存在チェック
+				const item = target.value[i.value];
+				if (item === undefined) {
+					throw new IndexOutOfRangeError(`Index out of range. index: ${i.value} max: ${target.value.length - 1}`);
+				}
+				return item;
 			}
 
 			case 'not': {
@@ -478,7 +482,7 @@ export class Interpreter {
 		let v: Value = NULL;
 
 		for (let i = 0; i < program.length; i++) {
-			const node = program[i];
+			const node = program[i]!;
 
 			v = await this._eval(node, scope);
 			if (v.type === 'return') {

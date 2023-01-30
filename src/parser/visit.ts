@@ -33,7 +33,7 @@ export function visitNode(node: Cst.Node, fn: (node: Cst.Node) => Cst.Node): Cst
 		}
 		case 'loop': {
 			for (let i = 0; i < result.statements.length; i++) {
-				result.statements[i] = visitNode(result.statements[i], fn) as Cst.Loop['statements'][number];
+				result.statements[i] = visitNode(result.statements[i]!, fn) as Cst.Loop['statements'][number];
 			}
 			break;
 		}
@@ -46,7 +46,7 @@ export function visitNode(node: Cst.Node, fn: (node: Cst.Node) => Cst.Node): Cst
 		}
 		case 'infix': {
 			for (let i = 0; i < result.operands.length; i++) {
-				result.operands[i] = visitNode(result.operands[i], fn) as Cst.Infix['operands'][number];
+				result.operands[i] = visitNode(result.operands[i]!, fn) as Cst.Infix['operands'][number];
 			}
 			break;
 		}
@@ -68,7 +68,7 @@ export function visitNode(node: Cst.Node, fn: (node: Cst.Node) => Cst.Node): Cst
 		}
 		case 'fn': {
 			for (let i = 0; i < result.children.length; i++) {
-				result.children[i] = visitNode(result.children[i], fn) as Cst.Fn['children'][number];
+				result.children[i] = visitNode(result.children[i]!, fn) as Cst.Fn['children'][number];
 			}
 			break;
 		}
@@ -85,13 +85,13 @@ export function visitNode(node: Cst.Node, fn: (node: Cst.Node) => Cst.Node): Cst
 		}
 		case 'block': {
 			for (let i = 0; i < result.statements.length; i++) {
-				result.statements[i] = visitNode(result.statements[i], fn) as Cst.Block['statements'][number];
+				result.statements[i] = visitNode(result.statements[i]!, fn) as Cst.Block['statements'][number];
 			}
 			break;
 		}
 		case 'tmpl': {
 			for (let i = 0; i < result.tmpl.length; i++) {
-				const item = result.tmpl[i];
+				const item = result.tmpl[i]!;
 				if (typeof item !== 'string') {
 					result.tmpl[i] = visitNode(item, fn) as Cst.Tmpl['tmpl'][number];
 				}
@@ -106,13 +106,13 @@ export function visitNode(node: Cst.Node, fn: (node: Cst.Node) => Cst.Node): Cst
 		}
 		case 'arr': {
 			for (let i = 0; i < result.value.length; i++) {
-				result.value[i] = visitNode(result.value[i], fn) as Cst.Arr['value'][number];
+				result.value[i] = visitNode(result.value[i]!, fn) as Cst.Arr['value'][number];
 			}
 			break;
 		}
 		case 'callChain': {
 			for (let i = 0; i < result.args.length; i++) {
-				result.args[i] = visitNode(result.args[i], fn) as Cst.Call['args'][number];
+				result.args[i] = visitNode(result.args[i]!, fn) as Cst.Call['args'][number];
 			}
 			break;
 		}
@@ -123,7 +123,7 @@ export function visitNode(node: Cst.Node, fn: (node: Cst.Node) => Cst.Node): Cst
 		case 'call': {
 			result.target = visitNode(result.target, fn) as Cst.Call['target'];
 			for (let i = 0; i < result.args.length; i++) {
-				result.args[i] = visitNode(result.args[i], fn) as Cst.Call['args'][number];
+				result.args[i] = visitNode(result.args[i]!, fn) as Cst.Call['args'][number];
 			}
 			break;
 		}
@@ -141,7 +141,7 @@ export function visitNode(node: Cst.Node, fn: (node: Cst.Node) => Cst.Node): Cst
 	if (Cst.hasChainProp(result)) {
 		if (result.chain != null) {
 			for (let i = 0; i < result.chain.length; i++) {
-				result.chain[i] = visitNode(result.chain[i], fn) as Cst.ChainMember;
+				result.chain[i] = visitNode(result.chain[i]!, fn) as Cst.ChainMember;
 			}
 		}
 	}

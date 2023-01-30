@@ -121,7 +121,7 @@ export const PRIMITIVE_PROPS = {
 			assertFunction(fn);
 			const vals = [] as Value[];
 			for (let i = 0; i < target.value.length; i++) {
-				const item = target.value[i];
+				const item = target.value[i]!;
 				const res = await opts.call(fn, [item, NUM(i + 1)]);
 				assertBoolean(res);
 				if (res.value) vals.push(item);
@@ -132,9 +132,9 @@ export const PRIMITIVE_PROPS = {
 		reduce: (target: VArr): VFn => FN_NATIVE(async ([fn, initialValue], opts) => {
 			assertFunction(fn);
 			const withInitialValue = initialValue != null;
-			let accumulator = withInitialValue ? initialValue : target.value[0];
+			let accumulator = withInitialValue ? initialValue : target.value[0]!;
 			for (let i = withInitialValue ? 0 : 1; i < target.value.length; i++) {
-				const item = target.value[i];
+				const item = target.value[i]!;
 				accumulator = await opts.call(fn, [accumulator, item, NUM(i + 1)]);
 			}
 			return accumulator;
@@ -143,7 +143,7 @@ export const PRIMITIVE_PROPS = {
 		find: (target: VArr): VFn => FN_NATIVE(async ([fn], opts) => {
 			assertFunction(fn);
 			for (let i = 0; i < target.value.length; i++) {
-				const item = target.value[i];
+				const item = target.value[i]!;
 				const res = await opts.call(fn, [item, NUM(i + 1)]);
 				assertBoolean(res);
 				if (res.value) return item;
