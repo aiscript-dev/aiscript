@@ -162,11 +162,11 @@ export class Interpreter {
 	@autobind
 	private async _fn(fn: VFn, args: Value[]): Promise<Value> {
 		if (fn.native) {
-			const result = await Promise.resolve(fn.native(args, {
+			const result = fn.native(args, {
 				call: this._fn,
 				registerAbortHandler: this.registerAbortHandler,
 				unregisterAbortHandler: this.unregisterAbortHandler,
-			}));
+			});
 			return result ?? NULL;
 		} else {
 			const _args = new Map() as Map<string, any>;
@@ -191,7 +191,7 @@ export class Interpreter {
 			case 'call': {
 				const callee = await this._eval(node.target, scope);
 				assertFunction(callee);
-				const args = await Promise.all(node.args.map(async expr => await this._eval(expr, scope)));
+				const args = await Promise.all(node.args.map(expr => this._eval(expr, scope)));
 				return this._fn(callee, args);
 			}
 
