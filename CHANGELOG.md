@@ -1,5 +1,7 @@
 [Read translated version (en)](./translations/en/CHANGELOG.md)
 
+- Math:Infinity
+
 # 0.12.3
 - each文の中でbreakとreturnが動作しない問題を修正
 - 配列の境界外にアクセスした際にIndexOutOfRangeエラーを発生させるように

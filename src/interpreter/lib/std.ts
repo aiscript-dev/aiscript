@@ -179,6 +179,8 @@ export const std: Record<string, Value> = {
 	//#endregion
 
 	//#region Math
+	'Math:Infinity': NUM(Infinity),
+
 	'Math:PI': NUM(Math.PI),
 
 	'Math:sin': FN_NATIVE(([v]) => {
