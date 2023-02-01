@@ -12,21 +12,15 @@
 
 [Read translated version (en)](./translations/en/README.md)
 
-AiScriptは、JavaScript上で動作する軽量プログラミング言語です。AltJSではありません(1)。
+AiScriptは、JavaScript上で動作する軽量スクリプト言語です。
 
 * 配列、オブジェクト、関数等をファーストクラスでサポート
-* 条件分岐やブロックも式として扱えるなどの柔軟さ
 * セミコロンやカンマは不要で書きやすい
-* セキュア(2)なサンドボックス環境で実行される
-* ホストから変数や関数を提供可能
-
-> (1) ... JavaScript「上で動作」するのであって、JavaScriptに「変換される」のではありません。したがってAltJSではありません。
-
-> (2) ... ホストの情報にアクセスできないこと。
+* セキュアなサンドボックス環境で実行される
+* 無限ループ等でもホストをフリーズさせない
+* ホストから変数や関数を簡単に提供可能
 
 このリポジトリには、JavaScriptで実装されたパーサーと処理系が含まれます。
-
-Note: AiScript and [Misskey](https://github.com/syuilo/misskey) are completely independent projects. AiScript does not prescribe any specific host, but Misskey is the largest user of AiScript (today!)
 
 ## Getting started (language)
 [See here](./docs/get-started.md)
