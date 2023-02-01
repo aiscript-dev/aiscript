@@ -246,6 +246,7 @@ describe('Comment', () => {
 		`);
 		eq(res, NUM(42));
 	});
+
 	test.concurrent('// as string', async () => {
 		const res = await exe('<: "//"');
 		eq(res, STR('//'));
