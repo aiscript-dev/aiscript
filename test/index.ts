@@ -232,7 +232,20 @@ describe('Comment', () => {
 		`);
 		eq(res, NUM(42));
 	});
-
+	
+	test.concurrent('multi line comment 2', async () => {
+		const res = await exe(`
+		/* variable declaration here...
+			let a = ...
+		*/
+		let a = 42
+		/*
+			another comment here
+		*/
+		<: a
+		`);
+		eq(res, NUM(42));
+	});
 	test.concurrent('// as string', async () => {
 		const res = await exe('<: "//"');
 		eq(res, STR('//'));
