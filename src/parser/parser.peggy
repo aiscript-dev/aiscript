@@ -61,7 +61,7 @@ PreprocessPart
 
 Comment
 	= "//" (!EOL .)* { return ''; }
-
+	/ "/*" (!"*/" .)* "*/" { return ''; }
 
 
 //

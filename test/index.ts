@@ -212,9 +212,31 @@ describe('Infix expression', () => {
 	});
 });
 
-test.concurrent('//', async () => {
-	const res = await exe('<: "//"');
-	eq(res, STR('//'));
+describe('Comment', () => {
+	test.concurrent('single line comment', async () => {
+		const res = await exe(`
+		// let a = ...
+		let a = 42
+		<: a
+		`);
+		eq(res, NUM(42));
+	});
+
+	test.concurrent('multi line comment', async () => {
+		const res = await exe(`
+		/* variable declaration here...
+			let a = ...
+		*/
+		let a = 42
+		<: a
+		`);
+		eq(res, NUM(42));
+	});
+
+	test.concurrent('// as string', async () => {
+		const res = await exe('<: "//"');
+		eq(res, STR('//'));
+	});
 });
 
 test.concurrent('式にコロンがあってもオブジェクトと判定されない', async () => {

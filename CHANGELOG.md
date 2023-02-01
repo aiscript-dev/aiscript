@@ -1,5 +1,6 @@
 [Read translated version (en)](./translations/en/CHANGELOG.md)
 
+- block comment `/* ... */`
 - Math:Infinity
 
 # 0.12.3
