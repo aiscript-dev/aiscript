@@ -3,10 +3,13 @@
 [Read translated version (en)](../translations/en/docs/syntax.md)
 
 ## コメント
-`//`で始めた行はコメントになり、プログラムの動作に影響を与えません。
+`//`で始めた行や`/*` `*/`で囲んだ箇所はコメントになり、プログラムの動作に影響を与えません。
 
 ```
 // this is a comment
+/*
+   this is a comment too
+*/
 ```
 
 ## 変数宣言
@@ -16,64 +19,64 @@ let answer = 42
 
 ## if
 ```
-? eq(answer, 42) {
-	print("correct answer")
+if answer == 42 {
+	<: "correct answer"
 }
 ```
 
-else:
+### else:
 ```
-? eq(answer, 42) {
-	print("correct answer")
-} . {
-	print("wrong answer")
+if answer == 42 {
+	<: "correct answer"
+} else {
+	<: "wrong answer"
 }
 ```
 
-else if:
+### else if:
 ```
-? eq(answer, "bebeyo") {
-	print("correct answer")
-} .? eq(answer, "ai") {
-	print("kawaii")
-} . {
-	print("wrong answer")
+if answer == "bebeyo" {
+	<: "correct answer"
+} elif answer == "ai" {
+	<: "kawaii"
+} else {
+	<: "wrong answer"
 }
 ```
 
-as expression:
+### as expression:
 ```
 let result =
-	? eq(answer, "bebeyo") { "correct answer" }
-	.? eq(answer, "ai") { "kawaii" }
-	. { "wrong answer" }
+	if answer == "bebeyo" { "correct answer" }
+	elif answer == "ai" { "kawaii" }
+	else { "wrong answer" }
 
-print(result)
+<: result
 ```
 
 ## for
 ```
 for let i, 10 {
-	print(i)
+	<: i
 }
 ```
 
 ## Block
 ```
-let foo = {
+var foo = eval {
 	let x = 1
 	let y = 2
-	add(x, y)
+	x + y
 }
 
-print(foo) // 3
+<: foo // 3
 ```
 
 ## Function
 ```
 @inc(x) {
-	add(x, 1)
+	x + 1
 }
 
-print(inc(42)) // 43
+<: inc(42) // 43
 ```
