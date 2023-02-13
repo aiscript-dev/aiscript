@@ -232,7 +232,7 @@ describe('Comment', () => {
 		`);
 		eq(res, NUM(42));
 	});
-	
+
 	test.concurrent('multi line comment 2', async () => {
 		const res = await exe(`
 		/* variable declaration here...
@@ -991,7 +991,7 @@ describe('Function call', () => {
 		`);
 		eq(res, NUM(2));
 	});
-	
+
 	test.concurrent('std: throw AiScript error when required arg missing', async () => {
 		try {
 			await exe(`
@@ -1574,7 +1574,7 @@ describe('literal', () => {
 		const res = await exe('<: "ai saw a note \\"bebeyo\\"."');
 		eq(res, STR('ai saw a note "bebeyo".'));
 	});
-	
+
 	test.concurrent('Escaped single quote', async () => {
 		const res = await exe('<: \'ai saw a note \\\'bebeyo\\\'.\'');
 		eq(res, STR('ai saw a note \'bebeyo\'.'));
@@ -2242,10 +2242,28 @@ describe('primitive props', () => {
 			eq(res, ARR([NUM(2), NUM(4), NUM(6)]));
 		});
 
+		test.concurrent('map with index', async () =>
+		{
+			const res = await exe(`
+			let arr = [1, 2, 3]
+			<: arr.map(@(item, index) { item * index })
+			`);
+			eq(res, ARR([NUM(0), NUM(2), NUM(6)]));
+		});
+
 		test.concurrent('filter', async () => {
 			const res = await exe(`
 			let arr = [1, 2, 3]
 			<: arr.filter(@(item) { item != 2 })
+			`);
+			eq(res, ARR([NUM(1), NUM(3)]));
+		});
+
+		test.concurrent('filter with index', async () =>
+		{
+			const res = await exe(`
+			let arr = [1, 2, 3, 4]
+			<: arr.filter(@(item, index) { item != 2 && index != 3 })
 			`);
 			eq(res, ARR([NUM(1), NUM(3)]));
 		});
@@ -2258,12 +2276,30 @@ describe('primitive props', () => {
 			eq(res, NUM(10));
 		});
 
+		test.concurrent('reduce with index', async () =>
+		{
+			const res = await exe(`
+			let arr = [1, 2, 3, 4]
+			<: arr.reduce(@(accumulator, currentValue, index) { (accumulator + (currentValue * index)) } 0)
+			`);
+			eq(res, NUM(20));
+		});
+
 		test.concurrent('find', async () => {
 			const res = await exe(`
 			let arr = ["abc", "def", "ghi"]
 			<: arr.find(@(item) { item.incl("e") })
 			`);
 			eq(res, STR('def'));
+		});
+
+		test.concurrent('find with index', async () =>
+		{
+			const res = await exe(`
+			let arr = ["abc1", "def1", "ghi1", "abc2", "def2", "ghi2"]
+			<: arr.find(@(item, index) { item.incl("e") && index > 1 })
+			`);
+			eq(res, STR('def2'));
 		});
 
 		test.concurrent('incl', async () => {
