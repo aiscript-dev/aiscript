@@ -216,7 +216,7 @@ describe('Infix expression', () => {
 			await exe(`
 				:: Hoge {
 					@add(x, y) {
-						Core:add(x y)
+						x + y
 					}
 				}
 				<: Hoge:add(1, 2)
