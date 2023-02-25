@@ -210,6 +210,20 @@ describe('Infix expression', () => {
 			1 + 1
 		`), NUM(3));
 	});
+
+	test.concurrent('infix-to-fncall on namespace', async () => {
+		eq(
+			await exe(`
+				:: Hoge {
+					@add(x, y) {
+						Core:add(x y)
+					}
+				}
+				<: Hoge:add(1, 2)
+			`),
+			NUM(3)
+		);
+	});
 });
 
 describe('Comment', () => {
