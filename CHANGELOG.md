@@ -1,6 +1,6 @@
 [Read translated version (en)](./translations/en/CHANGELOG.md)
 
-- 配列プロパティ`map`,`filter`,`reduce`,`find`に渡すコールバック関数が受け取るインデックスを0始まりに
+- 配列プロパティ`map`,`filter`,`reduce`,`find`に渡すコールバック関数の受け取るインデックスが1始まりなので、0始まりの`map0`,`filter0`,`reduce0`,`find0`を追加
 
 # 0.12.4
 - block comment `/* ... */`
