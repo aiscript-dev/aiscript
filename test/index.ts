@@ -2248,6 +2248,22 @@ describe('primitive props', () => {
 			let arr = [1, 2, 3]
 			<: arr.map(@(item, index) { item * index })
 			`);
+			eq(res, ARR([NUM(1), NUM(4), NUM(9)]));
+		});
+
+		test.concurrent('map0', async () => {
+			const res = await exe(`
+			let arr = [1, 2, 3]
+			<: arr.map0(@(item) { item * 2 })
+			`);
+			eq(res, ARR([NUM(2), NUM(4), NUM(6)]));
+		});
+
+		test.concurrent('map0 with index', async () => {
+			const res = await exe(`
+			let arr = [1, 2, 3]
+			<: arr.map0(@(item, index) { item * index })
+			`);
 			eq(res, ARR([NUM(0), NUM(2), NUM(6)]));
 		});
 
@@ -2264,6 +2280,22 @@ describe('primitive props', () => {
 			const res = await exe(`
 			let arr = [1, 2, 3, 4]
 			<: arr.filter(@(item, index) { item != 2 && index != 3 })
+			`);
+			eq(res, ARR([NUM(1), NUM(4)]));
+		});
+
+		test.concurrent('filter0', async () => {
+			const res = await exe(`
+			let arr = [1, 2, 3]
+			<: arr.filter0(@(item) { item != 2 })
+			`);
+			eq(res, ARR([NUM(1), NUM(3)]));
+		});
+
+		test.concurrent('filter0 with index', async () => {
+			const res = await exe(`
+			let arr = [1, 2, 3, 4]
+			<: arr.filter0(@(item, index) { item != 2 && index != 3 })
 			`);
 			eq(res, ARR([NUM(1), NUM(3)]));
 		});
@@ -2282,6 +2314,22 @@ describe('primitive props', () => {
 			let arr = [1, 2, 3, 4]
 			<: arr.reduce(@(accumulator, currentValue, index) { (accumulator + (currentValue * index)) } 0)
 			`);
+			eq(res, NUM(30));
+		});
+
+		test.concurrent('reduce0', async () => {
+			const res = await exe(`
+			let arr = [1, 2, 3, 4]
+			<: arr.reduce0(@(accumulator, currentValue) { (accumulator + currentValue) })
+			`);
+			eq(res, NUM(10));
+		});
+
+		test.concurrent('reduce0 with index', async () => {
+			const res = await exe(`
+			let arr = [1, 2, 3, 4]
+			<: arr.reduce0(@(accumulator, currentValue, index) { (accumulator + (currentValue * index)) } 0)
+			`);
 			eq(res, NUM(20));
 		});
 
@@ -2298,6 +2346,22 @@ describe('primitive props', () => {
 			const res = await exe(`
 			let arr = ["abc1", "def1", "ghi1", "abc2", "def2", "ghi2"]
 			<: arr.find(@(item, index) { item.incl("e") && index > 1 })
+			`);
+			eq(res, STR('def1'));
+		});
+
+		test.concurrent('find0', async () => {
+			const res = await exe(`
+			let arr = ["abc", "def", "ghi"]
+			<: arr.find0(@(item) { item.incl("e") })
+			`);
+			eq(res, STR('def'));
+		});
+
+		test.concurrent('find0 with index', async () => {
+			const res = await exe(`
+			let arr = ["abc1", "def1", "ghi1", "abc2", "def2", "ghi2"]
+			<: arr.find0(@(item, index) { item.incl("e") && index > 1 })
 			`);
 			eq(res, STR('def2'));
 		});
