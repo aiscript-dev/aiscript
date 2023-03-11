@@ -3,10 +3,13 @@
 [Read translated version (en)](../translations/en/docs/syntax.md)
 
 ## コメント
-`//`で始めた行はコメントになり、プログラムの動作に影響を与えません。
+`//`で始めた行や`/*` `*/`で囲んだ箇所はコメントになり、プログラムの動作に影響を与えません。
 
 ```
 // this is a comment
+/*
+   this is a comment too
+*/
 ```
 
 ## 変数宣言
@@ -17,44 +20,44 @@ let answer = 42
 ## if
 ```
 if answer == 42 {
-	print("correct answer")
+	<: "correct answer"
 }
 ```
 
-else:
+### else:
 ```
 if answer == 42 {
-	print("correct answer")
+	<: "correct answer"
 } else {
-	print("wrong answer")
+	<: "wrong answer"
 }
 ```
 
-else if:
+### else if:
 ```
-if eq(answer, "bebeyo") {
-	print("correct answer")
-} elif eq(answer, "ai") {
-	print("kawaii")
+if answer == "bebeyo" {
+	<: "correct answer"
+} elif answer == "ai" {
+	<: "kawaii"
 } else {
-	print("wrong answer")
+	<: "wrong answer"
 }
 ```
 
-as expression:
+### as expression:
 ```
 let result =
 	if answer == "bebeyo" { "correct answer" }
 	elif answer == "ai" { "kawaii" }
 	else { "wrong answer" }
 
-print(result)
+<: result
 ```
 
 ## for
 ```
 for let i, 10 {
-	print(i)
+	<: i
 }
 ```
 
@@ -66,7 +69,7 @@ let foo = eval {
 	x + y
 }
 
-print(foo) // 3
+<: foo // 3
 ```
 
 ## Function
@@ -75,5 +78,5 @@ print(foo) // 3
 	x + 1
 }
 
-print(inc(42)) // 43
+<: inc(42) // 43
 ```

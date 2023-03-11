@@ -2,10 +2,10 @@
 
 ## std
 
-### @print(message: str): void
+### @print(_message_: str): void
 画面に文字列を表示します。  
 
-### @readline(message: str): str
+### @readline(_message_: str): str
 文字列の入力を受け付けます。  
 
 ## :: Core
@@ -14,10 +14,10 @@
 型: `str`  
 AiScriptのバージョンです。  
 
-### @Core:type(v: value): str
+### @Core:type(_v_: value): str
 値の型名を取得します。  
 
-### @Core:to_str(v: value): str
+### @Core:to_str(_v_: value): str
 値を表す文字列を取得します。  
 
 ## :: Util
@@ -27,10 +27,10 @@ AiScriptのバージョンです。
 
 ## :: Json
 
-### @Json:stringify(v: value): str
+### @Json:stringify(_v_: value): str
 JSONを生成します。  
 
-### @Json:parse(json: str): value
+### @Json:parse(_json_: str): value
 JSONをパースします。  
 
 ## :: Date
@@ -56,7 +56,7 @@ JSONをパースします。
 ### @Date:second(): num
 現在時刻の秒を取得します。  
 
-### @Date:parse(date: str): num
+### @Date:parse(_date_: str): num
 
 ## :: Math
 
@@ -64,39 +64,45 @@ JSONをパースします。
 型: `num`  
 円周率です。  
 
-### @Math:sin(x: num): num
+### @Math:sin(_x_: num): num
 正弦を計算します。  
 
-### @Math:cos(x: num): num
+### @Math:cos(_x_: num): num
 余弦を計算します。  
 
-### @Math:abs(x: num): num
+### @Math:abs(_x_: num): num
 絶対値を計算します。  
 
-### @Math:sqrt(x: num): num
+### @Math:sqrt(_x_: num): num
 平方根を計算します。  
 
-### @Math:round(x: num): num
+### @Math:round(_x_: num): num
 
-### @Math:floor(x: num): num
+### @Math:floor(_x_: num): num
 
-### @Math:min(a: num, b: num): num
+### @Math:min(_a_: num, _b_: num): num
 小さい方の値を取得します。  
 
-### @Math:max(a: num, b: num): num
+### @Math:max(_a_: num, _b_: num): num
 大きい方の値を取得します。  
 
-### @Math:rnd(min?: num, max?: num): num
+### @Math:rnd(_min_?: num, _max_?: num): num
 乱数を生成します。  
+_min_ および _max_ を渡した場合、_min_ <= x, x <= _max_ の整数、  
+渡していない場合は 0 <= x, x < 1 の 小数が返されます。  
 
-### @Math:gen_rng(seed: num | str): fn
+### @Math:gen_rng(_seed_: num | str): fn
+シードから乱数生成期を生成します。  
 
 ## :: Num
 
-### @Num:to_hex(x: num): str
+### @(_x_: num).to_str(): str
+値を表す文字列を取得します。  
+
+### @Num:to_hex(_x_: num): str
 数値から16進数の文字列を生成します。  
 
-### @Num:from_hex(hex: str): num
+### @Num:from_hex(_hex_: str): num
 16進数の文字列から数値を生成します。  
 
 ## :: Str
@@ -105,92 +111,93 @@ JSONをパースします。
 型: `str`  
 改行コード(LF)です。  
 
-### @Str:to_num(v: num | str): num | null
+### @(_v_: str).to_num(): num | null
+値を表す数値を取得します。  
 
-### @Str:len(v: str): num
+### @(_v_: str).len(): num
 文字列の長さを取得します。  
 
-### @Str:pick(v: str, i: num): str | null
+### @(_v_: str).pick(_i_: num): str | null
 
-### @Str:incl(v: str, keyword: str): bool
+### @(_v_: str).incl(_keyword_: str): bool
 
-### @Str:slice(v: str, begin: num, end: num): str
+### @(_v_: str).slice(_begin_: num, _end_: num): str
 文字列の指定した部分を取得します。  
 
-### @Str:split(v: str, splitter?: str): arr<str>
+### @(_v_: str).split(_splitter_?: str): arr<str>
 
-### @Str:replace(v: str, old: str, new: str): str
+### @(_v_: str).replace( _old_: str, _new_: str): str
 
-### @Str:index_of(v: str, search: str): num
+### @(_v_: str).index_of(_search_: str): num
 
-### @Str:trim(v: str): str
+### @(_v_: str).trim(): str
 
-### @Str:upper(v: str): str
+### @(_v_: str).upper(): str
 
-### @Str:lower(v: str): str
+### @(_v_: str).lower(): str
 
 ## :: Arr
 
-### @Arr:len(v: arr): num
+### @(_v_: arr).len(): num
 配列の要素数を取得します。  
 
-### @Arr:push(v: arr, i: value): null
+### @(_v_: arr).push(_i_: value): null
 配列の最後に要素を追加します。  
 
-### @Arr:unshift(v: arr, i: value): null
+### @(_v_: arr).unshift(i: value): null
 
-### @Arr:pop(v: arr): value
+### @(_v_: arr).pop(): value
 配列の最後の要素を取り出します。  
 
-### @Arr:shift(v: arr): value
+### @(_v_: arr).shift(): value
 
-### @Arr:concat(a: arr, b: arr): arr
+### @(_a_: arr).concat(_b_: arr): arr
 配列を連結します。  
 
-### @Arr:join(v: arr<str>, joiner?: str): str
+### @(_v_: arr<str>).join(_joiner_?: str): str
 文字列の配列を結合して一つの文字列として返します。  
 
-### @Arr:slice(v: arr, begin: num, end: num): arr
+### @(_v_: arr).slice(_begin_: num, _end_: num): arr
 
-### @Arr:incl(v: arr, i: str | num | bool | null): bool
+### @(_v_: arr).incl(_i_: str | num | bool | null): bool
 配列に指定した値が含まれているかどうかを返します。  
 
-### @Arr:map(v: arr, f: fn): arr
+### @(_v_: arr).map(_f_: fn): arr
 
-### @Arr:filter(v: arr, f: fn): arr
+### @(_v_: arr).filter(_f_: fn): arr
 
-### @Arr:reduce(v: arr, f: @(acm: value, item: value, index: num) { value }, initial: value): value
+### @(_v_: arr).reduce(_f_: @(_acm_: value, _item_: value, _index_: num) { value }, _initial_: value): value
 
-### @Arr:find(v: arr, f: @(item: value, index: num) { bool }): value
+### @(_v_: arr).find(_f_: @(_item_: value, _index_: num) { bool }): value
 配列から要素を探します。  
 
-### @Arr:reverse(v: arr): null
+### @(_v_: arr).reverse(): null
 配列を反転させます。  
 
-### @Arr:copy(v: arr): arr
+### @(_v_: arr).copy(): arr
 配列のコピーを生成します。  
 
 ## :: Obj
 
-### @Obj:keys(v: obj): arr
+### @Obj:keys(_v_: obj): arr
 
-### @Obj:kvs(v: obj): arr
+### @Obj:kvs(_v_: obj): arr
 
-### @Obj:get(v: obj, key: str): value
+### @Obj:get(_v_: obj, _key_: str): value
 
-### @Obj:set(v: obj, key: str, val: value): null
+### @Obj:set(_v_: obj, _key_: str, _val_: value): null
 
-### @Obj:has(v: obj, key: str): bool
+### @Obj:has(_v_: obj, _key_: str): bool
 
-### @Obj:copy(v: obj): obj
+### @Obj:copy(_v_: obj): obj
 オブジェクトのコピーを生成します。  
 
 ## :: Async
 
-### @Async:interval(interval: num, callback: fn, immediate?: bool): fn
+### @Async:interval(_interval_: num, _callback_: fn, _immediate_?: bool): fn
 指定した周期でコールバック関数を呼び出します。  
 戻り値として停止関数を返します。  
 
-### @Async:timeout(delay: num, callback: fn):
+### @Async:timeout(_delay_: num, _callback_: fn):
 指定した時間経過後にコールバック関数を呼び出します。  
 戻り値として停止関数を返します。  

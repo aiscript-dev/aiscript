@@ -32,6 +32,13 @@ AiScriptのコメントは`//`で始めます。
 // this is a comment
 ```
 
+複数行にわたってコメントアウトする場合、`/*` `*/`で囲みます。  
+
+```
+/*
+this is a comment
+*/
+```
 ## 第一級オブジェクト
 <table>
 	<tr><th>種類</th><th>型</th><th>リテラル例</th></tr>
