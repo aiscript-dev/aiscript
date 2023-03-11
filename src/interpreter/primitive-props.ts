@@ -112,7 +112,7 @@ export const PRIMITIVE_PROPS = {
 		map: (target: VArr): VFn => FN_NATIVE(async ([fn], opts) => {
 			assertFunction(fn);
 			const vals = target.value.map(async (item, i) => {
-				return await opts.call(fn, [item, NUM(i + 1)]);
+				return await opts.call(fn, [item, NUM(i)]);
 			});
 			return ARR(await Promise.all(vals));
 		}),
@@ -122,7 +122,7 @@ export const PRIMITIVE_PROPS = {
 			const vals = [] as Value[];
 			for (let i = 0; i < target.value.length; i++) {
 				const item = target.value[i]!;
-				const res = await opts.call(fn, [item, NUM(i + 1)]);
+				const res = await opts.call(fn, [item, NUM(i)]);
 				assertBoolean(res);
 				if (res.value) vals.push(item);
 			}
@@ -135,7 +135,7 @@ export const PRIMITIVE_PROPS = {
 			let accumulator = withInitialValue ? initialValue : target.value[0]!;
 			for (let i = withInitialValue ? 0 : 1; i < target.value.length; i++) {
 				const item = target.value[i]!;
-				accumulator = await opts.call(fn, [accumulator, item, NUM(i + 1)]);
+				accumulator = await opts.call(fn, [accumulator, item, NUM(i)]);
 			}
 			return accumulator;
 		}),
@@ -144,7 +144,7 @@ export const PRIMITIVE_PROPS = {
 			assertFunction(fn);
 			for (let i = 0; i < target.value.length; i++) {
 				const item = target.value[i]!;
-				const res = await opts.call(fn, [item, NUM(i + 1)]);
+				const res = await opts.call(fn, [item, NUM(i)]);
 				assertBoolean(res);
 				if (res.value) return item;
 			}
