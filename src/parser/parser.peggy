@@ -231,20 +231,20 @@ Each
 // for statement
 
 For
-	= "for" _* "(" "let" _* varn:NAME _* from:("=" _* v:Expr { return v; })? ","? _* to:Expr ")" _* x:BlockOrStatement
+	= "for" _* "(" "let" _* varn:NAME _* from_:("=" _* v:Expr { return v; })? ","? _* to:Expr ")" _* x:BlockOrStatement
 {
 	return createNode('for', {
 		var: varn,
-		from: from ?? createNode('num', { value: 0 }),
+		from: from_ ?? createNode('num', { value: 0 }),
 		to: to,
 		for: x,
 	});
 }
-	/ "for" _+ "let" _* varn:NAME _* from:("=" _* v:Expr { return v; })? ","? _* to:Expr _+ x:BlockOrStatement
+	/ "for" _+ "let" _* varn:NAME _* from_:("=" _* v:Expr { return v; })? ","? _* to:Expr _+ x:BlockOrStatement
 {
 	return createNode('for', {
 		var: varn,
-		from: from ?? createNode('num', { value: 0 }),
+		from: from_ ?? createNode('num', { value: 0 }),
 		to: to,
 		for: x,
 	});
