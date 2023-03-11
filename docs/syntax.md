@@ -16,27 +16,27 @@ let answer = 42
 
 ## if
 ```
-? eq(answer, 42) {
+if answer == 42 {
 	print("correct answer")
 }
 ```
 
 else:
 ```
-? eq(answer, 42) {
+if answer == 42 {
 	print("correct answer")
-} . {
+} else {
 	print("wrong answer")
 }
 ```
 
 else if:
 ```
-? eq(answer, "bebeyo") {
+if eq(answer, "bebeyo") {
 	print("correct answer")
-} .? eq(answer, "ai") {
+} elif eq(answer, "ai") {
 	print("kawaii")
-} . {
+} else {
 	print("wrong answer")
 }
 ```
@@ -44,9 +44,9 @@ else if:
 as expression:
 ```
 let result =
-	? eq(answer, "bebeyo") { "correct answer" }
-	.? eq(answer, "ai") { "kawaii" }
-	. { "wrong answer" }
+	if answer == "bebeyo" { "correct answer" }
+	elif answer == "ai" { "kawaii" }
+	else { "wrong answer" }
 
 print(result)
 ```
@@ -60,10 +60,10 @@ for let i, 10 {
 
 ## Block
 ```
-let foo = {
+let foo = eval {
 	let x = 1
 	let y = 2
-	add(x, y)
+	x + y
 }
 
 print(foo) // 3
@@ -72,7 +72,7 @@ print(foo) // 3
 ## Function
 ```
 @inc(x) {
-	add(x, 1)
+	x + 1
 }
 
 print(inc(42)) // 43
