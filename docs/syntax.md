@@ -63,7 +63,7 @@ for let i, 10 {
 
 ## Block
 ```
-var foo = eval {
+let foo = eval {
 	let x = 1
 	let y = 2
 	x + y

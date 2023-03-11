@@ -8,59 +8,59 @@ Lines that begin with `//` are comments and do not affect the behavior of the pr
 
 ## Variable declaration
 ```
-#answer = 42
+let answer = 42
 ```
 
 ## if
 ```
-? eq(answer, 42) {
+if answer == 42 {
 	print("correct answer")
 }
 ```
 
 else:
 ```
-? eq(answer, 42) {
+if answer == 42 {
 	print("correct answer")
-} . {
+} elif {
 	print("wrong answer")
 }
 ```
 
 else if:
 ```
-? eq(answer, "bebeyo") {
+if answer == "bebeyo" {
 	print("correct answer")
-} .? eq(answer, "ai") {
+} elif answer == "ai" {
 	print("kawaii")
-} . {
+} else {
 	print("wrong answer")
 }
 ```
 
 as expression:
 ```
-#result =
-	? eq(answer, "bebeyo") { "correct answer" }
-	.? eq(answer, "ai") { "kawaii" }
-	. { "wrong answer" }
+let result =
+	if answer == "bebeyo" { "correct answer" }
+	elif answer == "ai" { "kawaii" }
+	else { "wrong answer" }
 
 print(result)
 ```
 
 ## for
 ```
-for #i, 10 {
+for let i, 10 {
 	print(i)
 }
 ```
 
 ## Block
 ```
-#foo = {
-	#x = 1
-	#y = 2
-	add(x, y)
+let foo = eval {
+	let x = 1
+	let y = 2
+	x + y
 }
 
 print(foo) // 3
@@ -69,7 +69,7 @@ print(foo) // 3
 ## Function
 ```
 @inc(x) {
-	add(x, 1)
+	x + 1
 }
 
 print(inc(42)) // 43

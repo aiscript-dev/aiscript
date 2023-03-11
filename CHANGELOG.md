@@ -1,5 +1,7 @@
 [Read translated version (en)](./translations/en/CHANGELOG.md)
 
+- 配列プロパティ`map`,`filter`,`reduce`,`find`に渡すコールバック関数が受け取るインデックスを0始まりに
+
 # 0.12.4
 - block comment `/* ... */`
 - Math:Infinity
