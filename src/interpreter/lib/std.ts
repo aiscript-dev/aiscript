@@ -229,7 +229,7 @@ export const std: Record<string, Value> = {
 
 	'Math:rnd': FN_NATIVE(([min, max]) => {
 		if (min && min.type === 'num' && max && max.type === 'num') {
-			return NUM(Math.floor(Math.random() * (max.value - min.value + 1) + min.value));
+			return NUM(Math.floor(Math.random() * (Math.floor(max.value) - Math.ceil(min.value)) + Math.ceil(min.value)));
 		}
 		return NUM(Math.random());
 	}),
@@ -242,7 +242,7 @@ export const std: Record<string, Value> = {
 
 		return FN_NATIVE(([min, max]) => {
 			if (min && min.type === 'num' && max && max.type === 'num') {
-				return NUM(Math.floor(rng() * (max.value - min.value + 1) + min.value));
+				return NUM(Math.floor(rng() * (Math.floor(max.value) - Math.ceil(min.value)) + Math.ceil(min.value)));
 			}
 			return NUM(rng());
 		});
