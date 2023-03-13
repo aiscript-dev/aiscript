@@ -2351,7 +2351,7 @@ describe('std', () => {
 			eq(await exe("<: Math:sin(Math:PI / 2)"), NUM(1));
 			eq(await exe("<: Math:sin(0 - (Math:PI / 2))"), NUM(-1));
 			eq(await exe("<: Math:sin(Math:PI / 4) * Math:cos(Math:PI / 4)"), NUM(0.5));
-		});	
+		});
 
 		test.concurrent('abs', async () => {
 			eq(await exe("<: Math:abs(1 - 6)"), NUM(5));
@@ -2379,14 +2379,14 @@ describe('std', () => {
 
 		test.concurrent('min', async () => {
 			eq(await exe("<: Math:min(2, 3)"), NUM(2));
-		});	
+		});
 
 		test.concurrent('max', async () => {
 			eq(await exe("<: Math:max(-2, -3)"), NUM(-2));
-		});		
+		});
 		
 		test.concurrent('rnd', async () => {
-			eq(await exe("<: if (0 <=Math:rnd() && Math:rnd() <= 1) {true}"), BOOL(true));
+			eq(await exe("<: if (0 <= Math:rnd() && Math:rnd() <= 1) {true}"), BOOL(true));
 		});
 
 		test.concurrent('rnd with arg', async () => {
