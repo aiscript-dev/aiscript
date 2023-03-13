@@ -77,8 +77,13 @@ JSONをパースします。
 平方根を計算します。  
 
 ### @Math:round(_x_: num): num
+四捨五入して、もっとも近似の整数を返します。
+
+### @Math:ceil(_x_: num): num
+引数以上の最小の整数を返します。
 
 ### @Math:floor(_x_: num): num
+引数以下の最大の整数を返します。
 
 ### @Math:min(_a_: num, _b_: num): num
 小さい方の値を取得します。  

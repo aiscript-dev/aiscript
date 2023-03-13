@@ -210,6 +210,11 @@ export const std: Record<string, Value> = {
 		return NUM(Math.round(v.value));
 	}),
 
+	'Math:ceil': FN_NATIVE(([v]) => {
+		assertNumber(v);
+		return NUM(Math.ceil(v.value));
+	}),
+
 	'Math:floor': FN_NATIVE(([v]) => {
 		assertNumber(v);
 		return NUM(Math.floor(v.value));
