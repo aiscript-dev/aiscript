@@ -2386,7 +2386,7 @@ describe('std', () => {
 		});		
 		
 		test.concurrent('rnd', async () => {
-			eq(await exe("<: if (0 <=Math:rnd() && Math:rnd() <= 1) {true}"), BOOL(true);
+			eq(await exe("<: if (0 <=Math:rnd() && Math:rnd() <= 1) {true}"), BOOL(true));
 		});
 
 		test.concurrent('rnd with arg', async () => {
