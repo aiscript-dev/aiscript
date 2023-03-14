@@ -2,6 +2,7 @@
 
 - 配列プロパティ`map`,`filter`,`reduce`,`find`に渡すコールバック関数が受け取るインデックスを0始まりに
 - `@Math:ceil(x: num): num` を追加
+- 冪乗の `Core:pow` とその糖衣構文 `^`
 
 # 0.12.4
 - block comment `/* ... */`

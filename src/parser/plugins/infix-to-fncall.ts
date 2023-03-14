@@ -76,6 +76,7 @@ function treeToNode(tree: InfixTree | Cst.Node): Cst.Node {
 
 const infoTable: Record<string, InfixTree['info']> = {
 	'*': { func: 'Core:mul', priority: 7 },
+	'^': { func: 'Core:pow', priority: 7 },
 	'/': { func: 'Core:div', priority: 7 },
 	'%': { func: 'Core:mod', priority: 7 },
 	'+': { func: 'Core:add', priority: 6 },
