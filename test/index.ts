@@ -1964,14 +1964,14 @@ describe('Attribute', () => {
 		`);
 		assert.equal(nodes.length, 1);
 		node = nodes[0];
-		if (node.type != 'def') assert.fail();
+		if (node.type !== 'def') assert.fail();
 		assert.equal(node.name, 'onRecieved');
 		assert.equal(node.attr.length, 1);
 		// attribute 1
 		attr = node.attr[0];
-		if (attr.type != 'attr') assert.fail();
+		if (attr.type !== 'attr') assert.fail();
 		assert.equal(attr.name, 'Event');
-		if (attr.value.type != 'str') assert.fail();
+		if (attr.value.type !== 'str') assert.fail();
 		assert.equal(attr.value.value, 'Recieved');
 	});
 
@@ -1989,18 +1989,18 @@ describe('Attribute', () => {
 		`);
 		assert.equal(nodes.length, 1);
 		node = nodes[0];
-		if (node.type != 'def') assert.fail();
+		if (node.type !== 'def') assert.fail();
 		assert.equal(node.name, 'createNote');
 		assert.equal(node.attr.length, 3);
 		// attribute 1
 		attr = node.attr[0];
-		if (attr.type != 'attr') assert.fail();
+		if (attr.type !== 'attr') assert.fail();
 		assert.equal(attr.name, 'Endpoint');
-		if (attr.value.type != 'obj') assert.fail();
+		if (attr.value.type !== 'obj') assert.fail();
 		assert.equal(attr.value.value.size, 1);
 		for (const [k, v] of attr.value.value) {
-			if (k == 'path') {
-				if (v.type != 'str') assert.fail();
+			if (k === 'path') {
+				if (v.type !== 'str') assert.fail();
 				assert.equal(v.value, '/notes/create');
 			}
 			else {
@@ -2009,15 +2009,15 @@ describe('Attribute', () => {
 		}
 		// attribute 2
 		attr = node.attr[1];
-		if (attr.type != 'attr') assert.fail();
+		if (attr.type !== 'attr') assert.fail();
 		assert.equal(attr.name, 'Desc');
-		if (attr.value.type != 'str') assert.fail();
+		if (attr.value.type !== 'str') assert.fail();
 		assert.equal(attr.value.value, 'Create a note.');
 		// attribute 3
 		attr = node.attr[2];
-		if (attr.type != 'attr') assert.fail();
+		if (attr.type !== 'attr') assert.fail();
 		assert.equal(attr.name, 'Cat');
-		if (attr.value.type != 'bool') assert.fail();
+		if (attr.value.type !== 'bool') assert.fail();
 		assert.equal(attr.value.value, true);
 	});
 
@@ -2034,14 +2034,14 @@ describe('Attribute', () => {
 		`);
 		assert.equal(nodes.length, 1);
 		node = nodes[0];
-		if (node.type != 'def') assert.fail();
+		if (node.type !== 'def') assert.fail();
 		assert.equal(node.name, 'data');
 		assert.equal(node.attr.length, 1);
 		// attribute 1
 		attr = node.attr[0];
-		assert.ok(attr.type == 'attr');
+		assert.ok(attr.type === 'attr');
 		assert.equal(attr.name, 'serializable');
-		if (attr.value.type != 'bool') assert.fail();
+		if (attr.value.type !== 'bool') assert.fail();
 		assert.equal(attr.value.value, true);
 	});
 });
@@ -2348,6 +2348,68 @@ describe('std', () => {
 	});
 
 	describe('Arr', () => {
+	});
+	
+	describe('Math', () => {
+		test.concurrent('trig', async () => {
+			eq(await exe("<: Math:sin(Math:PI / 2)"), NUM(1));
+			eq(await exe("<: Math:sin(0 - (Math:PI / 2))"), NUM(-1));
+			eq(await exe("<: Math:sin(Math:PI / 4) * Math:cos(Math:PI / 4)"), NUM(0.5));
+		});
+
+		test.concurrent('abs', async () => {
+			eq(await exe("<: Math:abs(1 - 6)"), NUM(5));
+		});
+
+		test.concurrent('sqrt', async () => {
+			eq(await exe("<: Math:sqrt(3*3 + 4*4)"), NUM(5));
+		});
+
+		test.concurrent('round', async () => {
+			eq(await exe("<: Math:round(3.14)"), NUM(3));
+			eq(await exe("<: Math:round(-1.414213)"), NUM(-1));
+		});
+
+		test.concurrent('ceil', async () => {
+			eq(await exe("<: Math:ceil(2.71828)"), NUM(3));
+			eq(await exe("<: Math:ceil(0 - Math:PI)"), NUM(-3));
+			eq(await exe("<: Math:ceil(1 / Math:Infinity)"), NUM(0));
+		});
+
+		test.concurrent('floor', async () => {
+			eq(await exe("<: Math:floor(23.14069)"), NUM(23));
+			eq(await exe("<: Math:floor(Math:Infinity / 0)"), NUM(Infinity));
+		});
+
+		test.concurrent('min', async () => {
+			eq(await exe("<: Math:min(2, 3)"), NUM(2));
+		});
+
+		test.concurrent('max', async () => {
+			eq(await exe("<: Math:max(-2, -3)"), NUM(-2));
+		});
+		
+		test.concurrent('rnd', async () => {
+			eq(await exe("<: if (0 <= Math:rnd() && Math:rnd() <= 1) {true}"), BOOL(true));
+		});
+
+		test.concurrent('rnd with arg', async () => {
+			eq(await exe("<: Math:rnd(1, 1.5)"), NUM(1));
+		});
+
+		test.concurrent('gen_rng', async () => {
+			const res = await exe(`
+			@test(seed) {
+				let random = Math:gen_rng(seed)
+				return random(0 100)
+			}
+			let test1 = test("にゃんぷっぷー")
+			let test2 = test("にゃんぷっぷー")
+			let test3 = test("わんぷっぷー")
+			<: [test1 test2 test3]
+			`)
+			eq(res, ARR([NUM(49), NUM(49) ,NUM(25)]));
+		});
 	});
 
 	describe('Obj', () => {

@@ -76,6 +76,8 @@ Calculate the square root.
 
 ### @Math:round(x: num): num
 
+### @Math:ceil(x: num): num
+
 ### @Math:floor(x: num): num
 
 ### @Math:min(a: num, b: num): num
