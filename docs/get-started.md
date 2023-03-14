@@ -121,6 +121,7 @@ Core:add(1, 1)
 	<tr><td><code>Core:add</code></td><td><code>+</code></td><td>加算</td></tr>
 	<tr><td><code>Core:sub</code></td><td><code>-</code></td><td>減算</td></tr>
 	<tr><td><code>Core:mul</code></td><td><code>*</code></td><td>乗算</td></tr>
+	<tr><td><code>Core:pow</code></td><td><code>^</code></td><td>冪算</td></tr
 	<tr><td><code>Core:div</code></td><td><code>/</code></td><td>除算</td></tr>
 	<tr><td><code>Core:mod</code></td><td><code>%</code></td><td>剰余</td></tr>
 	<tr><td><code>Core:eq</code></td><td><code>==</code></td><td>等しい</td></tr>

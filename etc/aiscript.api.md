@@ -512,7 +512,7 @@ type Infix = NodeBase_2 & {
 };
 
 // @public (undocumented)
-type InfixOperator = '||' | '&&' | '==' | '!=' | '<=' | '>=' | '<' | '>' | '+' | '-' | '*' | '|' | '%';
+type InfixOperator = '||' | '&&' | '==' | '!=' | '<=' | '>=' | '<' | '>' | '+' | '-' | '*' | '^' | '/' | '%';
 
 // @public (undocumented)
 export class Interpreter {
