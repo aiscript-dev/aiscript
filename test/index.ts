@@ -2403,12 +2403,13 @@ describe('std', () => {
 				let random = Math:gen_rng(seed)
 				return random(0 100)
 			}
-			let test1 = test("にゃんぷっぷー")
-			let test2 = test("にゃんぷっぷー")
-			let test3 = test("わんぷっぷー")
-			<: [test1 test2 test3]
+			let seed1 = \`{@Util:uuid()}\`
+			let seed2 = \`{@Date:year()}\`
+			let test1 = if (test(seed1) == test(seed1)) {true} else {false}
+			let test2 = if (test(seed1) == test(seed2)) {true} else {false}
+			<: [test1 test2]
 			`)
-			eq(res, ARR([NUM(49), NUM(49) ,NUM(25)]));
+			eq(res, ARR([BOOL(true), BOOL(false)]));
 		});
 	});
 
