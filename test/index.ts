@@ -107,6 +107,10 @@ describe('ops', () => {
 		eq(await exe('<: (1 * 1)'), NUM(1));
 	});
 
+	test.concurrent('^', async () => {
+		eq(await exe('<: (1 ^ 0)'), NUM(1));
+	});
+
 	test.concurrent('/', async () => {
 		eq(await exe('<: (1 / 1)'), NUM(1));
 	});

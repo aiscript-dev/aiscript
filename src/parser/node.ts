@@ -141,7 +141,7 @@ export type Assign = NodeBase & {
 	expr: Expression;
 };
 
-export type InfixOperator = '||' | '&&' | '==' | '!=' | '<=' | '>=' | '<' | '>' | '+' | '-' | '*' | '|' | '%';
+export type InfixOperator = '||' | '&&' | '==' | '!=' | '<=' | '>=' | '<' | '>' | '+' | '-' | '*' | '^' | '/' | '%';
 
 export type Infix = NodeBase & {
 	type: 'infix';
