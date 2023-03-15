@@ -1,5 +1,6 @@
 [Read translated version (en)](./translations/en/CHANGELOG.md)
 
+# 0.13.0
 - 配列プロパティ`map`,`filter`,`reduce`,`find`に渡すコールバック関数が受け取るインデックスを0始まりに
 - `@Math:ceil(x: num): num` を追加
 - 冪乗の `Core:pow` とその糖衣構文 `^`
