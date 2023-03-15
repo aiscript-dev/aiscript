@@ -136,6 +136,12 @@ export function visitNode(node: Cst.Node, fn: (node: Cst.Node) => Cst.Node): Cst
 			result.target = visitNode(result.target, fn) as Cst.Prop['target'];
 			break;
 		}
+		case 'ns': {
+			for (let i = 0; i < result.members.length; i++) {
+				result.members[i] = visitNode(result.members[i]!, fn) as (typeof result.members)[number];
+			}
+			break;
+		}
 	}
 
 	if (Cst.hasChainProp(result)) {
