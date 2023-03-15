@@ -451,7 +451,7 @@ Num
 	/ Int
 
 Float
-	= [+-]? [1-9]+ [0-9]+ "." [0-9]+
+	= [+-]? [1-9] [0-9]+ "." [0-9]+
 	{ return createNode('num', { value: parseFloat(text())}); }
 	/ [+-]? [0-9] "." [0-9]+
 	{ return createNode('num', { value: parseFloat(text())}); }
