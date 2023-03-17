@@ -114,6 +114,7 @@ export function valToString(val: Value, simple = false): string {
 
 export function valToJs(val: Value): any {
 	switch (val.type) {
+		case 'fn': return '<function>';
 		case 'arr': return val.value.map(item => valToJs(item));
 		case 'bool': return val.value;
 		case 'null': return null;
@@ -127,7 +128,7 @@ export function valToJs(val: Value): any {
 			return obj;
 		}
 		case 'str': return val.value;
-		default: return undefined;
+		default: throw new Error(`Unrecognized value type: ${val.type}`);
 	}
 }
 

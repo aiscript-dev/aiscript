@@ -2459,6 +2459,15 @@ describe('std', () => {
 			eq(res, STR('\n'));
 		});
 	});
+
+	describe('Json', () => {
+		test.concurrent('stringify: fn', async () => {
+			const res = await exe(`
+			<: Json:stringify(@(){})
+			`);
+			eq(res, STR('"<function>"'));
+		});
+	});
 });
 
 describe('Unicode', () => {
