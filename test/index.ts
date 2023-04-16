@@ -795,15 +795,21 @@ describe('Array', () => {
 				`);
 			eq(res, ARR([NUM(2), NUM(3), NUM(10)]));
 	});
-	test.concurrent('sort string array', async () => {
+	test.concurrent('sort string array (with Str:lt)', async () => {
 			const res = await exe(`
 					let arr = ["hoge", "huga", "piyo", "hoge"]
-					let comp = @(a, b) { a - b } // ?
-
-					let res = Arr:sort(arr, comp)
+					let res = Arr:sort(arr, Str:lt)
 					<: res
 				`);
 			eq(res, ARR([STR('hoge'), STR('hoge'), STR('huga'), STR('piyo')]));
+	});
+	test.concurrent('sort string array (with Str:gt)', async () => {
+			const res = await exe(`
+					let arr = ["hoge", "huga", "piyo", "hoge"]
+					let res = Arr:sort(arr, Str:gt)
+					<: res
+				`);
+		eq(res, ARR([ STR('piyo'),  STR('huga'), STR('hoge'), STR('hoge')]));
 	});
 	test.concurrent('sort object array', async () => {
 			const res = await exe(`

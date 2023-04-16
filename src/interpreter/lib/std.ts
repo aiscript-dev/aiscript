@@ -276,6 +276,29 @@ export const std: Record<string, Value> = {
 
 	//#region Str
 	'Str:lf': STR('\n'),
+
+	'Str:lt': FN_NATIVE(([a, b]) => {
+		assertString(a);
+		assertString(b);
+		if (a.value < b.value) {
+			return NUM(-1);
+		}else if (a.value === b.value){
+			return NUM(0);
+		}else {
+			return NUM(1);
+		}
+	}),
+	'Str:gt': FN_NATIVE(([a, b]) => {
+		assertString(a);
+		assertString(b);
+		if (a.value > b.value) {
+			return NUM(-1);
+		}else if (a.value === b.value){
+			return NUM(0);
+		}else {
+			return NUM(1);
+		}
+	}),
 	//#endregion
 
 	//#region Arr
@@ -284,7 +307,6 @@ export const std: Record<string, Value> = {
 		assertArray(arr);
 		// TODO 型が合ってない時の処理
 		
-		console.log(comp)
 		// とりあえずバブルソート 
 		for(let i = 0; i < arr.value.length; i++) {
 			for(let j = arr.value.length - 1; j > i; j--) {
@@ -298,9 +320,7 @@ export const std: Record<string, Value> = {
 					arr.value[j] = tmp;
 				}
 			}
-
 		}
-		console.log(arr);
 		return arr
 	}),
 	//#endregion
