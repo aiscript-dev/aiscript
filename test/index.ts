@@ -785,6 +785,15 @@ describe('Array', () => {
 		}
 		assert.fail();
 	});
+	test.concurrent('sort array', async () => {
+			const res = await exe(`
+					let arr = [10, 2, 3]
+
+					sort(arr)
+					<: arr
+				`);
+			eq(res, ARR([NUM(2), NUM(3), NUM(10)]));
+	})
 });
 
 describe('chain', () => {
