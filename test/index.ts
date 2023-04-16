@@ -785,15 +785,36 @@ describe('Array', () => {
 		}
 		assert.fail();
 	});
-	test.concurrent('sort array', async () => {
+	test.concurrent('sort num array', async () => {
 			const res = await exe(`
-					let arr = [10, 2, 3]
+					let arr = [2, 10, 3]
+					let comp = @(a, b) { a - b }
 
-					sort(arr)
-					<: arr
+					let res = Arr:sort(arr, comp)
+					<: res
 				`);
 			eq(res, ARR([NUM(2), NUM(3), NUM(10)]));
-	})
+	});
+	test.concurrent('sort string array', async () => {
+			const res = await exe(`
+					let arr = ["hoge", "huga", "piyo", "hoge"]
+					let comp = @(a, b) { a - b } // ?
+
+					let res = Arr:sort(arr, comp)
+					<: res
+				`);
+			eq(res, ARR([STR('hoge'), STR('hoge'), STR('huga'), STR('piyo')]));
+	});
+	test.concurrent('sort object array', async () => {
+			const res = await exe(`
+					let arr = [{x: 2}, {x: 10}, {x: 3}]
+					let comp = @(a, b) { a.x - b.x }
+
+					let res = Arr:sort(arr, comp)
+					<: res
+				`);
+			eq(res, ARR([OBJ(new Map([['x', NUM(2)]])), OBJ(new Map([['x', NUM(3)]])), OBJ(new Map([['x', NUM(10)]]))]));
+	});
 });
 
 describe('chain', () => {
