@@ -174,5 +174,38 @@ export const PRIMITIVE_PROPS = {
 		copy: (target: VArr): VFn => FN_NATIVE(async ([], opts) => {
 			return ARR([...target.value]);
 		}),
+		sort: (target: VArr): VFn => FN_NATIVE(async ([comp], opts) => {
+			const mergeSort = async (arr: Value[], comp: VFn): Promise<Value[]> => {
+				if (arr.length <= 1) return arr;
+				const mid = Math.floor(arr.length / 2);
+				const left = await mergeSort(arr.slice(0, mid), comp);
+				const right = await mergeSort(arr.slice(mid), comp);
+				return merge(left, right, comp);
+			}
+			const merge = async (left: Value[], right: Value[], comp: VFn): Promise<Value[]> => {
+				const result: Value[] = [];
+				let leftIndex = 0;
+				let rightIndex = 0;
+				while (leftIndex < left.length && rightIndex < right.length) {
+					const l = left[leftIndex] as Value;
+					const r = right[rightIndex] as Value;
+					let compValue = await opts.call(comp, [l, r]);
+					assertNumber(compValue);
+					if (compValue.value < 0) {
+						result.push(left[leftIndex] as Value);
+						leftIndex++;
+					} else {
+						result.push(right[rightIndex] as Value);
+						rightIndex++;
+					}
+				}
+				return result.concat(left.slice(leftIndex)).concat(right.slice(rightIndex));
+			}
+
+			assertFunction(comp);
+			assertArray(target);
+			target.value = await mergeSort(target.value, comp);
+			return target
+		}),
 	},
 } as const;

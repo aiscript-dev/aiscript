@@ -1,5 +1,5 @@
 [Read translated version (en)](./translations/en/CHANGELOG.md)
-
+- array.sortとString用比較関数Str:lt, Str:gtの追加
 # 0.13.1
 - Json:stringifyに関数を渡すと不正な値が生成されるのを修正
 
