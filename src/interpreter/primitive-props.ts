@@ -175,25 +175,37 @@ export const PRIMITIVE_PROPS = {
 			return ARR([...target.value]);
 		}),
 		sort: (target: VArr): VFn => FN_NATIVE(async ([comp], opts) => {
-			assertFunction(comp);
-			assertArray(target);
-			// TODO 型が合ってない時の処理
-			
-			// とりあえずバブルソート 
-			for(let i = 0; i < target.value.length; i++) {
-				for(let j = target.value.length - 1; j > i; j--) {
-					const l = target.value[j - 1] as Value;
-					const r = target.value[j] as Value;
+			const mergeSort = async (arr: Value[], comp: VFn): Promise<Value[]> => {
+				if (arr.length <= 1) return arr;
+				const mid = Math.floor(arr.length / 2);
+				const left = await mergeSort(arr.slice(0, mid), comp);
+				const right = await mergeSort(arr.slice(mid), comp);
+				return merge(left, right, comp);
+			}
+			const merge = async (left: Value[], right: Value[], comp: VFn): Promise<Value[]> => {
+				const result: Value[] = [];
+				let leftIndex = 0;
+				let rightIndex = 0;
+				while (leftIndex < left.length && rightIndex < right.length) {
+					const l = left[leftIndex] as Value;
+					const r = right[rightIndex] as Value;
 					let compValue = await opts.call(comp, [l, r]);
 					assertNumber(compValue);
-					if (compValue.value > 0) {
-						let tmp = target.value[j - 1] as Value;
-						target.value[j - 1] = target.value[j] as Value;
-						target.value[j] = tmp;
+					if (compValue.value < 0) {
+						result.push(left[leftIndex] as Value);
+						leftIndex++;
+					} else {
+						result.push(right[rightIndex] as Value);
+						rightIndex++;
 					}
 				}
+				return result.concat(left.slice(leftIndex)).concat(right.slice(rightIndex));
 			}
+
+			assertFunction(comp);
+			assertArray(target);
+			target.value = await mergeSort(target.value, comp);
 			return target
-	}),
+		}),
 	},
 } as const;
