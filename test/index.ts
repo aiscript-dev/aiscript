@@ -785,42 +785,6 @@ describe('Array', () => {
 		}
 		assert.fail();
 	});
-	test.concurrent('sort num array', async () => {
-			const res = await exe(`
-					let arr = [2, 10, 3]
-					let comp = @(a, b) { a - b }
-
-					let res = Arr:sort(arr, comp)
-					<: res
-				`);
-			eq(res, ARR([NUM(2), NUM(3), NUM(10)]));
-	});
-	test.concurrent('sort string array (with Str:lt)', async () => {
-			const res = await exe(`
-					let arr = ["hoge", "huga", "piyo", "hoge"]
-					let res = Arr:sort(arr, Str:lt)
-					<: res
-				`);
-			eq(res, ARR([STR('hoge'), STR('hoge'), STR('huga'), STR('piyo')]));
-	});
-	test.concurrent('sort string array (with Str:gt)', async () => {
-			const res = await exe(`
-					let arr = ["hoge", "huga", "piyo", "hoge"]
-					let res = Arr:sort(arr, Str:gt)
-					<: res
-				`);
-		eq(res, ARR([ STR('piyo'),  STR('huga'), STR('hoge'), STR('hoge')]));
-	});
-	test.concurrent('sort object array', async () => {
-			const res = await exe(`
-					let arr = [{x: 2}, {x: 10}, {x: 3}]
-					let comp = @(a, b) { a.x - b.x }
-
-					let res = Arr:sort(arr, comp)
-					<: res
-				`);
-			eq(res, ARR([OBJ(new Map([['x', NUM(2)]])), OBJ(new Map([['x', NUM(3)]])), OBJ(new Map([['x', NUM(10)]]))]));
-	});
 });
 
 describe('chain', () => {
@@ -2385,6 +2349,41 @@ describe('primitive props', () => {
 				ARR([NUM(1), NUM(2), NUM(3)])
 			]));
 		});
+	test.concurrent('sort num array', async () => {
+			const res = await exe(`
+					var arr = [2, 10, 3]
+					let comp = @(a, b) { a - b }
+					arr.sort(comp)
+					<: arr
+				`);
+			eq(res, ARR([NUM(2), NUM(3), NUM(10)]));
+	});
+	test.concurrent('sort string array (with Str:lt)', async () => {
+			const res = await exe(`
+					var arr = ["hoge", "huga", "piyo", "hoge"]
+					arr.sort(Str:lt)
+					<: arr
+				`);
+			eq(res, ARR([STR('hoge'), STR('hoge'), STR('huga'), STR('piyo')]));
+	});
+	test.concurrent('sort string array (with Str:gt)', async () => {
+			const res = await exe(`
+					var arr = ["hoge", "huga", "piyo", "hoge"]
+					arr.sort(Str:gt)
+					<: arr
+				`);
+		eq(res, ARR([ STR('piyo'),  STR('huga'), STR('hoge'), STR('hoge')]));
+	});
+	test.concurrent('sort object array', async () => {
+			const res = await exe(`
+					var arr = [{x: 2}, {x: 10}, {x: 3}]
+					let comp = @(a, b) { a.x - b.x }
+
+					arr.sort(comp)
+					<: arr
+				`);
+			eq(res, ARR([OBJ(new Map([['x', NUM(2)]])), OBJ(new Map([['x', NUM(3)]])), OBJ(new Map([['x', NUM(10)]]))]));
+	});
 	});
 });
 

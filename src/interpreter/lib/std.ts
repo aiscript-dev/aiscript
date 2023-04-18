@@ -302,27 +302,6 @@ export const std: Record<string, Value> = {
 	//#endregion
 
 	//#region Arr
-	'Arr:sort': FN_NATIVE(async ([arr, comp], opts) => {
-		assertFunction(comp);
-		assertArray(arr);
-		// TODO 型が合ってない時の処理
-		
-		// とりあえずバブルソート 
-		for(let i = 0; i < arr.value.length; i++) {
-			for(let j = arr.value.length - 1; j > i; j--) {
-				const l = arr.value[j - 1] as Value;
-				const r = arr.value[j] as Value;
-				let compValue = await opts.call(comp, [l, r]);
-				assertNumber(compValue);
-				if (compValue.value > 0) {
-					let tmp = arr.value[j - 1] as Value;
-					arr.value[j - 1] = arr.value[j] as Value;
-					arr.value[j] = tmp;
-				}
-			}
-		}
-		return arr
-	}),
 	//#endregion
 
 	//#region Obj

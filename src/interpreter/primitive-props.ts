@@ -174,5 +174,26 @@ export const PRIMITIVE_PROPS = {
 		copy: (target: VArr): VFn => FN_NATIVE(async ([], opts) => {
 			return ARR([...target.value]);
 		}),
+		sort: (target: VArr): VFn => FN_NATIVE(async ([comp], opts) => {
+			assertFunction(comp);
+			assertArray(target);
+			// TODO 型が合ってない時の処理
+			
+			// とりあえずバブルソート 
+			for(let i = 0; i < target.value.length; i++) {
+				for(let j = target.value.length - 1; j > i; j--) {
+					const l = target.value[j - 1] as Value;
+					const r = target.value[j] as Value;
+					let compValue = await opts.call(comp, [l, r]);
+					assertNumber(compValue);
+					if (compValue.value > 0) {
+						let tmp = target.value[j - 1] as Value;
+						target.value[j - 1] = target.value[j] as Value;
+						target.value[j] = tmp;
+					}
+				}
+			}
+			return target
+	}),
 	},
 } as const;
