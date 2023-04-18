@@ -116,6 +116,14 @@ _min_ および _max_ を渡した場合、_min_ <= x, x <= _max_ の整数、
 型: `str`  
 改行コード(LF)です。  
 
+### #Str:lt(a: str, b: str): num
+a < b ならば -1、a == b ならば 0、a > b ならば 1 を返します。
+arr.sortの比較関数として使用できます。
+
+### #Str:gt(a: str, b: str): num
+a > b ならば -1、a == b ならば 0、a < b ならば 1 を返します。
+arr.sortの比較関数として使用できます。
+
 ### @(_v_: str).to_num(): num | null
 値を表す数値を取得します。  
 
@@ -181,6 +189,9 @@ _min_ および _max_ を渡した場合、_min_ <= x, x <= _max_ の整数、
 
 ### @(_v_: arr).copy(): arr
 配列のコピーを生成します。  
+
+### @(_v_: arr).sort(comp: @(a: value, b: value)): arr
+配列をソートします。compにはStr:lt, Str:gtと同様のnumを返す比較関数を渡します。
 
 ## :: Obj
 
