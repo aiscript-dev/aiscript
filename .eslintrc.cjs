@@ -74,6 +74,15 @@ module.exports = {
 		'import/no-default-export': ['warn'],
 		'import/order': ['warn', {
 			'groups': ['builtin', 'external', 'internal', 'parent', 'sibling', 'index', 'object', 'type'],
-		}]
+		}],
+		'@typescript-eslint/no-unused-vars': [
+			'warn',
+			{
+				'argsIgnorePattern': '^_',
+				'varsIgnorePattern': '^_',
+				'caughtErrorsIgnorePattern': '^_',
+				'destructuredArrayIgnorePattern': '^_'
+			}
+		]
 	},
 };

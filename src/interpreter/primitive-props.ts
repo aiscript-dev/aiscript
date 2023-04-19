@@ -5,13 +5,13 @@ import type { Value, VArr, VFn, VNum, VStr } from './value';
 
 export const PRIMITIVE_PROPS = {
 	num: {
-		to_str: (target: VNum): VFn => FN_NATIVE(async ([], opts) => {
+		to_str: (target: VNum): VFn => FN_NATIVE(async ([], _opts) => {
 			return STR(target.value.toString());
 		}),
 	},
 
 	str: {
-		to_num: (target: VStr): VFn => FN_NATIVE(async ([], opts) => {
+		to_num: (target: VStr): VFn => FN_NATIVE(async ([], _opts) => {
 			const parsed = parseInt(target.value, 10);
 			if (isNaN(parsed)) return NULL;
 			return NUM(parsed);
@@ -19,35 +19,35 @@ export const PRIMITIVE_PROPS = {
 
 		len: (target: VStr): VNum => NUM(length(target.value)),
 
-		replace: (target: VStr): VFn => FN_NATIVE(async ([a, b], opts) => {
+		replace: (target: VStr): VFn => FN_NATIVE(async ([a, b], _opts) => {
 			assertString(a);
 			assertString(b);
 			return STR(target.value.split(a.value).join(b.value));
 		}),
 
-		index_of: (target: VStr): VFn => FN_NATIVE(async ([search], opts) => {
+		index_of: (target: VStr): VFn => FN_NATIVE(async ([search], _opts) => {
 			assertString(search);
 			return NUM(indexOf(target.value, search.value));
 		}),
 
-		incl: (target: VStr): VFn => FN_NATIVE(async ([search], opts) => {
+		incl: (target: VStr): VFn => FN_NATIVE(async ([search], _opts) => {
 			assertString(search);
 			return target.value.includes(search.value) ? TRUE : FALSE;
 		}),
 
-		trim: (target: VStr): VFn => FN_NATIVE(async ([], opts) => {
+		trim: (target: VStr): VFn => FN_NATIVE(async ([], _opts) => {
 			return STR(target.value.trim());
 		}),
 
-		upper: (target: VStr): VFn => FN_NATIVE(async ([], opts) => {
+		upper: (target: VStr): VFn => FN_NATIVE(async ([], _opts) => {
 			return STR(target.value.toUpperCase());
 		}),
 
-		lower: (target: VStr): VFn => FN_NATIVE(async ([], opts) => {
+		lower: (target: VStr): VFn => FN_NATIVE(async ([], _opts) => {
 			return STR(target.value.toLowerCase());
 		}),
 
-		split: (target: VStr): VFn => FN_NATIVE(async ([splitter], opts) => {
+		split: (target: VStr): VFn => FN_NATIVE(async ([splitter], _opts) => {
 			if (splitter) assertString(splitter);
 			if (splitter) {
 				return ARR(target.value.split(splitter ? splitter.value : '').map(s => STR(s)));
@@ -56,13 +56,13 @@ export const PRIMITIVE_PROPS = {
 			}
 		}),
 
-		slice: (target: VStr): VFn => FN_NATIVE(async ([begin, end], opts) => {
+		slice: (target: VStr): VFn => FN_NATIVE(async ([begin, end], _opts) => {
 			assertNumber(begin);
 			assertNumber(end);
 			return STR(substring(target.value, begin.value, end.value));
 		}),
 
-		pick: (target: VStr): VFn => FN_NATIVE(async ([i], opts) => {
+		pick: (target: VStr): VFn => FN_NATIVE(async ([i], _opts) => {
 			assertNumber(i);
 			const chars = toArray(target.value);
 			const char = chars[i.value];
@@ -73,38 +73,38 @@ export const PRIMITIVE_PROPS = {
 	arr: {
 		len: (target: VArr): VNum => NUM(target.value.length),
 
-		push: (target: VArr): VFn => FN_NATIVE(async ([val], opts) => {
+		push: (target: VArr): VFn => FN_NATIVE(async ([val], _opts) => {
 			expectAny(val);
 			target.value.push(val);
 			return target;
 		}),
 
-		unshift: (target: VArr): VFn => FN_NATIVE(async ([val], opts) => {
+		unshift: (target: VArr): VFn => FN_NATIVE(async ([val], _opts) => {
 			expectAny(val);
 			target.value.unshift(val);
 			return target;
 		}),
 
-		pop: (target: VArr): VFn => FN_NATIVE(async ([], opts) => {
+		pop: (target: VArr): VFn => FN_NATIVE(async ([], _opts) => {
 			return target.value.pop() ?? NULL;
 		}),
 
-		shift: (target: VArr): VFn => FN_NATIVE(async ([], opts) => {
+		shift: (target: VArr): VFn => FN_NATIVE(async ([], _opts) => {
 			return target.value.shift() ?? NULL;
 		}),
 
-		concat: (target: VArr): VFn => FN_NATIVE(async ([x], opts) => {
+		concat: (target: VArr): VFn => FN_NATIVE(async ([x], _opts) => {
 			assertArray(x);
 			return ARR(target.value.concat(x.value));
 		}),
 
-		slice: (target: VArr): VFn => FN_NATIVE(async ([begin, end], opts) => {
+		slice: (target: VArr): VFn => FN_NATIVE(async ([begin, end], _opts) => {
 			assertNumber(begin);
 			assertNumber(end);
 			return ARR(target.value.slice(begin.value, end.value));
 		}),
 
-		join: (target: VArr): VFn => FN_NATIVE(async ([joiner], opts) => {
+		join: (target: VArr): VFn => FN_NATIVE(async ([joiner], _opts) => {
 			if (joiner) assertString(joiner);
 			return STR(target.value.map(i => i.type === 'str' ? i.value : '').join(joiner ? joiner.value : ''));
 		}),
@@ -151,7 +151,7 @@ export const PRIMITIVE_PROPS = {
 			return NULL;
 		}),
 
-		incl: (target: VArr): VFn => FN_NATIVE(async ([val], opts) => {
+		incl: (target: VArr): VFn => FN_NATIVE(async ([val], _opts) => {
 			expectAny(val);
 			if (val.type !== 'str' && val.type !== 'num' && val.type !== 'bool' && val.type !== 'null') return FALSE;
 			const getValue = (v: VArr) => {
@@ -166,12 +166,12 @@ export const PRIMITIVE_PROPS = {
 			return getValue(target).includes(val.type === 'null' ? null : val.value) ? TRUE : FALSE;
 		}),
 
-		reverse: (target: VArr): VFn => FN_NATIVE(async ([], opts) => {
+		reverse: (target: VArr): VFn => FN_NATIVE(async ([], _opts) => {
 			target.value.reverse();
 			return NULL;
 		}),
 
-		copy: (target: VArr): VFn => FN_NATIVE(async ([], opts) => {
+		copy: (target: VArr): VFn => FN_NATIVE(async ([], _opts) => {
 			return ARR([...target.value]);
 		}),
 		sort: (target: VArr): VFn => FN_NATIVE(async ([comp], opts) => {
@@ -181,7 +181,7 @@ export const PRIMITIVE_PROPS = {
 				const left = await mergeSort(arr.slice(0, mid), comp);
 				const right = await mergeSort(arr.slice(mid), comp);
 				return merge(left, right, comp);
-			}
+			};
 			const merge = async (left: Value[], right: Value[], comp: VFn): Promise<Value[]> => {
 				const result: Value[] = [];
 				let leftIndex = 0;
@@ -189,7 +189,7 @@ export const PRIMITIVE_PROPS = {
 				while (leftIndex < left.length && rightIndex < right.length) {
 					const l = left[leftIndex] as Value;
 					const r = right[rightIndex] as Value;
-					let compValue = await opts.call(comp, [l, r]);
+					const compValue = await opts.call(comp, [l, r]);
 					assertNumber(compValue);
 					if (compValue.value < 0) {
 						result.push(left[leftIndex] as Value);
@@ -200,12 +200,12 @@ export const PRIMITIVE_PROPS = {
 					}
 				}
 				return result.concat(left.slice(leftIndex)).concat(right.slice(rightIndex));
-			}
+			};
 
 			assertFunction(comp);
 			assertArray(target);
 			target.value = await mergeSort(target.value, comp);
-			return target
+			return target;
 		}),
 	},
 } as const;
