@@ -103,16 +103,18 @@ export function valToString(val: Value, simple = false): string {
 	}
 	const label =
 		val.type === 'num' ? val.value :
-		val.type === 'bool' ? val.value :
-		val.type === 'str' ? `"${val.value}"` :
-		val.type === 'fn' ? '...' :
-		val.type === 'obj' ? '...' :
-		val.type === 'null' ? '' :
-		null;
+			val.type === 'bool' ? val.value :
+				val.type === 'str' ? `"${val.value}"` :
+					val.type === 'fn' ? '...' :
+						val.type === 'obj' ? '...' :
+							val.type === 'null' ? '' :
+								null;
 	return `${val.type}<${label}>`;
 }
 
-export function valToJs(val: Value): any {
+export type InnerVal = object | string | number | boolean | null;
+
+export function valToJs(val: Value): InnerVal {
 	switch (val.type) {
 		case 'fn': return '<function>';
 		case 'arr': return val.value.map(item => valToJs(item));
@@ -120,7 +122,7 @@ export function valToJs(val: Value): any {
 		case 'null': return null;
 		case 'num': return val.value;
 		case 'obj': {
-			const obj: { [k: string]: any } = {};
+			const obj: { [k: string]: InnerVal } = {};
 			for (const [k, v] of val.value.entries()) {
 				// TODO: keyが__proto__とかじゃないかチェック
 				obj[k] = valToJs(v);
@@ -132,7 +134,7 @@ export function valToJs(val: Value): any {
 	}
 }
 
-export function jsToVal(val: any): Value {
+export function jsToVal(val: InnerVal): Value {
 	if (val === null) return NULL;
 	if (typeof val === 'boolean') return BOOL(val);
 	if (typeof val === 'string') return STR(val);

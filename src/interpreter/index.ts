@@ -7,6 +7,7 @@ import { IndexOutOfRangeError, RuntimeError } from '../error';
 import { Scope } from './scope';
 import { std } from './lib/std';
 import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray, eq, isObject, isArray, isString, expectAny, isNumber } from './util';
+import type { InnerVal } from './util';
 import { NULL, RETURN, unWrapRet, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, BREAK, CONTINUE } from './value';
 import { PRIMITIVE_PROPS } from './primitive-props';
 import type { Value, VFn } from './value';
@@ -75,17 +76,17 @@ export class Interpreter {
 	}
 
 	@autobind
-	public static collectMetadata(script?: Ast.Node[]) {
-		if (script == null || script.length === 0) return;
+	public static collectMetadata(script?: Ast.Node[]): Map<string, Ast.Meta> {
+		if (script == null || script.length === 0) return new Map();
 
-		function nodeToJs(node: Ast.Node): any {
+		function nodeToJs(node: Ast.Node): InnerVal | undefined {
 			switch (node.type) {
 				case 'arr': return node.value.map(item => nodeToJs(item));
 				case 'bool': return node.value;
 				case 'null': return null;
 				case 'num': return node.value;
 				case 'obj': {
-					const obj: { [keys: string]: any } = {};
+					const obj: { [keys: string]: InnerVal | undefined } = {};
 					for (const [k, v] of node.value.entries()) {
 						// TODO: keyが__proto__とかじゃないかチェック
 						obj[k] = nodeToJs(v);
@@ -93,7 +94,7 @@ export class Interpreter {
 					return obj;
 				}
 				case 'str': return node.value;
-				// TODO never形default枝
+				default: return undefined;
 			}
 		}
 
@@ -116,7 +117,7 @@ export class Interpreter {
 	}
 
 	@autobind
-	private log(type: string, params: Record<string, any>): void {
+	private log(type: string, params: Record<string, unknown>): void {
 		if (this.opts.log) this.opts.log(type, params);
 	}
 
@@ -170,9 +171,9 @@ export class Interpreter {
 			});
 			return result ?? NULL;
 		} else {
-			const _args = new Map() as Map<string, any>;
+			const _args = new Map() as Map<string, Value>;
 			for (let i = 0; i < (fn.args ?? []).length; i++) {
-				_args.set(fn.args![i]!, args[i]);
+				_args.set(fn.args![i]!, args[i]!);
 			}
 			const fnScope = fn.scope!.createChildScope(_args);
 			return unWrapRet(await this._run(fn.statements!, fnScope));
