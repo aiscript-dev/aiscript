@@ -5,13 +5,13 @@ import type { Value, VArr, VFn, VNum, VStr } from './value';
 
 export const PRIMITIVE_PROPS = {
 	num: {
-		to_str: (target: VNum): VFn => FN_NATIVE(async ([], _opts) => {
+		to_str: (target: VNum): VFn => FN_NATIVE(async (_, _opts) => {
 			return STR(target.value.toString());
 		}),
 	},
 
 	str: {
-		to_num: (target: VStr): VFn => FN_NATIVE(async ([], _opts) => {
+		to_num: (target: VStr): VFn => FN_NATIVE(async (_, _opts) => {
 			const parsed = parseInt(target.value, 10);
 			if (isNaN(parsed)) return NULL;
 			return NUM(parsed);
@@ -35,15 +35,15 @@ export const PRIMITIVE_PROPS = {
 			return target.value.includes(search.value) ? TRUE : FALSE;
 		}),
 
-		trim: (target: VStr): VFn => FN_NATIVE(async ([], _opts) => {
+		trim: (target: VStr): VFn => FN_NATIVE(async (_, _opts) => {
 			return STR(target.value.trim());
 		}),
 
-		upper: (target: VStr): VFn => FN_NATIVE(async ([], _opts) => {
+		upper: (target: VStr): VFn => FN_NATIVE(async (_, _opts) => {
 			return STR(target.value.toUpperCase());
 		}),
 
-		lower: (target: VStr): VFn => FN_NATIVE(async ([], _opts) => {
+		lower: (target: VStr): VFn => FN_NATIVE(async (_, _opts) => {
 			return STR(target.value.toLowerCase());
 		}),
 
@@ -85,11 +85,11 @@ export const PRIMITIVE_PROPS = {
 			return target;
 		}),
 
-		pop: (target: VArr): VFn => FN_NATIVE(async ([], _opts) => {
+		pop: (target: VArr): VFn => FN_NATIVE(async (_, _opts) => {
 			return target.value.pop() ?? NULL;
 		}),
 
-		shift: (target: VArr): VFn => FN_NATIVE(async ([], _opts) => {
+		shift: (target: VArr): VFn => FN_NATIVE(async (_, _opts) => {
 			return target.value.shift() ?? NULL;
 		}),
 
@@ -166,12 +166,12 @@ export const PRIMITIVE_PROPS = {
 			return getValue(target).includes(val.type === 'null' ? null : val.value) ? TRUE : FALSE;
 		}),
 
-		reverse: (target: VArr): VFn => FN_NATIVE(async ([], _opts) => {
+		reverse: (target: VArr): VFn => FN_NATIVE(async (_, _opts) => {
 			target.value.reverse();
 			return NULL;
 		}),
 
-		copy: (target: VArr): VFn => FN_NATIVE(async ([], _opts) => {
+		copy: (target: VArr): VFn => FN_NATIVE(async (_, _opts) => {
 			return ARR([...target.value]);
 		}),
 		sort: (target: VArr): VFn => FN_NATIVE(async ([comp], opts) => {
