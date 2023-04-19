@@ -187,15 +187,15 @@ export const PRIMITIVE_PROPS = {
 				let leftIndex = 0;
 				let rightIndex = 0;
 				while (leftIndex < left.length && rightIndex < right.length) {
-					const l = left[leftIndex] as Value;
-					const r = right[rightIndex] as Value;
+					const l = left[leftIndex]!;
+					const r = right[rightIndex]!;
 					const compValue = await opts.call(comp, [l, r]);
 					assertNumber(compValue);
 					if (compValue.value < 0) {
-						result.push(left[leftIndex] as Value);
+						result.push(left[leftIndex]!);
 						leftIndex++;
 					} else {
-						result.push(right[rightIndex] as Value);
+						result.push(right[rightIndex]!);
 						rightIndex++;
 					}
 				}
