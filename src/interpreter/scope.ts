@@ -56,9 +56,8 @@ export class Scope {
 		}
 
 		throw new RuntimeError(
-			`No such variable '${name}' in scope '${this.name}'`, {
-			scope: this.layerdStates,
-		});
+			`No such variable '${name}' in scope '${this.name}'`,
+			{ scope: this.layerdStates });
 	}
 
 	/**
@@ -83,9 +82,8 @@ export class Scope {
 		const states = this.layerdStates[0]!;
 		if (states.has(name)) {
 			throw new RuntimeError(
-				`Variable '${name}' is alerady exists in scope '${this.name}'`, {
-				scope: this.layerdStates,
-			});
+				`Variable '${name}' is alerady exists in scope '${this.name}'`,
+				{ scope: this.layerdStates });
 		}
 		states.set(name, val);
 		if (this.parent == null) this.onUpdated(name, val);
@@ -110,8 +108,7 @@ export class Scope {
 		}
 
 		throw new RuntimeError(
-			`No such variable '${name}' in scope '${this.name}'`, {
-			scope: this.layerdStates,
-		});
+			`No such variable '${name}' in scope '${this.name}'`,
+			{ scope: this.layerdStates });
 	}
 }
