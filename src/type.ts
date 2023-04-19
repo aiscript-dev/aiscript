@@ -49,6 +49,10 @@ export function T_FN(args: Type[], result: Type): TFn {
 
 export type Type = TSimple | TGeneric | TFn;
 
+function assertTSimple(t: Type): asserts t is TSimple { }
+function assertTGeneric(t: Type): asserts t is TGeneric { }
+function assertTFn(t: Type): asserts t is TFn { }
+
 // Utility
 
 export function isCompatibleType(a: Type, b: Type): boolean {
@@ -57,12 +61,12 @@ export function isCompatibleType(a: Type, b: Type): boolean {
 
 	switch (a.type) {
 		case 'simple': {
-			b = (b as TSimple); // NOTE: TypeGuardが効かない
+			assertTSimple(b); // NOTE: TypeGuardが効かない
 			if (a.name !== b.name) return false;
 			break;
 		}
 		case 'generic': {
-			b = (b as TGeneric); // NOTE: TypeGuardが効かない
+			assertTGeneric(b); // NOTE: TypeGuardが効かない
 			// name
 			if (a.name !== b.name) return false;
 			// inners
@@ -73,7 +77,7 @@ export function isCompatibleType(a: Type, b: Type): boolean {
 			break;
 		}
 		case 'fn': {
-			b = (b as TFn);
+			assertTFn(b); // NOTE: TypeGuardが効かない
 			// fn result
 			if (!isCompatibleType(a.result, b.result)) return false;
 			// fn args
@@ -94,10 +98,10 @@ export function getTypeName(type: Type): string {
 			return type.name;
 		}
 		case 'generic': {
-			return `${ type.name }<${ type.inners.map(inner => getTypeName(inner)).join(', ') }>`;
+			return `${type.name}<${type.inners.map(inner => getTypeName(inner)).join(', ')}>`;
 		}
 		case 'fn': {
-			return `@(${ type.args.map(arg => getTypeName(arg)).join(', ') }) { ${ getTypeName(type.result) } }`;
+			return `@(${type.args.map(arg => getTypeName(arg)).join(', ')}) { ${getTypeName(type.result)} }`;
 		}
 	}
 }
@@ -107,7 +111,7 @@ export function getTypeNameBySource(typeSource: Ast.TypeSource): string {
 		case 'namedTypeSource': {
 			if (typeSource.inner) {
 				const inner = getTypeNameBySource(typeSource.inner);
-				return `${ typeSource.name }<${ inner }>`;
+				return `${typeSource.name}<${inner}>`;
 			} else {
 				return typeSource.name;
 			}
@@ -115,7 +119,7 @@ export function getTypeNameBySource(typeSource: Ast.TypeSource): string {
 		case 'fnTypeSource': {
 			const args = typeSource.args.map(arg => getTypeNameBySource(arg)).join(', ');
 			const result = getTypeNameBySource(typeSource.result);
-			return `@(${ args }) { ${ result } }`;
+			return `@(${args}) { ${result} }`;
 		}
 	}
 }
@@ -147,7 +151,7 @@ export function getTypeBySource(typeSource: Ast.TypeSource): Type {
 				return T_GENERIC(typeSource.name, [innerType]);
 			}
 		}
-		throw new SyntaxError(`Unknown type: '${ getTypeNameBySource(typeSource) }'`);
+		throw new SyntaxError(`Unknown type: '${getTypeNameBySource(typeSource)}'`);
 	} else {
 		const argTypes = typeSource.args.map(arg => getTypeBySource(arg));
 		return T_FN(argTypes, getTypeBySource(typeSource.result));
