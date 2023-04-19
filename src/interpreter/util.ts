@@ -120,7 +120,7 @@ export function valToJs(val: Value): any {
 		case 'null': return null;
 		case 'num': return val.value;
 		case 'obj': {
-			const obj = {};
+			const obj: { [k: string]: any } = {};
 			for (const [k, v] of val.value.entries()) {
 				// TODO: keyが__proto__とかじゃないかチェック
 				obj[k] = valToJs(v);

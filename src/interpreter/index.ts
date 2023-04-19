@@ -85,7 +85,7 @@ export class Interpreter {
 				case 'null': return null;
 				case 'num': return node.value;
 				case 'obj': {
-					const obj = {};
+					const obj: { [keys: string]: any } = {};
 					for (const [k, v] of node.value.entries()) {
 						// TODO: keyが__proto__とかじゃないかチェック
 						obj[k] = nodeToJs(v);
@@ -93,6 +93,7 @@ export class Interpreter {
 					return obj;
 				}
 				case 'str': return node.value;
+				// TODO never形default枝
 			}
 		}
 
