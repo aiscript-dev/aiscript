@@ -154,7 +154,7 @@ export const PRIMITIVE_PROPS = {
 		incl: (target: VArr): VFn => FN_NATIVE(async ([val], _opts) => {
 			expectAny(val);
 			if (val.type !== 'str' && val.type !== 'num' && val.type !== 'bool' && val.type !== 'null') return FALSE;
-			const getValue = (v: VArr) => {
+			const getValue = (v: VArr): (string | number | boolean | symbol | null)[] => {
 				return v.value.map(i => {
 					if (i.type === 'str') return i.value;
 					if (i.type === 'num') return i.value;

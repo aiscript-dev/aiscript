@@ -48,7 +48,7 @@ export class Interpreter {
 		this.vars = { ...vars, ...std, ...io };
 
 		this.scope = new Scope([new Map(Object.entries(this.vars))]);
-		this.scope.opts.log = (type, params) => {
+		this.scope.opts.log = (type, params): void => {
 			switch (type) {
 				case 'add': this.log('var:add', params); break;
 				case 'read': this.log('var:read', params); break;
@@ -59,7 +59,7 @@ export class Interpreter {
 	}
 
 	@autobind
-	public async exec(script?: Ast.Node[]) {
+	public async exec(script?: Ast.Node[]): Promise<void> {
 		if (script == null || script.length === 0) return;
 
 		await this.collectNs(script);
@@ -70,7 +70,7 @@ export class Interpreter {
 	}
 
 	@autobind
-	public async execFn(fn: VFn, args: Value[]) {
+	public async execFn(fn: VFn, args: Value[]): Promise<Value> {
 		return this._fn(fn, args);
 	}
 
