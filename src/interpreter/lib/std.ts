@@ -1,9 +1,8 @@
 /* eslint-disable no-empty-pattern */
 import { v4 as uuid } from 'uuid';
-import { substring, length, indexOf, toArray } from 'stringz';
 import seedrandom from 'seedrandom';
-import { NUM, STR, FN_NATIVE, FALSE, TRUE, VArr, ARR, NULL, BOOL, OBJ } from '../value';
-import { assertNumber, assertString, assertArray, assertBoolean, valToJs, jsToVal, assertFunction, assertObject, eq, expectAny } from '../util';
+import { NUM, STR, FN_NATIVE, FALSE, TRUE, ARR, NULL, BOOL, OBJ } from '../value';
+import { assertNumber, assertString, assertBoolean, valToJs, jsToVal, assertFunction, assertObject, eq, expectAny } from '../util';
 import { RuntimeError } from '../../error';
 import type { Value } from '../value';
 
@@ -282,9 +281,9 @@ export const std: Record<string, Value> = {
 		assertString(b);
 		if (a.value < b.value) {
 			return NUM(-1);
-		}else if (a.value === b.value){
+		} else if (a.value === b.value) {
 			return NUM(0);
-		}else {
+		} else {
 			return NUM(1);
 		}
 	}),
@@ -293,9 +292,9 @@ export const std: Record<string, Value> = {
 		assertString(b);
 		if (a.value > b.value) {
 			return NUM(-1);
-		}else if (a.value === b.value){
+		} else if (a.value === b.value) {
 			return NUM(0);
-		}else {
+		} else {
 			return NUM(1);
 		}
 	}),
@@ -361,7 +360,7 @@ export const std: Record<string, Value> = {
 			opts.call(callback, []);
 		}, interval.value);
 
-		const abortHandler = () => {
+		const abortHandler = (): void => {
 			clearInterval(id);
 		};
 
@@ -382,7 +381,7 @@ export const std: Record<string, Value> = {
 			opts.call(callback, []);
 		}, delay.value);
 
-		const abortHandler = () => {
+		const abortHandler = (): void => {
 			clearTimeout(id);
 		};
 
