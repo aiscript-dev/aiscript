@@ -7,9 +7,9 @@ import { IndexOutOfRangeError, RuntimeError } from '../error';
 import { Scope } from './scope';
 import { std } from './lib/std';
 import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray, eq, isObject, isArray, isString, expectAny, isNumber } from './util';
-import type { InnerVal } from './util';
 import { NULL, RETURN, unWrapRet, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, BREAK, CONTINUE } from './value';
 import { PRIMITIVE_PROPS } from './primitive-props';
+import type { InnerVal } from './util';
 import type { Value, VFn } from './value';
 import type * as Ast from '../node';
 
