@@ -102,13 +102,7 @@ export function valToString(val: Value, simple = false): string {
 		if (val.type === 'null') return '(null)';
 	}
 	const label =
-		val.type === 'num' ? val.value :
-			val.type === 'bool' ? val.value :
-				val.type === 'str' ? `"${val.value}"` :
-					val.type === 'fn' ? '...' :
-						val.type === 'obj' ? '...' :
-							val.type === 'null' ? '' :
-								null;
+		val.type === 'num' ? val.value : val.type === 'bool' ? val.value : val.type === 'str' ? `"${val.value}"` : val.type === 'fn' ? '...' : val.type === 'obj' ? '...' : val.type === 'null' ? '' : null;
 	return `${val.type}<${label}>`;
 }
 
