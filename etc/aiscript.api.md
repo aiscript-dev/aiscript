@@ -566,7 +566,7 @@ function isStatement_2(x: Node_3): x is Statement_2;
 function isString(val: Value): val is VStr;
 
 // @public (undocumented)
-function jsToVal(val: any): Value;
+function jsToVal(val: object | string | number | boolean | null): Value;
 
 // @public
 type Loc = {
@@ -899,7 +899,7 @@ declare namespace utils {
 export { utils }
 
 // @public (undocumented)
-function valToJs(val: Value): any;
+function valToJs(val: Value): object | string | number | boolean | null;
 
 // @public (undocumented)
 function valToString(val: Value, simple?: boolean): string;
