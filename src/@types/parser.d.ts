@@ -1,4 +1,4 @@
-import { Cst } from "..";
+import type { Cst } from '..';
 
 declare module '*/parser.js' {
 	// FIXME: 型指定が効いていない
