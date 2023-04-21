@@ -9,7 +9,6 @@ import { std } from './lib/std';
 import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray, eq, isObject, isArray, isString, expectAny, isNumber } from './util';
 import { NULL, RETURN, unWrapRet, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, BREAK, CONTINUE } from './value';
 import { PRIMITIVE_PROPS } from './primitive-props';
-import type { InnerVal } from './util';
 import type { Value, VFn } from './value';
 import type * as Ast from '../node';
 
@@ -76,17 +75,17 @@ export class Interpreter {
 	}
 
 	@autobind
-	public static collectMetadata(script?: Ast.Node[]): Map<string, Ast.Meta> {
-		if (script == null || script.length === 0) return new Map();
+	public static collectMetadata(script?: Ast.Node[]): Map<any, any> | undefined {
+		if (script == null || script.length === 0) return;
 
-		function nodeToJs(node: Ast.Node): InnerVal | undefined {
+		function nodeToJs(node: Ast.Node): any {
 			switch (node.type) {
 				case 'arr': return node.value.map(item => nodeToJs(item));
 				case 'bool': return node.value;
 				case 'null': return null;
 				case 'num': return node.value;
 				case 'obj': {
-					const obj: { [keys: string]: InnerVal | undefined } = {};
+					const obj: { [keys: string]: object | string | number | boolean | null | undefined } = {};
 					for (const [k, v] of node.value.entries()) {
 						// TODO: keyが__proto__とかじゃないかチェック
 						obj[k] = nodeToJs(v);

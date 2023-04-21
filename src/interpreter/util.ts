@@ -106,9 +106,8 @@ export function valToString(val: Value, simple = false): string {
 	return `${val.type}<${label}>`;
 }
 
-export type InnerVal = object | string | number | boolean | null;
 
-export function valToJs(val: Value): InnerVal {
+export function valToJs(val: Value): any {
 	switch (val.type) {
 		case 'fn': return '<function>';
 		case 'arr': return val.value.map(item => valToJs(item));
@@ -116,7 +115,7 @@ export function valToJs(val: Value): InnerVal {
 		case 'null': return null;
 		case 'num': return val.value;
 		case 'obj': {
-			const obj: { [k: string]: InnerVal } = {};
+			const obj: { [k: string]: object | string | number | boolean | null } = {};
 			for (const [k, v] of val.value.entries()) {
 				// TODO: keyが__proto__とかじゃないかチェック
 				obj[k] = valToJs(v);
@@ -128,7 +127,7 @@ export function valToJs(val: Value): InnerVal {
 	}
 }
 
-export function jsToVal(val: InnerVal): Value {
+export function jsToVal(val: any): Value {
 	if (val === null) return NULL;
 	if (typeof val === 'boolean') return BOOL(val);
 	if (typeof val === 'string') return STR(val);
