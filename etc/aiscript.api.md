@@ -30,10 +30,7 @@ abstract class AiScriptError extends Error {
 }
 
 // @public (undocumented)
-const ARR: (arr: VArr['value']) => {
-    type: "arr";
-    value: Value[];
-};
+const ARR: (arr: VArr['value']) => VArr;
 
 // @public (undocumented)
 type Arr = NodeBase & {
@@ -160,10 +157,7 @@ type Block_2 = NodeBase_2 & ChainProp & {
 };
 
 // @public (undocumented)
-const BOOL: (bool: VBool['value']) => {
-    type: "bool";
-    value: boolean;
-};
+const BOOL: (bool: VBool['value']) => VBool;
 
 // @public (undocumented)
 type Bool = NodeBase & {
@@ -178,10 +172,7 @@ type Bool_2 = NodeBase_2 & ChainProp & {
 };
 
 // @public (undocumented)
-const BREAK: () => {
-    type: "break";
-    value: null;
-};
+const BREAK: () => Value;
 
 // @public (undocumented)
 type Break = NodeBase & {
@@ -223,10 +214,7 @@ type CallChain = NodeBase_2 & {
 type ChainMember = CallChain | IndexChain | PropChain;
 
 // @public (undocumented)
-const CONTINUE: () => {
-    type: "continue";
-    value: null;
-};
+const CONTINUE: () => Value;
 
 // @public (undocumented)
 type Continue = NodeBase & {
@@ -358,12 +346,7 @@ const FALSE: {
 };
 
 // @public (undocumented)
-const FN: (args: VFn['args'], statements: VFn['statements'], scope: VFn['scope']) => {
-    type: "fn";
-    args: string[] | undefined;
-    statements: Node_2[] | undefined;
-    scope: Scope | undefined;
-};
+const FN: (args: VFn['args'], statements: VFn['statements'], scope: VFn['scope']) => VFn;
 
 // @public (undocumented)
 type Fn = NodeBase & {
@@ -388,14 +371,7 @@ type Fn_2 = NodeBase_2 & ChainProp & {
 };
 
 // @public (undocumented)
-const FN_NATIVE: (fn: VFn['native']) => {
-    type: "fn";
-    native: ((args: (Value | undefined)[], opts: {
-        call: (fn: VFn, args: Value[]) => Promise<Value>;
-        registerAbortHandler: (handler: () => void) => void;
-        unregisterAbortHandler: (handler: () => void) => void;
-    }) => Value | Promise<Value> | void) | undefined;
-};
+const FN_NATIVE: (fn: VFn['native']) => VFn;
 
 // @public (undocumented)
 type FnTypeSource = NodeBase & {
@@ -566,7 +542,7 @@ function isStatement_2(x: Node_3): x is Statement_2;
 function isString(val: Value): val is VStr;
 
 // @public (undocumented)
-function jsToVal(val: object | string | number | boolean | null): Value;
+function jsToVal(val: any): Value;
 
 // @public
 type Loc = {
@@ -684,10 +660,7 @@ type Null_2 = NodeBase_2 & ChainProp & {
 };
 
 // @public (undocumented)
-const NUM: (num: VNum['value']) => {
-    type: "num";
-    value: number;
-};
+const NUM: (num: VNum['value']) => VNum;
 
 // @public (undocumented)
 type Num = NodeBase & {
@@ -702,10 +675,7 @@ type Num_2 = NodeBase_2 & ChainProp & {
 };
 
 // @public (undocumented)
-const OBJ: (obj: VObj['value']) => {
-    type: "obj";
-    value: Map<string, Value>;
-};
+const OBJ: (obj: VObj['value']) => VObj;
 
 // @public (undocumented)
 type Obj = NodeBase & {
@@ -763,10 +733,7 @@ type PropChain = NodeBase_2 & {
 };
 
 // @public (undocumented)
-const RETURN: (v: VReturn['value']) => {
-    type: "return";
-    value: Value;
-};
+const RETURN: (v: VReturn['value']) => Value;
 
 // @public (undocumented)
 type Return = NodeBase & {
@@ -811,10 +778,7 @@ type Statement_2 = Definition_2 | Return_2 | Attribute_2 | // AST
 Each_2 | For_2 | Loop_2 | Break_2 | Continue_2 | Assign_2 | AddAssign_2 | SubAssign_2;
 
 // @public (undocumented)
-const STR: (str: VStr['value']) => {
-    type: "str";
-    value: string;
-};
+const STR: (str: VStr['value']) => VStr;
 
 // @public (undocumented)
 type Str = NodeBase & {
@@ -899,7 +863,7 @@ declare namespace utils {
 export { utils }
 
 // @public (undocumented)
-function valToJs(val: Value): object | string | number | boolean | null;
+function valToJs(val: Value): any;
 
 // @public (undocumented)
 function valToString(val: Value, simple?: boolean): string;
