@@ -322,6 +322,7 @@ declare namespace errors {
     export {
         AiScriptError,
         SyntaxError_2 as SyntaxError,
+        TypeError_2 as TypeError,
         RuntimeError,
         IndexOutOfRangeError
     }
@@ -828,6 +829,11 @@ const TRUE: {
     type: "bool";
     value: boolean;
 };
+
+// @public (undocumented)
+class TypeError_2 extends AiScriptError {
+    constructor(message: string, info?: any);
+}
 
 // @public (undocumented)
 type TypeSource = NamedTypeSource | FnTypeSource;
