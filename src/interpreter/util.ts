@@ -106,7 +106,6 @@ export function valToString(val: Value, simple = false): string {
 	return `${val.type}<${label}>`;
 }
 
-
 export function valToJs(val: Value): any {
 	switch (val.type) {
 		case 'fn': return '<function>';
