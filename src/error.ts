@@ -19,6 +19,12 @@ export class SyntaxError extends AiScriptError {
 	}
 }
 
+export class TypeError extends AiScriptError {
+	constructor(message: string, info?: any) {
+		super(message, info);
+	}
+}
+
 export class RuntimeError extends AiScriptError {
 	constructor(message: string, info?: any) {
 		super(message, info);

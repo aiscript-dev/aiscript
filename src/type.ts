@@ -49,9 +49,9 @@ export function T_FN(args: Type[], result: Type): TFn {
 
 export type Type = TSimple | TGeneric | TFn;
 
-function assertTSimple(t: Type): asserts t is TSimple { }
-function assertTGeneric(t: Type): asserts t is TGeneric { }
-function assertTFn(t: Type): asserts t is TFn { }
+function assertTSimple(t: Type): asserts t is TSimple { if (t.type !== 'simple') { throw new TypeError('assertTSimple failed.'); } }
+function assertTGeneric(t: Type): asserts t is TGeneric { if (t.type !== 'generic') { throw new TypeError('assertTGeneric failed.'); } }
+function assertTFn(t: Type): asserts t is TFn { if (t.type !== 'fn') { throw new TypeError('assertTFn failed.'); } }
 
 // Utility
 
