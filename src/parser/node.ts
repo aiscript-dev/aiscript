@@ -299,7 +299,7 @@ export type TypeSource = NamedTypeSource | FnTypeSource;
 export type NamedTypeSource = NodeBase & {
 	type: 'namedTypeSource';
 	name: string;
-	inner?: TypeSource;
+	inner: TypeSource | null;
 };
 
 export type FnTypeSource = NodeBase & {

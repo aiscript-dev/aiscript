@@ -254,7 +254,7 @@ export type TypeSource = NamedTypeSource | FnTypeSource;
 export type NamedTypeSource = NodeBase & {
 	type: 'namedTypeSource'; // 名前付き型
 	name: string; // 型名
-	inner?: TypeSource; // 内側の型
+	inner: TypeSource | null; // 内側の型
 };
 
 export type FnTypeSource = NodeBase & {
