@@ -626,14 +626,14 @@ type Meta_2 = NodeBase_2 & {
 type NamedTypeSource = NodeBase & {
     type: 'namedTypeSource';
     name: string;
-    inner?: TypeSource;
+    inner: TypeSource | null;
 };
 
 // @public (undocumented)
 type NamedTypeSource_2 = NodeBase_2 & {
     type: 'namedTypeSource';
     name: string;
-    inner?: TypeSource_2;
+    inner: TypeSource_2 | null;
 };
 
 // @public (undocumented)
