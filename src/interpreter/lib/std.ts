@@ -282,9 +282,9 @@ export const std: Record<string, Value> = {
 		assertString(b);
 		if (a.value < b.value) {
 			return NUM(-1);
-		}else if (a.value === b.value){
+		} else if (a.value === b.value) {
 			return NUM(0);
-		}else {
+		} else {
 			return NUM(1);
 		}
 	}),
@@ -293,9 +293,9 @@ export const std: Record<string, Value> = {
 		assertString(b);
 		if (a.value > b.value) {
 			return NUM(-1);
-		}else if (a.value === b.value){
+		} else if (a.value === b.value) {
 			return NUM(0);
-		}else {
+		} else {
 			return NUM(1);
 		}
 	}),
