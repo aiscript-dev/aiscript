@@ -157,32 +157,32 @@ export const std: Record<string, Value> = {
 	}),
 
 	'Date:year': FN_NATIVE(([v]) => {
-		if (v) { assertNumber(v) }
+		if (v) { assertNumber(v); }
 		return NUM(new Date(v?.value || Date.now()).getFullYear());
 	}),
 
 	'Date:month': FN_NATIVE(([v]) => {
-		if (v) { assertNumber(v) }
+		if (v) { assertNumber(v); }
 		return NUM(new Date(v?.value || Date.now()).getMonth() + 1);
 	}),
 
 	'Date:day': FN_NATIVE(([v]) => {
-		if (v) { assertNumber(v) }
+		if (v) { assertNumber(v); }
 		return NUM(new Date(v?.value || Date.now()).getDate());
 	}),
 
 	'Date:hour': FN_NATIVE(([v]) => {
-		if (v) { assertNumber(v) }
+		if (v) { assertNumber(v); }
 		return NUM(new Date(v?.value || Date.now()).getHours());
 	}),
 
 	'Date:minute': FN_NATIVE(([v]) => {
-		if (v) { assertNumber(v) }
+		if (v) { assertNumber(v); }
 		return NUM(new Date(v?.value || Date.now()).getMinutes());
 	}),
 
 	'Date:second': FN_NATIVE(([v]) => {
-		if (v) { assertNumber(v) }
+		if (v) { assertNumber(v); }
 		return NUM(new Date(v?.value || Date.now()).getSeconds());
 	}),
 
@@ -288,9 +288,9 @@ export const std: Record<string, Value> = {
 		assertString(b);
 		if (a.value < b.value) {
 			return NUM(-1);
-		}else if (a.value === b.value){
+		} else if (a.value === b.value) {
 			return NUM(0);
-		}else {
+		} else {
 			return NUM(1);
 		}
 	}),
@@ -299,9 +299,9 @@ export const std: Record<string, Value> = {
 		assertString(b);
 		if (a.value > b.value) {
 			return NUM(-1);
-		}else if (a.value === b.value){
+		} else if (a.value === b.value) {
 			return NUM(0);
-		}else {
+		} else {
 			return NUM(1);
 		}
 	}),
