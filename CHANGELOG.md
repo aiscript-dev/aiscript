@@ -1,6 +1,10 @@
 [Read translated version (en)](./translations/en/CHANGELOG.md)
+
+# 0.13.2
 - `Date:year`,`Date:month`,`Date:day`,`Date:hour`,`Date:minute`,`Date:second`に時間数値の引数を渡して時刻指定可能に
 - array.sortとString用比較関数Str:lt, Str:gtの追加
+- 乱数を生成するとき引数の最大値を戻り値に含むように
+
 # 0.13.1
 - Json:stringifyに関数を渡すと不正な値が生成されるのを修正
 
