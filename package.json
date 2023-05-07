@@ -28,6 +28,7 @@
 		"@types/jest": "29.5.1",
 		"@types/node": "20.1.0",
 		"@types/seedrandom": "3.0.5",
+		"@types/uuid": "9.0.1",
 		"@typescript-eslint/eslint-plugin": "5.59.2",
 		"@typescript-eslint/parser": "5.59.2",
 		"chalk": "5.2.0",
@@ -42,7 +43,6 @@
 		"typescript": "5.0.4"
 	},
 	"dependencies": {
-		"@types/uuid": "9.0.1",
 		"autobind-decorator": "2.4.0",
 		"seedrandom": "3.0.5",
 		"stringz": "2.1.0",
