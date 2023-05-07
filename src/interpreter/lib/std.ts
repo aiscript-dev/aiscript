@@ -10,7 +10,7 @@ export const std: Record<string, Value> = {
 	'help': STR('SEE: https://github.com/syuilo/aiscript/blob/master/docs/get-started.md'),
 
 	//#region Core
-	'Core:v': STR('0.13.1'), // TODO: package.jsonを参照
+	'Core:v': STR('0.13.2'), // TODO: package.jsonを参照
 
 	'Core:ai': STR('kawaii'),
 
@@ -155,28 +155,34 @@ export const std: Record<string, Value> = {
 		return NUM(Date.now());
 	}),
 
-	'Date:year': FN_NATIVE(() => {
-		return NUM(new Date().getFullYear());
+	'Date:year': FN_NATIVE(([v]) => {
+		if (v) { assertNumber(v); }
+		return NUM(new Date(v?.value || Date.now()).getFullYear());
 	}),
 
-	'Date:month': FN_NATIVE(() => {
-		return NUM(new Date().getMonth() + 1);
+	'Date:month': FN_NATIVE(([v]) => {
+		if (v) { assertNumber(v); }
+		return NUM(new Date(v?.value || Date.now()).getMonth() + 1);
 	}),
 
-	'Date:day': FN_NATIVE(() => {
-		return NUM(new Date().getDate());
+	'Date:day': FN_NATIVE(([v]) => {
+		if (v) { assertNumber(v); }
+		return NUM(new Date(v?.value || Date.now()).getDate());
 	}),
 
-	'Date:hour': FN_NATIVE(() => {
-		return NUM(new Date().getHours());
+	'Date:hour': FN_NATIVE(([v]) => {
+		if (v) { assertNumber(v); }
+		return NUM(new Date(v?.value || Date.now()).getHours());
 	}),
 
-	'Date:minute': FN_NATIVE(() => {
-		return NUM(new Date().getMinutes());
+	'Date:minute': FN_NATIVE(([v]) => {
+		if (v) { assertNumber(v); }
+		return NUM(new Date(v?.value || Date.now()).getMinutes());
 	}),
 
-	'Date:second': FN_NATIVE(() => {
-		return NUM(new Date().getSeconds());
+	'Date:second': FN_NATIVE(([v]) => {
+		if (v) { assertNumber(v); }
+		return NUM(new Date(v?.value || Date.now()).getSeconds());
 	}),
 
 	'Date:parse': FN_NATIVE(([v]) => {
