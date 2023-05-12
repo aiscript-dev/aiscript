@@ -1,5 +1,7 @@
 [Read translated version (en)](./translations/en/CHANGELOG.md)
 
+- インタプリタがreturn文を文字列化できるように
+
 # 0.13.2
 - `Date:year`,`Date:month`,`Date:day`,`Date:hour`,`Date:minute`,`Date:second`に時間数値の引数を渡して時刻指定可能に
 - array.sortとString用比較関数Str:lt, Str:gtの追加
