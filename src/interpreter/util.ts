@@ -100,6 +100,7 @@ export function valToString(val: Value, simple = false): string {
 		if (val.type === 'str') return `"${val.value}"`;
 		if (val.type === 'arr') return `[${val.value.map(item => valToString(item, true)).join(', ')}]`;
 		if (val.type === 'null') return '(null)';
+		if (val.type === 'return') return valToString(val.value, true);
 	}
 	const label =
 		val.type === 'num' ? val.value :
@@ -108,6 +109,7 @@ export function valToString(val: Value, simple = false): string {
 		val.type === 'fn' ? '...' :
 		val.type === 'obj' ? '...' :
 		val.type === 'null' ? '' :
+		val.type === 'return' ? valToString(val.value) :
 		null;
 	return `${val.type}<${label}>`;
 }
