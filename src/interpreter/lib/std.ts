@@ -261,7 +261,7 @@ export const std: Record<string, Value> = {
 
 		return FN_NATIVE(([min, max]) => {
 			if (min && min.type === 'num' && max && max.type === 'num') {
-				return NUM(Math.floor(rng() * (Math.floor(max.value) - Math.ceil(min.value)) + Math.ceil(min.value)));
+				return NUM(Math.floor(rng() * (Math.floor(max.value) - Math.ceil(min.value) + 1) + Math.ceil(min.value)));
 			}
 			return NUM(rng());
 		});
