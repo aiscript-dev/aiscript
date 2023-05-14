@@ -10,7 +10,7 @@ export const std: Record<string, Value> = {
 	'help': STR('SEE: https://github.com/syuilo/aiscript/blob/master/docs/get-started.md'),
 
 	//#region Core
-	'Core:v': STR('0.13.2'), // TODO: package.jsonを参照
+	'Core:v': STR('0.13.3'), // TODO: package.jsonを参照
 
 	'Core:ai': STR('kawaii'),
 
