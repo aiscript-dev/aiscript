@@ -48,7 +48,7 @@ export class Interpreter {
 		this.vars = { ...vars, ...std, ...io };
 
 		this.scope = new Scope([new Map(Object.entries(this.vars))]);
-		this.scope.opts.log = (type, params) => {
+		this.scope.opts.log = (type, params): void => {
 			switch (type) {
 				case 'add': this.log('var:add', params); break;
 				case 'read': this.log('var:read', params); break;
@@ -59,7 +59,7 @@ export class Interpreter {
 	}
 
 	@autobind
-	public async exec(script?: Ast.Node[]) {
+	public async exec(script?: Ast.Node[]): Promise<void> {
 		if (script == null || script.length === 0) return;
 
 		await this.collectNs(script);
@@ -70,12 +70,12 @@ export class Interpreter {
 	}
 
 	@autobind
-	public async execFn(fn: VFn, args: Value[]) {
+	public async execFn(fn: VFn, args: Value[]): Promise<Value> {
 		return this._fn(fn, args);
 	}
 
 	@autobind
-	public static collectMetadata(script?: Ast.Node[]) {
+	public static collectMetadata(script?: Ast.Node[]): Map<any, any> | undefined {
 		if (script == null || script.length === 0) return;
 
 		function nodeToJs(node: Ast.Node): any {
@@ -85,7 +85,7 @@ export class Interpreter {
 				case 'null': return null;
 				case 'num': return node.value;
 				case 'obj': {
-					const obj = {};
+					const obj: { [keys: string]: object | string | number | boolean | null | undefined } = {};
 					for (const [k, v] of node.value.entries()) {
 						// TODO: keyが__proto__とかじゃないかチェック
 						obj[k] = nodeToJs(v);
@@ -93,6 +93,7 @@ export class Interpreter {
 					return obj;
 				}
 				case 'str': return node.value;
+				default: return undefined;
 			}
 		}
 
@@ -115,7 +116,7 @@ export class Interpreter {
 	}
 
 	@autobind
-	private log(type: string, params: Record<string, any>): void {
+	private log(type: string, params: Record<string, unknown>): void {
 		if (this.opts.log) this.opts.log(type, params);
 	}
 
@@ -169,9 +170,9 @@ export class Interpreter {
 			});
 			return result ?? NULL;
 		} else {
-			const _args = new Map() as Map<string, any>;
+			const _args = new Map() as Map<string, Value>;
 			for (let i = 0; i < (fn.args ?? []).length; i++) {
-				_args.set(fn.args![i]!, args[i]);
+				_args.set(fn.args![i]!, args[i]!);
 			}
 			const fnScope = fn.scope!.createChildScope(_args);
 			return unWrapRet(await this._run(fn.statements!, fnScope));

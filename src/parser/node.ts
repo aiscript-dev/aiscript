@@ -236,7 +236,7 @@ type ChainProp = {
 
 // AST
 export function hasChainProp<T extends Node>(x: T): x is T & ChainProp {
-	return ((x as any).chain != null);
+	return 'chain' in x && x.chain !== null;
 }
 
 // AST
