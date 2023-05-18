@@ -7,6 +7,8 @@ AiScript(あいすくりぷと)は、プログラミング言語です。
 このドキュメントでは、既にある程度のプログラミングの知識があることを前提にしています。
 したがってAiScriptの構文、仕様などについてだけ書き、プログラミング自体についての説明は省きます。
 
+参考：[syntax.md](./syntax.md)
+
 ## Hello, world!
 AiScriptでは、次のように書きます:
 ```
@@ -108,27 +110,25 @@ let arr = ["ai" "chan" "kawaii"]
 ```
 (1 + 1)
 ```
-のように書きます。これは関数呼び出しの糖衣構文で、実際にはこのように解釈されます:
+のように書きます。これは標準関数（後述）呼び出しの糖衣構文で、実際にはこのように解釈されます:
 ```
 Core:add(1, 1)
 ```
-
-下記で列挙する関数はすべて`(1 + 1)`のような糖衣構文として使えます。
 注意点として、`(1 + 1 + 1)`のようには書けず、`(1 + (1 + 1))`のように入れ子にして使います。
 
 <table>
-	<tr><th>関数</th><th>演算子</th><th>意味</th></tr>
-	<tr><td><code>Core:add</code></td><td><code>+</code></td><td>加算</td></tr>
-	<tr><td><code>Core:sub</code></td><td><code>-</code></td><td>減算</td></tr>
-	<tr><td><code>Core:mul</code></td><td><code>*</code></td><td>乗算</td></tr>
-	<tr><td><code>Core:pow</code></td><td><code>^</code></td><td>冪算</td></tr
-	<tr><td><code>Core:div</code></td><td><code>/</code></td><td>除算</td></tr>
-	<tr><td><code>Core:mod</code></td><td><code>%</code></td><td>剰余</td></tr>
-	<tr><td><code>Core:eq</code></td><td><code>==</code></td><td>等しい</td></tr>
-	<tr><td><code>Core:and</code></td><td><code>&&</code></td><td>かつ</td></tr>
-	<tr><td><code>Core:or</code></td><td><code>||</code></td><td>または</td></tr>
-	<tr><td><code>Core:gt</code></td><td><code>></code></td><td>大きい</td></tr>
-	<tr><td><code>Core:lt</code></td><td><code><</code></td><td>小さい</td></tr>
+	<tr><th>演算子</th><th>標準関数</th><th>意味</th></tr>
+	<tr><td><code>+</code></td><td><code>Core:add</code></td><td>加算</td></tr>
+	<tr><td><code>-</code></td><td><code>Core:sub</code></td><td>減算</td></tr>
+	<tr><td><code>*</code></td><td><code>Core:mul</code></td><td>乗算</td></tr>
+	<tr><td><code>^</code></td><td><code>Core:pow</code></td><td>冪算</td></tr
+	<tr><td><code>/</code></td><td><code>Core:div</code></td><td>除算</td></tr>
+	<tr><td><code>%</code></td><td><code>Core:mod</code></td><td>剰余</td></tr>
+	<tr><td><code>==</code></td><td><code>Core:eq</code></td><td>等しい</td></tr>
+	<tr><td><code>&&</code></td><td><code>Core:and</code></td><td>かつ</td></tr>
+	<tr><td><code>||</code></td><td><code>Core:or</code></td><td>または</td></tr>
+	<tr><td><code>></code></td><td><code>Core:gt</code></td><td>大きい</td></tr>
+	<tr><td><code><</code></td><td><code>Core:lt</code></td><td>小さい</td></tr>
 </table>
 
 ## ブロック式
@@ -199,7 +199,7 @@ for (100) {
 ```
 
 ## 繰り返し(配列)
-`each`を使うと、配列のアイテムを繰り返すことができます:
+`each`を使うと、配列の各アイテムに対し処理を繰り返すことができます:
 ```
 let items = ["a" "b" "c"]
 each (let item, items) {
@@ -220,6 +220,16 @@ each (let item, items) {
 
 ### return
 関数の最後に書かれた式の値が関数の返り値になりますが、関数の途中で値を返したい時は`return`を使います。
+
+### 標準関数
+何も書かなくても最初から使える関数です。
+
+[標準関数一覧](./std.md)
+
+### プリミティブ関数
+第一級オブジェクトに`.`をつけて呼び出すことができる標準関数です。
+
+TODO
 
 ## テンプレート
 バッククォートを使うと、文字列の中に変数や式を埋め込めます:
