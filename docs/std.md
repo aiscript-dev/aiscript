@@ -208,8 +208,9 @@ arr.sortの比較関数として使用できます。
 ## :: Obj
 
 ### @Obj:keys(_v_: obj): arr
-
+### @Obj:vals(_v_: obj): arr
 ### @Obj:kvs(_v_: obj): arr
+オブジェクトのキー、値、キーと値の組を配列にして返します。
 
 ### @Obj:get(_v_: obj, _key_: str): value
 

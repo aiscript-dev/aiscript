@@ -1,5 +1,7 @@
 [Read translated version (en)](./translations/en/CHANGELOG.md)
 
+- オブジェクトの値を配列化する`Obj:vals`を追加
+
 # 0.13.3
 - 乱数を生成するとき引数の最大値を戻り値に含むように
 
