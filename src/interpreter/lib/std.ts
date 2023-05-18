@@ -315,6 +315,11 @@ export const std: Record<string, Value> = {
 		return ARR(Array.from(obj.value.keys()).map(k => STR(k)));
 	}),
 
+	'Obj:vals': FN_NATIVE(([obj]) => {
+		assertObject(obj);
+		return ARR(Array.from(obj.value.values()));
+	}),
+
 	'Obj:kvs': FN_NATIVE(([obj]) => {
 		assertObject(obj);
 		return ARR(Array.from(obj.value.entries()).map(([k, v]) => ARR([STR(k), v])));
