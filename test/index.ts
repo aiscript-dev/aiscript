@@ -2502,6 +2502,15 @@ describe('std', () => {
 			eq(res, ARR([STR('a'), STR('b'), STR('c')]));
 		});
 
+		test.concurrent('vals', async () => {
+			const res = await exe(`
+			let o = { _nul: null; _num: 24; _str: 'hoge'; _arr: []; _obj: {}; }
+
+			<: Obj:vals(o)
+			`);
+			eq(res, ARR([NULL, NUM(24), STR('hoge'), ARR([]), OBJ(new Map([]))]));
+		});
+
 		test.concurrent('kvs', async () => {
 			const res = await exe(`
 			let o = { a: 1; b: 2; c: 3; }
