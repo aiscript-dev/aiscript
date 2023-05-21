@@ -150,6 +150,15 @@ describe('ops', () => {
 		eq(await exe('<: (1 + 1) * 2'), NUM(4));
 	});
 
+	test.concurrent('negative numbers', async () => {
+		eq(await exe('<: 1+-1'), NUM(0));
+		eq(await exe('<: 1--1'), NUM(2));//反直観的、禁止される可能性がある？
+		eq(await exe('<: -1*-1'), NUM(1));
+		eq(await exe('<: -1==-1'), BOOL(true));
+		eq(await exe('<: 1>-1'), BOOL(true));
+		eq(await exe('<: -1<1'), BOOL(true));
+	});
+
 });
 
 describe('Infix expression', () => {
@@ -2500,6 +2509,15 @@ describe('std', () => {
 			<: Obj:keys(o)
 			`);
 			eq(res, ARR([STR('a'), STR('b'), STR('c')]));
+		});
+
+		test.concurrent('vals', async () => {
+			const res = await exe(`
+			let o = { _nul: null; _num: 24; _str: 'hoge'; _arr: []; _obj: {}; }
+
+			<: Obj:vals(o)
+			`);
+			eq(res, ARR([NULL, NUM(24), STR('hoge'), ARR([]), OBJ(new Map([]))]));
 		});
 
 		test.concurrent('kvs', async () => {
