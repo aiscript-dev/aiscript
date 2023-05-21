@@ -150,6 +150,15 @@ describe('ops', () => {
 		eq(await exe('<: (1 + 1) * 2'), NUM(4));
 	});
 
+	test.concurrent('negative numbers', async () => {
+		eq(await exe('<: 1+-1'), NUM(0));
+		eq(await exe('<: 1--1'), NUM(2));//反直観的、禁止される可能性がある？
+		eq(await exe('<: -1*-1'), NUM(1));
+		eq(await exe('<: -1==-1'), BOOL(true));
+		eq(await exe('<: 1>-1'), BOOL(true));
+		eq(await exe('<: -1<1'), BOOL(true));
+	});
+
 });
 
 describe('Infix expression', () => {
