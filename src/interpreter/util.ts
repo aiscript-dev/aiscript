@@ -129,7 +129,7 @@ export function valToJs(val: Value): any {
 			return obj;
 		}
 		case 'str': return val.value;
-		default: throw new Error(`Unrecognized value type: ${val.type}`);
+		//default: throw new Error(`Unrecognized value type: ${val.type}`);
 	}
 }
 
