@@ -3,11 +3,11 @@
  */
 
 import autobind from 'autobind-decorator';
-import { IndexOutOfRangeError, RuntimeError } from '../error';
+import { IndexOutOfRangeError, RuntimeError, ReturnError, BreakError } from '../error';
 import { Scope } from './scope';
 import { std } from './lib/std';
 import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray, eq, isObject, isArray, isString, expectAny, isNumber } from './util';
-import { NULL, RETURN, unWrapRet, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, BREAK, CONTINUE } from './value';
+import { NULL, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN } from './value';
 import { PRIMITIVE_PROPS } from './primitive-props';
 import type { Value, VFn } from './value';
 import type * as Ast from '../node';
@@ -175,7 +175,17 @@ export class Interpreter {
 				_args.set(fn.args![i]!, args[i]!);
 			}
 			const fnScope = fn.scope!.createChildScope(_args);
-			return unWrapRet(await this._run(fn.statements!, fnScope));
+			try {
+				return await this._run(fn.statements!, fnScope);
+			} catch (e) {
+				if (e.nodeType === 'return') {
+					expectAny(e.val);
+					this.log('block:return caught by function', { scope: fnScope.name, val: e.val });
+					return e.val;
+				} else {
+					throw e;
+				}
+			}
 		}
 	}
 
@@ -237,11 +247,18 @@ export class Interpreter {
 			case 'loop': {
 				// eslint-disable-next-line no-constant-condition
 				while (true) {
-					const v = await this._run(node.statements, scope.createChildScope());
-					if (v.type === 'break') {
-						break;
-					} else if (v.type === 'return') {
-						return v;
+					try {
+						await this._run(node.statements, scope.createChildScope());
+					} catch (e) {
+						if (e.nodeType === 'break') {
+							this.log('block:break caught by loop', { scope: scope.name });
+							break;
+						} else if (e.nodeType === 'continue') {
+							this.log('block:continue caught by loop', { scope: scope.name });
+							continue;
+						} else {
+							throw e;
+						}
 					}
 				}
 				return NULL;
@@ -252,11 +269,18 @@ export class Interpreter {
 					const times = await this._eval(node.times, scope);
 					assertNumber(times);
 					for (let i = 0; i < times.value; i++) {
-						const v = await this._eval(node.for, scope);
-						if (v.type === 'break') {
-							break;
-						} else if (v.type === 'return') {
-							return v;
+						try {
+							await this._eval(node.for, scope);
+						} catch (e) {
+							if (e.nodeType === 'break') {
+								this.log('block:break caught by for', { scope: scope.name });
+								break;
+							} else if (e.nodeType === 'continue') {
+								this.log('block:continue caught by for', { scope: scope.name });
+								continue;
+							} else {
+								throw e;
+							}
 						}
 					}
 				} else {
@@ -265,13 +289,20 @@ export class Interpreter {
 					assertNumber(from);
 					assertNumber(to);
 					for (let i = from.value; i < from.value + to.value; i++) {
-						const v = await this._eval(node.for, scope.createChildScope(new Map([
-							[node.var!, NUM(i)],
-						])));
-						if (v.type === 'break') {
-							break;
-						} else if (v.type === 'return') {
-							return v;
+						try {
+							await this._eval(node.for, scope.createChildScope(new Map([
+								[node.var!, NUM(i)],
+							])));
+						} catch (e) {
+							if (e.nodeType === 'break') {
+								this.log('block:break caught by for', { scope: scope.name });
+								break;
+							} else if (e.nodeType === 'continue') {
+								this.log('block:continue caught by for', { scope: scope.name });
+								continue;
+							} else {
+								throw e;
+							}
 						}
 					}
 				}
@@ -282,13 +313,20 @@ export class Interpreter {
 				const items = await this._eval(node.items, scope);
 				assertArray(items);
 				for (const item of items.value) {
-					const v = await this._eval(node.for, scope.createChildScope(new Map([
-						[node.var, item],
-					])));
-					if (v.type === 'break') {
-						break;
-					} else if (v.type === 'return') {
-						return v;
+					try {
+						await this._eval(node.for, scope.createChildScope(new Map([
+							[node.var, item],
+						])));
+					} catch (e) {
+						if (e.nodeType === 'break') {
+							this.log('block:break caught by each', { scope: scope.name });
+							break;
+						} else if (e.nodeType === 'continue') {
+							this.log('block:continue caught by each', { scope: scope.name });
+							continue;
+						} else {
+							throw e;
+						}
 					}
 				}
 				return NULL;
@@ -449,17 +487,17 @@ export class Interpreter {
 			case 'return': {
 				const val = await this._eval(node.expr, scope);
 				this.log('block:return', { scope: scope.name, val: val });
-				return RETURN(val);
+				throw new ReturnError(val,'"return" statement outside function');
 			}
 
 			case 'break': {
 				this.log('block:break', { scope: scope.name });
-				return BREAK();
+				throw new BreakError('break','"break" statement outside loop');
 			}
 
 			case 'continue': {
 				this.log('block:continue', { scope: scope.name });
-				return CONTINUE();
+				throw new BreakError('continue','"continue" statement outside loop');
 			}
 
 			case 'ns': {
@@ -486,16 +524,6 @@ export class Interpreter {
 			const node = program[i]!;
 
 			v = await this._eval(node, scope);
-			if (v.type === 'return') {
-				this.log('block:return', { scope: scope.name, val: v.value });
-				return v;
-			} else if (v.type === 'break') {
-				this.log('block:break', { scope: scope.name });
-				return v;
-			} else if (v.type === 'continue') {
-				this.log('block:continue', { scope: scope.name });
-				return v;
-			}
 		}
 
 		this.log('block:leave', { scope: scope.name, val: v });
