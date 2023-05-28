@@ -1521,6 +1521,70 @@ describe('for of', () => {
 	});
 });
 
+describe('特殊なスコープ脱出', () => {
+	test.concurrent('return in if', async () => {
+		const res = await exe(`
+		@func(cond){
+			if cond return 1 else return 2
+		}
+	  <: [func(true), func(false)]
+		`);
+		eq(res, ARR([NUM(1), NUM(2)]));
+	})
+	test.concurrent('break in eval', async () => {
+		const res = await exe(`
+		var cnt=0
+		for let i=0,5 {
+			cnt+=1
+			eval {
+				break
+			}
+		}
+	  <: cnt
+		`);
+		eq(res, NUM(1));
+	})
+});
+
+describe('不正なスコープ脱出', () => {
+	test.concurrent('return in global loop', async () => {
+		try {
+			const res = await exe(`
+			loop {
+				return 0
+			}
+			`);
+			assert.fail('error not thrown');
+		} catch(e) {
+			if (e.nodeType==='return') {
+				assert.ok(true);
+				return;
+			} else {
+				assert.fail('unexpected error thrown');
+			}
+		}
+	});
+
+	test.concurrent('break in global function', async () => {
+		try {
+			const res = await exe(`
+			@func() {
+				break
+			}
+			func()
+			`);
+			assert.fail('error not thrown');
+		} catch(e) {
+			if (e.nodeType==='break') {
+				assert.ok(true);
+				return;
+			} else {
+				assert.fail('unexpected error thrown');
+			}
+		}
+	});
+});
+
 describe('not', () => {
 	test.concurrent('Basic', async () => {
 		const res = await exe(`
