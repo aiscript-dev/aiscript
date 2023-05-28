@@ -172,9 +172,6 @@ type Bool_2 = NodeBase_2 & ChainProp & {
 };
 
 // @public (undocumented)
-const BREAK: () => Value;
-
-// @public (undocumented)
 type Break = NodeBase & {
     type: 'break';
 };
@@ -219,9 +216,6 @@ type CallChain = NodeBase_2 & {
 
 // @public (undocumented)
 type ChainMember = CallChain | IndexChain | PropChain;
-
-// @public (undocumented)
-const CONTINUE: () => Value;
 
 // @public (undocumented)
 type Continue = NodeBase & {
@@ -743,9 +737,6 @@ type PropChain = NodeBase_2 & {
 };
 
 // @public (undocumented)
-const RETURN: (v: VReturn['value']) => Value;
-
-// @public (undocumented)
 type Return = NodeBase & {
     type: 'return';
     expr: Expression;
@@ -859,9 +850,6 @@ type TypeSource = NamedTypeSource | FnTypeSource;
 // @public (undocumented)
 type TypeSource_2 = NamedTypeSource_2 | FnTypeSource_2;
 
-// @public (undocumented)
-const unWrapRet: (v: Value) => Value;
-
 declare namespace utils {
     export {
         expectAny,
@@ -893,7 +881,7 @@ function valToJs(val: Value): any;
 function valToString(val: Value, simple?: boolean): string;
 
 // @public (undocumented)
-type Value = (VNull | VBool | VNum | VStr | VArr | VObj | VFn | VReturn | VBreak | VContinue) & Attr_2;
+type Value = (VNull | VBool | VNum | VStr | VArr | VObj | VFn) & Attr_2;
 
 declare namespace values {
     export {
@@ -904,9 +892,6 @@ declare namespace values {
         VArr,
         VObj,
         VFn,
-        VReturn,
-        VBreak,
-        VContinue,
         Attr_2 as Attr,
         Value,
         NULL,
@@ -918,11 +903,7 @@ declare namespace values {
         OBJ,
         ARR,
         FN,
-        FN_NATIVE,
-        RETURN,
-        BREAK,
-        CONTINUE,
-        unWrapRet
+        FN_NATIVE
     }
 }
 export { values }
@@ -937,18 +918,6 @@ type VArr = {
 type VBool = {
     type: 'bool';
     value: boolean;
-};
-
-// @public (undocumented)
-type VBreak = {
-    type: 'break';
-    value: null;
-};
-
-// @public (undocumented)
-type VContinue = {
-    type: 'continue';
-    value: null;
 };
 
 // @public (undocumented)
@@ -979,12 +948,6 @@ type VNum = {
 type VObj = {
     type: 'obj';
     value: Map<string, Value>;
-};
-
-// @public (undocumented)
-type VReturn = {
-    type: 'return';
-    value: Value;
 };
 
 // @public (undocumented)
