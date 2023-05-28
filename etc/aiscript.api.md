@@ -185,6 +185,13 @@ type Break_2 = NodeBase_2 & {
 };
 
 // @public (undocumented)
+class BreakError extends AiScriptError {
+    constructor(nodeType: 'break' | 'continue', message: string, info?: any);
+    // (undocumented)
+    nodeType: 'break' | 'continue';
+}
+
+// @public (undocumented)
 function CALL(target: Call_2['target'], args: Call_2['args'], loc?: {
     start: number;
     end: number;
@@ -324,7 +331,9 @@ declare namespace errors {
         SyntaxError_2 as SyntaxError,
         TypeError_2 as TypeError,
         RuntimeError,
-        IndexOutOfRangeError
+        IndexOutOfRangeError,
+        ReturnError,
+        BreakError
     }
 }
 export { errors }
@@ -747,6 +756,15 @@ type Return_2 = NodeBase_2 & {
     type: 'return';
     expr: Expression_2;
 };
+
+// @public (undocumented)
+class ReturnError extends AiScriptError {
+    constructor(val: Value, message: string, info?: any);
+    // (undocumented)
+    nodeType: string;
+    // (undocumented)
+    val: Value;
+}
 
 // @public (undocumented)
 class RuntimeError extends AiScriptError {
