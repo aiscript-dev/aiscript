@@ -957,6 +957,18 @@ describe('Template syntax', () => {
 		eq(res, STR('1 + 1 = 2'));
 	});
 
+	test.concurrent('invalid', async () => {
+		try {
+			await exe(`
+			<: \`{hoge}\`
+			`);
+		} catch (e) {
+			assert.ok(true);
+			return;
+		}
+		assert.fail();
+	});
+
 	test.concurrent('Escape', async () => {
 		const res = await exe(`
 		let message = "Hello"
@@ -966,7 +978,7 @@ describe('Template syntax', () => {
 	});
 });
 
-test.concurrent('Throws error when divied by zero', async () => {
+test.concurrent('Throws error when divided by zero', async () => {
 	try {
 		await exe(`
 		<: (0 / 0)
@@ -2491,8 +2503,8 @@ describe('std', () => {
 				let random = Math:gen_rng(seed)
 				return random(0 100)
 			}
-			let seed1 = \`{@Util:uuid()}\`
-			let seed2 = \`{@Date:year()}\`
+			let seed1 = \`{Util:uuid()}\`
+			let seed2 = \`{Date:year()}\`
 			let test1 = if (test(seed1) == test(seed1)) {true} else {false}
 			let test2 = if (test(seed1) == test(seed2)) {true} else {false}
 			<: [test1 test2]
