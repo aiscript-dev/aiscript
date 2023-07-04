@@ -153,7 +153,7 @@ export const std: Record<string, Value> = {
 		assertString(str);
 		try {
 			JSON.parse(str.value);
-		} catch(e) {
+		} catch (e) {
 			return BOOL(false);
 		}
 		return BOOL(true);
