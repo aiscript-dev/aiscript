@@ -33,6 +33,9 @@ JSONを生成します。
 ### @Json:parse(_json_: str): value
 JSONをパースします。  
 
+### @Json:parsable(_str_: str): bool
+文字列がJSONとしてパース可能であるかの判定を行います。 
+
 ## :: Date
 
 ### @Date:now(): num
