@@ -211,7 +211,7 @@ Attr
 // each statement
 
 Each
-	= "each" _* "(" "let" _* varn:NAME _* ","? _* items:Expr ")" _* x:BlockOrStatement
+	= "each" _* "(" "let" _+ varn:NAME _* ","? _* items:Expr ")" _* x:BlockOrStatement
 {
 	return createNode('each', {
 		var: varn,
@@ -219,7 +219,7 @@ Each
 		for: x,
 	});
 }
-	/ "each" _+ "let" _* varn:NAME _* ","? _* items:Expr _+ x:BlockOrStatement
+	/ "each" _+ "let" _+ varn:NAME _* ","? _* items:Expr _+ x:BlockOrStatement
 {
 	return createNode('each', {
 		var: varn,
@@ -231,7 +231,7 @@ Each
 // for statement
 
 For
-	= "for" _* "(" "let" _* varn:NAME _* from_:("=" _* v:Expr { return v; })? ","? _* to:Expr ")" _* x:BlockOrStatement
+	= "for" _* "(" "let" _+ varn:NAME _* from_:("=" _* v:Expr { return v; })? ","? _* to:Expr ")" _* x:BlockOrStatement
 {
 	return createNode('for', {
 		var: varn,
@@ -240,7 +240,7 @@ For
 		for: x,
 	});
 }
-	/ "for" _+ "let" _* varn:NAME _* from_:("=" _* v:Expr { return v; })? ","? _* to:Expr _+ x:BlockOrStatement
+	/ "for" _+ "let" _+ varn:NAME _* from_:("=" _* v:Expr { return v; })? ","? _* to:Expr _+ x:BlockOrStatement
 {
 	return createNode('for', {
 		var: varn,
