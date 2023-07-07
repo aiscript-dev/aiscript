@@ -33,14 +33,16 @@ export const std: Record<string, Value> = {
 
 	'Core:and': FN_NATIVE(([a, b]) => {
 		assertBoolean(a);
+		if (!a.value) return FALSE;
 		assertBoolean(b);
-		return (a.value && b.value) ? TRUE : FALSE;
+		return b.value ? TRUE : FALSE;
 	}),
 
 	'Core:or': FN_NATIVE(([a, b]) => {
 		assertBoolean(a);
+		if (a.value) return TRUE;
 		assertBoolean(b);
-		return (a.value || b.value) ? TRUE : FALSE;
+		return b.value ? TRUE : FALSE;
 	}),
 
 	'Core:add': FN_NATIVE(([a, b]) => {
