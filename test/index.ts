@@ -1485,6 +1485,20 @@ describe('for', () => {
 		`);
 		eq(res, NUM(10));
 	});
+
+	test.concurrent('var name without space', async () => {
+		try {
+			await exe(`
+			for (leti, 10) {
+				<: i
+			}
+			`);
+		} catch (e) {
+			assert.ok(true);
+			return;
+		}
+		assert.fail();
+	});
 });
 
 describe('for of', () => {
@@ -1518,6 +1532,20 @@ describe('for of', () => {
 		<: msgs
 		`);
 		eq(res, ARR([STR('ai!'), STR('chan!'), STR('kawaii!')]));
+	});
+
+	test.concurrent('var name without space', async () => {
+		try {
+			await exe(`
+			each letitem, ["ai", "chan", "kawaii"] {
+				<: item
+			}
+			`);
+		} catch (e) {
+			assert.ok(true);
+			return;
+		}
+		assert.fail();
 	});
 });
 
