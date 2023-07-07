@@ -6,6 +6,7 @@
 import * as assert from 'assert';
 import { Parser, Interpreter, utils, errors, Ast } from '../src';
 import { NUM, STR, NULL, ARR, OBJ, BOOL, TRUE, FALSE } from '../src/interpreter/value';
+import { RuntimeError } from '../src/error';
 
 const exe = (program: string): Promise<any> => new Promise((ok, err) => {
 	const aiscript = new Interpreter({}, {
@@ -86,6 +87,14 @@ describe('ops', () => {
 		eq(await exe('<: (true && false)'), BOOL(false));
 		eq(await exe('<: (false && true)'), BOOL(false));
 		eq(await exe('<: (false && false)'), BOOL(false));
+		eq(await exe('<: (false && null)'), BOOL(false));
+		try {
+			await exe('<: (true && null)');
+		} catch (e) {
+			if (!(e instanceof RuntimeError)) assert.fail();
+			return;
+		}
+		assert.fail();
 	});
 
 	test.concurrent('||', async () => {
@@ -93,6 +102,14 @@ describe('ops', () => {
 		eq(await exe('<: (true || false)'), BOOL(true));
 		eq(await exe('<: (false || true)'), BOOL(true));
 		eq(await exe('<: (false || false)'), BOOL(false));
+		eq(await exe('<: (true || null)'), BOOL(true));
+		try {
+			await exe('<: (false || null)');
+		} catch (e) {
+			if (!(e instanceof RuntimeError)) assert.fail();
+			return;
+		}
+		assert.fail();
 	});
 
 	test.concurrent('+', async () => {
