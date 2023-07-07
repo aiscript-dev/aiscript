@@ -1,36 +1,4 @@
 {
-	function group(arr, predicate) {
-		const dest = [];
-
-		for (let i = 0; i < arr.length; i++) {
-			if (i != 0 && predicate(arr[i - 1], arr[i])) {
-				dest[dest.length - 1].push(arr[i]);
-			} else {
-				dest.push([arr[i]]);
-			}
-		}
-
-		return dest;
-	}
-
-	function ungroup(groupes) {
-		return groupes.reduce((acc, val) => acc.concat(val), []);
-	}
-
-	function concatTemplate(arr) {
-		let groupes = group(arr, (prev, current) => (typeof current == typeof prev));
-
-		// concat string
-		groupes = groupes.map(g => {
-			if (typeof g[0] == 'string') {
-				return [g.join('')];
-			}
-			return g;
-		});
-
-		return ungroup(groupes);
-	}
-
 	function createNode(type, params, children) {
 		const node = { type };
 		params.children = children;
@@ -415,19 +383,19 @@ Identifier
 // template literal
 
 Tmpl
-	= "`" items:(!"`" i:TmplEmbed { return i; })* "`"
-{ return createNode('tmpl', { tmpl: concatTemplate(items) }); }
+	= "`" items:(!"`" @TmplEmbed)* "`"
+{ return createNode('tmpl', { tmpl: items }); }
 
 TmplEmbed
-	= TmplEsc
-	/ "{" __* expr:Expr __* "}"
-{ return expr; }
-	/ .
+	= "{" __* @expr:Expr __* "}"
+	/ str:TmplAtom+ {return str.join("")}
+
+TmplAtom
+  = TmplEsc
+	/ [^`{]
 
 TmplEsc
-	= "\\{" { return text()[1]; } // avoid syntax error of PEG.js (bug?)
-	/ "\\}" { return text()[1]; } // avoid syntax error of PEG.js (bug?)
-	/ "\\`" { return '`'; }
+	= "\\" @[{}`]
 
 // string literal
 
