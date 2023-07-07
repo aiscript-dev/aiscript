@@ -957,6 +957,18 @@ describe('Template syntax', () => {
 		eq(res, STR('1 + 1 = 2'));
 	});
 
+	test.concurrent('invalid', async () => {
+		try {
+			await exe(`
+			<: \`{hoge}\`
+			`);
+		} catch (e) {
+			assert.ok(true);
+			return;
+		}
+		assert.fail();
+	});
+
 	test.concurrent('Escape', async () => {
 		const res = await exe(`
 		let message = "Hello"
@@ -966,7 +978,7 @@ describe('Template syntax', () => {
 	});
 });
 
-test.concurrent('Throws error when divied by zero', async () => {
+test.concurrent('Throws error when divided by zero', async () => {
 	try {
 		await exe(`
 		<: (0 / 0)
@@ -1485,6 +1497,20 @@ describe('for', () => {
 		`);
 		eq(res, NUM(10));
 	});
+
+	test.concurrent('var name without space', async () => {
+		try {
+			await exe(`
+			for (leti, 10) {
+				<: i
+			}
+			`);
+		} catch (e) {
+			assert.ok(true);
+			return;
+		}
+		assert.fail();
+	});
 });
 
 describe('for of', () => {
@@ -1518,6 +1544,20 @@ describe('for of', () => {
 		<: msgs
 		`);
 		eq(res, ARR([STR('ai!'), STR('chan!'), STR('kawaii!')]));
+	});
+
+	test.concurrent('var name without space', async () => {
+		try {
+			await exe(`
+			each letitem, ["ai", "chan", "kawaii"] {
+				<: item
+			}
+			`);
+		} catch (e) {
+			assert.ok(true);
+			return;
+		}
+		assert.fail();
 	});
 });
 
@@ -2555,8 +2595,8 @@ describe('std', () => {
 				let random = Math:gen_rng(seed)
 				return random(0 100)
 			}
-			let seed1 = \`{@Util:uuid()}\`
-			let seed2 = \`{@Date:year()}\`
+			let seed1 = \`{Util:uuid()}\`
+			let seed2 = \`{Date:year()}\`
 			let test1 = if (test(seed1) == test(seed1)) {true} else {false}
 			let test2 = if (test(seed1) == test(seed2)) {true} else {false}
 			<: [test1 test2]
@@ -2613,6 +2653,37 @@ describe('std', () => {
 			<: Json:stringify(@(){})
 			`);
 			eq(res, STR('"<function>"'));
+		});
+
+		test.concurrent('parsable', async () => {
+			[
+				'',
+				'null',
+				'hoge',
+				'"hoge"',
+				'[',
+				'[]',
+				'{}'
+			].forEach(async (str)=>{
+				const res=await exe(`
+					<: Json:parsable('${str}')
+				`);
+				assert.deepEqual(res.type, 'bool');
+				if (res.value){
+					await exe(`
+						<: Json:parse('${str}')
+					`);
+				} else {
+					try {
+						await exe(`
+							<: Json:parse('${str}')
+						`);
+					} catch (e) {
+						if (e instanceof SyntaxError) return;
+					}
+					assert.fail()
+				}
+			}):
 		});
 	});
 });
