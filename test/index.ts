@@ -2643,12 +2643,12 @@ describe('std', () => {
 				'[',
 				'[]',
 				'{}'
-			].forEach(async (str)=>{
-				const res=await exe(`
+			].forEach(async (str) => {
+				const res = await exe(`
 					<: Json:parsable('${str}')
 				`);
 				assert.deepEqual(res.type, 'bool');
-				if (res.value){
+				if (res.value) {
 					await exe(`
 						<: Json:parse('${str}')
 					`);
@@ -2662,7 +2662,7 @@ describe('std', () => {
 					}
 					assert.fail()
 				}
-			}):
+			});
 		});
 	});
 });
