@@ -315,24 +315,10 @@ export class Interpreter {
 
 			case 'assign': {
 				const v = await this._eval(node.expr, scope);
-				if (node.dest.type === 'identifier') {
-					scope.assign(node.dest.name, v);
-					return NULL;
-				} else if (node.dest.type === 'index') {
-					const assignee = await this._eval(node.dest.target, scope);
-					assertArray(assignee);
-					const i = await this._eval(node.dest.index, scope);
-					assertNumber(i);
-					assignee.value[i.value] = v; // TODO: 存在チェック
-					return NULL;
-				} else if (node.dest.type === 'prop') {
-					const assignee = await this._eval(node.dest.target, scope);
-					assertObject(assignee);
-					assignee.value.set(node.dest.name, v);
-					return NULL;
-				} else {
-					throw new RuntimeError('The left-hand side of an assignment expression must be a variable or a property/index access.');
-				}
+
+				await this.assign(scope, node.dest, v);
+
+				return NULL;
 			}
 
 			case 'addAssign': {
