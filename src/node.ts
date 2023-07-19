@@ -43,6 +43,8 @@ export type Expression =
 	Obj |
 	Arr |
 	Not |
+	And |
+	Or |
 	Identifier |
 	Call |
 	Index |
@@ -145,6 +147,18 @@ export type Not = NodeBase & {
 	type: 'not'; // 否定
 	expr: Expression; // 式
 };
+
+export type And = NodeBase & {
+	type: 'and';
+	left: Expression;
+	right: Expression;
+}
+
+export type Or = NodeBase & {
+	type: 'or';
+	left: Expression;
+	right: Expression;
+}
 
 export type If = NodeBase & {
 	type: 'if'; // if式

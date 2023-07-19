@@ -458,6 +458,32 @@ export class Interpreter {
 				return NULL; // nop
 			}
 
+			case 'and': {
+				const leftValue = await this._eval(node.left, scope);
+				assertBoolean(leftValue);
+
+				if (leftValue.value === false) {
+					return leftValue;
+				} else {
+					const rightValue = await this._eval(node.right, scope);
+					assertBoolean(rightValue);
+					return rightValue;
+				}
+			}
+
+			case 'or': {
+				const leftValue = await this._eval(node.left, scope);
+				assertBoolean(leftValue);
+
+				if (leftValue.value === true) {
+					return leftValue;
+				} else {
+					const rightValue = await this._eval(node.right, scope);
+					assertBoolean(rightValue);
+					return rightValue;
+				}
+			}
+
 			default: {
 				throw new Error('invalid node type');
 			}
