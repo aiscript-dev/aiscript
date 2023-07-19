@@ -7,3 +7,4 @@
 /src/parser/parser.mjs
 npm-debug.log
 test.is
+pnpm-lock.yaml
