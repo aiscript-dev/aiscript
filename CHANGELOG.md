@@ -1,5 +1,7 @@
 [Read translated version (en)](./translations/en/CHANGELOG.md)
 
+- `+=`, `-=`演算子で関係のない変数が上書きされる可能性のあるバグを修正
+
 # 0.14.0
 
 - オブジェクトの値を配列化する`Obj:vals`を追加

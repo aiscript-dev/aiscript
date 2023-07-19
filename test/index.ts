@@ -800,6 +800,32 @@ describe('Array', () => {
 		eq(res, ARR([STR('ai'), STR('taso'), STR('kawaii')]));
 	});
 
+	test.concurrent('Assign array item to out of range', async () => {
+		try {
+			await exe(`
+					let arr = [1, 2, 3]
+
+					arr[3] = 4
+
+					<: null
+				`)
+		} catch (e) {
+			eq(e instanceof errors.IndexOutOfRangeError, false);
+		}
+
+		try {
+			await exe(`
+					let arr = [1, 2, 3]
+
+					arr[9] = 10
+
+					<: null
+				`)
+		} catch (e) {
+			eq(e instanceof errors.IndexOutOfRangeError, true);
+		}
+	});
+
 	test.concurrent('index out of range error', async () => {
 		try {
 			await exe(`
@@ -2617,12 +2643,12 @@ describe('std', () => {
 				'[',
 				'[]',
 				'{}'
-			].forEach(async (str)=>{
-				const res=await exe(`
+			].forEach(async (str) => {
+				const res = await exe(`
 					<: Json:parsable('${str}')
 				`);
 				assert.deepEqual(res.type, 'bool');
-				if (res.value){
+				if (res.value) {
 					await exe(`
 						<: Json:parse('${str}')
 					`);
@@ -2636,7 +2662,7 @@ describe('std', () => {
 					}
 					assert.fail()
 				}
-			}):
+			});
 		});
 	});
 });
