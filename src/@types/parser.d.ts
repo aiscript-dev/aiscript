@@ -1,3 +1,6 @@
+import type { Cst } from '..';
+
 declare module '*/parser.js' {
-	export const parse: any;
+	// FIXME: 型指定が効いていない
+	export const parse: (input: string, options: object) => Cst.Node[];
 }

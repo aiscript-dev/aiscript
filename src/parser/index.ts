@@ -40,7 +40,7 @@ export class Parser {
 		return Parser.instance.parse(input);
 	}
 
-	public addPlugin(type: PluginType, plugin: ParserPlugin) {
+	public addPlugin(type: PluginType, plugin: ParserPlugin): void {
 		switch (type) {
 			case 'validate':
 				this.plugins.validate.push(plugin);

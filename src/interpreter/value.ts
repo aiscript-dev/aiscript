@@ -80,57 +80,57 @@ export const FALSE = {
 	value: false,
 };
 
-export const NUM = (num: VNum['value']) => ({
+export const NUM = (num: VNum['value']): VNum => ({
 	type: 'num' as const,
 	value: num,
 });
 
-export const STR = (str: VStr['value']) => ({
+export const STR = (str: VStr['value']): VStr => ({
 	type: 'str' as const,
 	value: str,
 });
 
-export const BOOL = (bool: VBool['value']) => ({
+export const BOOL = (bool: VBool['value']): VBool => ({
 	type: 'bool' as const,
 	value: bool,
 });
 
-export const OBJ = (obj: VObj['value']) => ({
+export const OBJ = (obj: VObj['value']): VObj => ({
 	type: 'obj' as const,
 	value: obj,
 });
 
-export const ARR = (arr: VArr['value']) => ({
+export const ARR = (arr: VArr['value']): VArr => ({
 	type: 'arr' as const,
 	value: arr,
 });
 
-export const FN = (args: VFn['args'], statements: VFn['statements'], scope: VFn['scope']) => ({
+export const FN = (args: VFn['args'], statements: VFn['statements'], scope: VFn['scope']): VFn => ({
 	type: 'fn' as const,
 	args: args,
 	statements: statements,
 	scope: scope,
 });
 
-export const FN_NATIVE = (fn: VFn['native']) => ({
+export const FN_NATIVE = (fn: VFn['native']): VFn => ({
 	type: 'fn' as const,
 	native: fn,
 });
 
 // Return文で値が返されたことを示すためのラッパー
-export const RETURN = (v: VReturn['value']) => ({
+export const RETURN = (v: VReturn['value']): Value => ({
 	type: 'return' as const,
 	value: v,
 });
 
-export const BREAK = () => ({
+export const BREAK = (): Value => ({
 	type: 'break' as const,
 	value: null,
 });
 
-export const CONTINUE = () => ({
+export const CONTINUE = (): Value => ({
 	type: 'continue' as const,
 	value: null,
 });
 
-export const unWrapRet = (v: Value) => v.type === 'return' ? v.value : v;
+export const unWrapRet = (v: Value): Value => v.type === 'return' ? v.value : v;

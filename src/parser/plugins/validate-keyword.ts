@@ -41,7 +41,7 @@ const reservedWord = [
 	// 'out',
 ];
 
-function throwReservedWordError(name: string) {
+function throwReservedWordError(name: string): void {
 	throw new SyntaxError(`Reserved word "${name}" cannot be used as variable name.`);
 }
 

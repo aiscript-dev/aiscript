@@ -141,7 +141,7 @@ export type Assign = NodeBase & {
 	expr: Expression;
 };
 
-export type InfixOperator = '||' | '&&' | '==' | '!=' | '<=' | '>=' | '<' | '>' | '+' | '-' | '*' | '|' | '%';
+export type InfixOperator = '||' | '&&' | '==' | '!=' | '<=' | '>=' | '<' | '>' | '+' | '-' | '*' | '^' | '/' | '%';
 
 export type Infix = NodeBase & {
 	type: 'infix';
@@ -236,7 +236,7 @@ type ChainProp = {
 
 // AST
 export function hasChainProp<T extends Node>(x: T): x is T & ChainProp {
-	return ((x as any).chain != null);
+	return 'chain' in x && x.chain !== null;
 }
 
 // AST

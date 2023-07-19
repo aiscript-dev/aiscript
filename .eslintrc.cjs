@@ -60,11 +60,12 @@ module.exports = {
 		'object-curly-spacing': ['error', 'always'],
 		'space-infix-ops': ['error'],
 		'space-before-blocks': ['error', 'always'],
+		'@typescript-eslint/no-explicit-any': ['warn'],
 		'@typescript-eslint/no-unnecessary-condition': ['warn'],
 		'@typescript-eslint/no-var-requires': ['warn'],
 		'@typescript-eslint/no-inferrable-types': ['warn'],
 		'@typescript-eslint/no-empty-function': ['off'],
-		'@typescript-eslint/no-non-null-assertion': ['warn'],
+		'@typescript-eslint/no-non-null-assertion': ['off'],
 		'@typescript-eslint/explicit-function-return-type': ['warn'],
 		'@typescript-eslint/no-misused-promises': ['error', {
 			'checksVoidReturn': false,
@@ -74,6 +75,15 @@ module.exports = {
 		'import/no-default-export': ['warn'],
 		'import/order': ['warn', {
 			'groups': ['builtin', 'external', 'internal', 'parent', 'sibling', 'index', 'object', 'type'],
-		}]
+		}],
+		'@typescript-eslint/no-unused-vars': [
+			'warn',
+			{
+				'argsIgnorePattern': '^_',
+				'varsIgnorePattern': '^_',
+				'caughtErrorsIgnorePattern': '^_',
+				'destructuredArrayIgnorePattern': '^_'
+			}
+		]
 	},
 };

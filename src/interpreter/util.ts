@@ -109,17 +109,19 @@ export function valToString(val: Value, simple = false): string {
 		val.type === 'obj' ? '...' :
 		val.type === 'null' ? '' :
 		null;
+
 	return `${val.type}<${label}>`;
 }
 
 export function valToJs(val: Value): any {
 	switch (val.type) {
+		case 'fn': return '<function>';
 		case 'arr': return val.value.map(item => valToJs(item));
 		case 'bool': return val.value;
 		case 'null': return null;
 		case 'num': return val.value;
 		case 'obj': {
-			const obj = {};
+			const obj: { [k: string]: object | string | number | boolean | null } = {};
 			for (const [k, v] of val.value.entries()) {
 				// TODO: keyが__proto__とかじゃないかチェック
 				obj[k] = valToJs(v);
@@ -127,7 +129,7 @@ export function valToJs(val: Value): any {
 			return obj;
 		}
 		case 'str': return val.value;
-		default: return undefined;
+		default: throw new Error(`Unrecognized value type: ${val.type}`);
 	}
 }
 

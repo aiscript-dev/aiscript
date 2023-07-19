@@ -1,9 +1,8 @@
 /* eslint-disable no-empty-pattern */
 import { v4 as uuid } from 'uuid';
-import { substring, length, indexOf, toArray } from 'stringz';
 import seedrandom from 'seedrandom';
-import { NUM, STR, FN_NATIVE, FALSE, TRUE, VArr, ARR, NULL, BOOL, OBJ } from '../value';
-import { assertNumber, assertString, assertArray, assertBoolean, valToJs, jsToVal, assertFunction, assertObject, eq, expectAny } from '../util';
+import { NUM, STR, FN_NATIVE, FALSE, TRUE, ARR, NULL, BOOL, OBJ } from '../value';
+import { assertNumber, assertString, assertBoolean, valToJs, jsToVal, assertFunction, assertObject, eq, expectAny } from '../util';
 import { RuntimeError } from '../../error';
 import type { Value } from '../value';
 
@@ -11,7 +10,7 @@ export const std: Record<string, Value> = {
 	'help': STR('SEE: https://github.com/syuilo/aiscript/blob/master/docs/get-started.md'),
 
 	//#region Core
-	'Core:v': STR('0.12.4'), // TODO: package.jsonを参照
+	'Core:v': STR('0.14.0'), // TODO: package.jsonを参照
 
 	'Core:ai': STR('kawaii'),
 
@@ -34,14 +33,16 @@ export const std: Record<string, Value> = {
 
 	'Core:and': FN_NATIVE(([a, b]) => {
 		assertBoolean(a);
+		if (!a.value) return FALSE;
 		assertBoolean(b);
-		return (a.value && b.value) ? TRUE : FALSE;
+		return b.value ? TRUE : FALSE;
 	}),
 
 	'Core:or': FN_NATIVE(([a, b]) => {
 		assertBoolean(a);
+		if (a.value) return TRUE;
 		assertBoolean(b);
-		return (a.value || b.value) ? TRUE : FALSE;
+		return b.value ? TRUE : FALSE;
 	}),
 
 	'Core:add': FN_NATIVE(([a, b]) => {
@@ -60,6 +61,14 @@ export const std: Record<string, Value> = {
 		assertNumber(a);
 		assertNumber(b);
 		return NUM(a.value * b.value);
+	}),
+
+	'Core:pow': FN_NATIVE(([a, b]) => {
+		assertNumber(a);
+		assertNumber(b);
+		const res = a.value ** b.value;
+		if (isNaN(res)) throw new RuntimeError('Invalid operation.'); // ex. √-1
+		return NUM(res);
 	}),
 
 	'Core:div': FN_NATIVE(([a, b]) => {
@@ -141,6 +150,16 @@ export const std: Record<string, Value> = {
 		assertString(json);
 		return jsToVal(JSON.parse(json.value));
 	}),
+
+	'Json:parsable': FN_NATIVE(([str]) => {
+		assertString(str);
+		try {
+			JSON.parse(str.value);
+		} catch (e) {
+			return BOOL(false);
+		}
+		return BOOL(true);
+	}),
 	//#endregion
 
 	//#region Date
@@ -148,28 +167,34 @@ export const std: Record<string, Value> = {
 		return NUM(Date.now());
 	}),
 
-	'Date:year': FN_NATIVE(() => {
-		return NUM(new Date().getFullYear());
+	'Date:year': FN_NATIVE(([v]) => {
+		if (v) { assertNumber(v); }
+		return NUM(new Date(v?.value || Date.now()).getFullYear());
 	}),
 
-	'Date:month': FN_NATIVE(() => {
-		return NUM(new Date().getMonth() + 1);
+	'Date:month': FN_NATIVE(([v]) => {
+		if (v) { assertNumber(v); }
+		return NUM(new Date(v?.value || Date.now()).getMonth() + 1);
 	}),
 
-	'Date:day': FN_NATIVE(() => {
-		return NUM(new Date().getDate());
+	'Date:day': FN_NATIVE(([v]) => {
+		if (v) { assertNumber(v); }
+		return NUM(new Date(v?.value || Date.now()).getDate());
 	}),
 
-	'Date:hour': FN_NATIVE(() => {
-		return NUM(new Date().getHours());
+	'Date:hour': FN_NATIVE(([v]) => {
+		if (v) { assertNumber(v); }
+		return NUM(new Date(v?.value || Date.now()).getHours());
 	}),
 
-	'Date:minute': FN_NATIVE(() => {
-		return NUM(new Date().getMinutes());
+	'Date:minute': FN_NATIVE(([v]) => {
+		if (v) { assertNumber(v); }
+		return NUM(new Date(v?.value || Date.now()).getMinutes());
 	}),
 
-	'Date:second': FN_NATIVE(() => {
-		return NUM(new Date().getSeconds());
+	'Date:second': FN_NATIVE(([v]) => {
+		if (v) { assertNumber(v); }
+		return NUM(new Date(v?.value || Date.now()).getSeconds());
 	}),
 
 	'Date:parse': FN_NATIVE(([v]) => {
@@ -210,6 +235,11 @@ export const std: Record<string, Value> = {
 		return NUM(Math.round(v.value));
 	}),
 
+	'Math:ceil': FN_NATIVE(([v]) => {
+		assertNumber(v);
+		return NUM(Math.ceil(v.value));
+	}),
+
 	'Math:floor': FN_NATIVE(([v]) => {
 		assertNumber(v);
 		return NUM(Math.floor(v.value));
@@ -229,7 +259,7 @@ export const std: Record<string, Value> = {
 
 	'Math:rnd': FN_NATIVE(([min, max]) => {
 		if (min && min.type === 'num' && max && max.type === 'num') {
-			return NUM(Math.floor(Math.random() * (max.value - min.value + 1) + min.value));
+			return NUM(Math.floor(Math.random() * (Math.floor(max.value) - Math.ceil(min.value) + 1) + Math.ceil(min.value)));
 		}
 		return NUM(Math.random());
 	}),
@@ -242,7 +272,7 @@ export const std: Record<string, Value> = {
 
 		return FN_NATIVE(([min, max]) => {
 			if (min && min.type === 'num' && max && max.type === 'num') {
-				return NUM(Math.floor(rng() * (max.value - min.value + 1) + min.value));
+				return NUM(Math.floor(rng() * (Math.floor(max.value) - Math.ceil(min.value) + 1) + Math.ceil(min.value)));
 			}
 			return NUM(rng());
 		});
@@ -263,6 +293,29 @@ export const std: Record<string, Value> = {
 
 	//#region Str
 	'Str:lf': STR('\n'),
+
+	'Str:lt': FN_NATIVE(([a, b]) => {
+		assertString(a);
+		assertString(b);
+		if (a.value < b.value) {
+			return NUM(-1);
+		} else if (a.value === b.value) {
+			return NUM(0);
+		} else {
+			return NUM(1);
+		}
+	}),
+	'Str:gt': FN_NATIVE(([a, b]) => {
+		assertString(a);
+		assertString(b);
+		if (a.value > b.value) {
+			return NUM(-1);
+		} else if (a.value === b.value) {
+			return NUM(0);
+		} else {
+			return NUM(1);
+		}
+	}),
 	//#endregion
 
 	//#region Arr
@@ -272,6 +325,11 @@ export const std: Record<string, Value> = {
 	'Obj:keys': FN_NATIVE(([obj]) => {
 		assertObject(obj);
 		return ARR(Array.from(obj.value.keys()).map(k => STR(k)));
+	}),
+
+	'Obj:vals': FN_NATIVE(([obj]) => {
+		assertObject(obj);
+		return ARR(Array.from(obj.value.values()));
 	}),
 
 	'Obj:kvs': FN_NATIVE(([obj]) => {
@@ -317,15 +375,16 @@ export const std: Record<string, Value> = {
 	'Async:interval': FN_NATIVE(async ([interval, callback, immediate], opts) => {
 		assertNumber(interval);
 		assertFunction(callback);
-		if (immediate) assertBoolean(immediate);
-
-		if (immediate) opts.call(callback, []);
+		if (immediate) {
+			assertBoolean(immediate);
+			if (immediate.value) opts.call(callback, []);
+		}
 
 		const id = setInterval(() => {
 			opts.call(callback, []);
 		}, interval.value);
 
-		const abortHandler = () => {
+		const abortHandler = (): void => {
 			clearInterval(id);
 		};
 
@@ -346,7 +405,7 @@ export const std: Record<string, Value> = {
 			opts.call(callback, []);
 		}, delay.value);
 
-		const abortHandler = () => {
+		const abortHandler = (): void => {
 			clearTimeout(id);
 		};
 

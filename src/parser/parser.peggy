@@ -1,36 +1,4 @@
 {
-	function group(arr, predicate) {
-		const dest = [];
-
-		for (let i = 0; i < arr.length; i++) {
-			if (i != 0 && predicate(arr[i - 1], arr[i])) {
-				dest[dest.length - 1].push(arr[i]);
-			} else {
-				dest.push([arr[i]]);
-			}
-		}
-
-		return dest;
-	}
-
-	function ungroup(groupes) {
-		return groupes.reduce((acc, val) => acc.concat(val), []);
-	}
-
-	function concatTemplate(arr) {
-		let groupes = group(arr, (prev, current) => (typeof current == typeof prev));
-
-		// concat string
-		groupes = groupes.map(g => {
-			if (typeof g[0] == 'string') {
-				return [g.join('')];
-			}
-			return g;
-		});
-
-		return ungroup(groupes);
-	}
-
 	function createNode(type, params, children) {
 		const node = { type };
 		params.children = children;
@@ -211,7 +179,7 @@ Attr
 // each statement
 
 Each
-	= "each" _* "(" "let" _* varn:NAME _* ","? _* items:Expr ")" _* x:BlockOrStatement
+	= "each" _* "(" "let" _+ varn:NAME _* ","? _* items:Expr ")" _* x:BlockOrStatement
 {
 	return createNode('each', {
 		var: varn,
@@ -219,7 +187,7 @@ Each
 		for: x,
 	});
 }
-	/ "each" _+ "let" _* varn:NAME _* ","? _* items:Expr _+ x:BlockOrStatement
+	/ "each" _+ "let" _+ varn:NAME _* ","? _* items:Expr _+ x:BlockOrStatement
 {
 	return createNode('each', {
 		var: varn,
@@ -231,20 +199,20 @@ Each
 // for statement
 
 For
-	= "for" _* "(" "let" _* varn:NAME _* from:("=" _* v:Expr { return v; })? ","? _* to:Expr ")" _* x:BlockOrStatement
+	= "for" _* "(" "let" _+ varn:NAME _* from_:("=" _* v:Expr { return v; })? ","? _* to:Expr ")" _* x:BlockOrStatement
 {
 	return createNode('for', {
 		var: varn,
-		from: from ?? createNode('num', { value: 0 }),
+		from: from_ ?? createNode('num', { value: 0 }),
 		to: to,
 		for: x,
 	});
 }
-	/ "for" _+ "let" _* varn:NAME _* from:("=" _* v:Expr { return v; })? ","? _* to:Expr _+ x:BlockOrStatement
+	/ "for" _+ "let" _+ varn:NAME _* from_:("=" _* v:Expr { return v; })? ","? _* to:Expr _+ x:BlockOrStatement
 {
 	return createNode('for', {
 		var: varn,
-		from: from ?? createNode('num', { value: 0 }),
+		from: from_ ?? createNode('num', { value: 0 }),
 		to: to,
 		for: x,
 	});
@@ -323,7 +291,7 @@ InfixSp
 	/ __
 
 Op
-	= ("||" / "&&" / "==" / "!=" / "<=" / ">=" / "<" / ">" / "+" / "-" / "*" / "/" / "%") ![-+*/%&|=~<>!?]
+	= ("||" / "&&" / "==" / "!=" / "<=" / ">=" / "<" / ">" / "+" / "-" / "*" / "^" / "/" / "%")
 { return text(); }
 
 Not
@@ -415,19 +383,19 @@ Identifier
 // template literal
 
 Tmpl
-	= "`" items:(!"`" i:TmplEmbed { return i; })* "`"
-{ return createNode('tmpl', { tmpl: concatTemplate(items) }); }
+	= "`" items:(!"`" @TmplEmbed)* "`"
+{ return createNode('tmpl', { tmpl: items }); }
 
 TmplEmbed
-	= TmplEsc
-	/ "{" __* expr:Expr __* "}"
-{ return expr; }
-	/ .
+	= "{" __* @expr:Expr __* "}"
+	/ str:TmplAtom+ {return str.join("")}
+
+TmplAtom
+  = TmplEsc
+	/ [^`{]
 
 TmplEsc
-	= "\\{" { return text()[1]; } // avoid syntax error of PEG.js (bug?)
-	/ "\\}" { return text()[1]; } // avoid syntax error of PEG.js (bug?)
-	/ "\\`" { return '`'; }
+	= "\\" @[{}`]
 
 // string literal
 
@@ -451,7 +419,7 @@ Num
 	/ Int
 
 Float
-	= [+-]? [1-9]+ [0-9]+ "." [0-9]+
+	= [+-]? [1-9] [0-9]+ "." [0-9]+
 	{ return createNode('num', { value: parseFloat(text())}); }
 	/ [+-]? [0-9] "." [0-9]+
 	{ return createNode('num', { value: parseFloat(text())}); }

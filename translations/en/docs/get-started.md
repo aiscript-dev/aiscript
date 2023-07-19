@@ -34,7 +34,7 @@ Comments do not affect the behavior of the program.
 	<tr><th>Type</th><th>Form</th><th>Example of literal</th></tr>
 	<tr><td>string</td><td><code>str</code></td><td><code>"kawaii"</code></td></tr>
 	<tr><td>numeric</td><td><code>num</code></td><td><code>42</code></td></tr>
-	<tr><td>truth-value</td><td><code>bool</code></td><td><code>yes</code>/<code>no</code></td></tr>
+	<tr><td>truth-value</td><td><code>bool</code></td><td><code>true</code>/<code>false</code></td></tr>
 	<tr><td>array</td><td><code>arr</code></td><td><code>["ai" "chan" "cute"]</code></td></tr>
 	<tr><td>object</td><td><code>obj</code></td><td><code>{ foo: "bar"; a: 42; }</code></td></tr>
 	<tr><td>null</td><td><code>null</code></td><td><code>null</code></td></tr>
@@ -48,13 +48,13 @@ The variable declaration is written as follows:
 #message = "Hello"
 ```
 
-Write the name of the variable after `#` and the value after `=`.
+Write the name of the variable after `let` and the value after `=`.
 
 In AiScript, variables declared in this way are immutable. In other words, you cannot change the value of a variable later.
-To create a variable that can be reassigned, declare the variable with `$` instead of `#`. Example:
+To create a variable that can be reassigned, declare the variable with `var` instead of `let`. Example:
 ```
 // Declare a mutable variable.
-$message = "Hello"
+var message = "Hello"
 
 // reassignment
 message = "Hi"
@@ -75,10 +75,10 @@ Enumerate expressions in an array `[]`, separated by spaces.
 ["ai" "chan" "kawaii"]
 ```
 
-To access an element of an array, write `[<index>]`. The index starts at 1.
+To access an element of an array, write `[<index>]`. The index starts at 0.
 ```
-#arr = ["ai" "chan" "kawaii"]
-<: arr[1] // "ai"
+let arr = ["ai" "chan" "kawaii"]
+<: arr[0] // "ai"
 ```
 
 ## Object
@@ -110,22 +110,23 @@ Note that it cannot be written as `(1 + 1 + 1)`, but must be nested as `(1 + (1 
 	<tr><td><code>Core:add</code></td><td><code>+</code></td><td>addition</td></tr>
 	<tr><td><code>Core:sub</code></td><td><code>-</code></td><td>subtraction</td></tr>
 	<tr><td><code>Core:mul</code></td><td><code>*</code></td><td>multiplication</td></tr>
+	<tr><td><code>Core:pow</code></td><td><code>^</code></td><td>exponentiation</td></tr>
 	<tr><td><code>Core:div</code></td><td><code>/</code></td><td>division</td></tr>
 	<tr><td><code>Core:mod</code></td><td><code>%</code></td><td>remainder</td></tr>
-	<tr><td><code>Core:eq</code></td><td><code>=</code></td><td>equal</td></tr>
-	<tr><td><code>Core:and</code></td><td><code>&</code></td><td>and</td></tr>
-	<tr><td><code>Core:or</code></td><td><code>|</code></td><td>or</td></tr>
+	<tr><td><code>Core:eq</code></td><td><code>==</code></td><td>equal</td></tr>
+	<tr><td><code>Core:and</code></td><td><code>&&</code></td><td>and</td></tr>
+	<tr><td><code>Core:or</code></td><td><code>||</code></td><td>or</td></tr>
 	<tr><td><code>Core:gt</code></td><td><code>></code></td><td>greater than</td></tr>
 	<tr><td><code>Core:lt</code></td><td><code><</code></td><td>less than</td></tr>
 </table>
 
 ## Block
-A block is a collection of processes, written as `{ ~ }`.
+A block is a collection of processes, written as `eval { ~ }`.
 The expression written at the end of the block will be returned as the value of the block.
 ```
-#foo = {
-	#a = 1
-	#b = 2
+let foo = eval {
+	let a = 1
+	let b = 2
 	(a + b)
 }
 
@@ -137,7 +138,7 @@ The block itself is also a formula.
 ## Conditional branching
 The conditional branch in AiScript is written as follows:
 ```
-if (a = b) {
+if (a == b) {
 	<: "a is equal to b"
 }
 ```
@@ -145,7 +146,7 @@ if (a = b) {
 After `if`, write an expression (condition) that returns a bool, followed by an expression (then clause) that will be evaluated if the condition is met.
 You can add `else` after the `then' clause and add an expression to handle the case when the condition is not met:
 ```
-if (a = b) {
+if (a == b) {
 	<: "a is equal to b"
 } else {
 	<: "a is not equal to b"
@@ -154,7 +155,7 @@ if (a = b) {
 
 You can also write conditional expressions after `elif` to make multiple conditional decisions:
 ```
-if (a = b) {
+if (a == b) {
 	<: "a is equal to b"
 } elif (a > b) {
 	<: "a is grater than b"
@@ -165,7 +166,7 @@ if (a = b) {
 
 Since these conditional branches are expressions, they can return a value in the block:
 ```
-<: if (a = b) {
+<: if (a == b) {
 	"a is equal to b"
 } elif (a > b) {
 	"a is grater than b"
@@ -177,7 +178,7 @@ Since these conditional branches are expressions, they can return a value in the
 ## Loop
 To iterate in AiScript, write the following:
 ```
-for (#i, 100) {
+for (let i, 100) {
 	<: i
 }
 ```
@@ -192,8 +193,8 @@ for (100) {
 ## Loop (array)
 You can use `each` to repeat items in an array:
 ```
-#items = ["a" "b" "c"]
-each (#item, items) {
+let items = ["a" "b" "c"]
+each (let item, items) {
 	<: item
 }
 ```
@@ -215,7 +216,7 @@ The value of the expression written at the end of the function will be the retur
 ## Template
 You can embed variables and expressions in a string:
 ```
-#ai = "kawaii"
+let ai = "kawaii"
 <: `Hello, {ai} world!`
 ```
 
@@ -231,10 +232,10 @@ This function allows you to embed metadata in AiScript files.
 # Examples
 ## FizzBuzz
 ```
-for (#i, 100) {
-	<: ? (i % 15 == 0) "FizzBuzz"
-		.? (i % 3 == 0) "Fizz"
-		.? (i % 5 == 0) "Buzz"
-		. i
+for (let i, 100) {
+	<: if (i % 15 == 0) "FizzBuzz"
+		elif (i % 3 == 0) "Fizz"
+		elif (i % 5 == 0) "Buzz"
+		else i
 }
 ```

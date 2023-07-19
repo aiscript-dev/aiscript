@@ -18,7 +18,7 @@ export class Scope {
 	}
 
 	@autobind
-	private log(type: string, params: Record<string, any>) {
+	private log(type: string, params: Record<string, any>): void {
 		if (this.parent) {
 			this.parent.log(type, params);
 		} else {
@@ -27,7 +27,7 @@ export class Scope {
 	}
 
 	@autobind
-	private onUpdated(name: string, value: Value) {
+	private onUpdated(name: string, value: Value): void {
 		if (this.parent) {
 			this.parent.onUpdated(name, value);
 		} else {
@@ -56,9 +56,8 @@ export class Scope {
 		}
 
 		throw new RuntimeError(
-			`No such variable '${name}' in scope '${this.name}'`, {
-				scope: this.layerdStates,
-			});
+			`No such variable '${name}' in scope '${this.name}'`,
+			{ scope: this.layerdStates });
 	}
 
 	/**
@@ -78,14 +77,13 @@ export class Scope {
 	 * @param val - 初期値
 	 */
 	@autobind
-	public add(name: string, val: Value) {
+	public add(name: string, val: Value): void {
 		this.log('add', { var: name, val: val });
 		const states = this.layerdStates[0]!;
 		if (states.has(name)) {
 			throw new RuntimeError(
-				`Variable '${name}' is alerady exists in scope '${this.name}'`, {
-					scope: this.layerdStates,
-				});
+				`Variable '${name}' is alerady exists in scope '${this.name}'`,
+				{ scope: this.layerdStates });
 		}
 		states.set(name, val);
 		if (this.parent == null) this.onUpdated(name, val);
@@ -97,7 +95,7 @@ export class Scope {
 	 * @param val - 値
 	 */
 	@autobind
-	public assign(name: string, val: Value) {
+	public assign(name: string, val: Value): void {
 		let i = 1;
 		for (const layer of this.layerdStates) {
 			if (layer.has(name)) {
@@ -110,8 +108,7 @@ export class Scope {
 		}
 
 		throw new RuntimeError(
-			`No such variable '${name}' in scope '${this.name}'`, {
-				scope: this.layerdStates,
-			});
+			`No such variable '${name}' in scope '${this.name}'`,
+			{ scope: this.layerdStates });
 	}
 }

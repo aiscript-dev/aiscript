@@ -1,5 +1,29 @@
 [Read translated version (en)](./translations/en/CHANGELOG.md)
 
+# 0.14.0
+
+- オブジェクトの値を配列化する`Obj:vals`を追加
+- 文字列が`Json:parse`でパース可能であるかを判定する関数`Json:parsable`を追加
+- or/andの結果が第一引数で確定する時、第二引数を評価しないように
+- Fix immediate value check in Async:interval
+
+# 0.13.3
+- 乱数を生成するとき引数の最大値を戻り値に含むように
+
+# 0.13.2
+- `Date:year`,`Date:month`,`Date:day`,`Date:hour`,`Date:minute`,`Date:second`に時間数値の引数を渡して時刻指定可能に
+- array.sortとString用比較関数Str:lt, Str:gtの追加
+- 乱数を生成するとき引数の最大値を戻り値に含むように
+
+# 0.13.1
+- Json:stringifyに関数を渡すと不正な値が生成されるのを修正
+
+# 0.13.0
+- 配列プロパティ`map`,`filter`,`reduce`,`find`に渡すコールバック関数が受け取るインデックスを0始まりに
+- `@Math:ceil(x: num): num` を追加
+- 冪乗の `Core:pow` とその糖衣構文 `^`
+- 少数のパースを修正
+
 # 0.12.4
 - block comment `/* ... */`
 - Math:Infinity
