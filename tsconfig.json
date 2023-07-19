@@ -12,7 +12,7 @@
 		"declarationMap": true,
 		"target": "es2022",
 		"module": "ES2020",
-		"moduleResolution": "node",
+		"moduleResolution": "node16",
 		"esModuleInterop": true,
 		"allowJs": true,
 		"removeComments": false,
