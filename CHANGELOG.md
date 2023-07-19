@@ -1,7 +1,11 @@
 [Read translated version (en)](./translations/en/CHANGELOG.md)
 
+# 0.14.0
+
 - オブジェクトの値を配列化する`Obj:vals`を追加
 - 文字列が`Json:parse`でパース可能であるかを判定する関数`Json:parsable`を追加
+- or/andの結果が第一引数で確定する時、第二引数を評価しないように
+- Fix immediate value check in Async:interval
 
 # 0.13.3
 - 乱数を生成するとき引数の最大値を戻り値に含むように
