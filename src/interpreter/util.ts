@@ -153,3 +153,43 @@ export function getLangVersion(input: string): string | null {
 	const match = /^\s*\/\/\/\s*@\s*([A-Z0-9_.-]+)(?:[\r\n][\s\S]*)?$/i.exec(input);
 	return (match != null) ? match[1]! : null;
 }
+
+/**
+ * @param literalLike `true` なら出力をリテラルに似せる
+ */
+export function reprValue(value: Value, literalLike = false, processedObjects = new Set<object>()): string {
+	if ((value.type === 'arr' || value.type === 'obj') && processedObjects.has(value.value)) {
+		return '...';
+	}
+
+	if (literalLike && value.type === 'str') return '"' + value.value.replace(/["\\\r\n]/g, x => `\\${x}`) + '"';
+	if (value.type === 'str') return value.value;
+	if (value.type === 'num') return value.value.toString();
+	if (value.type === 'arr') {
+		processedObjects.add(value.value);
+		const content = [];
+
+		for (const item of value.value) {
+			content.push(reprValue(item, true, processedObjects));
+		}
+
+		return '[ ' + content.join(', ') + ' ]';
+	}
+	if (value.type === 'obj') {
+		processedObjects.add(value.value);
+		const content = [];
+
+		for (const [key, val] of value.value) {
+			content.push(`${key}: ${reprValue(val, true, processedObjects)}`);
+		}
+
+		return '{ ' + content.join(', ') + ' }';
+	}
+	if (value.type === 'bool') return value.value.toString();
+	if (value.type === 'null') return 'null';
+	if (value.type === 'fn') {
+		return `@( ${(value.args ?? []).join(', ')} ) { ... }`;
+	}
+
+	return '?';
+}
