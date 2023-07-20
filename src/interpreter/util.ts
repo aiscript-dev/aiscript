@@ -155,7 +155,7 @@ export function getLangVersion(input: string): string | null {
 }
 
 /**
- * @param literalLike `true` なら出力をリテラルに似せる
+ * @param literalLike - `true` なら出力をリテラルに似せる
  */
 export function reprValue(value: Value, literalLike = false, processedObjects = new Set<object>()): string {
 	if ((value.type === 'arr' || value.type === 'obj') && processedObjects.has(value.value)) {
