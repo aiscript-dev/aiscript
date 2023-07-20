@@ -2552,6 +2552,27 @@ describe('std', () => {
 			eq(await exe('<: Core:range(1, 1)'), ARR([NUM(1)]));
 			eq(await exe('<: Core:range(9, 7)'), ARR([NUM(9), NUM(8), NUM(7)]));
 		});
+
+		test.concurrent('to_str', async () => {
+			eq(await exe('<: Core:to_str("abc")'), STR('abc'));
+			eq(await exe('<: Core:to_str(123)'), STR('123'));
+			eq(await exe('<: Core:to_str(true)'), STR('true'));
+			eq(await exe('<: Core:to_str(false)'), STR('false'));
+			eq(await exe('<: Core:to_str(null)'), STR('null'));
+			eq(await exe('<: Core:to_str({ a: "abc", b: 1234 })'), STR('{ a: "abc", b: 1234 }'));
+			eq(await exe('<: Core:to_str([ true, 123, null ])'), STR('[ true, 123, null ]'));
+			eq(await exe('<: Core:to_str(@( a, b, c ) {})'), STR('@( a, b, c ) { ... }'));
+			eq(await exe(`
+				let arr = []
+				arr.push(arr)
+				<: Core:to_str(arr)
+			`), STR('[ ... ]'));
+			eq(await exe(`
+				let arr = []
+				arr.push({ value: arr })
+				<: Core:to_str(arr)
+			`), STR('[ { value: ... } ]'));
+		});
 	});
 
 	describe('Arr', () => {
