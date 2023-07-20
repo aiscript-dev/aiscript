@@ -766,6 +766,9 @@ type PropChain = NodeBase_2 & {
 };
 
 // @public (undocumented)
+function reprValue(value: Value, literalLike?: boolean, processedObjects?: Set<object>): string;
+
+// @public (undocumented)
 const RETURN: (v: VReturn['value']) => Value;
 
 // @public (undocumented)
@@ -895,7 +898,8 @@ declare namespace utils {
         valToString,
         valToJs,
         jsToVal,
-        getLangVersion
+        getLangVersion,
+        reprValue
     }
 }
 export { utils }
