@@ -462,7 +462,7 @@ export class Interpreter {
 				const leftValue = await this._eval(node.left, scope);
 				assertBoolean(leftValue);
 
-				if (leftValue.value === false) {
+				if (!leftValue.value) {
 					return leftValue;
 				} else {
 					const rightValue = await this._eval(node.right, scope);
@@ -475,7 +475,7 @@ export class Interpreter {
 				const leftValue = await this._eval(node.left, scope);
 				assertBoolean(leftValue);
 
-				if (leftValue.value === true) {
+				if (leftValue.value) {
 					return leftValue;
 				} else {
 					const rightValue = await this._eval(node.right, scope);
