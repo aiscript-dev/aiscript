@@ -2,7 +2,7 @@
 import { v4 as uuid } from 'uuid';
 import seedrandom from 'seedrandom';
 import { NUM, STR, FN_NATIVE, FALSE, TRUE, ARR, NULL, BOOL, OBJ } from '../value';
-import { assertNumber, assertString, assertBoolean, valToJs, jsToVal, assertFunction, assertObject, eq, expectAny } from '../util';
+import { assertNumber, assertString, assertBoolean, valToJs, jsToVal, assertFunction, assertObject, eq, expectAny, reprValue } from '../util';
 import { RuntimeError } from '../../error';
 import type { Value } from '../value';
 
@@ -116,9 +116,8 @@ export const std: Record<string, Value> = {
 
 	'Core:to_str': FN_NATIVE(([v]) => {
 		expectAny(v);
-		if (v.type === 'str') return v;
-		if (v.type === 'num') return STR(v.value.toString());
-		return STR('?');
+
+		return STR(reprValue(v));
 	}),
 
 	'Core:range': FN_NATIVE(([a, b]) => {
