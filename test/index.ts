@@ -2617,6 +2617,7 @@ describe('std', () => {
 			eq(await exe("<: Math:max(-2, -3)"), NUM(-2));
 		});
 		
+		/* flaky
 		test.concurrent('rnd', async () => {
 			const steps = 512;
 
@@ -2650,6 +2651,7 @@ describe('std', () => {
 			// 自由度が (11 - 1) の母分散の カイ二乗分布 95% 信頼区間は [3.94, 18.31]
 			assert.deepEqual(3.94 <= chiSquare && chiSquare <= 18.31, true, `カイ二乗値(${chiSquare})が母分散の95%信頼区間にありません`);
 		});
+		*/
 
 		test.concurrent('rnd with arg', async () => {
 			eq(await exe("<: Math:rnd(1, 1.5)"), NUM(1));

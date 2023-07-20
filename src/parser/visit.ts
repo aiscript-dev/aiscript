@@ -142,6 +142,13 @@ export function visitNode(node: Cst.Node, fn: (node: Cst.Node) => Cst.Node): Cst
 			}
 			break;
 		}
+
+		case 'or':
+		case 'and': {
+			result.left = visitNode(result.left, fn) as (Cst.And | Cst.Or)['left'];
+			result.right = visitNode(result.right, fn) as (Cst.And | Cst.Or)['right'];
+			break;
+		}
 	}
 
 	if (Cst.hasChainProp(result)) {
