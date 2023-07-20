@@ -1,6 +1,6 @@
 <template>
 <div id="root">
-	<h1>AiScript (v0.14.0) Playground</h1>
+	<h1>AiScript (v0.14.1) Playground</h1>
 	<div id="grid1">
 		<div id="editor" class="container">
 			<header>Input<div class="actions"><button @click="setCode">FizzBuzz</button></div></header>

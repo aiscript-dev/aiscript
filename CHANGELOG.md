@@ -1,5 +1,7 @@
 [Read translated version (en)](./translations/en/CHANGELOG.md)
 
+# 0.14.1
+
 - `&&`, `||` が短絡評価されないバグを修正
 - `+=`, `-=` 演算子で関係のない変数が上書きされる可能性のあるバグを修正
 
