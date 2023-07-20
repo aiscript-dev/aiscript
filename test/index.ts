@@ -2597,7 +2597,7 @@ describe('std', () => {
 		});
 		
 		test.concurrent('rnd', async () => {
-			const steps = 512;
+			const steps = 1024;
 
 			const res = await exe(`
 			let counts = [] // 0 ~ 10 の出現回数を格納する配列
