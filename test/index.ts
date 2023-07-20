@@ -94,6 +94,39 @@ describe('ops', () => {
 			if (!(e instanceof RuntimeError)) assert.fail();
 			return;
 		}
+
+		eq(
+			await exe(`
+				var tmp = null
+
+				@func() {
+					tmp = true
+					return true
+				}
+
+				false && func()
+
+				<: tmp
+			`),
+			NULL
+		)
+
+		eq(
+			await exe(`
+				var tmp = null
+
+				@func() {
+					tmp = true
+					return true
+				}
+
+				true && func()
+
+				<: tmp
+			`),
+			BOOL(true)
+		)
+
 		assert.fail();
 	});
 
@@ -109,6 +142,39 @@ describe('ops', () => {
 			if (!(e instanceof RuntimeError)) assert.fail();
 			return;
 		}
+
+		eq(
+			await exe(`
+				var tmp = null
+
+				@func() {
+					tmp = true
+					return true
+				}
+
+				true || func()
+
+				<: tmp
+			`),
+			NULL
+		)
+
+		eq(
+			await exe(`
+				var tmp = null
+
+				@func() {
+					tmp = true
+					return true
+				}
+
+				false || func()
+
+				<: tmp
+			`),
+			BOOL(true)
+		)
+
 		assert.fail();
 	});
 
