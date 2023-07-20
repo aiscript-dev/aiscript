@@ -1,5 +1,7 @@
 [Read translated version (en)](./translations/en/CHANGELOG.md)
 
+- `&&`, `||` 演算子の項が正しく変換されない可能性のあるバグを修正
+
 # 0.14.1
 
 - `&&`, `||` が短絡評価されないバグを修正
