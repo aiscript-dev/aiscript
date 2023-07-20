@@ -30,6 +30,20 @@ abstract class AiScriptError extends Error {
 }
 
 // @public (undocumented)
+type And = NodeBase & {
+    type: 'and';
+    left: Expression;
+    right: Expression;
+};
+
+// @public (undocumented)
+type And_2 = NodeBase_2 & {
+    type: 'and';
+    left: Expression_2;
+    right: Expression_2;
+};
+
+// @public (undocumented)
 const ARR: (arr: VArr['value']) => VArr;
 
 // @public (undocumented)
@@ -100,6 +114,8 @@ declare namespace Ast {
         SubAssign,
         Assign,
         Not,
+        And,
+        Or,
         If,
         Fn,
         Match,
@@ -253,6 +269,8 @@ declare namespace Cst {
         InfixOperator,
         Infix,
         Not_2 as Not,
+        And_2 as And,
+        Or_2 as Or,
         If_2 as If,
         Fn_2 as Fn,
         Match_2 as Match,
@@ -333,10 +351,10 @@ export { errors }
 function expectAny(val: Value | null | undefined): asserts val is Value;
 
 // @public (undocumented)
-type Expression = If | Fn | Match | Block | Tmpl | Str | Num | Bool | Null | Obj | Arr | Not | Identifier | Call | Index | Prop;
+type Expression = If | Fn | Match | Block | Tmpl | Str | Num | Bool | Null | Obj | Arr | Not | And | Or | Identifier | Call | Index | Prop;
 
 // @public (undocumented)
-type Expression_2 = Infix | Not_2 | If_2 | Fn_2 | Match_2 | Block_2 | Tmpl_2 | Str_2 | Num_2 | Bool_2 | Null_2 | Obj_2 | Arr_2 | Identifier_2 | Call_2 | // IR
+type Expression_2 = Infix | Not_2 | And_2 | Or_2 | If_2 | Fn_2 | Match_2 | Block_2 | Tmpl_2 | Str_2 | Num_2 | Bool_2 | Null_2 | Obj_2 | Arr_2 | Identifier_2 | Call_2 | // IR
 Index_2 | // IR
 Prop_2;
 
@@ -688,6 +706,20 @@ type Obj = NodeBase & {
 type Obj_2 = NodeBase_2 & ChainProp & {
     type: 'obj';
     value: Map<string, Expression_2>;
+};
+
+// @public (undocumented)
+type Or = NodeBase & {
+    type: 'or';
+    left: Expression;
+    right: Expression;
+};
+
+// @public (undocumented)
+type Or_2 = NodeBase_2 & {
+    type: 'or';
+    left: Expression_2;
+    right: Expression_2;
 };
 
 // @public (undocumented)
