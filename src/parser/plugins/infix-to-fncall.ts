@@ -15,9 +15,14 @@ type InfixTree = {
 	left: InfixTree | Cst.Node;
 	right: InfixTree | Cst.Node;
 	info: {
-		func: string | ((infix: InfixTree) => Cst.Node); // 対応する関数名またはNodeへ変換する関数
 		priority: number; // 優先度（高いほど優先して計算される値）
-	};
+	} & ({
+		func: string; // 対応する関数名
+		mapFn?: undefined;
+	} | {
+		func?: undefined;
+		mapFn: ((infix: InfixTree) => Cst.Node); //Nodeへ変換する関数
+	})
 };
 
 function INFIX_TREE(left: InfixTree | Cst.Node, right: InfixTree | Cst.Node, info: InfixTree['info']): InfixTree {
@@ -68,8 +73,8 @@ function treeToNode(tree: InfixTree | Cst.Node): Cst.Node {
 		return tree;
 	}
 
-	if (typeof tree.info.func === 'function') {
-		return tree.info.func(tree);
+	if (tree.info.mapFn) {
+		return tree.info.mapFn(tree);
 	} else {
 		return {
 			type: 'call',
@@ -93,7 +98,7 @@ const infoTable: Record<string, InfixTree['info']> = {
 	'<=': { func: 'Core:lteq', priority: 4 },
 	'>=': { func: 'Core:gteq', priority: 4 },
 	'&&': {
-		func: infix => ({
+		mapFn: infix => ({
 			type: 'and',
 			left: treeToNode(infix.left),
 			right: treeToNode(infix.right),
@@ -101,7 +106,7 @@ const infoTable: Record<string, InfixTree['info']> = {
 		priority: 3,
 	},
 	'||': {
-		func: infix => ({
+		mapFn: infix => ({
 			type: 'or',
 			left: treeToNode(infix.left),
 			right: treeToNode(infix.right),
