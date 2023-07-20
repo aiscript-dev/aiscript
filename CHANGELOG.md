@@ -1,5 +1,7 @@
 [Read translated version (en)](./translations/en/CHANGELOG.md)
 
+- `Core:to_str`, `テンプレート文字列` でどの値でも文字列へ変換できるように
+
 # 0.15.0
 - Mathを強化
 - `&&`, `||` 演算子の項が正しく変換されない可能性のあるバグを修正
