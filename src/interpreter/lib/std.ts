@@ -212,8 +212,8 @@ export const std: Record<string, Value> = {
 	'Math:LOG2E': NUM(Math.LOG2E),
 	'Math:LOG10E': NUM(Math.LOG10E),
 	'Math:PI': NUM(Math.PI),
-	'Math:SQRT1_2': NUM(Math.PI),
-	'Math:SQRT2': NUM(Math.PI),
+	'Math:SQRT1_2': NUM(Math.SQRT1_2),
+	'Math:SQRT2': NUM(Math.SQRT2),
 
 	'Math:abs': FN_NATIVE(([v]) => {
 		assertNumber(v);
