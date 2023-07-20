@@ -13,7 +13,7 @@ const exe = (program: string): Promise<any> => new Promise((ok, err) => {
 		out(value) {
 			ok(value);
 		},
-		maxStep: 9999,
+		maxStep: 99999,
 	});
 
 	const parser = new Parser();
