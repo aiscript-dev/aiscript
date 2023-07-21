@@ -1,5 +1,6 @@
 [Read translated version (en)](./translations/en/CHANGELOG.md)
 
+- 名前空間内の変数を変更しても、名前空間の外から参照した場合に変更されていないバグを修正
 - `Core:to_str`, `テンプレート文字列` でどの値でも文字列へ変換できるように
 
 # 0.15.0
