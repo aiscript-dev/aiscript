@@ -1,6 +1,6 @@
 import { RuntimeError } from '../error';
-import { STR, NUM, ARR, OBJ, NULL, BOOL } from './value';
-import type { Value, VStr, VNum, VBool, VFn, VObj, VArr } from './value';
+import { STR, NUM, ARR, OBJ, NULL, BOOL, unWrapValue, VARIABLE } from './value';
+import type { Value, VStr, VNum, VBool, VFn, VObj, VArr, NormalValue } from './value';
 
 export function expectAny(val: Value | null | undefined): asserts val is Value {
 	if (val == null) {
@@ -87,6 +87,8 @@ export function isArray(val: Value): val is VArr {
 }
 
 export function eq(a: Value, b: Value): boolean {
+	a = unWrapValue(a);
+	b = unWrapValue(b);
 	if (a.type === 'fn' || b.type === 'fn') return false;
 	if (a.type === 'null' && b.type === 'null') return true;
 	if (a.type === 'null' || b.type === 'null') return false;
@@ -133,7 +135,7 @@ export function valToJs(val: Value): any {
 	}
 }
 
-export function jsToVal(val: any): Value {
+export function jsToVal(val: any): NormalValue {
 	if (val === null) return NULL;
 	if (typeof val === 'boolean') return BOOL(val);
 	if (typeof val === 'string') return STR(val);
@@ -158,6 +160,7 @@ export function getLangVersion(input: string): string | null {
  * @param literalLike - `true` なら出力をリテラルに似せる
  */
 export function reprValue(value: Value, literalLike = false, processedObjects = new Set<object>()): string {
+	value = unWrapValue(value);
 	if ((value.type === 'arr' || value.type === 'obj') && processedObjects.has(value.value)) {
 		return '...';
 	}
@@ -193,3 +196,8 @@ export function reprValue(value: Value, literalLike = false, processedObjects = 
 
 	return '?';
 }
+
+export const toVVariable = (value: Value) => {
+	if (value.type === 'variable') return value;
+	return VARIABLE(unWrapValue(value));
+};

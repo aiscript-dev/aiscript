@@ -6,10 +6,10 @@ import autobind from 'autobind-decorator';
 import { IndexOutOfRangeError, RuntimeError } from '../error';
 import { Scope } from './scope';
 import { std } from './lib/std';
-import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray, eq, isObject, isArray, isString, expectAny, isNumber, reprValue } from './util';
-import { NULL, RETURN, unWrapRet, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, BREAK, CONTINUE } from './value';
+import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray, eq, isObject, isArray, isString, expectAny, isNumber, reprValue, toVVariable } from './util';
+import { NULL, RETURN, unWrapRet, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, BREAK, CONTINUE, unWrapValue, VARIABLE } from './value';
 import { PRIMITIVE_PROPS } from './primitive-props';
-import type { Value, VFn } from './value';
+import type { NormalValue, Value, VFn, VVariable } from './value';
 import type * as Ast from '../node';
 
 const IRQ_RATE = 300;
@@ -47,7 +47,7 @@ export class Interpreter {
 
 		this.vars = { ...vars, ...std, ...io };
 
-		this.scope = new Scope([new Map(Object.entries(this.vars))]);
+		this.scope = new Scope([new Map(Object.entries(this.vars).map(([key, value]) => [key, toVVariable(value)]))]);
 		this.scope.opts.log = (type, params): void => {
 			switch (type) {
 				case 'add': this.log('var:add', params); break;
@@ -143,7 +143,10 @@ export class Interpreter {
 		for (const node of ns.members) {
 			switch (node.type) {
 				case 'def': {
-					const v = await this._eval(node.expr, scope);
+					let v = await this._eval(node.expr, scope);
+					if (v.type !== 'variable') {
+						v = VARIABLE(unWrapValue(v));
+					}
 					scope.add(node.name, v);
 					this.scope.add(ns.name + ':' + node.name, v);
 					break;
@@ -170,9 +173,9 @@ export class Interpreter {
 			});
 			return result ?? NULL;
 		} else {
-			const _args = new Map() as Map<string, Value>;
+			const _args = new Map() as Map<string, VVariable>;
 			for (let i = 0; i < (fn.args ?? []).length; i++) {
-				_args.set(fn.args![i]!, args[i]!);
+				_args.set(fn.args![i]!, VARIABLE(unWrapValue(args[i]!)));
 			}
 			const fnScope = fn.scope!.createChildScope(_args);
 			return unWrapRet(await this._run(fn.statements!, fnScope));
@@ -249,7 +252,7 @@ export class Interpreter {
 
 			case 'for': {
 				if (node.times) {
-					const times = await this._eval(node.times, scope);
+					const times = unWrapValue(await this._eval(node.times, scope));
 					assertNumber(times);
 					for (let i = 0; i < times.value; i++) {
 						const v = await this._eval(node.for, scope);
@@ -260,13 +263,13 @@ export class Interpreter {
 						}
 					}
 				} else {
-					const from = await this._eval(node.from!, scope);
-					const to = await this._eval(node.to!, scope);
+					const from = unWrapValue(await this._eval(node.from!, scope));
+					const to = unWrapValue(await this._eval(node.to!, scope));
 					assertNumber(from);
 					assertNumber(to);
 					for (let i = from.value; i < from.value + to.value; i++) {
 						const v = await this._eval(node.for, scope.createChildScope(new Map([
-							[node.var!, NUM(i)],
+							[node.var!, VARIABLE(NUM(i))],
 						])));
 						if (v.type === 'break') {
 							break;
@@ -279,11 +282,11 @@ export class Interpreter {
 			}
 
 			case 'each': {
-				const items = await this._eval(node.items, scope);
+				const items = unWrapValue(await this._eval(node.items, scope));
 				assertArray(items);
 				for (const item of items.value) {
 					const v = await this._eval(node.for, scope.createChildScope(new Map([
-						[node.var, item],
+						[node.var, VARIABLE(unWrapValue(item))],
 					])));
 					if (v.type === 'break') {
 						break;
@@ -295,7 +298,7 @@ export class Interpreter {
 			}
 
 			case 'def': {
-				const value = await this._eval(node.expr, scope);
+				const value = unWrapValue(await this._eval(node.expr, scope));
 				if (node.attr.length > 0) {
 					const attrs: Value['attr'] = [];
 					for (const nAttr of node.attr) {
@@ -306,7 +309,7 @@ export class Interpreter {
 					}
 					value.attr = attrs;
 				}
-				scope.add(node.name, value);
+				scope.add(node.name, VARIABLE(value));
 				return NULL;
 			}
 
@@ -315,7 +318,7 @@ export class Interpreter {
 			}
 
 			case 'assign': {
-				const v = await this._eval(node.expr, scope);
+				const v = unWrapValue(await this._eval(node.expr, scope));
 
 				await this.assign(scope, node.dest, v);
 
@@ -323,9 +326,9 @@ export class Interpreter {
 			}
 
 			case 'addAssign': {
-				const target = await this._eval(node.dest, scope);
+				const target = unWrapValue(await this._eval(node.dest, scope));
 				assertNumber(target);
-				const v = await this._eval(node.expr, scope);
+				const v = unWrapValue(await this._eval(node.expr, scope));
 				assertNumber(v);
 
 				await this.assign(scope, node.dest, NUM(target.value + v.value));
@@ -333,9 +336,9 @@ export class Interpreter {
 			}
 
 			case 'subAssign': {
-				const target = await this._eval(node.dest, scope);
+				const target = unWrapValue(await this._eval(node.dest, scope));
 				assertNumber(target);
-				const v = await this._eval(node.expr, scope);
+				const v = unWrapValue(await this._eval(node.expr, scope));
 				assertNumber(v);
 
 				await this.assign(scope, node.dest, NUM(target.value - v.value));
@@ -350,18 +353,18 @@ export class Interpreter {
 
 			case 'str': return STR(node.value);
 
-			case 'arr': return ARR(await Promise.all(node.value.map(async item => await this._eval(item, scope))));
+			case 'arr': return ARR(await Promise.all(node.value.map(async item => unWrapValue(await this._eval(item, scope)))));
 
 			case 'obj': {
 				const obj = new Map() as Map<string, Value>;
 				for (const k of node.value.keys()) {
-					obj.set(k, await this._eval(node.value.get(k)!, scope));
+					obj.set(k, unWrapValue(await this._eval(node.value.get(k)!, scope)));
 				}
 				return OBJ(obj);
 			}
 
 			case 'prop': {
-				const target = await this._eval(node.target, scope);
+				const target = unWrapValue(await this._eval(node.target, scope));
 				if (isObject(target)) {
 					if (target.value.has(node.name)) {
 						return target.value.get(node.name)!;
@@ -392,7 +395,7 @@ export class Interpreter {
 			}
 
 			case 'index': {
-				const target = await this._eval(node.target, scope);
+				const target = unWrapValue(await this._eval(node.target, scope));
 				assertArray(target);
 				const i = await this._eval(node.index, scope);
 				assertNumber(i);
@@ -404,7 +407,7 @@ export class Interpreter {
 			}
 
 			case 'not': {
-				const v = await this._eval(node.expr, scope);
+				const v = unWrapValue(await this._eval(node.expr, scope));
 				assertBoolean(v);
 				return BOOL(!v.value);
 			}
@@ -431,7 +434,7 @@ export class Interpreter {
 			}
 
 			case 'return': {
-				const val = await this._eval(node.expr, scope);
+				const val = unWrapValue(await this._eval(node.expr, scope));
 				this.log('block:return', { scope: scope.name, val: val });
 				return RETURN(val);
 			}
@@ -455,26 +458,26 @@ export class Interpreter {
 			}
 
 			case 'and': {
-				const leftValue = await this._eval(node.left, scope);
+				const leftValue = unWrapValue(await this._eval(node.left, scope));
 				assertBoolean(leftValue);
 
 				if (!leftValue.value) {
 					return leftValue;
 				} else {
-					const rightValue = await this._eval(node.right, scope);
+					const rightValue = unWrapValue(await this._eval(node.right, scope));
 					assertBoolean(rightValue);
 					return rightValue;
 				}
 			}
 
 			case 'or': {
-				const leftValue = await this._eval(node.left, scope);
+				const leftValue = unWrapValue(await this._eval(node.left, scope));
 				assertBoolean(leftValue);
 
 				if (leftValue.value) {
 					return leftValue;
 				} else {
-					const rightValue = await this._eval(node.right, scope);
+					const rightValue = unWrapValue(await this._eval(node.right, scope));
 					assertBoolean(rightValue);
 					return rightValue;
 				}
@@ -509,7 +512,7 @@ export class Interpreter {
 		}
 
 		this.log('block:leave', { scope: scope.name, val: v });
-		return v;
+		return unWrapValue(v);
 	}
 
 	@autobind
@@ -532,7 +535,7 @@ export class Interpreter {
 	}
 
 	@autobind
-	private async assign(scope: Scope, dest: Ast.Expression, value: Value): Promise<void> {
+	private async assign(scope: Scope, dest: Ast.Expression, value: NormalValue): Promise<void> {
 		if (dest.type === 'identifier') {
 			scope.assign(dest.name, value);
 		} else if (dest.type === 'index') {

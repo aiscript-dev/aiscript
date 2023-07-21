@@ -1,10 +1,10 @@
 import autobind from 'autobind-decorator';
 import { RuntimeError } from '../error';
-import type { Value } from './value';
+import { type NormalValue, VARIABLE, type VVariable, type Value } from './value';
 
 export class Scope {
 	private parent?: Scope;
-	private layerdStates: Map<string, Value>[];
+	private layerdStates: Map<string, VVariable>[];
 	public name: string;
 	public opts: {
 		log?(type: string, params: Record<string, any>): void;
@@ -36,7 +36,7 @@ export class Scope {
 	}
 
 	@autobind
-	public createChildScope(states: Map<string, Value> = new Map(), name?: Scope['name']): Scope {
+	public createChildScope(states: Map<string, VVariable> = new Map(), name?: Scope['name']): Scope {
 		const layer = [states, ...this.layerdStates];
 		return new Scope(layer, this, name);
 	}
@@ -46,7 +46,26 @@ export class Scope {
 	 * @param name - 変数名
 	 */
 	@autobind
-	public get(name: string): Value {
+	public get(name: string): NormalValue {
+		for (const layer of this.layerdStates) {
+			if (layer.has(name)) {
+				const state = layer.get(name)!;
+				this.log('read', { var: name, val: state });
+				return state.value;
+			}
+		}
+
+		throw new RuntimeError(
+			`No such variable '${name}' in scope '${this.name}'`,
+			{ scope: this.layerdStates });
+	}
+
+	/**
+	 * 指定した名前の変数の参照を取得します
+	 * @param name - 変数名
+	 */
+	@autobind
+	public getVariableReference(name: string): VVariable {
 		for (const layer of this.layerdStates) {
 			if (layer.has(name)) {
 				const state = layer.get(name)!;
@@ -64,10 +83,10 @@ export class Scope {
 	 * 現在のスコープに存在する全ての変数を取得します
 	 */
 	@autobind
-	public getAll(): Map<string, Value> {
+	public getAll(): Map<string, VVariable> {
 		const vars = this.layerdStates.reduce((arr, layer) => {
 			return [...arr, ...layer];
-		}, [] as [string, Value][]);
+		}, [] as [string, VVariable][]);
 		return new Map(vars);
 	}
 
@@ -77,7 +96,7 @@ export class Scope {
 	 * @param val - 初期値
 	 */
 	@autobind
-	public add(name: string, val: Value): void {
+	public add(name: string, val: VVariable): void {
 		this.log('add', { var: name, val: val });
 		const states = this.layerdStates[0]!;
 		if (states.has(name)) {
@@ -95,11 +114,12 @@ export class Scope {
 	 * @param val - 値
 	 */
 	@autobind
-	public assign(name: string, val: Value): void {
+	public assign(name: string, val: NormalValue): void {
 		let i = 1;
 		for (const layer of this.layerdStates) {
 			if (layer.has(name)) {
-				layer.set(name, val);
+				const variable = layer.get(name)!;
+				variable.value = val;
 				this.log('assign', { var: name, val: val });
 				if (i === this.layerdStates.length) this.onUpdated(name, val);
 				return;

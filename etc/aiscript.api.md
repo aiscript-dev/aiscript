@@ -4,6 +4,8 @@
 
 ```ts
 
+import { VVariable as VVariable_2 } from './value';
+
 // Warning: (ae-forgotten-export) The symbol "NodeBase" needs to be exported by the entry point index.d.ts
 //
 // @public (undocumented)
@@ -561,7 +563,7 @@ function isStatement_2(x: Node_3): x is Statement_2;
 function isString(val: Value): val is VStr;
 
 // @public (undocumented)
-function jsToVal(val: any): Value;
+function jsToVal(val: any): NormalValue;
 
 // @public
 type Loc = {
@@ -650,6 +652,9 @@ type Node_2 = Namespace | Meta | Statement | Expression | TypeSource;
 
 // @public
 type Node_3 = Namespace_2 | Meta_2 | Statement_2 | Expression_2 | ChainMember | TypeSource_2;
+
+// @public (undocumented)
+type NormalValue = (VNull | VBool | VNum | VStr | VArr | VObj | VFn) & Attr_2;
 
 // @public (undocumented)
 type Not = NodeBase & {
@@ -791,12 +796,13 @@ class RuntimeError extends AiScriptError {
 // @public (undocumented)
 export class Scope {
     constructor(layerdStates?: Scope['layerdStates'], parent?: Scope, name?: Scope['name']);
-    add(name: string, val: Value): void;
-    assign(name: string, val: Value): void;
+    add(name: string, val: VVariable): void;
+    assign(name: string, val: NormalValue): void;
     // (undocumented)
-    createChildScope(states?: Map<string, Value>, name?: Scope['name']): Scope;
-    get(name: string): Value;
-    getAll(): Map<string, Value>;
+    createChildScope(states?: Map<string, VVariable>, name?: Scope['name']): Scope;
+    get(name: string): NormalValue;
+    getAll(): Map<string, VVariable>;
+    getVariableReference(name: string): VVariable;
     // (undocumented)
     name: string;
     // (undocumented)
@@ -860,6 +866,9 @@ type Tmpl_2 = NodeBase_2 & ChainProp & {
 };
 
 // @public (undocumented)
+const toVVariable: (value: Value) => VVariable_2;
+
+// @public (undocumented)
 const TRUE: {
     type: "bool";
     value: boolean;
@@ -878,6 +887,9 @@ type TypeSource_2 = NamedTypeSource_2 | FnTypeSource_2;
 
 // @public (undocumented)
 const unWrapRet: (v: Value) => Value;
+
+// @public (undocumented)
+const unWrapValue: (v: Value) => NormalValue;
 
 declare namespace utils {
     export {
@@ -899,7 +911,8 @@ declare namespace utils {
         valToJs,
         jsToVal,
         getLangVersion,
-        reprValue
+        reprValue,
+        toVVariable
     }
 }
 export { utils }
@@ -911,7 +924,7 @@ function valToJs(val: Value): any;
 function valToString(val: Value, simple?: boolean): string;
 
 // @public (undocumented)
-type Value = (VNull | VBool | VNum | VStr | VArr | VObj | VFn | VReturn | VBreak | VContinue) & Attr_2;
+type Value = NormalValue | (VReturn | VBreak | VContinue | VVariable) & Attr_2;
 
 declare namespace values {
     export {
@@ -925,7 +938,9 @@ declare namespace values {
         VReturn,
         VBreak,
         VContinue,
+        VVariable,
         Attr_2 as Attr,
+        NormalValue,
         Value,
         NULL,
         TRUE,
@@ -940,10 +955,15 @@ declare namespace values {
         RETURN,
         BREAK,
         CONTINUE,
-        unWrapRet
+        VARIABLE,
+        unWrapRet,
+        unWrapValue
     }
 }
 export { values }
+
+// @public (undocumented)
+const VARIABLE: (value: NormalValue) => VVariable;
 
 // @public (undocumented)
 type VArr = {
@@ -1009,6 +1029,12 @@ type VReturn = {
 type VStr = {
     type: 'str';
     value: string;
+};
+
+// @public (undocumented)
+type VVariable = {
+    type: 'variable';
+    value: NormalValue;
 };
 
 // (No @packageDocumentation comment for this package)

@@ -68,6 +68,33 @@ describe('Interpreter', () => {
 			assert.ok(vars.get('x') == null);
 			assert.ok(vars.get('y') == null);
 		});
+
+		test.concurrent('namespace', async () => {
+			eq(
+				await exe(`
+					:: Hoge {
+						var value = 1
+						@func1() { value += 1 }
+						@func2() { value = 10 }
+						@func3() { value -= 1 }
+					}
+
+					var res = [Hoge:value]
+
+					Hoge:func1()
+					res.push(Hoge:value)
+
+					Hoge:func2()
+					res.push(Hoge:value)
+
+					Hoge:func3()
+					res.push(Hoge:value)
+
+					<: res
+				`),
+				ARR([NUM(1), NUM(2), NUM(10), NUM(9)])
+			)
+		});
 	});
 });
 

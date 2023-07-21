@@ -57,6 +57,11 @@ export type VContinue = {
 	value: null;
 };
 
+export type VVariable = {
+	type: 'variable';
+	value: NormalValue;
+}
+
 export type Attr = {
 	attr?: {
 		name: string;
@@ -64,7 +69,8 @@ export type Attr = {
 	}[];
 };
 
-export type Value = (VNull | VBool | VNum | VStr | VArr | VObj | VFn | VReturn | VBreak | VContinue) & Attr;
+export type NormalValue = (VNull | VBool | VNum | VStr | VArr | VObj | VFn) & Attr;
+export type Value = NormalValue | (VReturn | VBreak | VContinue | VVariable) & Attr;
 
 export const NULL = {
 	type: 'null' as const,
@@ -133,4 +139,22 @@ export const CONTINUE = (): Value => ({
 	value: null,
 });
 
+export const VARIABLE = (value: NormalValue): VVariable => ({
+	type: 'variable',
+	value: value,
+});
+
 export const unWrapRet = (v: Value): Value => v.type === 'return' ? v.value : v;
+
+export const unWrapValue = (v: Value): NormalValue => {
+	if (v.type === 'return') {
+		return unWrapValue(v.value);
+	} else if (v.type === 'break') {
+		return NULL;
+	} else if (v.type === 'continue') {
+		return NULL;
+	} else if (v.type === 'variable') {
+		return v.value;
+	}
+	return v;
+};
