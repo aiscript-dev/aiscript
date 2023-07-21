@@ -802,7 +802,6 @@ export class Scope {
     createChildScope(states?: Map<string, VVariable>, name?: Scope['name']): Scope;
     get(name: string): NormalValue;
     getAll(): Map<string, VVariable>;
-    getVariableReference(name: string): VVariable;
     // (undocumented)
     name: string;
     // (undocumented)
