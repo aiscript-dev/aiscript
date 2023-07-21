@@ -61,25 +61,6 @@ export class Scope {
 	}
 
 	/**
-	 * 指定した名前の変数の参照を取得します
-	 * @param name - 変数名
-	 */
-	@autobind
-	public getVariableReference(name: string): VVariable {
-		for (const layer of this.layerdStates) {
-			if (layer.has(name)) {
-				const state = layer.get(name)!;
-				this.log('read', { var: name, val: state });
-				return state;
-			}
-		}
-
-		throw new RuntimeError(
-			`No such variable '${name}' in scope '${this.name}'`,
-			{ scope: this.layerdStates });
-	}
-
-	/**
 	 * 現在のスコープに存在する全ての変数を取得します
 	 */
 	@autobind
