@@ -654,7 +654,7 @@ type Node_2 = Namespace | Meta | Statement | Expression | TypeSource;
 type Node_3 = Namespace_2 | Meta_2 | Statement_2 | Expression_2 | ChainMember | TypeSource_2;
 
 // @public (undocumented)
-type NormalValue = (VNull | VBool | VNum | VStr | VArr | VObj | VFn) & Attr_2;
+type NormalValue = (VNull | VBool | VNum | VStr | VArr | VObj | VFn | VReturn | VBreak | VContinue) & Attr_2;
 
 // @public (undocumented)
 type Not = NodeBase & {
@@ -923,7 +923,7 @@ function valToJs(val: Value): any;
 function valToString(val: Value, simple?: boolean): string;
 
 // @public (undocumented)
-type Value = NormalValue | (VReturn | VBreak | VContinue | VVariable) & Attr_2;
+type Value = NormalValue | (VVariable) & Attr_2;
 
 declare namespace values {
     export {
