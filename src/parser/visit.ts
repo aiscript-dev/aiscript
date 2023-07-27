@@ -89,6 +89,10 @@ export function visitNode(node: Cst.Node, fn: (node: Cst.Node) => Cst.Node): Cst
 			}
 			break;
 		}
+		case 'exists': {
+			result.identifier = visitNode(result.identifier,fn) as Cst.Exists['identifier'];
+			break;
+		}
 		case 'tmpl': {
 			for (let i = 0; i < result.tmpl.length; i++) {
 				const item = result.tmpl[i]!;

@@ -417,6 +417,10 @@ export class Interpreter {
 				return this._run(node.statements, scope.createChildScope());
 			}
 
+			case 'exists': {
+				return BOOL(scope.exists(node.identifier.name));
+			}
+
 			case 'tmpl': {
 				let str = '';
 				for (const x of node.tmpl) {
