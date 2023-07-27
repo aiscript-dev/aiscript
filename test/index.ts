@@ -1324,6 +1324,16 @@ describe('Eval', () => {
 	});
 });
 
+describe('exists', () => {
+	test.concurrent('Basic', async () => {
+		const res = await exe(`
+		let foo = null
+		<: [(exists foo) (exists bar)]
+		`);
+		eq(res, ARR([BOOL(true), BOOL(false)]));
+	});
+});
+
 describe('if', () => {
 	test.concurrent('if', async () => {
 		const res1 = await exe(`
