@@ -1,7 +1,21 @@
-[Read translated version](../translations/en/docs/std.md)
+*English translation is left out of date for a long time. 
+[Please contribute!](../translations/en/docs/std.md)*
+
+## 標準定数・標準関数について
+Aiscriptで最初から定義されていてどこでも使える定数・関数を指します。
+standardを省略してstd定数/関数とも呼ばれています。
+## 書式
+> #Core:v
+
+`Core:v`という標準定数を表します。
+> @Core:type(_v_: value): str
+
+`Core:type`という標準関数を表します。
+`v`という名のvalue型（つまり任意の型）の引数を一つとり、str型（文字列型）の値を返します。
+
+# 一覧
 
 ## std
-
 ### @print(_message_: str): void
 画面に文字列を表示します。  
 
@@ -12,13 +26,13 @@
 
 ### #Core:v
 型: `str`  
-AiScriptのバージョンです。  
+AiScriptのバージョンです。
 
 ### @Core:type(_v_: value): str
-値の型名を取得します。  
+値の型名を取得します。
 
 ### @Core:to_str(_v_: value): str
-値を表す文字列を取得します。  
+値を表す文字列を取得します。
 
 ### @Core:sleep(_time_: value): void
 指定時間（ミリ秒）待機します。
