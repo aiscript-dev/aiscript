@@ -1,4 +1,4 @@
-*English translation is left out of date for a long time. 
+*English translation has been left out of date for a long time. 
 [Please contribute!](../translations/en/docs/std.md)*
 
 ## 標準定数・標準関数について
