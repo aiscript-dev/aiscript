@@ -26,13 +26,13 @@ standardを省略してstd定数/関数とも呼ばれています。
 
 ### #Core:v
 型: `str`  
-AiScriptのバージョンです。
+AiScriptのバージョンです。  
 
 ### @Core:type(_v_: value): str
-値の型名を取得します。
+値の型名を取得します。  
 
 ### @Core:to_str(_v_: value): str
-値を表す文字列を取得します。
+値を表す文字列を取得します。  
 
 ### @Core:sleep(_time_: value): void
 指定時間（ミリ秒）待機します。
