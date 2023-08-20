@@ -16,21 +16,20 @@ const IRQ_RATE = 300;
 const IRQ_AT = IRQ_RATE - 1;
 
 export class Interpreter {
-	private vars: Record<string, Value>;
-	private opts: {
-		in?(q: string): Promise<string>;
-		out?(value: Value): void;
-		log?(type: string, params: Record<string, any>): void;
-		maxStep?: number;
-	};
 	public stepCount = 0;
 	private stop = false;
 	public scope: Scope;
 	private abortHandlers: (() => void)[] = [];
 
-	constructor(vars: Interpreter['vars'], opts?: Interpreter['opts']) {
-		this.opts = opts ?? {};
-
+	constructor(
+		private vars: Record<string, Value>,
+		private opts: {
+			in?(q: string): Promise<string>;
+			out?(value: Value): void;
+			log?(type: string, params: Record<string, any>): void;
+			maxStep?: number;
+		} = {},
+	) {
 		const io = {
 			print: FN_NATIVE(([v]) => {
 				expectAny(v);

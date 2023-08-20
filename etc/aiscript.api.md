@@ -511,7 +511,12 @@ type InfixOperator = '||' | '&&' | '==' | '!=' | '<=' | '>=' | '<' | '>' | '+' |
 
 // @public (undocumented)
 export class Interpreter {
-    constructor(vars: Interpreter['vars'], opts?: Interpreter['opts']);
+    constructor(vars: Record<string, Value>, opts?: {
+        in?(q: string): Promise<string>;
+        out?(value: Value): void;
+        log?(type: string, params: Record<string, any>): void;
+        maxStep?: number;
+    });
     // (undocumented)
     abort(): void;
     // (undocumented)
