@@ -1,4 +1,5 @@
 {
+	"type": "module",
 	"name": "@syuilo/aiscript",
 	"version": "0.15.0",
 	"description": "AiScript implementation",
@@ -6,15 +7,27 @@
 	"license": "MIT",
 	"repository": "https://github.com/syuilo/aiscript.git",
 	"bugs": "https://github.com/syuilo/aiscript/issues",
-	"main": "./built/index.js",
+	"main": "./built/*",
 	"types": "./built/index.d.ts",
+	"exports": {
+		".": {
+			"import": "./built/esm/index.js",
+			"require": "./built/cjs/index.js",
+			"types": "./built/dts/index.ts"
+		},
+		"./*": {
+			"import": "./built/esm/*",
+			"require": "./built/cjs/*",
+			"types": "./built/dts/*"
+		}
+	},
 	"scripts": {
 		"start": "node ./run",
 		"parse": "node ./parse",
 		"peg": "peggy --format es --cache -o src/parser/parser.js --allowed-start-rules Preprocess,Main src/parser/parser.peggy && npm run peg-copy",
 		"peg-debug": "peggy --trace --format es --cache -o src/parser/parser.js --allowed-start-rules Preprocess,Main src/parser/parser.peggy && npm run peg-copy",
 		"peg-copy": "copyfiles -f src/parser/parser.js built/parser/",
-		"build": "npm run peg && tsc",
+		"build": "npm run peg && tsc --outDir built/esm && tsc --module commonjs --outDir built/cjs && tsc --outDir built/dts --declaration true --emitDeclarationOnly true --declarationMap true",
 		"build-debug": "npm run peg-debug && tsc",
 		"api": "npx api-extractor run --local --verbose",
 		"api-prod": "npx api-extractor run --verbose",

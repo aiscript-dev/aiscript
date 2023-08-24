@@ -1,6 +1,6 @@
-import { RuntimeError } from '../error';
-import { STR, NUM, ARR, OBJ, NULL, BOOL } from './value';
-import type { Value, VStr, VNum, VBool, VFn, VObj, VArr } from './value';
+import { RuntimeError } from '../error.js';
+import { STR, NUM, ARR, OBJ, NULL, BOOL } from './value.js';
+import type { Value, VStr, VNum, VBool, VFn, VObj, VArr } from './value.js';
 
 export function expectAny(val: Value | null | undefined): asserts val is Value {
 	if (val == null) {
