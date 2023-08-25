@@ -7,8 +7,6 @@
 	"license": "MIT",
 	"repository": "https://github.com/syuilo/aiscript.git",
 	"bugs": "https://github.com/syuilo/aiscript/issues",
-	"main": "./built/*",
-	"types": "./built/index.d.ts",
 	"exports": {
 		".": {
 			"import": "./built/esm/index.js",
