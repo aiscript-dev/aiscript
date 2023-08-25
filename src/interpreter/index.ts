@@ -13,6 +13,7 @@ import type { Value, VFn } from './value.js';
 import type * as Ast from '../node.js';
 
 const { default: autobind } = autobindPackage;
+console.log(autobind, autobindPackage, require)
 
 const IRQ_RATE = 300;
 const IRQ_AT = IRQ_RATE - 1;
