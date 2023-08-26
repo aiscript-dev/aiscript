@@ -1,4 +1,4 @@
-import autobind from './decorators.js';
+import { autobind } from './decorators.js';
 import { RuntimeError } from '../error.js';
 import type { Value } from './value.js';
 
