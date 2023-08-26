@@ -2,7 +2,7 @@
 //export * from './interpreter/index';
 //export * as utils from './interpreter/util';
 //export * as values from './interpreter/value';
-import { Interpreter } from './interpreter/index.ts';
+import { Interpreter } from './interpreter/index.js';
 import { Scope } from './interpreter/scope.js';
 import * as utils from './interpreter/util.js';
 import * as values from './interpreter/value.js';
