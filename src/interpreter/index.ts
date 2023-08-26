@@ -2,7 +2,7 @@
  * AiScript interpreter
  */
 
-import autobind from 'decorators.ts';
+import autobind from './decorators.js';
 import { IndexOutOfRangeError, RuntimeError } from '../error.js';
 import { Scope } from './scope.js';
 import { std } from './lib/std.js';
