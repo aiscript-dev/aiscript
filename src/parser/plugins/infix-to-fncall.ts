@@ -1,6 +1,6 @@
-import { visitNode } from '../visit';
-import { SyntaxError } from '../../error';
-import type * as Cst from '../node';
+import { visitNode } from '../visit.js';
+import { SyntaxError } from '../../error.js';
+import type * as Cst from '../node.js';
 
 /**
  * 中置演算子式を表す木
