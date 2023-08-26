@@ -1,5 +1,5 @@
-import { SyntaxError } from './error';
-import type * as Ast from './node';
+import { SyntaxError } from './error.js';
+import type * as Ast from './node.js';
 
 // Type (Semantic analyzed)
 
