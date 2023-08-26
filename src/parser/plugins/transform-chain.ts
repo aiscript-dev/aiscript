@@ -1,5 +1,5 @@
-import * as Cst from '../node';
-import { visitNode } from '../visit';
+import * as Cst from '../node.js';
+import { visitNode } from '../visit.js';
 
 function transformNode(node: Cst.Node): Cst.Node {
 	// chain
