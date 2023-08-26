@@ -1,13 +1,13 @@
-import { SyntaxError } from '../error';
+import { SyntaxError } from '../error.js';
 import * as parser from './parser.js';
 
-import { validateKeyword } from './plugins/validate-keyword';
-import { validateType } from './plugins/validate-type';
-import { setAttribute } from './plugins/set-attribute';
-import { transformChain } from './plugins/transform-chain';
-import { infixToFnCall } from './plugins/infix-to-fncall';
-import type * as Cst from './node';
-import type * as Ast from '../node';
+import { validateKeyword } from './plugins/validate-keyword.js';
+import { validateType } from './plugins/validate-type.js';
+import { setAttribute } from './plugins/set-attribute.js';
+import { transformChain } from './plugins/transform-chain.js';
+import { infixToFnCall } from './plugins/infix-to-fncall.js';
+import type * as Cst from './node.js';
+import type * as Ast from '../node.js';
 
 export type ParserPlugin = (nodes: Cst.Node[]) => Cst.Node[];
 export type PluginType = 'validate' | 'transform';
