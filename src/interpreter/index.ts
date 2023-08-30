@@ -2,7 +2,7 @@
  * AiScript interpreter
  */
 
-import autobindPackage from 'autobind-decorator';
+import { autobind } from '../utils/mini-autobind.js';
 import { IndexOutOfRangeError, RuntimeError } from '../error.js';
 import { Scope } from './scope.js';
 import { std } from './lib/std.js';
@@ -11,9 +11,6 @@ import { NULL, RETURN, unWrapRet, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, BREAK
 import { PRIMITIVE_PROPS } from './primitive-props.js';
 import type { Value, VFn } from './value.js';
 import type * as Ast from '../node.js';
-
-const { default: autobind } = autobindPackage;
-console.log(autobind, autobindPackage, require)
 
 const IRQ_RATE = 300;
 const IRQ_AT = IRQ_RATE - 1;

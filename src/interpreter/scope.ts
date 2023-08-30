@@ -1,8 +1,6 @@
-import autobindPackage from 'autobind-decorator';
+import { autobind } from '../utils/mini-autobind.js';
 import { RuntimeError } from '../error.js';
 import type { Value } from './value.js';
-
-const { default: autobind } = autobindPackage;
 
 export class Scope {
 	private parent?: Scope;

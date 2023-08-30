@@ -55,7 +55,6 @@
 		"typescript": "5.1.6"
 	},
 	"dependencies": {
-		"autobind-decorator": "2.4.0",
 		"seedrandom": "3.0.5",
 		"stringz": "2.1.0",
 		"uuid": "9.0.0"
