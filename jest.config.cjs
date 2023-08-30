@@ -115,7 +115,7 @@ module.exports = {
 	// resetModules: false,
 
 	// A path to a custom resolver
-	// resolver: undefined,
+	resolver: "ts-jest-resolver",
 
 	// Automatically restore mock state between every test
 	// restoreMocks: false,
@@ -208,5 +208,5 @@ module.exports = {
 	// watchPathIgnorePatterns: [],
 
 	// Whether to use watchman for file crawling
-	// watchman: true,
+	// watchman: true
 };

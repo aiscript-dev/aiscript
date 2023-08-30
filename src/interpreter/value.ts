@@ -1,5 +1,5 @@
-import type { Node } from '../node';
-import type { Scope } from './scope';
+import type { Node } from '../node.js';
+import type { Scope } from './scope.js';
 
 export type VNull = {
 	type: 'null';

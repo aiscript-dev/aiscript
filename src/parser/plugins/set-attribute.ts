@@ -1,5 +1,5 @@
-import { SyntaxError } from '../../error';
-import type * as Cst from '../node';
+import { SyntaxError } from '../../error.js';
+import type * as Cst from '../node.js';
 
 export function setAttribute(node: Cst.Expression[]): Cst.Expression[]
 export function setAttribute(node: Cst.Statement[]): Cst.Statement[]

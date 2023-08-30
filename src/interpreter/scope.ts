@@ -1,6 +1,6 @@
-import autobind from 'autobind-decorator';
-import { RuntimeError } from '../error';
-import type { Value } from './value';
+import { autobind } from '../utils/mini-autobind.js';
+import { RuntimeError } from '../error.js';
+import type { Value } from './value.js';
 
 export class Scope {
 	private parent?: Scope;

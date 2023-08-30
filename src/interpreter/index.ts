@@ -2,15 +2,15 @@
  * AiScript interpreter
  */
 
-import autobind from 'autobind-decorator';
-import { IndexOutOfRangeError, RuntimeError } from '../error';
-import { Scope } from './scope';
-import { std } from './lib/std';
-import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray, eq, isObject, isArray, isString, expectAny, isNumber, reprValue } from './util';
-import { NULL, RETURN, unWrapRet, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, BREAK, CONTINUE } from './value';
-import { PRIMITIVE_PROPS } from './primitive-props';
-import type { Value, VFn } from './value';
-import type * as Ast from '../node';
+import { autobind } from '../utils/mini-autobind.js';
+import { IndexOutOfRangeError, RuntimeError } from '../error.js';
+import { Scope } from './scope.js';
+import { std } from './lib/std.js';
+import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray, eq, isObject, isArray, isString, expectAny, isNumber, reprValue } from './util.js';
+import { NULL, RETURN, unWrapRet, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, BREAK, CONTINUE } from './value.js';
+import { PRIMITIVE_PROPS } from './primitive-props.js';
+import type { Value, VFn } from './value.js';
+import type * as Ast from '../node.js';
 
 const IRQ_RATE = 300;
 const IRQ_AT = IRQ_RATE - 1;

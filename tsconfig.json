@@ -7,9 +7,7 @@
 		"noFallthroughCasesInSwitch": true,
 		"noUncheckedIndexedAccess": true,
 		"experimentalDecorators": true,
-		"declaration": true,
 		"sourceMap": true,
-		"declarationMap": true,
 		"target": "es2022",
 		"module": "ES2020",
 		"moduleResolution": "node16",
@@ -24,6 +22,6 @@
 	},
 	"compileOnSave": false,
 	"include": [
-		"./src/**/*.ts"
+		"./src/**/*"
 	]
 }
