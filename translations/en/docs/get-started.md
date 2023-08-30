@@ -103,7 +103,6 @@ Core:add(1, 1)
 ```
 
 All of the functions listed below can be used as sugar-coated syntax such as `(1 + 1)`.
-Note that it cannot be written as `(1 + 1 + 1)`, but must be nested as `(1 + (1 + 1))`.
 
 <table>
 	<tr><th>Function</th><th>Operator</th><th>Meaning</th></tr>
