@@ -8,3 +8,4 @@
 npm-debug.log
 test.is
 pnpm-lock.yaml
+tsdoc-metadata.json
