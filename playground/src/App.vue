@@ -8,7 +8,7 @@
 				<PrismEditor class="code" v-model="script" :highlight="highlighter" :line-numbers="false"/>
 			</div>
 			<footer>
-				<span v-if="isSyntaxError" class="syntaxError">Syntax Error!</span>
+				<span v-if="syntaxErrorMessage" class="syntaxError">{{ syntaxErrorMessage }}</span>
 				<div class="actions"><button @click="run">RUN</button></div>
 			</footer>
 		</div>
@@ -56,16 +56,16 @@ const script = ref(window.localStorage.getItem('script') || '<: "Hello, AiScript
 
 const ast = ref(null);
 const logs = ref([]);
-const isSyntaxError = ref(false);
+const syntaxErrorMessage = ref(null);
 
 watch(script, () => {
 	window.localStorage.setItem('script', script.value);
 	try {
 		ast.value = Parser.parse(script.value);
-		isSyntaxError.value = false;
+		syntaxErrorMessage.value = null;
 	} catch (e) {
-		isSyntaxError.value = true;
-		console.error(e);
+		syntaxErrorMessage.value = e.message;
+		console.error(e.info);
 		return;
 	}
 }, {
