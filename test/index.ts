@@ -2713,6 +2713,25 @@ describe('std', () => {
 			`);
 			eq(res, STR('\n'));
 		});
+
+		test.concurrent('from_codepoint', async () => {
+			const res = await exe(`
+			<: Str:from_codepoint(65)
+			`);
+			eq(res, STR('A'));
+		});
+
+		test.concurrent('codepoint_at', async () => {
+			let res = await exe(`
+			<: "aiscript".split().map(@(x, _) { x.codepoint_at(0) })
+			`);
+			eq(res, ARR([97, 105, 115, 99, 114, 105, 112, 116].map(x => NUM(x))));
+
+			res = await exe(`
+			<: "".codepoint_at(0)
+			`);
+			eq(res, NULL);
+		});
 	});
 
 	describe('Json', () => {
