@@ -37,6 +37,7 @@ export type Expression =
 	Fn |
 	Match |
 	Block |
+	Exists |
 	Tmpl |
 	Str |
 	Num |
@@ -50,7 +51,7 @@ export type Expression =
 	Prop; // IR
 
 const expressionTypes = [
-	'infix', 'if', 'fn', 'match', 'block', 'tmpl', 'str', 'num', 'bool', 'null', 'obj', 'arr', 'identifier', 'call', 'index', 'prop',
+	'infix', 'if', 'fn', 'match', 'block', 'exists', 'tmpl', 'str', 'num', 'bool', 'null', 'obj', 'arr', 'identifier', 'call', 'index', 'prop',
 ];
 export function isExpression(x: Node): x is Expression {
 	return expressionTypes.includes(x.type);
@@ -202,6 +203,11 @@ export type Match = NodeBase & ChainProp & {
 export type Block = NodeBase & ChainProp & {
 	type: 'block';
 	statements: (Statement | Expression)[];
+};
+
+export type Exists = NodeBase & ChainProp & {
+	type: 'exists';
+	identifier: Identifier;
 };
 
 export type Tmpl = NodeBase & ChainProp & {

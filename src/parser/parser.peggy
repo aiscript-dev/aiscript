@@ -97,6 +97,7 @@ Expr2
 Expr3
 	= Match       // "match"
 	/ Eval        // "eval"
+	/ Exists      // "exists"
 	/ Tmpl        // "`"
 	/ Str         // "\""
 	/ Num         // "+" | "-" | "1"~"9"
@@ -367,6 +368,12 @@ Match
 Eval
 	= "eval" _* "{" _* s:Statements _* "}"
 { return createNode('block', { statements: s }); }
+
+// exists expression
+
+Exists
+	= "exists" _+ i:Identifier
+{ return createNode('exists', { identifier: i }); }
 
 // variable reference expression
 

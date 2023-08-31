@@ -61,6 +61,23 @@ export class Scope {
 	}
 
 	/**
+	 * 指定した名前の変数が存在するか判定します
+	 * @param name - 変数名
+	 */
+	@autobind
+	public exists(name: string): boolean {
+		for (const layer of this.layerdStates) {
+			if (layer.has(name)) {
+				this.log('exists', { var: name });
+				return true;
+			}
+		}
+
+		this.log('not exists', { var: name });
+		return false;
+	}
+
+	/**
 	 * 現在のスコープに存在する全ての変数を取得します
 	 */
 	@autobind

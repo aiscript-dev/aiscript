@@ -120,6 +120,7 @@ declare namespace Ast {
         Fn,
         Match,
         Block,
+        Exists,
         Tmpl,
         Str,
         Num,
@@ -275,6 +276,7 @@ declare namespace Cst {
         Fn_2 as Fn,
         Match_2 as Match,
         Block_2 as Block,
+        Exists_2 as Exists,
         Tmpl_2 as Tmpl,
         Str_2 as Str,
         Num_2 as Num,
@@ -348,13 +350,25 @@ declare namespace errors {
 export { errors }
 
 // @public (undocumented)
+type Exists = NodeBase & {
+    type: 'exists';
+    identifier: Identifier;
+};
+
+// @public (undocumented)
+type Exists_2 = NodeBase_2 & ChainProp & {
+    type: 'exists';
+    identifier: Identifier_2;
+};
+
+// @public (undocumented)
 function expectAny(val: Value | null | undefined): asserts val is Value;
 
 // @public (undocumented)
-type Expression = If | Fn | Match | Block | Tmpl | Str | Num | Bool | Null | Obj | Arr | Not | And | Or | Identifier | Call | Index | Prop;
+type Expression = If | Fn | Match | Block | Exists | Tmpl | Str | Num | Bool | Null | Obj | Arr | Not | And | Or | Identifier | Call | Index | Prop;
 
 // @public (undocumented)
-type Expression_2 = Infix | Not_2 | And_2 | Or_2 | If_2 | Fn_2 | Match_2 | Block_2 | Tmpl_2 | Str_2 | Num_2 | Bool_2 | Null_2 | Obj_2 | Arr_2 | Identifier_2 | Call_2 | // IR
+type Expression_2 = Infix | Not_2 | And_2 | Or_2 | If_2 | Fn_2 | Match_2 | Block_2 | Exists_2 | Tmpl_2 | Str_2 | Num_2 | Bool_2 | Null_2 | Obj_2 | Arr_2 | Identifier_2 | Call_2 | // IR
 Index_2 | // IR
 Prop_2;
 
@@ -800,6 +814,7 @@ export class Scope {
     assign(name: string, val: Value): void;
     // (undocumented)
     createChildScope(states?: Map<string, Value>, name?: Scope['name']): Scope;
+    exists(name: string): boolean;
     get(name: string): Value;
     getAll(): Map<string, Value>;
     // (undocumented)
