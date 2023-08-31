@@ -392,14 +392,24 @@ export class Interpreter {
 
 			case 'index': {
 				const target = await this._eval(node.target, scope);
-				assertArray(target);
 				const i = await this._eval(node.index, scope);
-				assertNumber(i);
-				const item = target.value[i.value];
-				if (item === undefined) {
-					throw new IndexOutOfRangeError(`Index out of range. index: ${i.value} max: ${target.value.length - 1}`);
+				if (isArray(target)) {
+					assertNumber(i);
+					const item = target.value[i.value];
+					if (item === undefined) {
+						throw new IndexOutOfRangeError(`Index out of range. index: ${i.value} max: ${target.value.length - 1}`);
+					}
+					return item;
+				} else if (isObject(target)) {
+					assertString(i);
+					if (target.value.has(i.value)) {
+						return target.value.get(i.value)!;
+					} else {
+						return NULL;
+					}
+				} else {
+					throw new RuntimeError(`Cannot read prop (${reprValue(i)}) of ${target.type}.`);
 				}
-				return item;
 			}
 
 			case 'not': {
@@ -540,12 +550,16 @@ export class Interpreter {
 			scope.assign(dest.name, value);
 		} else if (dest.type === 'index') {
 			const assignee = await this._eval(dest.target, scope);
-			assertArray(assignee);
-
 			const i = await this._eval(dest.index, scope);
-			assertNumber(i);
-
-			assignee.value[i.value] = value; // TODO: 存在チェック
+			if (isArray(assignee)) {
+				assertNumber(i);
+				assignee.value[i.value] = value; // TODO: 存在チェック
+			} else if (isObject(assignee)) {
+				assertString(i);
+				assignee.value.set(i.value, value);
+			} else {
+				throw new RuntimeError(`Cannot read prop (${reprValue(i)}) of ${assignee.type}.`);
+			}
 		} else if (dest.type === 'prop') {
 			const assignee = await this._eval(dest.target, scope);
 			assertObject(assignee);

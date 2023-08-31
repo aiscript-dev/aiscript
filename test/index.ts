@@ -1048,6 +1048,14 @@ describe('chain', () => {
 		`);
 		eq(res, NUM(45));
 	});
+
+	test.concurrent('object with index', async () => {
+		const res = await exe(`
+		let ai = {a: {}}['a']
+		ai['chan'] = 'kawaii'
+		<: ai[{a: 'chan'}['a']]
+		`);
+		eq(res, STR('kawaii'));
 });
 
 describe('Template syntax', () => {
