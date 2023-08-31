@@ -65,9 +65,9 @@ export class Parser {
 		} catch (e) {
 			if (e.location) {
 				if (e.expected) {
-					throw new SyntaxError(`Parsing error. (Line ${e.location.start.line}:${e.location.start.column})`);
+					throw new SyntaxError(`Parsing error. (Line ${e.location.start.line}:${e.location.start.column})`, e);
 				} else {
-					throw new SyntaxError(`${e.message} (Line ${e.location.start.line}:${e.location.start.column})`);
+					throw new SyntaxError(`${e.message} (Line ${e.location.start.line}:${e.location.start.column})`, e);
 				}
 			}
 			throw e;
