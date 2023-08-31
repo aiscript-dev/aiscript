@@ -68,6 +68,14 @@ export const PRIMITIVE_PROPS = {
 			const char = chars[i.value];
 			return char ? STR(char) : NULL;
 		}),
+
+		codepoint_at: (target: VStr): VFn => FN_NATIVE(([i], _) => {
+			assertNumber(i);
+
+			const res = target.value.charCodeAt(i.value);
+
+			return Number.isNaN(res) ? NULL : NUM(res);
+		}),
 	},
 
 	arr: {

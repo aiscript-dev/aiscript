@@ -449,6 +449,7 @@ export const std: Record<string, Value> = {
 			return NUM(1);
 		}
 	}),
+
 	'Str:gt': FN_NATIVE(([a, b]) => {
 		assertString(a);
 		assertString(b);
@@ -459,6 +460,12 @@ export const std: Record<string, Value> = {
 		} else {
 			return NUM(1);
 		}
+	}),
+
+	'Str:from_codepoint': FN_NATIVE(([codePoint]) => {
+		assertNumber(codePoint);
+
+		return STR(String.fromCodePoint(codePoint.value));
 	}),
 	//#endregion
 
