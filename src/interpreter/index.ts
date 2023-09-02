@@ -3,7 +3,7 @@
  */
 
 import { autobind } from '../utils/mini-autobind.js';
-import { IndexOutOfRangeError, RuntimeError } from '../error.js';
+import { AiScriptError, IndexOutOfRangeError, RuntimeError } from '../error.js';
 import { Scope } from './scope.js';
 import { std } from './lib/std.js';
 import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray, eq, isObject, isArray, isString, expectAny, isNumber, reprValue } from './util.js';
@@ -26,6 +26,7 @@ export class Interpreter {
 		private opts: {
 			in?(q: string): Promise<string>;
 			out?(value: Value): void;
+			err?(e: AiScriptError): void;
 			log?(type: string, params: Record<string, any>): void;
 			maxStep?: number;
 		} = {},
@@ -60,17 +61,34 @@ export class Interpreter {
 	@autobind
 	public async exec(script?: Ast.Node[]): Promise<void> {
 		if (script == null || script.length === 0) return;
-
-		await this.collectNs(script);
-
-		const result = await this._run(script, this.scope);
-
-		this.log('end', { val: result });
+		try {
+			await this.collectNs(script);
+			const result = await this._run(script, this.scope);
+			this.log('end', { val: result });
+		} catch (e) {
+			if (this.opts.err && e instanceof AiScriptError) {
+				this.abort();
+				this.opts.err(e);
+			} else {
+				throw e;
+			}
+		}
 	}
 
 	@autobind
 	public async execFn(fn: VFn, args: Value[]): Promise<Value> {
-		return this._fn(fn, args);
+		let result: Value = NULL;
+		try {
+			result = await this._fn(fn, args);
+		} catch (e) {
+			if (this.opts.err && e instanceof AiScriptError) {
+				this.abort();
+				this.opts.err(e);
+			} else {
+				throw e;
+			}
+		}
+		return result;
 	}
 
 	@autobind
@@ -163,7 +181,7 @@ export class Interpreter {
 	private async _fn(fn: VFn, args: Value[]): Promise<Value> {
 		if (fn.native) {
 			const result = fn.native(args, {
-				call: this._fn,
+				call: this.execFn,
 				registerAbortHandler: this.registerAbortHandler,
 				unregisterAbortHandler: this.unregisterAbortHandler,
 			});

@@ -99,6 +99,9 @@ const run = async () => {
 				print: true
 			});
 		},
+		err: (e) => {
+			window.alert('Error: ' + e.message);
+		},
 		log: (type, params) => {
 			switch (type) {
 				case 'end': logs.value.push({
@@ -115,7 +118,7 @@ const run = async () => {
 		await interpreter.exec(ast.value);
 	} catch (e) {
 		console.error(e);
-		window.alert('Error: ' + e);
+		window.alert('Internal Error: ' + e);
 	}
 }
 
