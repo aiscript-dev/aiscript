@@ -809,11 +809,17 @@ class RuntimeError extends AiScriptError {
 
 // @public (undocumented)
 export class Scope {
-    constructor(layerdStates?: Scope['layerdStates'], parent?: Scope, name?: Scope['name']);
+    constructor(variables?: Map<string, Value>, parent?: Scope, name?: Scope['name']);
     add(name: string, val: Value): void;
+    // Warning: (ae-forgotten-export) The symbol "GetVariableHandlerType" needs to be exported by the entry point index.d.ts
+    addGetVariableHandler(handler: GetVariableHandlerType): void;
+    // Warning: (ae-forgotten-export) The symbol "HasVariableHandlerType" needs to be exported by the entry point index.d.ts
+    addHasVariableHandler(handler: HasVariableHandlerType): void;
+    // Warning: (ae-forgotten-export) The symbol "SetVariableHandlerType" needs to be exported by the entry point index.d.ts
+    addSetVariableHandler(handler: SetVariableHandlerType): void;
     assign(name: string, val: Value): void;
     // (undocumented)
-    createChildScope(states?: Map<string, Value>, name?: Scope['name']): Scope;
+    createChildScope(variables?: Map<string, Value>, name?: Scope['name']): Scope;
     exists(name: string): boolean;
     get(name: string): Value;
     getAll(): Map<string, Value>;
@@ -824,6 +830,8 @@ export class Scope {
         log?(type: string, params: Record<string, any>): void;
         onUpdated?(name: string, value: Value): void;
     };
+    // (undocumented)
+    trace(): Scope[];
 }
 
 // @public (undocumented)
