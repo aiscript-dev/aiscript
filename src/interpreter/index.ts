@@ -46,7 +46,7 @@ export class Interpreter {
 
 		this.vars = { ...vars, ...std, ...io };
 
-		this.scope = new Scope([new Map(Object.entries(this.vars))]);
+		this.scope = new Scope(new Map(Object.entries(this.vars)), undefined, '<root>');
 		this.scope.opts.log = (type, params): void => {
 			switch (type) {
 				case 'add': this.log('var:add', params); break;
@@ -139,11 +139,27 @@ export class Interpreter {
 	private async collectNsMember(ns: Ast.Namespace): Promise<void> {
 		const scope = this.scope.createChildScope();
 
+		scope.addGetVariableHandler((_, name) => {
+			if (!this.scope.exists(ns.name + ':' + name)) return;
+			return this.scope.get(ns.name + ':' + name);
+		});
+
+		scope.addHasVariableHandler((_, name) => {
+			if (this.scope.exists(ns.name + ':' + name)) return true;
+			return;
+		});
+
+		scope.addSetVariableHandler((_, name, value) => {
+			if (!this.scope.exists(ns.name + ':' + name)) return;
+			this.scope.assign(ns.name + ':' + name, value);
+
+			return true;
+		});
+
 		for (const node of ns.members) {
 			switch (node.type) {
 				case 'def': {
 					const v = await this._eval(node.expr, scope);
-					scope.add(node.name, v);
 					this.scope.add(ns.name + ':' + node.name, v);
 					break;
 				}
