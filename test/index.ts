@@ -1056,6 +1056,7 @@ describe('chain', () => {
 		<: ai[{a: 'chan'}['a']]
 		`);
 		eq(res, STR('kawaii'));
+	});
 });
 
 describe('Template syntax', () => {
@@ -1746,6 +1747,36 @@ describe('namespace', () => {
 		}
 		`);
 		eq(res, NUM(5));
+	});
+
+	test.concurrent('assign from outside', async () => {
+		const res = await exe(`
+			:: Hoge {
+				var fuga = 1234
+			
+				@increment_fuga() {
+					fuga += 1
+				}
+			
+				@get_fuga() { fuga }
+			}
+			
+			let res = []
+
+			res.push(Hoge:fuga)
+
+			Hoge:fuga = 5678
+
+			res.push(Hoge:get_fuga())
+			res.push(Hoge:fuga)
+
+			Hoge:increment_fuga()
+			res.push(Hoge:get_fuga())
+
+			<: res
+		`);
+
+		eq(res, ARR([NUM(1234), NUM(5678), NUM(5678), NUM(5679)]));
 	});
 });
 
