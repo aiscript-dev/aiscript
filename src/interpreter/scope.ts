@@ -169,7 +169,7 @@ export class Scope {
 
 	/**
 	 * 変数が参照される際の動作を上書きするイベントハンドラーを登録します。
-	 * @param handler 返り値が `null` なら動作を次のハンドラーへスキップします
+	 * @param handler - 返り値が `null` なら動作を次のハンドラーへスキップします
 	 */
 	@autobind
 	public addGetVariableHandler(handler: GetVariableHandlerType): void {
@@ -178,7 +178,7 @@ export class Scope {
 
 	/**
 	 * 変数が定義されているか確認する際の動作を上書きするイベントハンドラーを登録します。
-	 * @param handler 返り値が `null` なら動作を次のハンドラーへスキップします
+	 * @param handler - 返り値が `null` なら動作を次のハンドラーへスキップします
 	 */
 	@autobind
 	public addHasVariableHandler(handler: HasVariableHandlerType): void {
@@ -187,7 +187,7 @@ export class Scope {
 
 	/**
 	 * 変数が変更される際の動作を上書きするイベントハンドラーを登録します。
-	 * @param handler 返り値が `true` ならScope自体が行う動作をスキップします
+	 * @param handler - 返り値が `true` ならScope自体が行う動作をスキップします
 	 */
 	@autobind
 	public addSetVariableHandler(handler: SetVariableHandlerType): void {
