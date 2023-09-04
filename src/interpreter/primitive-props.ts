@@ -1,9 +1,14 @@
 import { substring, length, indexOf, toArray } from 'stringz';
 import { assertArray, assertBoolean, assertFunction, assertNumber, assertString, expectAny } from './util.js';
 import { ARR, FALSE, FN_NATIVE, NULL, NUM, STR, TRUE } from './value.js';
-import type { Value, VArr, VFn, VNum, VStr } from './value.js';
+import type { Value, VArr, VFn, VNum, VStr, VError } from './value.js';
 
-export const PRIMITIVE_PROPS = {
+export const PRIMITIVE_PROPS: {
+	num: { [keys: string]: (target: VNum) => Value}
+	str: { [keys: string]: (target: VStr) => Value}
+	arr: { [keys: string]: (target: VArr) => Value}
+	error: { [keys: string]: (target: VError) => Value}
+} = {
 	num: {
 		to_str: (target: VNum): VFn => FN_NATIVE(async (_, _opts) => {
 			return STR(target.value.toString());
@@ -215,5 +220,11 @@ export const PRIMITIVE_PROPS = {
 			target.value = await mergeSort(target.value, comp);
 			return target;
 		}),
+	},
+
+	error: {
+		name: (target: VError): VStr => STR(target.value), 
+
+		info: (target: VError): Value => target.info ?? NULL,
 	},
 } as const;

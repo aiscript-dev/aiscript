@@ -385,8 +385,15 @@ export class Interpreter {
 					} else {
 						throw new RuntimeError(`No such prop (${node.name}) in ${target.type}.`);
 					}
-				} else {
-					throw new RuntimeError(`Cannot read prop (${node.name}) of ${target.type}.`);
+				} else if (Object.hasOwn(PRIMITIVE_PROPS, target.type)) {
+					const props=PRIMITIVE_PROPS[target.type as keyof typeof PRIMITIVE_PROPS];
+					if (Object.hasOwn(props, node.name)) {
+						return props[node.name as keyof typeof props](target);
+					} else {
+						throw new RuntimeError(`No such prop (${node.name}) in ${target.type}.`);
+					}
+				}else {
+					throw new RuntimeError(`Cannot read prop of ${target.type}.`);
 				}
 			}
 
