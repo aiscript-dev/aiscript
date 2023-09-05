@@ -6,9 +6,9 @@ import { autobind } from '../utils/mini-autobind.js';
 import { IndexOutOfRangeError, RuntimeError } from '../error.js';
 import { Scope } from './scope.js';
 import { std } from './lib/std.js';
-import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray, eq, isObject, isArray, isString, expectAny, isNumber, reprValue } from './util.js';
+import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray, eq, isObject, isArray, expectAny, reprValue } from './util.js';
 import { NULL, RETURN, unWrapRet, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, BREAK, CONTINUE } from './value.js';
-import { PRIMITIVE_PROPS } from './primitive-props.js';
+import { getPrimProp } from './primitive-props.js';
 import type { Value, VFn } from './value.js';
 import type * as Ast from '../node.js';
 
@@ -167,6 +167,7 @@ export class Interpreter {
 				registerAbortHandler: this.registerAbortHandler,
 				unregisterAbortHandler: this.unregisterAbortHandler,
 			});
+			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition 
 			return result ?? NULL;
 		} else {
 			const _args = new Map() as Map<string, Value>;
@@ -367,33 +368,8 @@ export class Interpreter {
 					} else {
 						return NULL;
 					}
-				} else if (isNumber(target)) {
-					if (Object.hasOwn(PRIMITIVE_PROPS.num, node.name)) {
-						return PRIMITIVE_PROPS.num[node.name as keyof typeof PRIMITIVE_PROPS['num']](target);
-					} else {
-						throw new RuntimeError(`No such prop (${node.name}) in ${target.type}.`);
-					}
-				} else if (isString(target)) {
-					if (Object.hasOwn(PRIMITIVE_PROPS.str, node.name)) {
-						return PRIMITIVE_PROPS.str[node.name as keyof typeof PRIMITIVE_PROPS['str']](target);
-					} else {
-						throw new RuntimeError(`No such prop (${node.name}) in ${target.type}.`);
-					}
-				} else if (isArray(target)) {
-					if (Object.hasOwn(PRIMITIVE_PROPS.arr, node.name)) {
-						return PRIMITIVE_PROPS.arr[node.name as keyof typeof PRIMITIVE_PROPS['arr']](target);
-					} else {
-						throw new RuntimeError(`No such prop (${node.name}) in ${target.type}.`);
-					}
-				} else if (Object.hasOwn(PRIMITIVE_PROPS, target.type)) {
-					const props=PRIMITIVE_PROPS[target.type as keyof typeof PRIMITIVE_PROPS];
-					if (Object.hasOwn(props, node.name)) {
-						return props[node.name as keyof typeof props](target);
-					} else {
-						throw new RuntimeError(`No such prop (${node.name}) in ${target.type}.`);
-					}
-				}else {
-					throw new RuntimeError(`Cannot read prop of ${target.type}.`);
+				} else {
+					return getPrimProp(target, node.name);
 				}
 			}
 
