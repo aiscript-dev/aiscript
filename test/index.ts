@@ -2788,7 +2788,7 @@ describe('std', () => {
 						Json:parse('${str}')
 					]
 				`);
-				eq(res, ARR([FALSE, ERROR('json_parse_failed')]));
+				eq(res, ARR([FALSE, ERROR('not_json')]));
 			});
 		});
 	});

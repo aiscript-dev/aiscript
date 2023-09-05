@@ -155,7 +155,7 @@ export const std: Record<string, Value> = {
 		try {
 			return jsToVal(JSON.parse(json.value));
 		} catch (e) {
-			return ERROR('json_parse_failed');
+			return ERROR('not_json');
 		}
 	}),
 
