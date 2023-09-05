@@ -25,7 +25,7 @@
 		"peg": "peggy --format es --cache -o src/parser/parser.js --allowed-start-rules Preprocess,Main src/parser/parser.peggy && npm run peg-copy",
 		"peg-debug": "peggy --trace --format es --cache -o src/parser/parser.js --allowed-start-rules Preprocess,Main src/parser/parser.peggy && npm run peg-copy",
 		"peg-copy": "copyfiles -f src/parser/parser.js built/parser/",
-		"ts": "npm run ts-esm && npm run ts-cjs && npm run dts",
+		"ts": "npm run ts-esm && npm run ts-cjs && npm run ts-dts",
 		"ts-esm": "tsc --outDir built/esm",
 		"ts-cjs": "tsc --module commonjs --outDir built/cjs",
 		"ts-dts": "tsc --outDir built/dts --declaration true --emitDeclarationOnly true --declarationMap true",
