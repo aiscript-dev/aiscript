@@ -4,7 +4,7 @@ import { assertArray, assertBoolean, assertFunction, assertNumber, assertString,
 import { ARR, FALSE, FN_NATIVE, NULL, NUM, STR, TRUE } from './value.js';
 import type { Value, VArr, VFn, VNum, VStr, VError } from './value.js';
 
-type VWithPP = VNum|VStr|VArr;
+type VWithPP = VNum|VStr|VArr|VError;
 
 const PRIMITIVE_PROPS: {
 	[key in VWithPP['type']]: { [key: string]: (target: Value) => Value }

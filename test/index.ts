@@ -5,7 +5,7 @@
 
 import * as assert from 'assert';
 import { Parser, Interpreter, utils, errors, Ast } from '../src';
-import { NUM, STR, NULL, ARR, OBJ, BOOL, TRUE, FALSE } from '../src/interpreter/value';
+import { NUM, STR, NULL, ARR, OBJ, BOOL, TRUE, FALSE, ERROR } from '../src/interpreter/value';
 import { RuntimeError } from '../src/error';
 
 const exe = (program: string): Promise<any> => new Promise((ok, err) => {
@@ -2762,32 +2762,33 @@ describe('std', () => {
 
 		test.concurrent('parsable', async () => {
 			[
-				'',
 				'null',
-				'hoge',
 				'"hoge"',
-				'[',
 				'[]',
-				'{}'
+				'{}',
 			].forEach(async (str) => {
 				const res = await exe(`
-					<: Json:parsable('${str}')
+					<: [
+						Json:parsable('${str}')
+						Json:stringify(Json:parse('${str}'))
+					]
 				`);
-				assert.deepEqual(res.type, 'bool');
-				if (res.value) {
-					await exe(`
-						<: Json:parse('${str}')
-					`);
-				} else {
-					try {
-						await exe(`
-							<: Json:parse('${str}')
-						`);
-					} catch (e) {
-						if (e instanceof SyntaxError) return;
-					}
-					assert.fail()
-				}
+				eq(res, ARR([TRUE, STR(str)]));
+			});
+		});
+		test.concurrent('unparsable', async () => {
+			[
+				'',
+				'hoge',
+				'[',
+			].forEach(async (str) => {
+				const res = await exe(`
+					<: [
+						Json:parsable('${str}')
+						Json:parse('${str}')
+					]
+				`);
+				eq(res, ARR([FALSE, ERROR('json_parse_failed')]));
 			});
 		});
 	});
