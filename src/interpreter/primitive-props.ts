@@ -1,9 +1,14 @@
 import { substring, length, indexOf, toArray } from 'stringz';
+import { RuntimeError } from '../error.js';
 import { assertArray, assertBoolean, assertFunction, assertNumber, assertString, expectAny } from './util.js';
 import { ARR, FALSE, FN_NATIVE, NULL, NUM, STR, TRUE } from './value.js';
 import type { Value, VArr, VFn, VNum, VStr } from './value.js';
 
-export const PRIMITIVE_PROPS = {
+type VWithPP = VNum|VStr|VArr;
+
+const PRIMITIVE_PROPS: {
+	[key in VWithPP['type']]: { [key: string]: (target: Value) => Value }
+} = {
 	num: {
 		to_str: (target: VNum): VFn => FN_NATIVE(async (_, _opts) => {
 			return STR(target.value.toString());
@@ -217,3 +222,16 @@ export const PRIMITIVE_PROPS = {
 		}),
 	},
 } as const;
+
+export function getPrimProp(target: Value, name: string): Value {
+	if (Object.hasOwn(PRIMITIVE_PROPS, target.type)) {
+		const props = PRIMITIVE_PROPS[target.type as VWithPP['type']];
+		if (Object.hasOwn(props, name)) {
+			return props[name]!(target);
+		} else {
+			throw new RuntimeError(`No such prop (${name}) in ${target.type}.`);
+		}
+	} else {
+		throw new RuntimeError(`Cannot read prop of ${target.type}. (reading ${name})`);
+	}
+}
