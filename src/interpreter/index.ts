@@ -8,7 +8,7 @@ import { Scope } from './scope.js';
 import { std } from './lib/std.js';
 import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray, eq, isObject, isArray, isString, expectAny, isNumber, reprValue } from './util.js';
 import { NULL, RETURN, unWrapRet, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, BREAK, CONTINUE } from './value.js';
-import { PRIMITIVE_PROPS } from './primitive-props.js';
+import { getPrimProp } from './primitive-props.js';
 import type { Value, VFn } from './value.js';
 import type * as Ast from '../node.js';
 
@@ -367,26 +367,8 @@ export class Interpreter {
 					} else {
 						return NULL;
 					}
-				} else if (isNumber(target)) {
-					if (Object.hasOwn(PRIMITIVE_PROPS.num, node.name)) {
-						return PRIMITIVE_PROPS.num[node.name as keyof typeof PRIMITIVE_PROPS['num']](target);
-					} else {
-						throw new RuntimeError(`No such prop (${node.name}) in ${target.type}.`);
-					}
-				} else if (isString(target)) {
-					if (Object.hasOwn(PRIMITIVE_PROPS.str, node.name)) {
-						return PRIMITIVE_PROPS.str[node.name as keyof typeof PRIMITIVE_PROPS['str']](target);
-					} else {
-						throw new RuntimeError(`No such prop (${node.name}) in ${target.type}.`);
-					}
-				} else if (isArray(target)) {
-					if (Object.hasOwn(PRIMITIVE_PROPS.arr, node.name)) {
-						return PRIMITIVE_PROPS.arr[node.name as keyof typeof PRIMITIVE_PROPS['arr']](target);
-					} else {
-						throw new RuntimeError(`No such prop (${node.name}) in ${target.type}.`);
-					}
 				} else {
-					throw new RuntimeError(`Cannot read prop (${node.name}) of ${target.type}.`);
+					return getPrimProp(target, node.name);
 				}
 			}
 
