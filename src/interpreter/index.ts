@@ -167,7 +167,8 @@ export class Interpreter {
 				registerAbortHandler: this.registerAbortHandler,
 				unregisterAbortHandler: this.unregisterAbortHandler,
 			});
-			return result;
+			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition 
+			return result ?? NULL;
 		} else {
 			const _args = new Map() as Map<string, Value>;
 			for (let i = 0; i < (fn.args ?? []).length; i++) {
