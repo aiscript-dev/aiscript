@@ -6,7 +6,7 @@ import { autobind } from '../utils/mini-autobind.js';
 import { IndexOutOfRangeError, RuntimeError } from '../error.js';
 import { Scope } from './scope.js';
 import { std } from './lib/std.js';
-import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray, eq, isObject, isArray, isString, expectAny, isNumber, reprValue } from './util.js';
+import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray, eq, isObject, isArray, expectAny, reprValue } from './util.js';
 import { NULL, RETURN, unWrapRet, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, BREAK, CONTINUE } from './value.js';
 import { getPrimProp } from './primitive-props.js';
 import type { Value, VFn } from './value.js';
@@ -167,7 +167,7 @@ export class Interpreter {
 				registerAbortHandler: this.registerAbortHandler,
 				unregisterAbortHandler: this.unregisterAbortHandler,
 			});
-			return result ?? NULL;
+			return result;
 		} else {
 			const _args = new Map() as Map<string, Value>;
 			for (let i = 0; i < (fn.args ?? []).length; i++) {

@@ -1,8 +1,8 @@
 import { substring, length, indexOf, toArray } from 'stringz';
+import { RuntimeError } from '../error.js';
 import { assertArray, assertBoolean, assertFunction, assertNumber, assertString, expectAny } from './util.js';
 import { ARR, FALSE, FN_NATIVE, NULL, NUM, STR, TRUE } from './value.js';
 import type { Value, VArr, VFn, VNum, VStr } from './value.js';
-import { RuntimeError } from '../error.js';
 
 type VWithPP = VNum|VStr|VArr;
 
@@ -223,9 +223,9 @@ const PRIMITIVE_PROPS: {
 	},
 } as const;
 
-export function getPrimProp(target: Value, name: string): Value{
+export function getPrimProp(target: Value, name: string): Value {
 	if (Object.hasOwn(PRIMITIVE_PROPS, target.type)) {
-		let props = PRIMITIVE_PROPS[target.type as VWithPP['type']];
+		const props = PRIMITIVE_PROPS[target.type as VWithPP['type']];
 		if (Object.hasOwn(props, name)) {
 			return props[name]!(target);
 		} else {
