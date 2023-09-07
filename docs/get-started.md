@@ -95,6 +95,8 @@ let arr = ["ai" "chan" "kawaii"]
 ```
 
 ## オブジェクト
+`{}`の中にプロパティを`,`/`;`/空白で区切って列挙します。
+プロパティ名と値は`: `で区切ります。
 ```
 {
 	foo: "bar"
@@ -103,6 +105,14 @@ let arr = ["ai" "chan" "kawaii"]
 		some: "thing"
 	}
 }
+```
+
+オブジェクトのプロパティにアクセスするときは、
+`.<name>`か`[<str>]`と書きます。
+```
+let obj = {foo: "bar", answer: 42}
+<: obj.foo // "bar"
+<: obj["answer"] // 42
 ```
 
 ## 演算
