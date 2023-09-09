@@ -5,122 +5,123 @@ import { NUM, STR, FN_NATIVE, FALSE, TRUE, ARR, NULL, BOOL, OBJ, ERROR } from '.
 import { assertNumber, assertString, assertBoolean, valToJs, jsToVal, assertFunction, assertObject, eq, expectAny, assertArray, reprValue } from '../util.js';
 import { RuntimeError } from '../../error.js';
 import type { Value } from '../value.js';
+import { Variable } from '../variable.js';
 
-export const std: Record<string, Value> = {
-	'help': STR('SEE: https://github.com/syuilo/aiscript/blob/master/docs/get-started.md'),
+export const std: Record<string, Variable> = {
+	'help': Variable.imut(STR('SEE: https://github.com/syuilo/aiscript/blob/master/docs/get-started.md')),
 
 	//#region Core
-	'Core:v': STR('0.15.0'), // TODO: package.jsonを参照
+	'Core:v': Variable.imut(STR('0.15.0')), // TODO: package.jsonを参照
 
-	'Core:ai': STR('kawaii'),
+	'Core:ai': Variable.imut(STR('kawaii')),
 
-	'Core:not': FN_NATIVE(([a]) => {
+	'Core:not': Variable.imut(FN_NATIVE(([a]) => {
 		assertBoolean(a);
 		return a.value ? FALSE : TRUE;
-	}),
+	})),
 
-	'Core:eq': FN_NATIVE(([a, b]) => {
+	'Core:eq': Variable.imut(FN_NATIVE(([a, b]) => {
 		expectAny(a);
 		expectAny(b);
 		return eq(a, b) ? TRUE : FALSE;
-	}),
+	})),
 
-	'Core:neq': FN_NATIVE(([a, b]) => {
+	'Core:neq': Variable.imut(FN_NATIVE(([a, b]) => {
 		expectAny(a);
 		expectAny(b);
 		return eq(a, b) ? FALSE : TRUE;
-	}),
+	})),
 
-	'Core:and': FN_NATIVE(([a, b]) => {
+	'Core:and': Variable.imut(FN_NATIVE(([a, b]) => {
 		assertBoolean(a);
 		if (!a.value) return FALSE;
 		assertBoolean(b);
 		return b.value ? TRUE : FALSE;
-	}),
+	})),
 
-	'Core:or': FN_NATIVE(([a, b]) => {
+	'Core:or': Variable.imut(FN_NATIVE(([a, b]) => {
 		assertBoolean(a);
 		if (a.value) return TRUE;
 		assertBoolean(b);
 		return b.value ? TRUE : FALSE;
-	}),
+	})),
 
-	'Core:add': FN_NATIVE(([a, b]) => {
+	'Core:add': Variable.imut(FN_NATIVE(([a, b]) => {
 		assertNumber(a);
 		assertNumber(b);
 		return NUM(a.value + b.value);
-	}),
+	})),
 
-	'Core:sub': FN_NATIVE(([a, b]) => {
+	'Core:sub': Variable.imut(FN_NATIVE(([a, b]) => {
 		assertNumber(a);
 		assertNumber(b);
 		return NUM(a.value - b.value);
-	}),
+	})),
 
-	'Core:mul': FN_NATIVE(([a, b]) => {
+	'Core:mul': Variable.imut(FN_NATIVE(([a, b]) => {
 		assertNumber(a);
 		assertNumber(b);
 		return NUM(a.value * b.value);
-	}),
+	})),
 
-	'Core:pow': FN_NATIVE(([a, b]) => {
+	'Core:pow': Variable.imut(FN_NATIVE(([a, b]) => {
 		assertNumber(a);
 		assertNumber(b);
 		const res = a.value ** b.value;
 		if (isNaN(res)) throw new RuntimeError('Invalid operation.'); // ex. √-1
 		return NUM(res);
-	}),
+	})),
 
-	'Core:div': FN_NATIVE(([a, b]) => {
+	'Core:div': Variable.imut(FN_NATIVE(([a, b]) => {
 		assertNumber(a);
 		assertNumber(b);
 		const res = a.value / b.value;
 		if (isNaN(res)) throw new RuntimeError('Invalid operation.');
 		return NUM(res);
-	}),
+	})),
 
-	'Core:mod': FN_NATIVE(([a, b]) => {
+	'Core:mod': Variable.imut(FN_NATIVE(([a, b]) => {
 		assertNumber(a);
 		assertNumber(b);
 		return NUM(a.value % b.value);
-	}),
+	})),
 
-	'Core:gt': FN_NATIVE(([a, b]) => {
+	'Core:gt': Variable.imut(FN_NATIVE(([a, b]) => {
 		assertNumber(a);
 		assertNumber(b);
 		return a.value > b.value ? TRUE : FALSE;
-	}),
+	})),
 
-	'Core:lt': FN_NATIVE(([a, b]) => {
+	'Core:lt': Variable.imut(FN_NATIVE(([a, b]) => {
 		assertNumber(a);
 		assertNumber(b);
 		return a.value < b.value ? TRUE : FALSE;
-	}),
+	})),
 
-	'Core:gteq': FN_NATIVE(([a, b]) => {
+	'Core:gteq': Variable.imut(FN_NATIVE(([a, b]) => {
 		assertNumber(a);
 		assertNumber(b);
 		return a.value >= b.value ? TRUE : FALSE;
-	}),
+	})),
 
-	'Core:lteq': FN_NATIVE(([a, b]) => {
+	'Core:lteq': Variable.imut(FN_NATIVE(([a, b]) => {
 		assertNumber(a);
 		assertNumber(b);
 		return a.value <= b.value ? TRUE : FALSE;
-	}),
+	})),
 
-	'Core:type': FN_NATIVE(([v]) => {
+	'Core:type': Variable.imut(FN_NATIVE(([v]) => {
 		expectAny(v);
 		return STR(v.type);
-	}),
+	})),
 
-	'Core:to_str': FN_NATIVE(([v]) => {
+	'Core:to_str': Variable.imut(FN_NATIVE(([v]) => {
 		expectAny(v);
 
 		return STR(reprValue(v));
-	}),
+	})),
 
-	'Core:range': FN_NATIVE(([a, b]) => {
+	'Core:range': Variable.imut(FN_NATIVE(([a, b]) => {
 		assertNumber(a);
 		assertNumber(b);
 		if (a.value < b.value) {
@@ -130,36 +131,36 @@ export const std: Record<string, Value> = {
 		} else {
 			return ARR([a]);
 		}
-	}),
-	'Core:sleep': FN_NATIVE(async ([delay]) => {
+	})),
+	'Core:sleep': Variable.imut(FN_NATIVE(async ([delay]) => {
 		assertNumber(delay);
 		await new Promise((r) => setTimeout(r, delay.value));
 		return NULL;
-	}),
+	})),
 	//#endregion
 
 	//#region Util
-	'Util:uuid': FN_NATIVE(() => {
+	'Util:uuid': Variable.imut(FN_NATIVE(() => {
 		return STR(uuid());
-	}),
+	})),
 	//#endregion
 
 	//#region Json
-	'Json:stringify': FN_NATIVE(([v]) => {
+	'Json:stringify': Variable.imut(FN_NATIVE(([v]) => {
 		expectAny(v);
 		return STR(JSON.stringify(valToJs(v)));
-	}),
+	})),
 
-	'Json:parse': FN_NATIVE(([json]) => {
+	'Json:parse': Variable.imut(FN_NATIVE(([json]) => {
 		assertString(json);
 		try {
 			return jsToVal(JSON.parse(json.value));
 		} catch (e) {
 			return ERROR('not_json');
 		}
-	}),
+	})),
 
-	'Json:parsable': FN_NATIVE(([str]) => {
+	'Json:parsable': Variable.imut(FN_NATIVE(([str]) => {
 		assertString(str);
 		try {
 			JSON.parse(str.value);
@@ -167,149 +168,149 @@ export const std: Record<string, Value> = {
 			return BOOL(false);
 		}
 		return BOOL(true);
-	}),
+	})),
 	//#endregion
 
 	//#region Date
-	'Date:now': FN_NATIVE(() => {
+	'Date:now': Variable.imut(FN_NATIVE(() => {
 		return NUM(Date.now());
-	}),
+	})),
 
-	'Date:year': FN_NATIVE(([v]) => {
+	'Date:year': Variable.imut(FN_NATIVE(([v]) => {
 		if (v) { assertNumber(v); }
 		return NUM(new Date(v?.value || Date.now()).getFullYear());
-	}),
+	})),
 
-	'Date:month': FN_NATIVE(([v]) => {
+	'Date:month': Variable.imut(FN_NATIVE(([v]) => {
 		if (v) { assertNumber(v); }
 		return NUM(new Date(v?.value || Date.now()).getMonth() + 1);
-	}),
+	})),
 
-	'Date:day': FN_NATIVE(([v]) => {
+	'Date:day': Variable.imut(FN_NATIVE(([v]) => {
 		if (v) { assertNumber(v); }
 		return NUM(new Date(v?.value || Date.now()).getDate());
-	}),
+	})),
 
-	'Date:hour': FN_NATIVE(([v]) => {
+	'Date:hour': Variable.imut(FN_NATIVE(([v]) => {
 		if (v) { assertNumber(v); }
 		return NUM(new Date(v?.value || Date.now()).getHours());
-	}),
+	})),
 
-	'Date:minute': FN_NATIVE(([v]) => {
+	'Date:minute': Variable.imut(FN_NATIVE(([v]) => {
 		if (v) { assertNumber(v); }
 		return NUM(new Date(v?.value || Date.now()).getMinutes());
-	}),
+	})),
 
-	'Date:second': FN_NATIVE(([v]) => {
+	'Date:second': Variable.imut(FN_NATIVE(([v]) => {
 		if (v) { assertNumber(v); }
 		return NUM(new Date(v?.value || Date.now()).getSeconds());
-	}),
+	})),
 
-	'Date:parse': FN_NATIVE(([v]) => {
+	'Date:parse': Variable.imut(FN_NATIVE(([v]) => {
 		assertString(v);
 		return NUM(new Date(v.value).getTime());
-	}),
+	})),
 	//#endregion
 
 	//#region Math
-	'Math:Infinity': NUM(Infinity),
+	'Math:Infinity': Variable.imut(NUM(Infinity)),
 
-	'Math:E': NUM(Math.E),
-	'Math:LN2': NUM(Math.LN2),
-	'Math:LN10': NUM(Math.LN10),
-	'Math:LOG2E': NUM(Math.LOG2E),
-	'Math:LOG10E': NUM(Math.LOG10E),
-	'Math:PI': NUM(Math.PI),
-	'Math:SQRT1_2': NUM(Math.SQRT1_2),
-	'Math:SQRT2': NUM(Math.SQRT2),
+	'Math:E': Variable.imut(NUM(Math.E)),
+	'Math:LN2': Variable.imut(NUM(Math.LN2)),
+	'Math:LN10': Variable.imut(NUM(Math.LN10)),
+	'Math:LOG2E': Variable.imut(NUM(Math.LOG2E)),
+	'Math:LOG10E': Variable.imut(NUM(Math.LOG10E)),
+	'Math:PI': Variable.imut(NUM(Math.PI)),
+	'Math:SQRT1_2': Variable.imut(NUM(Math.SQRT1_2)),
+	'Math:SQRT2': Variable.imut(NUM(Math.SQRT2)),
 
-	'Math:abs': FN_NATIVE(([v]) => {
+	'Math:abs': Variable.imut(FN_NATIVE(([v]) => {
 		assertNumber(v);
 		return NUM(Math.abs(v.value));
-	}),
+	})),
 
-	'Math:acos': FN_NATIVE(([v]) => {
+	'Math:acos': Variable.imut(FN_NATIVE(([v]) => {
 		assertNumber(v);
 		return NUM(Math.acos(v.value));
-	}),
+	})),
 
-	'Math:acosh': FN_NATIVE(([v]) => {
+	'Math:acosh': Variable.imut(FN_NATIVE(([v]) => {
 		assertNumber(v);
 		return NUM(Math.acosh(v.value));
-	}),
+	})),
 
-	'Math:asin': FN_NATIVE(([v]) => {
+	'Math:asin': Variable.imut(FN_NATIVE(([v]) => {
 		assertNumber(v);
 		return NUM(Math.asin(v.value));
-	}),
+	})),
 
-	'Math:asinh': FN_NATIVE(([v]) => {
+	'Math:asinh': Variable.imut(FN_NATIVE(([v]) => {
 		assertNumber(v);
 		return NUM(Math.asinh(v.value));
-	}),
+	})),
 
-	'Math:atan': FN_NATIVE(([v]) => {
+	'Math:atan': Variable.imut(FN_NATIVE(([v]) => {
 		assertNumber(v);
 		return NUM(Math.atan(v.value));
-	}),
+	})),
 
-	'Math:atanh': FN_NATIVE(([v]) => {
+	'Math:atanh': Variable.imut(FN_NATIVE(([v]) => {
 		assertNumber(v);
 		return NUM(Math.atanh(v.value));
-	}),
+	})),
 
-	'Math:atan2': FN_NATIVE(([y, x]) => {
+	'Math:atan2': Variable.imut(FN_NATIVE(([y, x]) => {
 		assertNumber(y);
 		assertNumber(x);
 		return NUM(Math.atan2(y.value, x.value));
-	}),
+	})),
 
-	'Math:cbrt': FN_NATIVE(([v]) => {
+	'Math:cbrt': Variable.imut(FN_NATIVE(([v]) => {
 		assertNumber(v);
 		return NUM(Math.cbrt(v.value));
-	}),
+	})),
 
-	'Math:ceil': FN_NATIVE(([v]) => {
+	'Math:ceil': Variable.imut(FN_NATIVE(([v]) => {
 		assertNumber(v);
 		return NUM(Math.ceil(v.value));
-	}),
+	})),
 
-	'Math:clz32': FN_NATIVE(([v]) => {
+	'Math:clz32': Variable.imut(FN_NATIVE(([v]) => {
 		assertNumber(v);
 		return NUM(Math.clz32(v.value));
-	}),
+	})),
 
-	'Math:cos': FN_NATIVE(([v]) => {
+	'Math:cos': Variable.imut(FN_NATIVE(([v]) => {
 		assertNumber(v);
 		return NUM(Math.cos(v.value));
-	}),
+	})),
 
-	'Math:cosh': FN_NATIVE(([v]) => {
+	'Math:cosh': Variable.imut(FN_NATIVE(([v]) => {
 		assertNumber(v);
 		return NUM(Math.cosh(v.value));
-	}),
+	})),
 
-	'Math:exp': FN_NATIVE(([v]) => {
+	'Math:exp': Variable.imut(FN_NATIVE(([v]) => {
 		assertNumber(v);
 		return NUM(Math.exp(v.value));
-	}),
+	})),
 
-	'Math:expm1': FN_NATIVE(([v]) => {
+	'Math:expm1': Variable.imut(FN_NATIVE(([v]) => {
 		assertNumber(v);
 		return NUM(Math.expm1(v.value));
-	}),
+	})),
 
-	'Math:floor': FN_NATIVE(([v]) => {
+	'Math:floor': Variable.imut(FN_NATIVE(([v]) => {
 		assertNumber(v);
 		return NUM(Math.floor(v.value));
-	}),
+	})),
 
-	'Math:fround': FN_NATIVE(([v]) => {
+	'Math:fround': Variable.imut(FN_NATIVE(([v]) => {
 		assertNumber(v);
 		return NUM(Math.fround(v.value));
-	}),
+	})),
 
-	'Math:hypot': FN_NATIVE(([vs]) => {
+	'Math:hypot': Variable.imut(FN_NATIVE(([vs]) => {
 		assertArray(vs);
 		const values = [];
 		for (const v of vs.value) {
@@ -317,102 +318,102 @@ export const std: Record<string, Value> = {
 			values.push(v.value);
 		}
 		return NUM(Math.hypot(...values));
-	}),
+	})),
 
-	'Math:imul': FN_NATIVE(([x, y]) => {
+	'Math:imul': Variable.imut(FN_NATIVE(([x, y]) => {
 		assertNumber(x);
 		assertNumber(y);
 		return NUM(Math.imul(x.value, y.value));
-	}),
+	})),
 
-	'Math:log': FN_NATIVE(([v]) => {
+	'Math:log': Variable.imut(FN_NATIVE(([v]) => {
 		assertNumber(v);
 		return NUM(Math.log(v.value));
-	}),
+	})),
 
-	'Math:log1p': FN_NATIVE(([v]) => {
+	'Math:log1p': Variable.imut(FN_NATIVE(([v]) => {
 		assertNumber(v);
 		return NUM(Math.log1p(v.value));
-	}),
+	})),
 
-	'Math:log10': FN_NATIVE(([v]) => {
+	'Math:log10': Variable.imut(FN_NATIVE(([v]) => {
 		assertNumber(v);
 		return NUM(Math.log10(v.value));
-	}),
+	})),
 
-	'Math:log2': FN_NATIVE(([v]) => {
+	'Math:log2': Variable.imut(FN_NATIVE(([v]) => {
 		assertNumber(v);
 		return NUM(Math.log2(v.value));
-	}),
+	})),
 
-	'Math:max': FN_NATIVE(([a, b]) => {
+	'Math:max': Variable.imut(FN_NATIVE(([a, b]) => {
 		assertNumber(a);
 		assertNumber(b);
 		return NUM(Math.max(a.value, b.value));
-	}),
+	})),
 
-	'Math:min': FN_NATIVE(([a, b]) => {
+	'Math:min': Variable.imut(FN_NATIVE(([a, b]) => {
 		assertNumber(a);
 		assertNumber(b);
 		return NUM(Math.min(a.value, b.value));
-	}),
+	})),
 
-	'Math:pow': FN_NATIVE(([x, y]) => {
+	'Math:pow': Variable.imut(FN_NATIVE(([x, y]) => {
 		assertNumber(x);
 		assertNumber(y);
 		return NUM(Math.pow(x.value, y.value));
-	}),
+	})),
 
-	'Math:round': FN_NATIVE(([v]) => {
+	'Math:round': Variable.imut(FN_NATIVE(([v]) => {
 		assertNumber(v);
 		return NUM(Math.round(v.value));
-	}),
+	})),
 
-	'Math:sign': FN_NATIVE(([v]) => {
+	'Math:sign': Variable.imut(FN_NATIVE(([v]) => {
 		assertNumber(v);
 		return NUM(Math.sign(v.value));
-	}),
+	})),
 
-	'Math:sin': FN_NATIVE(([v]) => {
+	'Math:sin': Variable.imut(FN_NATIVE(([v]) => {
 		assertNumber(v);
 		return NUM(Math.sin(v.value));
-	}),
+	})),
 
-	'Math:sinh': FN_NATIVE(([v]) => {
+	'Math:sinh': Variable.imut(FN_NATIVE(([v]) => {
 		assertNumber(v);
 		return NUM(Math.sinh(v.value));
-	}),
+	})),
 
-	'Math:sqrt': FN_NATIVE(([v]) => {
+	'Math:sqrt': Variable.imut(FN_NATIVE(([v]) => {
 		assertNumber(v);
 		const res = Math.sqrt(v.value);
 		if (isNaN(res)) throw new RuntimeError('Invalid operation.');
 		return NUM(res);
-	}),
+	})),
 
-	'Math:tan': FN_NATIVE(([v]) => {
+	'Math:tan': Variable.imut(FN_NATIVE(([v]) => {
 		assertNumber(v);
 		return NUM(Math.tan(v.value));
-	}),
+	})),
 
-	'Math:tanh': FN_NATIVE(([v]) => {
+	'Math:tanh': Variable.imut(FN_NATIVE(([v]) => {
 		assertNumber(v);
 		return NUM(Math.tanh(v.value));
-	}),
+	})),
 
-	'Math:trunc': FN_NATIVE(([v]) => {
+	'Math:trunc': Variable.imut(FN_NATIVE(([v]) => {
 		assertNumber(v);
 		return NUM(Math.trunc(v.value));
-	}),
+	})),
 
-	'Math:rnd': FN_NATIVE(([min, max]) => {
+	'Math:rnd': Variable.imut(FN_NATIVE(([min, max]) => {
 		if (min && min.type === 'num' && max && max.type === 'num') {
 			return NUM(Math.floor(Math.random() * (Math.floor(max.value) - Math.ceil(min.value) + 1) + Math.ceil(min.value)));
 		}
 		return NUM(Math.random());
-	}),
+	})),
 
-	'Math:gen_rng': FN_NATIVE(([seed]) => {
+	'Math:gen_rng': Variable.imut(FN_NATIVE(([seed]) => {
 		expectAny(seed);
 		if (seed.type !== 'num' && seed.type !== 'str') return NULL;
 
@@ -424,25 +425,25 @@ export const std: Record<string, Value> = {
 			}
 			return NUM(rng());
 		});
-	}),
+	})),
 	//#endregion
 
 	//#region Num
-	'Num:to_hex': FN_NATIVE(([v]) => {
+	'Num:to_hex': Variable.imut(FN_NATIVE(([v]) => {
 		assertNumber(v);
 		return STR(v.value.toString(16));
-	}),
+	})),
 
-	'Num:from_hex': FN_NATIVE(([v]) => {
+	'Num:from_hex': Variable.imut(FN_NATIVE(([v]) => {
 		assertString(v);
 		return NUM(parseInt(v.value, 16));
-	}),
+	})),
 	//#endregion
 
 	//#region Str
-	'Str:lf': STR('\n'),
+	'Str:lf': Variable.imut(STR('\n')),
 
-	'Str:lt': FN_NATIVE(([a, b]) => {
+	'Str:lt': Variable.imut(FN_NATIVE(([a, b]) => {
 		assertString(a);
 		assertString(b);
 		if (a.value < b.value) {
@@ -452,9 +453,9 @@ export const std: Record<string, Value> = {
 		} else {
 			return NUM(1);
 		}
-	}),
+	})),
 
-	'Str:gt': FN_NATIVE(([a, b]) => {
+	'Str:gt': Variable.imut(FN_NATIVE(([a, b]) => {
 		assertString(a);
 		assertString(b);
 		if (a.value > b.value) {
@@ -464,70 +465,70 @@ export const std: Record<string, Value> = {
 		} else {
 			return NUM(1);
 		}
-	}),
+	})),
 
-	'Str:from_codepoint': FN_NATIVE(([codePoint]) => {
+	'Str:from_codepoint': Variable.imut(FN_NATIVE(([codePoint]) => {
 		assertNumber(codePoint);
 
 		return STR(String.fromCodePoint(codePoint.value));
-	}),
+	})),
 	//#endregion
 
 	//#region Arr
 	//#endregion
 
 	//#region Obj
-	'Obj:keys': FN_NATIVE(([obj]) => {
+	'Obj:keys': Variable.imut(FN_NATIVE(([obj]) => {
 		assertObject(obj);
 		return ARR(Array.from(obj.value.keys()).map(k => STR(k)));
-	}),
+	})),
 
-	'Obj:vals': FN_NATIVE(([obj]) => {
+	'Obj:vals': Variable.imut(FN_NATIVE(([obj]) => {
 		assertObject(obj);
 		return ARR(Array.from(obj.value.values()));
-	}),
+	})),
 
-	'Obj:kvs': FN_NATIVE(([obj]) => {
+	'Obj:kvs': Variable.imut(FN_NATIVE(([obj]) => {
 		assertObject(obj);
 		return ARR(Array.from(obj.value.entries()).map(([k, v]) => ARR([STR(k), v])));
-	}),
+	})),
 
-	'Obj:get': FN_NATIVE(([obj, key]) => {
+	'Obj:get': Variable.imut(FN_NATIVE(([obj, key]) => {
 		assertObject(obj);
 		assertString(key);
 		return obj.value.get(key.value) ?? NULL;
-	}),
+	})),
 
-	'Obj:set': FN_NATIVE(([obj, key, value]) => {
+	'Obj:set': Variable.imut(FN_NATIVE(([obj, key, value]) => {
 		assertObject(obj);
 		assertString(key);
 		expectAny(value);
 		obj.value.set(key.value, value);
 		return NULL;
-	}),
+	})),
 
-	'Obj:has': FN_NATIVE(([obj, key]) => {
+	'Obj:has': Variable.imut(FN_NATIVE(([obj, key]) => {
 		assertObject(obj);
 		assertString(key);
 		return BOOL(obj.value.has(key.value));
-	}),
+	})),
 
-	'Obj:copy': FN_NATIVE(([obj]) => {
+	'Obj:copy': Variable.imut(FN_NATIVE(([obj]) => {
 		assertObject(obj);
 		return OBJ(new Map(obj.value));
-	}),
+	})),
 
 	/* TODO
-	'Obj:merge': FN_NATIVE(([a, b]) => {
+	'Obj:merge': Variable.imut(FN_NATIVE(([a, b]) => {
 		assertObject(a);
 		assertObject(b);
 		return OBJ();
-	}),
+	})),
 	*/
 	//#endregion
 
 	//#region Async
-	'Async:interval': FN_NATIVE(async ([interval, callback, immediate], opts) => {
+	'Async:interval': Variable.imut(FN_NATIVE(async ([interval, callback, immediate], opts) => {
 		assertNumber(interval);
 		assertFunction(callback);
 		if (immediate) {
@@ -550,9 +551,9 @@ export const std: Record<string, Value> = {
 			clearInterval(id);
 			opts.unregisterAbortHandler(abortHandler);
 		});
-	}),
+	})),
 
-	'Async:timeout': FN_NATIVE(async ([delay, callback], opts) => {
+	'Async:timeout': Variable.imut(FN_NATIVE(async ([delay, callback], opts) => {
 		assertNumber(delay);
 		assertFunction(callback);
 
@@ -571,6 +572,6 @@ export const std: Record<string, Value> = {
 			clearTimeout(id);
 			opts.unregisterAbortHandler(abortHandler);
 		});
-	}),
+	})),
 	//#endregion
 };
