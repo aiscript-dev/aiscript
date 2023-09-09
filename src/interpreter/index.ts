@@ -7,7 +7,7 @@ import { AiScriptError, IndexOutOfRangeError, RuntimeError } from '../error.js';
 import { Scope } from './scope.js';
 import { std } from './lib/std.js';
 import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray, eq, isObject, isArray, expectAny, reprValue } from './util.js';
-import { NULL, RETURN, unWrapRet, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, BREAK, CONTINUE } from './value.js';
+import { NULL, RETURN, unWrapRet, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, BREAK, CONTINUE, ERROR } from './value.js';
 import { getPrimProp } from './primitive-props.js';
 import type { Value, VFn } from './value.js';
 import type * as Ast from '../node.js';
@@ -77,18 +77,17 @@ export class Interpreter {
 
 	@autobind
 	public async execFn(fn: VFn, args: Value[]): Promise<Value> {
-		let result: Value = NULL;
 		try {
-			result = await this._fn(fn, args);
+			return await this._fn(fn, args);
 		} catch (e) {
 			if (this.opts.err && e instanceof AiScriptError) {
 				this.abort();
 				this.opts.err(e);
+				return ERROR('func_failed');
 			} else {
 				throw e;
 			}
 		}
-		return result;
 	}
 
 	@autobind
