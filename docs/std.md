@@ -33,10 +33,10 @@ AiScriptのバージョンです。
 JSONを生成します。  
 
 ### @Json:parse(_json_: str): value
-JSONをパースします。  
+JSONをパースします。 引数がJSONとしてパース可能性でない場合、エラー型の値（`name`=`'not_json'`）を返します。 
 
 ### @Json:parsable(_str_: str): bool
-文字列がJSONとしてパース可能であるかの判定を行います。 
+文字列がJSONとしてパース可能であるかの判定を行います。歴史的理由により存在しています 
 
 ## :: Date
 
@@ -235,6 +235,14 @@ _codepoint_ は 0 以上、10FFFF<sub>16</sub> 以下である必要がありま
 
 ### @Obj:copy(_v_: obj): obj
 オブジェクトのコピーを生成します。  
+
+## :: Error
+
+### @(_v_: error).name(): str
+エラーの識別子となる文字列を返します。
+
+### @(_v_: error).info(): value
+エラーに付加情報がある場合、それを返します。
 
 ## :: Async
 
