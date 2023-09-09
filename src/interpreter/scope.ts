@@ -111,7 +111,6 @@ export class Scope {
 	 * 指定した名前の変数に値を再代入します
 	 * @param name - 変数名
 	 * @param val - 値
-	 * @throws {RuntimeError}
 	 */
 	@autobind
 	public assign(name: string, val: Value): void {
