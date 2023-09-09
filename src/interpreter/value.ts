@@ -57,6 +57,12 @@ export type VContinue = {
 	value: null;
 };
 
+export type VError = {
+	type: 'error';
+	value: string;
+	info?: Value;
+};
+
 export type Attr = {
 	attr?: {
 		name: string;
@@ -64,7 +70,7 @@ export type Attr = {
 	}[];
 };
 
-export type Value = (VNull | VBool | VNum | VStr | VArr | VObj | VFn | VReturn | VBreak | VContinue) & Attr;
+export type Value = (VNull | VBool | VNum | VStr | VArr | VObj | VFn | VReturn | VBreak | VContinue | VError) & Attr;
 
 export const NULL = {
 	type: 'null' as const,
@@ -134,3 +140,9 @@ export const CONTINUE = (): Value => ({
 });
 
 export const unWrapRet = (v: Value): Value => v.type === 'return' ? v.value : v;
+
+export const ERROR = (name: string, info?: Value): Value => ({
+	type: 'error' as const,
+	value: name,
+	info: info,
+});

@@ -338,6 +338,9 @@ type Each_2 = NodeBase_2 & {
 // @public (undocumented)
 function eq(a: Value, b: Value): boolean;
 
+// @public (undocumented)
+const ERROR: (name: string, info?: Value) => Value;
+
 declare namespace errors {
     export {
         AiScriptError,
@@ -931,7 +934,7 @@ function valToJs(val: Value): any;
 function valToString(val: Value, simple?: boolean): string;
 
 // @public (undocumented)
-type Value = (VNull | VBool | VNum | VStr | VArr | VObj | VFn | VReturn | VBreak | VContinue) & Attr_2;
+type Value = (VNull | VBool | VNum | VStr | VArr | VObj | VFn | VReturn | VBreak | VContinue | VError) & Attr_2;
 
 declare namespace values {
     export {
@@ -945,6 +948,7 @@ declare namespace values {
         VReturn,
         VBreak,
         VContinue,
+        VError,
         Attr_2 as Attr,
         Value,
         NULL,
@@ -960,7 +964,8 @@ declare namespace values {
         RETURN,
         BREAK,
         CONTINUE,
-        unWrapRet
+        unWrapRet,
+        ERROR
     }
 }
 export { values }
@@ -987,6 +992,13 @@ type VBreak = {
 type VContinue = {
     type: 'continue';
     value: null;
+};
+
+// @public (undocumented)
+type VError = {
+    type: 'error';
+    value: string;
+    info?: Value;
 };
 
 // @public (undocumented)
