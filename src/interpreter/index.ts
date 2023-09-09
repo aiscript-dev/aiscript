@@ -67,8 +67,10 @@ export class Interpreter {
 			this.log('end', { val: result });
 		} catch (e) {
 			if (this.opts.err && e instanceof AiScriptError) {
-				this.abort();
-				this.opts.err(e);
+				if (!this.stop) {
+					this.abort();
+					this.opts.err(e);
+				}
 			} else {
 				throw e;
 			}
@@ -81,8 +83,10 @@ export class Interpreter {
 			return await this._fn(fn, args);
 		} catch (e) {
 			if (this.opts.err && e instanceof AiScriptError) {
-				this.abort();
-				this.opts.err(e);
+				if (!this.stop) {
+					this.abort();
+					this.opts.err(e);
+				}
 				return ERROR('func_failed');
 			} else {
 				throw e;
