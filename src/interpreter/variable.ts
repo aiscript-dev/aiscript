@@ -17,7 +17,7 @@ export const Variable = {
 			value,
 		};
 	},
-	imut(value: Value): Variable {
+	const(value: Value): Variable {
 		return {
 			isMutable: false,
 			value,

@@ -32,11 +32,11 @@ export class Interpreter {
 		} = {},
 	) {
 		const io = {
-			print: Variable.imut(FN_NATIVE(([v]) => {
+			print: Variable.const(FN_NATIVE(([v]) => {
 				expectAny(v);
 				if (this.opts.out) this.opts.out(v);
 			})),
-			readline: Variable.imut(FN_NATIVE(async args => {
+			readline: Variable.const(FN_NATIVE(async args => {
 				const q = args[0];
 				assertString(q);
 				if (this.opts.in == null) return NULL;
