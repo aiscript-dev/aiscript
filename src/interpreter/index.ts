@@ -374,7 +374,7 @@ export class Interpreter {
 
 			case 'str': return STR(node.value);
 
-			case 'arr': return ARR(await Promise.all(node.value.map(async item => await this._eval(item, scope))));
+			case 'arr': return ARR(await Promise.all(node.value.map(item => this._eval(item, scope))));
 
 			case 'obj': {
 				const obj = new Map() as Map<string, Value>;
