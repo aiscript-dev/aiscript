@@ -1,10 +1,11 @@
 import { autobind } from '../utils/mini-autobind.js';
 import { RuntimeError } from '../error.js';
 import type { Value } from './value.js';
+import type { Variable } from './variable.js';
 
 export class Scope {
 	private parent?: Scope;
-	private layerdStates: Map<string, Value>[];
+	private layerdStates: Map<string, Variable>[];
 	public name: string;
 	public opts: {
 		log?(type: string, params: Record<string, any>): void;
@@ -36,7 +37,7 @@ export class Scope {
 	}
 
 	@autobind
-	public createChildScope(states: Map<string, Value> = new Map(), name?: Scope['name']): Scope {
+	public createChildScope(states: Map<string, Variable> = new Map(), name?: Scope['name']): Scope {
 		const layer = [states, ...this.layerdStates];
 		return new Scope(layer, this, name);
 	}
@@ -49,7 +50,7 @@ export class Scope {
 	public get(name: string): Value {
 		for (const layer of this.layerdStates) {
 			if (layer.has(name)) {
-				const state = layer.get(name)!;
+				const state = layer.get(name)!.value;
 				this.log('read', { var: name, val: state });
 				return state;
 			}
@@ -81,10 +82,10 @@ export class Scope {
 	 * 現在のスコープに存在する全ての変数を取得します
 	 */
 	@autobind
-	public getAll(): Map<string, Value> {
+	public getAll(): Map<string, Variable> {
 		const vars = this.layerdStates.reduce((arr, layer) => {
 			return [...arr, ...layer];
-		}, [] as [string, Value][]);
+		}, [] as [string, Variable][]);
 		return new Map(vars);
 	}
 
@@ -94,16 +95,16 @@ export class Scope {
 	 * @param val - 初期値
 	 */
 	@autobind
-	public add(name: string, val: Value): void {
-		this.log('add', { var: name, val: val });
+	public add(name: string, variable: Variable): void {
+		this.log('add', { var: name, val: variable });
 		const states = this.layerdStates[0]!;
 		if (states.has(name)) {
 			throw new RuntimeError(
 				`Variable '${name}' is alerady exists in scope '${this.name}'`,
 				{ scope: this.layerdStates });
 		}
-		states.set(name, val);
-		if (this.parent == null) this.onUpdated(name, val);
+		states.set(name, variable);
+		if (this.parent == null) this.onUpdated(name, variable.value);
 	}
 
 	/**
@@ -116,7 +117,13 @@ export class Scope {
 		let i = 1;
 		for (const layer of this.layerdStates) {
 			if (layer.has(name)) {
-				layer.set(name, val);
+				const variable = layer.get(name)!;
+				if (!variable.isMutable) {
+					throw new RuntimeError(`Cannot assign to an immutable variable ${name}.`);
+				}
+
+				variable.value = val;
+
 				this.log('assign', { var: name, val: val });
 				if (i === this.layerdStates.length) this.onUpdated(name, val);
 				return;
