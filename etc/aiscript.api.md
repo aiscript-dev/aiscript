@@ -120,6 +120,7 @@ declare namespace Ast {
         Fn,
         Match,
         Block,
+        Exists,
         Tmpl,
         Str,
         Num,
@@ -275,6 +276,7 @@ declare namespace Cst {
         Fn_2 as Fn,
         Match_2 as Match,
         Block_2 as Block,
+        Exists_2 as Exists,
         Tmpl_2 as Tmpl,
         Str_2 as Str,
         Num_2 as Num,
@@ -336,6 +338,9 @@ type Each_2 = NodeBase_2 & {
 // @public (undocumented)
 function eq(a: Value, b: Value): boolean;
 
+// @public (undocumented)
+const ERROR: (name: string, info?: Value) => Value;
+
 declare namespace errors {
     export {
         AiScriptError,
@@ -348,13 +353,25 @@ declare namespace errors {
 export { errors }
 
 // @public (undocumented)
+type Exists = NodeBase & {
+    type: 'exists';
+    identifier: Identifier;
+};
+
+// @public (undocumented)
+type Exists_2 = NodeBase_2 & ChainProp & {
+    type: 'exists';
+    identifier: Identifier_2;
+};
+
+// @public (undocumented)
 function expectAny(val: Value | null | undefined): asserts val is Value;
 
 // @public (undocumented)
-type Expression = If | Fn | Match | Block | Tmpl | Str | Num | Bool | Null | Obj | Arr | Not | And | Or | Identifier | Call | Index | Prop;
+type Expression = If | Fn | Match | Block | Exists | Tmpl | Str | Num | Bool | Null | Obj | Arr | Not | And | Or | Identifier | Call | Index | Prop;
 
 // @public (undocumented)
-type Expression_2 = Infix | Not_2 | And_2 | Or_2 | If_2 | Fn_2 | Match_2 | Block_2 | Tmpl_2 | Str_2 | Num_2 | Bool_2 | Null_2 | Obj_2 | Arr_2 | Identifier_2 | Call_2 | // IR
+type Expression_2 = Infix | Not_2 | And_2 | Or_2 | If_2 | Fn_2 | Match_2 | Block_2 | Exists_2 | Tmpl_2 | Str_2 | Num_2 | Bool_2 | Null_2 | Obj_2 | Arr_2 | Identifier_2 | Call_2 | // IR
 Index_2 | // IR
 Prop_2;
 
@@ -511,7 +528,13 @@ type InfixOperator = '||' | '&&' | '==' | '!=' | '<=' | '>=' | '<' | '>' | '+' |
 
 // @public (undocumented)
 export class Interpreter {
-    constructor(vars: Interpreter['vars'], opts?: Interpreter['opts']);
+    // Warning: (ae-forgotten-export) The symbol "Variable" needs to be exported by the entry point index.d.ts
+    constructor(vars: Record<string, Variable>, opts?: {
+        in?(q: string): Promise<string>;
+        out?(value: Value): void;
+        log?(type: string, params: Record<string, any>): void;
+        maxStep?: number;
+    });
     // (undocumented)
     abort(): void;
     // (undocumented)
@@ -791,12 +814,13 @@ class RuntimeError extends AiScriptError {
 // @public (undocumented)
 export class Scope {
     constructor(layerdStates?: Scope['layerdStates'], parent?: Scope, name?: Scope['name']);
-    add(name: string, val: Value): void;
+    add(name: string, variable: Variable): void;
     assign(name: string, val: Value): void;
     // (undocumented)
-    createChildScope(states?: Map<string, Value>, name?: Scope['name']): Scope;
+    createChildScope(states?: Map<string, Variable>, name?: Scope['name']): Scope;
+    exists(name: string): boolean;
     get(name: string): Value;
-    getAll(): Map<string, Value>;
+    getAll(): Map<string, Variable>;
     // (undocumented)
     name: string;
     // (undocumented)
@@ -911,7 +935,7 @@ function valToJs(val: Value): any;
 function valToString(val: Value, simple?: boolean): string;
 
 // @public (undocumented)
-type Value = (VNull | VBool | VNum | VStr | VArr | VObj | VFn | VReturn | VBreak | VContinue) & Attr_2;
+type Value = (VNull | VBool | VNum | VStr | VArr | VObj | VFn | VReturn | VBreak | VContinue | VError) & Attr_2;
 
 declare namespace values {
     export {
@@ -925,6 +949,7 @@ declare namespace values {
         VReturn,
         VBreak,
         VContinue,
+        VError,
         Attr_2 as Attr,
         Value,
         NULL,
@@ -940,7 +965,8 @@ declare namespace values {
         RETURN,
         BREAK,
         CONTINUE,
-        unWrapRet
+        unWrapRet,
+        ERROR
     }
 }
 export { values }
@@ -967,6 +993,13 @@ type VBreak = {
 type VContinue = {
     type: 'continue';
     value: null;
+};
+
+// @public (undocumented)
+type VError = {
+    type: 'error';
+    value: string;
+    info?: Value;
 };
 
 // @public (undocumented)

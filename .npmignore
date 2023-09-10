@@ -9,3 +9,4 @@ tsconfig.json
 .editorconfig
 .travis.yml
 test.is
+tsdoc-metadata.json

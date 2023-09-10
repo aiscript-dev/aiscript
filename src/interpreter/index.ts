@@ -2,50 +2,57 @@
  * AiScript interpreter
  */
 
-import autobind from 'autobind-decorator';
-import { IndexOutOfRangeError, RuntimeError } from '../error';
-import { Scope } from './scope';
-import { std } from './lib/std';
-import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray, eq, isObject, isArray, isString, expectAny, isNumber, reprValue } from './util';
-import { NULL, RETURN, unWrapRet, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, BREAK, CONTINUE } from './value';
-import { PRIMITIVE_PROPS } from './primitive-props';
-import type { Value, VFn } from './value';
-import type * as Ast from '../node';
+import { autobind } from '../utils/mini-autobind.js';
+import { IndexOutOfRangeError, RuntimeError } from '../error.js';
+import { Scope } from './scope.js';
+import { std } from './lib/std.js';
+import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray, eq, isObject, isArray, expectAny, reprValue } from './util.js';
+import { NULL, RETURN, unWrapRet, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, BREAK, CONTINUE } from './value.js';
+import { getPrimProp } from './primitive-props.js';
+import type { Value, VFn } from './value.js';
+import type * as Ast from '../node.js';
+import { Variable } from './variable.js';
 
 const IRQ_RATE = 300;
 const IRQ_AT = IRQ_RATE - 1;
 
 export class Interpreter {
-	private vars: Record<string, Value>;
-	private opts: {
-		in?(q: string): Promise<string>;
-		out?(value: Value): void;
-		log?(type: string, params: Record<string, any>): void;
-		maxStep?: number;
-	};
 	public stepCount = 0;
 	private stop = false;
 	public scope: Scope;
 	private abortHandlers: (() => void)[] = [];
 
-	constructor(vars: Interpreter['vars'], opts?: Interpreter['opts']) {
-		this.opts = opts ?? {};
-
+	constructor(
+		private vars: Record<string, Variable>,
+		private opts: {
+			in?(q: string): Promise<string>;
+			out?(value: Value): void;
+			log?(type: string, params: Record<string, any>): void;
+			maxStep?: number;
+		} = {},
+	) {
 		const io = {
-			print: FN_NATIVE(([v]) => {
+			print: Variable.const(FN_NATIVE(([v]) => {
 				expectAny(v);
 				if (this.opts.out) this.opts.out(v);
-			}),
-			readline: FN_NATIVE(async args => {
+			})),
+			readline: Variable.const(FN_NATIVE(async args => {
 				const q = args[0];
 				assertString(q);
 				if (this.opts.in == null) return NULL;
 				const a = await this.opts.in!(q.value);
 				return STR(a);
-			}),
+			})),
 		};
 
-		this.vars = { ...vars, ...std, ...io };
+		this.vars = {
+			...vars,
+			...Object.fromEntries(
+				Object.entries(std)
+					.map(([k, v]) => [k, Variable.const(v)]),
+			),
+			...io,
+		};
 
 		this.scope = new Scope([new Map(Object.entries(this.vars))]);
 		this.scope.opts.log = (type, params): void => {
@@ -143,9 +150,13 @@ export class Interpreter {
 		for (const node of ns.members) {
 			switch (node.type) {
 				case 'def': {
-					const v = await this._eval(node.expr, scope);
-					scope.add(node.name, v);
-					this.scope.add(ns.name + ':' + node.name, v);
+					const variable: Variable = {
+						isMutable: node.mut,
+						value: await this._eval(node.expr, scope),
+					};
+					scope.add(node.name, variable);
+
+					this.scope.add(ns.name + ':' + node.name, variable);
 					break;
 				}
 
@@ -168,11 +179,15 @@ export class Interpreter {
 				registerAbortHandler: this.registerAbortHandler,
 				unregisterAbortHandler: this.unregisterAbortHandler,
 			});
+			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 			return result ?? NULL;
 		} else {
-			const _args = new Map() as Map<string, Value>;
+			const _args = new Map<string, Variable>();
 			for (let i = 0; i < (fn.args ?? []).length; i++) {
-				_args.set(fn.args![i]!, args[i]!);
+				_args.set(fn.args![i]!, {
+					isMutable: true,
+					value: args[i]!,
+				});
 			}
 			const fnScope = fn.scope!.createChildScope(_args);
 			return unWrapRet(await this._run(fn.statements!, fnScope));
@@ -266,7 +281,10 @@ export class Interpreter {
 					assertNumber(to);
 					for (let i = from.value; i < from.value + to.value; i++) {
 						const v = await this._eval(node.for, scope.createChildScope(new Map([
-							[node.var!, NUM(i)],
+							[node.var!, {
+								isMutable: false,
+								value: NUM(i),
+							}],
 						])));
 						if (v.type === 'break') {
 							break;
@@ -283,7 +301,10 @@ export class Interpreter {
 				assertArray(items);
 				for (const item of items.value) {
 					const v = await this._eval(node.for, scope.createChildScope(new Map([
-						[node.var, item],
+						[node.var, {
+							isMutable: false,
+							value: item,
+						}],
 					])));
 					if (v.type === 'break') {
 						break;
@@ -306,7 +327,10 @@ export class Interpreter {
 					}
 					value.attr = attrs;
 				}
-				scope.add(node.name, value);
+				scope.add(node.name, {
+					isMutable: node.mut,
+					value: value,
+				});
 				return NULL;
 			}
 
@@ -350,7 +374,7 @@ export class Interpreter {
 
 			case 'str': return STR(node.value);
 
-			case 'arr': return ARR(await Promise.all(node.value.map(async item => await this._eval(item, scope))));
+			case 'arr': return ARR(await Promise.all(node.value.map(item => this._eval(item, scope))));
 
 			case 'obj': {
 				const obj = new Map() as Map<string, Value>;
@@ -368,39 +392,31 @@ export class Interpreter {
 					} else {
 						return NULL;
 					}
-				} else if (isNumber(target)) {
-					if (Object.hasOwn(PRIMITIVE_PROPS.num, node.name)) {
-						return PRIMITIVE_PROPS.num[node.name as keyof typeof PRIMITIVE_PROPS['num']](target);
-					} else {
-						throw new RuntimeError(`No such prop (${node.name}) in ${target.type}.`);
-					}
-				} else if (isString(target)) {
-					if (Object.hasOwn(PRIMITIVE_PROPS.str, node.name)) {
-						return PRIMITIVE_PROPS.str[node.name as keyof typeof PRIMITIVE_PROPS['str']](target);
-					} else {
-						throw new RuntimeError(`No such prop (${node.name}) in ${target.type}.`);
-					}
-				} else if (isArray(target)) {
-					if (Object.hasOwn(PRIMITIVE_PROPS.arr, node.name)) {
-						return PRIMITIVE_PROPS.arr[node.name as keyof typeof PRIMITIVE_PROPS['arr']](target);
-					} else {
-						throw new RuntimeError(`No such prop (${node.name}) in ${target.type}.`);
-					}
 				} else {
-					throw new RuntimeError(`Cannot read prop (${node.name}) of ${target.type}.`);
+					return getPrimProp(target, node.name);
 				}
 			}
 
 			case 'index': {
 				const target = await this._eval(node.target, scope);
-				assertArray(target);
 				const i = await this._eval(node.index, scope);
-				assertNumber(i);
-				const item = target.value[i.value];
-				if (item === undefined) {
-					throw new IndexOutOfRangeError(`Index out of range. index: ${i.value} max: ${target.value.length - 1}`);
+				if (isArray(target)) {
+					assertNumber(i);
+					const item = target.value[i.value];
+					if (item === undefined) {
+						throw new IndexOutOfRangeError(`Index out of range. index: ${i.value} max: ${target.value.length - 1}`);
+					}
+					return item;
+				} else if (isObject(target)) {
+					assertString(i);
+					if (target.value.has(i.value)) {
+						return target.value.get(i.value)!;
+					} else {
+						return NULL;
+					}
+				} else {
+					throw new RuntimeError(`Cannot read prop (${reprValue(i)}) of ${target.type}.`);
 				}
-				return item;
 			}
 
 			case 'not': {
@@ -415,6 +431,10 @@ export class Interpreter {
 
 			case 'block': {
 				return this._run(node.statements, scope.createChildScope());
+			}
+
+			case 'exists': {
+				return BOOL(scope.exists(node.identifier.name));
 			}
 
 			case 'tmpl': {
@@ -537,12 +557,16 @@ export class Interpreter {
 			scope.assign(dest.name, value);
 		} else if (dest.type === 'index') {
 			const assignee = await this._eval(dest.target, scope);
-			assertArray(assignee);
-
 			const i = await this._eval(dest.index, scope);
-			assertNumber(i);
-
-			assignee.value[i.value] = value; // TODO: 存在チェック
+			if (isArray(assignee)) {
+				assertNumber(i);
+				assignee.value[i.value] = value; // TODO: 存在チェック
+			} else if (isObject(assignee)) {
+				assertString(i);
+				assignee.value.set(i.value, value);
+			} else {
+				throw new RuntimeError(`Cannot read prop (${reprValue(i)}) of ${assignee.type}.`);
+			}
 		} else if (dest.type === 'prop') {
 			const assignee = await this._eval(dest.target, scope);
 			assertObject(assignee);

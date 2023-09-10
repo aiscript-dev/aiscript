@@ -1,4 +1,4 @@
-import * as Cst from './node';
+import * as Cst from './node.js';
 
 export function visitNode(node: Cst.Node, fn: (node: Cst.Node) => Cst.Node): Cst.Node {
 	const result = fn(node);
@@ -87,6 +87,10 @@ export function visitNode(node: Cst.Node, fn: (node: Cst.Node) => Cst.Node): Cst
 			for (let i = 0; i < result.statements.length; i++) {
 				result.statements[i] = visitNode(result.statements[i]!, fn) as Cst.Block['statements'][number];
 			}
+			break;
+		}
+		case 'exists': {
+			result.identifier = visitNode(result.identifier,fn) as Cst.Exists['identifier'];
 			break;
 		}
 		case 'tmpl': {

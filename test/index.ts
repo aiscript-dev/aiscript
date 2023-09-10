@@ -5,7 +5,7 @@
 
 import * as assert from 'assert';
 import { Parser, Interpreter, utils, errors, Ast } from '../src';
-import { NUM, STR, NULL, ARR, OBJ, BOOL, TRUE, FALSE } from '../src/interpreter/value';
+import { NUM, STR, NULL, ARR, OBJ, BOOL, TRUE, FALSE, ERROR } from '../src/interpreter/value';
 import { RuntimeError } from '../src/error';
 
 const exe = (program: string): Promise<any> => new Promise((ok, err) => {
@@ -1048,6 +1048,14 @@ describe('chain', () => {
 		`);
 		eq(res, NUM(45));
 	});
+
+	test.concurrent('object with index', async () => {
+		const res = await exe(`
+		let ai = {a: {}}['a']
+		ai['chan'] = 'kawaii'
+		<: ai[{a: 'chan'}['a']]
+		`);
+		eq(res, STR('kawaii'));
 });
 
 describe('Template syntax', () => {
@@ -1321,6 +1329,16 @@ describe('Eval', () => {
 		<: foo
 		`);
 		eq(res, NUM(3));
+	});
+});
+
+describe('exists', () => {
+	test.concurrent('Basic', async () => {
+		const res = await exe(`
+		let foo = null
+		<: [(exists foo) (exists bar)]
+		`);
+		eq(res, ARR([BOOL(true), BOOL(false)]));
 	});
 });
 
@@ -2232,6 +2250,17 @@ describe('Location', () => {
 	});
 });
 
+describe('Variable declaration', () => {
+	test.concurrent('Do not assign to let (issue #328)', async () => {
+		const err = await exe(`
+			let hoge = 33
+			hoge = 4
+		`).then(() => undefined).catch(err => err);
+
+		assert.ok(err instanceof RuntimeError);
+	});
+})
+
 describe('primitive props', () => {
 	describe('num', () => {
 		test.concurrent('to_str', async () => {
@@ -2713,6 +2742,25 @@ describe('std', () => {
 			`);
 			eq(res, STR('\n'));
 		});
+
+		test.concurrent('from_codepoint', async () => {
+			const res = await exe(`
+			<: Str:from_codepoint(65)
+			`);
+			eq(res, STR('A'));
+		});
+
+		test.concurrent('codepoint_at', async () => {
+			let res = await exe(`
+			<: "aiscript".split().map(@(x, _) { x.codepoint_at(0) })
+			`);
+			eq(res, ARR([97, 105, 115, 99, 114, 105, 112, 116].map(x => NUM(x))));
+
+			res = await exe(`
+			<: "".codepoint_at(0)
+			`);
+			eq(res, NULL);
+		});
 	});
 
 	describe('Json', () => {
@@ -2725,32 +2773,33 @@ describe('std', () => {
 
 		test.concurrent('parsable', async () => {
 			[
-				'',
 				'null',
-				'hoge',
 				'"hoge"',
-				'[',
 				'[]',
-				'{}'
+				'{}',
 			].forEach(async (str) => {
 				const res = await exe(`
-					<: Json:parsable('${str}')
+					<: [
+						Json:parsable('${str}')
+						Json:stringify(Json:parse('${str}'))
+					]
 				`);
-				assert.deepEqual(res.type, 'bool');
-				if (res.value) {
-					await exe(`
-						<: Json:parse('${str}')
-					`);
-				} else {
-					try {
-						await exe(`
-							<: Json:parse('${str}')
-						`);
-					} catch (e) {
-						if (e instanceof SyntaxError) return;
-					}
-					assert.fail()
-				}
+				eq(res, ARR([TRUE, STR(str)]));
+			});
+		});
+		test.concurrent('unparsable', async () => {
+			[
+				'',
+				'hoge',
+				'[',
+			].forEach(async (str) => {
+				const res = await exe(`
+					<: [
+						Json:parsable('${str}')
+						Json:parse('${str}')
+					]
+				`);
+				eq(res, ARR([FALSE, ERROR('not_json')]));
 			});
 		});
 	});

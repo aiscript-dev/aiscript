@@ -1,8 +1,12 @@
 [Read translated version (en)](./translations/en/CHANGELOG.md)
 
 - `Core:to_str`, `テンプレート文字列` でどの値でも文字列へ変換できるように
-
 - 指定時間待機する関数`Core:sleep`を追加
+- `exists 変数名` の構文で変数が存在するか判定できるように
+- オブジェクトを添字で参照できるように（`object['index']`のように）
+- 「エラー型（`error`）」を導入
+- `Json:parse`がパース失敗時にエラー型の値を返すように
+- `let` で定義した変数が上書きできてしまうのを修正
 
 # 0.15.0
 - Mathを強化

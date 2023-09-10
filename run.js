@@ -1,16 +1,15 @@
-const fs = require('fs');
-const readline = require('readline');
-const chalk = require('chalk');
-const parse = require('./built/parser/index.js').parse;
-const { valToString, nodeToString } = require('./built/interpreter/util.js');
-const AiScript = require('./built/interpreter/index.js').AiScript;
+import fs from 'fs';
+import * as readline from 'readline';
+import chalk from 'chalk';
+import { Parser, Interpreter, utils } from '@syuilo/aiscript';
+const { valToString } = utils
 
 const i = readline.createInterface({
 	input: process.stdin,
 	output: process.stdout
 });
 
-const aiscript = new AiScript({}, {
+const interpreter = new Interpreter({}, {
 	in(q) {
 		return new Promise(ok => {
 			i.question(q + ': ', ok);
@@ -37,6 +36,6 @@ const aiscript = new AiScript({}, {
 });
 
 const script = fs.readFileSync('./test.is', 'utf8');
-const ast = parse(script);
+const ast = Parser.parse(script);
 
-aiscript.exec(ast);
+interpreter.exec(ast);

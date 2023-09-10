@@ -80,3 +80,12 @@ let foo = eval {
 
 <: inc(42) // 43
 ```
+
+## exists
+```
+let foo = exists bar
+let bar = exists foo
+
+<: foo //false
+<: bar //true
+```

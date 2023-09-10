@@ -1,6 +1,6 @@
-import { SyntaxError } from '../../error';
-import { visitNode } from '../visit';
-import type * as Cst from '../node';
+import { SyntaxError } from '../../error.js';
+import { visitNode } from '../visit.js';
+import type * as Cst from '../node.js';
 
 const reservedWord = [
 	'null',
@@ -19,6 +19,7 @@ const reservedWord = [
 	'eval',
 	'var',
 	'let',
+	'exists',
 
 	// future
 	'fn',

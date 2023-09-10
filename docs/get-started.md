@@ -51,6 +51,7 @@ this is a comment
 	<tr><td>オブジェクト</td><td><code>obj</code></td><td><code>{ foo: "bar"; a: 42; }</code></td></tr>
 	<tr><td>null</td><td><code>null</code></td><td><code>null</code></td></tr>
 	<tr><td>関数</td><td><code>fn</code></td><td><code>@(x) { x }</code></td></tr>
+	<tr><td>エラー</td><td><code>error</code></td><td><code>(TODO)</code></td></tr>
 </table>
 
 ## 変数
@@ -95,6 +96,8 @@ let arr = ["ai" "chan" "kawaii"]
 ```
 
 ## オブジェクト
+`{}`の中にプロパティを`,`/`;`/空白で区切って列挙します。
+プロパティ名と値は`: `で区切ります。
 ```
 {
 	foo: "bar"
@@ -103,6 +106,14 @@ let arr = ["ai" "chan" "kawaii"]
 		some: "thing"
 	}
 }
+```
+
+オブジェクトのプロパティにアクセスするときは、
+`.<name>`か`[<str>]`と書きます。
+```
+let obj = {foo: "bar", answer: 42}
+<: obj.foo // "bar"
+<: obj["answer"] // 42
 ```
 
 ## 演算
@@ -114,7 +125,6 @@ let arr = ["ai" "chan" "kawaii"]
 ```
 Core:add(1, 1)
 ```
-注意点として、`(1 + 1 + 1)`のようには書けず、`(1 + (1 + 1))`のように入れ子にして使います。
 
 <table>
 	<tr><th>演算子</th><th>標準関数</th><th>意味</th></tr>
@@ -246,5 +256,16 @@ AiScriptファイルにメタデータを埋め込める機能です。
 	name: "example"
 	version: 42
 	keywords: ["foo" "bar" "baz"]
+}
+```
+
+## エラー型
+一部の標準関数は実行失敗時にエラー型の値を返します。
+これによりエラー処理を行うことができます。
+```
+@validate(str){
+	let v=Json:parse(str)
+	if (Core:type(v)=='error') print(v.name)
+	else print('successful')
 }
 ```

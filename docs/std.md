@@ -47,10 +47,10 @@ AiScriptのバージョンです。
 JSONを生成します。  
 
 ### @Json:parse(_json_: str): value
-JSONをパースします。  
+JSONをパースします。 引数がJSONとしてパース可能性でない場合、エラー型の値（`name`=`'not_json'`）を返します。 
 
 ### @Json:parsable(_str_: str): bool
-文字列がJSONとしてパース可能であるかの判定を行います。 
+文字列がJSONとしてパース可能であるかの判定を行います。歴史的理由により存在しています 
 
 ## :: Date
 
@@ -130,9 +130,6 @@ _min_ および _max_ を渡した場合、_min_ <= x, x <= _max_ の整数、
 シードから乱数生成機を生成します。  
 
 ## :: Num
-### @(_x_: num).to_str(): str
-値を表す文字列を取得します。  
-
 ### @Num:to_hex(_x_: num): str
 数値から16進数の文字列を生成します。  
 
@@ -152,8 +149,12 @@ arr.sortの比較関数として使用できます。
 a > b ならば -1、a == b ならば 0、a < b ならば 1 を返します。  
 arr.sortの比較関数として使用できます。
 
-## :: Obj
+### #Str:from_codepoint(codepoint: num): str
+unicodeのコードポイントから文字を生成します。
 
+_codepoint_ は 0 以上、10FFFF<sub>16</sub> 以下である必要があります。
+
+## :: Obj
 ### @Obj:keys(_v_: obj): arr
 ### @Obj:vals(_v_: obj): arr
 ### @Obj:kvs(_v_: obj): arr
