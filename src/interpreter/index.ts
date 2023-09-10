@@ -45,7 +45,14 @@ export class Interpreter {
 			})),
 		};
 
-		this.vars = { ...vars, ...std, ...io };
+		this.vars = {
+			...vars,
+			...Object.fromEntries(
+				Object.entries(std)
+					.map(([k, v]) => [k, Variable.const(v)]),
+			),
+			...io,
+		};
 
 		this.scope = new Scope([new Map(Object.entries(this.vars))]);
 		this.scope.opts.log = (type, params): void => {
