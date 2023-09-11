@@ -11,6 +11,7 @@ import { NULL, RETURN, unWrapRet, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, BREAK
 import { getPrimProp } from './primitive-props.js';
 import type { Value, VFn } from './value.js';
 import type * as Ast from '../node.js';
+import { Variable } from './variable.js';
 
 const IRQ_RATE = 300;
 const IRQ_AT = IRQ_RATE - 1;
@@ -22,7 +23,7 @@ export class Interpreter {
 	private abortHandlers: (() => void)[] = [];
 
 	constructor(
-		private vars: Record<string, Value>,
+		private vars: Record<string, Variable>,
 		private opts: {
 			in?(q: string): Promise<string>;
 			out?(value: Value): void;
@@ -32,20 +33,27 @@ export class Interpreter {
 		} = {},
 	) {
 		const io = {
-			print: FN_NATIVE(([v]) => {
+			print: Variable.const(FN_NATIVE(([v]) => {
 				expectAny(v);
 				if (this.opts.out) this.opts.out(v);
-			}),
-			readline: FN_NATIVE(async args => {
+			})),
+			readline: Variable.const(FN_NATIVE(async args => {
 				const q = args[0];
 				assertString(q);
 				if (this.opts.in == null) return NULL;
 				const a = await this.opts.in!(q.value);
 				return STR(a);
-			}),
+			})),
 		};
 
-		this.vars = { ...vars, ...std, ...io };
+		this.vars = {
+			...vars,
+			...Object.fromEntries(
+				Object.entries(std)
+					.map(([k, v]) => [k, Variable.const(v)]),
+			),
+			...io,
+		};
 
 		this.scope = new Scope([new Map(Object.entries(this.vars))]);
 		this.scope.opts.log = (type, params): void => {
@@ -163,9 +171,13 @@ export class Interpreter {
 		for (const node of ns.members) {
 			switch (node.type) {
 				case 'def': {
-					const v = await this._eval(node.expr, scope);
-					scope.add(node.name, v);
-					this.scope.add(ns.name + ':' + node.name, v);
+					const variable: Variable = {
+						isMutable: node.mut,
+						value: await this._eval(node.expr, scope),
+					};
+					scope.add(node.name, variable);
+
+					this.scope.add(ns.name + ':' + node.name, variable);
 					break;
 				}
 
@@ -188,12 +200,15 @@ export class Interpreter {
 				registerAbortHandler: this.registerAbortHandler,
 				unregisterAbortHandler: this.unregisterAbortHandler,
 			});
-			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition 
+			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 			return result ?? NULL;
 		} else {
-			const _args = new Map() as Map<string, Value>;
+			const _args = new Map<string, Variable>();
 			for (let i = 0; i < (fn.args ?? []).length; i++) {
-				_args.set(fn.args![i]!, args[i]!);
+				_args.set(fn.args![i]!, {
+					isMutable: true,
+					value: args[i]!,
+				});
 			}
 			const fnScope = fn.scope!.createChildScope(_args);
 			return unWrapRet(await this._run(fn.statements!, fnScope));
@@ -287,7 +302,10 @@ export class Interpreter {
 					assertNumber(to);
 					for (let i = from.value; i < from.value + to.value; i++) {
 						const v = await this._eval(node.for, scope.createChildScope(new Map([
-							[node.var!, NUM(i)],
+							[node.var!, {
+								isMutable: false,
+								value: NUM(i),
+							}],
 						])));
 						if (v.type === 'break') {
 							break;
@@ -304,7 +322,10 @@ export class Interpreter {
 				assertArray(items);
 				for (const item of items.value) {
 					const v = await this._eval(node.for, scope.createChildScope(new Map([
-						[node.var, item],
+						[node.var, {
+							isMutable: false,
+							value: item,
+						}],
 					])));
 					if (v.type === 'break') {
 						break;
@@ -327,7 +348,10 @@ export class Interpreter {
 					}
 					value.attr = attrs;
 				}
-				scope.add(node.name, value);
+				scope.add(node.name, {
+					isMutable: node.mut,
+					value: value,
+				});
 				return NULL;
 			}
 
@@ -371,7 +395,7 @@ export class Interpreter {
 
 			case 'str': return STR(node.value);
 
-			case 'arr': return ARR(await Promise.all(node.value.map(async item => await this._eval(item, scope))));
+			case 'arr': return ARR(await Promise.all(node.value.map(item => this._eval(item, scope))));
 
 			case 'obj': {
 				const obj = new Map() as Map<string, Value>;
