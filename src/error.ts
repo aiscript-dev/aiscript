@@ -18,7 +18,7 @@ export abstract class AiScriptError extends Error {
  */
 export class NotAiScriptError extends AiScriptError {
 	constructor(error: any) {
-		super(`Internal Error. {error}`, error);
+		super(`Internal Error. ${error}`, error);
 	}
 }
 

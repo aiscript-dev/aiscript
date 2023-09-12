@@ -111,7 +111,6 @@ export class Interpreter {
 		return await this._fn(fn, args);
 	}
 
-
 	@autobind
 	public static collectMetadata(script?: Ast.Node[]): Map<any, any> | undefined {
 		if (script == null || script.length === 0) return;
@@ -154,6 +153,7 @@ export class Interpreter {
 	}
 
 	@autobind
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	private handleError(e: any): void {
 		if (this.opts.err) {
 			if (!this.stop) {
