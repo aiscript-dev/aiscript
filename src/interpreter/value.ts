@@ -30,12 +30,16 @@ export type VObj = {
 	value: Map<string, Value>;
 };
 
+/**
+ * When your AiScript NATIVE function passes VFn.call to other caller(s) whose error thrown outside the scope, use VFn.topCall instead to keep it under AiScript error control system.
+ */
 export type VFn = {
 	type: 'fn';
 	args?: string[];
 	statements?: Node[];
 	native?: (args: (Value | undefined)[], opts: {
 		call: (fn: VFn, args: Value[]) => Promise<Value>;
+		topCall: (fn: VFn, args: Value[]) => Promise<Value>;
 		registerAbortHandler: (handler: () => void) => void;
 		unregisterAbortHandler: (handler: () => void) => void;
 	}) => Value | Promise<Value> | void;

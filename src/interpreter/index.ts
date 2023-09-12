@@ -85,22 +85,48 @@ export class Interpreter {
 		}
 	}
 
+	/**
+	 * Executes AiScript Function.
+	 * When it fails because AiScript Error has occurred,
+	 * (i)If error callback is registered via constructor, this.abort is called and the callback executed, then returns a error value.
+	 * (ii)Otherwise, just an AiScriptError is thrown.
+	 *
+	 * @remarks This is the same function as that passed to each AiScript NATIVE functions as opts.topCall.
+	 *
+	 * @param fn - the function
+	 * @param args - arguments for the function
+	 * @returns Return value of the function, or ERROR('func_failed') when the (i) condition above is fulfilled.
+	 */
 	@autobind
 	public async execFn(fn: VFn, args: Value[]): Promise<Value> {
-		try {
-			return await this._fn(fn, args);
-		} catch (e) {
-			if (this.opts.err && e instanceof AiScriptError) {
-				if (!this.stop) {
-					this.abort();
-					this.opts.err(e);
+		return await this._fn(fn, args)
+			.catch(e => {
+				if (this.opts.err && e instanceof AiScriptError) {
+					if (!this.stop) {
+						this.abort();
+						this.opts.err(e);
+					}
+					return ERROR('func_failed');
+				} else {
+					throw e;
 				}
-				return ERROR('func_failed');
-			} else {
-				throw e;
-			}
-		}
+			});
 	}
+	/**
+	 * Executes AiScript Function.
+	 * Almost same as execFn but when AiScript Error is occurred this always throws and never calls callback.
+	 *
+	 * @remarks This is the same function as that passed to each AiScript NATIVE functions as opts.call.
+	 *
+	 * @param fn - the function
+	 * @param args - arguments for the function
+	 * @returns Return value of the function.
+	 */
+	@autobind
+	public async execFnSimple(fn: VFn, args: Value[]): Promise<Value> {
+		return await this._fn(fn, args);
+	}
+
 
 	@autobind
 	public static collectMetadata(script?: Ast.Node[]): Map<any, any> | undefined {
@@ -196,7 +222,8 @@ export class Interpreter {
 	private async _fn(fn: VFn, args: Value[]): Promise<Value> {
 		if (fn.native) {
 			const result = fn.native(args, {
-				call: this.execFn,
+				call: this.execFnSimple,
+				topCall: this.execFn,
 				registerAbortHandler: this.registerAbortHandler,
 				unregisterAbortHandler: this.unregisterAbortHandler,
 			});
