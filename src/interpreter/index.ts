@@ -9,9 +9,9 @@ import { std } from './lib/std.js';
 import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray, eq, isObject, isArray, expectAny, reprValue } from './util.js';
 import { NULL, RETURN, unWrapRet, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, BREAK, CONTINUE, ERROR } from './value.js';
 import { getPrimProp } from './primitive-props.js';
+import { Variable } from './variable.js';
 import type { Value, VFn } from './value.js';
 import type * as Ast from '../node.js';
-import { Variable } from './variable.js';
 
 const IRQ_RATE = 300;
 const IRQ_AT = IRQ_RATE - 1;
@@ -21,9 +21,10 @@ export class Interpreter {
 	private stop = false;
 	public scope: Scope;
 	private abortHandlers: (() => void)[] = [];
+	private vars: Record<string, Variable> = {};
 
 	constructor(
-		private vars: Record<string, Variable>,
+		consts: Record<string, Value>,
 		private opts: {
 			in?(q: string): Promise<string>;
 			out?(value: Value): void;
@@ -33,27 +34,24 @@ export class Interpreter {
 		} = {},
 	) {
 		const io = {
-			print: Variable.const(FN_NATIVE(([v]) => {
+			print: FN_NATIVE(([v]) => {
 				expectAny(v);
 				if (this.opts.out) this.opts.out(v);
-			})),
-			readline: Variable.const(FN_NATIVE(async args => {
+			}),
+			readline: FN_NATIVE(async args => {
 				const q = args[0];
 				assertString(q);
 				if (this.opts.in == null) return NULL;
 				const a = await this.opts.in!(q.value);
 				return STR(a);
-			})),
+			}),
 		};
 
-		this.vars = {
-			...vars,
-			...Object.fromEntries(
-				Object.entries(std)
-					.map(([k, v]) => [k, Variable.const(v)]),
-			),
+		this.vars = Object.fromEntries(Object.entries({
+			...consts,
+			...std,
 			...io,
-		};
+		}).map(([k, v]) => [k, Variable.const(v)]));
 
 		this.scope = new Scope([new Map(Object.entries(this.vars))]);
 		this.scope.opts.log = (type, params): void => {

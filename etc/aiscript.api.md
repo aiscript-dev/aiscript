@@ -528,8 +528,7 @@ type InfixOperator = '||' | '&&' | '==' | '!=' | '<=' | '>=' | '<' | '>' | '+' |
 
 // @public (undocumented)
 export class Interpreter {
-    // Warning: (ae-forgotten-export) The symbol "Variable" needs to be exported by the entry point index.d.ts
-    constructor(vars: Record<string, Variable>, opts?: {
+    constructor(consts: Record<string, Value>, opts?: {
         in?(q: string): Promise<string>;
         out?(value: Value): void;
         log?(type: string, params: Record<string, any>): void;
@@ -816,6 +815,8 @@ export class Scope {
     constructor(layerdStates?: Scope['layerdStates'], parent?: Scope, name?: Scope['name']);
     add(name: string, variable: Variable): void;
     assign(name: string, val: Value): void;
+    // Warning: (ae-forgotten-export) The symbol "Variable" needs to be exported by the entry point index.d.ts
+    //
     // (undocumented)
     createChildScope(states?: Map<string, Variable>, name?: Scope['name']): Scope;
     exists(name: string): boolean;
