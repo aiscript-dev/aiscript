@@ -9,9 +9,9 @@ import { std } from './lib/std.js';
 import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray, eq, isObject, isArray, expectAny, reprValue } from './util.js';
 import { NULL, RETURN, unWrapRet, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, BREAK, CONTINUE } from './value.js';
 import { getPrimProp } from './primitive-props.js';
+import { Variable } from './variable.js';
 import type { Value, VFn } from './value.js';
 import type * as Ast from '../node.js';
-import { Variable } from './variable.js';
 
 const IRQ_RATE = 300;
 const IRQ_AT = IRQ_RATE - 1;
@@ -46,13 +46,11 @@ export class Interpreter {
 			}),
 		};
 
-		this.vars = Object.fromEntries(
-			Object.entries({
-				...consts,
-				...std,
-				...io,
-			}).map(([k, v]) => [k, Variable.const(v)])
-		);
+		this.vars = Object.fromEntries(Object.entries({
+			...consts,
+			...std,
+			...io,
+		}).map(([k, v]) => [k, Variable.const(v)]));
 
 		this.scope = new Scope([new Map(Object.entries(this.vars))]);
 		this.scope.opts.log = (type, params): void => {
