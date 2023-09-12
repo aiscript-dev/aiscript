@@ -73,24 +73,37 @@ describe('Interpreter', () => {
 
 describe('error handler', () => {
 	test.concurrent('error from outside caller', async () => {
-		let outsideCaller: () => void = () => {};
+		let outsideCaller: () => Promise<null> = async () => {};
+		let errCount: number = 0;
 		const aiscript = new Interpreter({
-			emitError: FN_NATIVE((args, opts) => {
+			emitError: FN_NATIVE((_args, _opts) => {
 				throw Error('emitError');
 			}),
 			genOutsideCaller: FN_NATIVE(([fn], opts) => {
 				utils.assertFunction(fn);
-				outsideCaller = () => {
+				outsideCaller = async () => {
 					opts.topCall(fn);
 				};
 			}),
 		}, {
-			out(value) { ok(value); },
-			err(e){ ok(e) },
-			maxStep: 9999,
+			err(e){ errCount+=1 },
 		});
-		await aiscript.exec(Parser.parse(program));
+		await aiscript.exec(Parser.parse(`
+		genOutsideCaller(emitError)
+		`));
+		assert.strictEqual(errCount, 0);
+		await outsideCaller();
+		assert.strictEqual(errCount, 1);
 	});
+	test.concurrent('array.map calls the handler just once', async () => {
+		let errCount: number = 0;
+		const aiscript = new Interpreter({}, {
+			err(e){ errCount+=1 },
+		});
+		await aiscript.exec(Parser.parse(`
+		Core:range(1,5).map(@(){ hoge })
+		`));
+		assert.strictEqual(errCount, 1);
 });
 
 describe('ops', () => {
