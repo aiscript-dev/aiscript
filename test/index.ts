@@ -5,7 +5,7 @@
 
 import * as assert from 'assert';
 import { Parser, Interpreter, utils, errors, Ast } from '../src';
-import { NUM, STR, NULL, ARR, OBJ, BOOL, TRUE, FALSE, ERROR } from '../src/interpreter/value';
+import { NUM, STR, NULL, ARR, OBJ, BOOL, TRUE, FALSE, ERROR ,FN_NATIVE } from '../src/interpreter/value';
 import { RuntimeError } from '../src/error';
 
 const exe = (program: string): Promise<any> => new Promise((ok, err) => {
@@ -68,6 +68,28 @@ describe('Interpreter', () => {
 			assert.ok(vars.get('x') == null);
 			assert.ok(vars.get('y') == null);
 		});
+	});
+});
+
+describe('error handler', () => {
+	test.concurrent('error from outside caller', async () => {
+		let outsideCaller: () => void = () => {};
+		const aiscript = new Interpreter({
+			emitError: FN_NATIVE((args, opts) => {
+				throw Error('emitError');
+			}),
+			genOutsideCaller: FN_NATIVE(([fn], opts) => {
+				utils.assertFunction(fn);
+				outsideCaller = () => {
+					opts.topCall(fn);
+				};
+			}),
+		}, {
+			out(value) { ok(value); },
+			err(e){ ok(e) },
+			maxStep: 9999,
+		});
+		await aiscript.exec(Parser.parse(program));
 	});
 });
 

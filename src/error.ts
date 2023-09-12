@@ -13,6 +13,15 @@ export abstract class AiScriptError extends Error {
 	}
 }
 
+/**
+ * Wrapper for non-AiScript errors.
+ */
+export class NotAiScriptError extends AiScriptError {
+	constructor(error: any) {
+		super(`Internal Error. {error}`, error);
+	}
+}
+
 export class SyntaxError extends AiScriptError {
 	constructor(message: string, info?: any) {
 		super(message, info);

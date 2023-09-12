@@ -20,7 +20,7 @@ const interpreter = new Interpreter({}, {
 		console.log(chalk.magenta(valToString(value, true)));
 	},
 	err(e) {
-		console.log(chalk.red(`AiScript Error: ${e.message}`));
+		console.log(chalk.red(`${e}`));
 	},
 	log(type, params) {
 		/*
@@ -42,10 +42,10 @@ const interpreter = new Interpreter({}, {
 const script = fs.readFileSync('./test.is', 'utf8');
 try {
 	const ast = Parser.parse(script);
-	interpreter.exec(ast);
+	await interpreter.exec(ast);
 } catch (e) {
 	if (e instanceof AiScriptError) {
-		console.log(chalk.red(`${e.message}`));
+		console.log(chalk.red(`${e}`));
 	} else {
 		throw e
 	}

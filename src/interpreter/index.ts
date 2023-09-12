@@ -3,7 +3,7 @@
  */
 
 import { autobind } from '../utils/mini-autobind.js';
-import { AiScriptError, IndexOutOfRangeError, RuntimeError } from '../error.js';
+import { AiScriptError, NotAiScriptError, IndexOutOfRangeError, RuntimeError } from '../error.js';
 import { Scope } from './scope.js';
 import { std } from './lib/std.js';
 import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray, eq, isObject, isArray, expectAny, reprValue } from './util.js';
@@ -74,24 +74,17 @@ export class Interpreter {
 			const result = await this._run(script, this.scope);
 			this.log('end', { val: result });
 		} catch (e) {
-			if (this.opts.err && e instanceof AiScriptError) {
-				if (!this.stop) {
-					this.abort();
-					this.opts.err(e);
-				}
-			} else {
-				throw e;
-			}
+			this.handleError(e);
 		}
 	}
 
 	/**
 	 * Executes AiScript Function.
-	 * When it fails because AiScript Error has occurred,
-	 * (i)If error callback is registered via constructor, this.abort is called and the callback executed, then returns a error value.
-	 * (ii)Otherwise, just an AiScriptError is thrown.
+	 * When it fails,
+	 * (i)If error callback is registered via constructor, this.abort is called and the callback executed, then returns ERROR('func_failed').
+	 * (ii)Otherwise, just throws a error.
 	 *
-	 * @remarks This is the same function as that passed to each AiScript NATIVE functions as opts.topCall.
+	 * @remarks This is the same function as that passed to AiScript NATIVE functions as opts.topCall.
 	 *
 	 * @param fn - the function
 	 * @param args - arguments for the function
@@ -101,22 +94,15 @@ export class Interpreter {
 	public async execFn(fn: VFn, args: Value[]): Promise<Value> {
 		return await this._fn(fn, args)
 			.catch(e => {
-				if (this.opts.err && e instanceof AiScriptError) {
-					if (!this.stop) {
-						this.abort();
-						this.opts.err(e);
-					}
-					return ERROR('func_failed');
-				} else {
-					throw e;
-				}
+				this.handleError(e);
+				return ERROR('func_failed');
 			});
 	}
 	/**
 	 * Executes AiScript Function.
-	 * Almost same as execFn but when AiScript Error is occurred this always throws and never calls callback.
+	 * Almost same as execFn but when error occurs this always throws and never calls callback.
 	 *
-	 * @remarks This is the same function as that passed to each AiScript NATIVE functions as opts.call.
+	 * @remarks This is the same function as that passed to AiScript NATIVE functions as opts.call.
 	 *
 	 * @param fn - the function
 	 * @param args - arguments for the function
@@ -167,6 +153,22 @@ export class Interpreter {
 		}
 
 		return meta;
+	}
+
+	@autobind
+	private handleError(e: any): void {
+		if (this.opts.err) {
+			if (!this.stop) {
+				this.abort();
+				if (e instanceof AiScriptError) {
+					this.opts.err(e);
+				} else {
+					this.opts.err(new NotAiScriptError(e));
+				}
+			}
+		} else {
+			throw e;
+		}
 	}
 
 	@autobind
