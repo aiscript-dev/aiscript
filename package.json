@@ -40,7 +40,7 @@
 		"@types/jest": "29.5.4",
 		"@types/node": "20.6.0",
 		"@types/seedrandom": "3.0.5",
-		"@types/uuid": "9.0.2",
+		"@types/uuid": "9.0.3",
 		"@typescript-eslint/eslint-plugin": "6.7.0",
 		"@typescript-eslint/parser": "6.7.0",
 		"chalk": "5.3.0",
@@ -58,6 +58,6 @@
 	"dependencies": {
 		"seedrandom": "3.0.5",
 		"stringz": "2.1.0",
-		"uuid": "9.0.0"
+		"uuid": "9.0.1"
 	}
 }
