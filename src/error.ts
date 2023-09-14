@@ -16,7 +16,7 @@ export abstract class AiScriptError extends Error {
 /**
  * Wrapper for non-AiScript errors.
  */
-export class NotAiScriptError extends AiScriptError {
+export class NonAiScriptError extends AiScriptError {
 	constructor(error: any) {
 		super(`Internal Error. ${error}`, error);
 	}

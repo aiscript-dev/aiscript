@@ -3,7 +3,7 @@
  */
 
 import { autobind } from '../utils/mini-autobind.js';
-import { AiScriptError, NotAiScriptError, IndexOutOfRangeError, RuntimeError } from '../error.js';
+import { AiScriptError, NonAiScriptError, IndexOutOfRangeError, RuntimeError } from '../error.js';
 import { Scope } from './scope.js';
 import { std } from './lib/std.js';
 import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray, eq, isObject, isArray, expectAny, reprValue } from './util.js';
@@ -161,7 +161,7 @@ export class Interpreter {
 				if (e instanceof AiScriptError) {
 					this.opts.err(e);
 				} else {
-					this.opts.err(new NotAiScriptError(e));
+					this.opts.err(new NonAiScriptError(e));
 				}
 			}
 		} else {
