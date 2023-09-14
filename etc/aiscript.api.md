@@ -344,7 +344,7 @@ const ERROR: (name: string, info?: Value) => Value;
 declare namespace errors {
     export {
         AiScriptError,
-        NotAiScriptError,
+        NonAiScriptError,
         SyntaxError_2 as SyntaxError,
         TypeError_2 as TypeError,
         RuntimeError,
@@ -675,6 +675,11 @@ type Node_2 = Namespace | Meta | Statement | Expression | TypeSource;
 // @public
 type Node_3 = Namespace_2 | Meta_2 | Statement_2 | Expression_2 | ChainMember | TypeSource_2;
 
+// @public
+class NonAiScriptError extends AiScriptError {
+    constructor(error: any);
+}
+
 // @public (undocumented)
 type Not = NodeBase & {
     type: 'not';
@@ -686,11 +691,6 @@ type Not_2 = NodeBase_2 & {
     type: 'not';
     expr: Expression_2;
 };
-
-// @public
-class NotAiScriptError extends AiScriptError {
-    constructor(error: any);
-}
 
 // @public (undocumented)
 const NULL: {
