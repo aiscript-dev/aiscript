@@ -108,7 +108,7 @@ export class Interpreter {
 	 */
 	@autobind
 	public async execFnSimple(fn: VFn, args: Value[]): Promise<Value> {
-		return await this._fn(fn, args);
+		return this._fn(fn, args);
 	}
 
 	@autobind
