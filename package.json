@@ -38,7 +38,7 @@
 	"devDependencies": {
 		"@microsoft/api-extractor": "7.36.4",
 		"@types/jest": "29.5.4",
-		"@types/node": "20.6.0",
+		"@types/node": "20.6.1",
 		"@types/seedrandom": "3.0.5",
 		"@types/uuid": "9.0.3",
 		"@typescript-eslint/eslint-plugin": "6.7.0",
