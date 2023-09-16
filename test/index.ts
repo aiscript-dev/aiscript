@@ -5,7 +5,7 @@
 
 import * as assert from 'assert';
 import { Parser, Interpreter, utils, errors, Ast } from '../src';
-import { NUM, STR, NULL, ARR, OBJ, BOOL, TRUE, FALSE, ERROR } from '../src/interpreter/value';
+import { NUM, STR, NULL, ARR, OBJ, BOOL, TRUE, FALSE, ERROR ,FN_NATIVE } from '../src/interpreter/value';
 import { RuntimeError } from '../src/error';
 
 const exe = (program: string): Promise<any> => new Promise((ok, err) => {
@@ -69,6 +69,41 @@ describe('Interpreter', () => {
 			assert.ok(vars.get('y') == null);
 		});
 	});
+});
+
+describe('error handler', () => {
+	test.concurrent('error from outside caller', async () => {
+		let outsideCaller: () => Promise<null> = async () => {};
+		let errCount: number = 0;
+		const aiscript = new Interpreter({
+			emitError: FN_NATIVE((_args, _opts) => {
+				throw Error('emitError');
+			}),
+			genOutsideCaller: FN_NATIVE(([fn], opts) => {
+				utils.assertFunction(fn);
+				outsideCaller = async () => {
+					opts.topCall(fn);
+				};
+			}),
+		}, {
+			err(e){ errCount+=1 },
+		});
+		await aiscript.exec(Parser.parse(`
+		genOutsideCaller(emitError)
+		`));
+		assert.strictEqual(errCount, 0);
+		await outsideCaller();
+		assert.strictEqual(errCount, 1);
+	});
+	test.concurrent('array.map calls the handler just once', async () => {
+		let errCount: number = 0;
+		const aiscript = new Interpreter({}, {
+			err(e){ errCount+=1 },
+		});
+		await aiscript.exec(Parser.parse(`
+		Core:range(1,5).map(@(){ hoge })
+		`));
+		assert.strictEqual(errCount, 1);
 });
 
 describe('ops', () => {

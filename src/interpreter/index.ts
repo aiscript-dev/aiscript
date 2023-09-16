@@ -3,11 +3,11 @@
  */
 
 import { autobind } from '../utils/mini-autobind.js';
-import { IndexOutOfRangeError, RuntimeError } from '../error.js';
+import { AiScriptError, NonAiScriptError, IndexOutOfRangeError, RuntimeError } from '../error.js';
 import { Scope } from './scope.js';
 import { std } from './lib/std.js';
 import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray, eq, isObject, isArray, expectAny, reprValue } from './util.js';
-import { NULL, RETURN, unWrapRet, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, BREAK, CONTINUE } from './value.js';
+import { NULL, RETURN, unWrapRet, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, BREAK, CONTINUE, ERROR } from './value.js';
 import { getPrimProp } from './primitive-props.js';
 import { Variable } from './variable.js';
 import type { Value, VFn } from './value.js';
@@ -28,6 +28,7 @@ export class Interpreter {
 		private opts: {
 			in?(q: string): Promise<string>;
 			out?(value: Value): void;
+			err?(e: AiScriptError): void;
 			log?(type: string, params: Record<string, any>): void;
 			maxStep?: number;
 		} = {},
@@ -66,16 +67,47 @@ export class Interpreter {
 	@autobind
 	public async exec(script?: Ast.Node[]): Promise<void> {
 		if (script == null || script.length === 0) return;
-
-		await this.collectNs(script);
-
-		const result = await this._run(script, this.scope);
-
-		this.log('end', { val: result });
+		try {
+			await this.collectNs(script);
+			const result = await this._run(script, this.scope);
+			this.log('end', { val: result });
+		} catch (e) {
+			this.handleError(e);
+		}
 	}
 
+	/**
+	 * Executes AiScript Function.
+	 * When it fails,
+	 * (i)If error callback is registered via constructor, this.abort is called and the callback executed, then returns ERROR('func_failed').
+	 * (ii)Otherwise, just throws a error.
+	 *
+	 * @remarks This is the same function as that passed to AiScript NATIVE functions as opts.topCall.
+	 *
+	 * @param fn - the function
+	 * @param args - arguments for the function
+	 * @returns Return value of the function, or ERROR('func_failed') when the (i) condition above is fulfilled.
+	 */
 	@autobind
 	public async execFn(fn: VFn, args: Value[]): Promise<Value> {
+		return await this._fn(fn, args)
+			.catch(e => {
+				this.handleError(e);
+				return ERROR('func_failed');
+			});
+	}
+	/**
+	 * Executes AiScript Function.
+	 * Almost same as execFn but when error occurs this always throws and never calls callback.
+	 *
+	 * @remarks This is the same function as that passed to AiScript NATIVE functions as opts.call.
+	 *
+	 * @param fn - the function
+	 * @param args - arguments for the function
+	 * @returns Return value of the function.
+	 */
+	@autobind
+	public async execFnSimple(fn: VFn, args: Value[]): Promise<Value> {
 		return this._fn(fn, args);
 	}
 
@@ -118,6 +150,23 @@ export class Interpreter {
 		}
 
 		return meta;
+	}
+
+	@autobind
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	private handleError(e: any): void {
+		if (this.opts.err) {
+			if (!this.stop) {
+				this.abort();
+				if (e instanceof AiScriptError) {
+					this.opts.err(e);
+				} else {
+					this.opts.err(new NonAiScriptError(e));
+				}
+			}
+		} else {
+			throw e;
+		}
 	}
 
 	@autobind
@@ -173,7 +222,8 @@ export class Interpreter {
 	private async _fn(fn: VFn, args: Value[]): Promise<Value> {
 		if (fn.native) {
 			const result = fn.native(args, {
-				call: this._fn,
+				call: this.execFnSimple,
+				topCall: this.execFn,
 				registerAbortHandler: this.registerAbortHandler,
 				unregisterAbortHandler: this.unregisterAbortHandler,
 			});

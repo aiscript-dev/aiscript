@@ -1,8 +1,9 @@
 import fs from 'fs';
 import * as readline from 'readline';
 import chalk from 'chalk';
-import { Parser, Interpreter, utils } from '@syuilo/aiscript';
-const { valToString } = utils
+import { Parser, Interpreter, errors, utils } from '@syuilo/aiscript';
+const { AiScriptError } = errors;
+const { valToString } = utils;
 
 const i = readline.createInterface({
 	input: process.stdin,
@@ -17,6 +18,9 @@ const interpreter = new Interpreter({}, {
 	},
 	out(value) {
 		console.log(chalk.magenta(valToString(value, true)));
+	},
+	err(e) {
+		console.log(chalk.red(`${e}`));
 	},
 	log(type, params) {
 		/*
@@ -36,6 +40,14 @@ const interpreter = new Interpreter({}, {
 });
 
 const script = fs.readFileSync('./test.is', 'utf8');
-const ast = Parser.parse(script);
-
-interpreter.exec(ast);
+try {
+	const ast = Parser.parse(script);
+	await interpreter.exec(ast);
+} catch (e) {
+	if (e instanceof AiScriptError) {
+		console.log(chalk.red(`${e}`));
+	} else {
+		throw e
+	}
+}
+i.close();

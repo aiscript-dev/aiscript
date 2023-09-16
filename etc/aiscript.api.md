@@ -344,6 +344,7 @@ const ERROR: (name: string, info?: Value) => Value;
 declare namespace errors {
     export {
         AiScriptError,
+        NonAiScriptError,
         SyntaxError_2 as SyntaxError,
         TypeError_2 as TypeError,
         RuntimeError,
@@ -531,6 +532,7 @@ export class Interpreter {
     constructor(consts: Record<string, Value>, opts?: {
         in?(q: string): Promise<string>;
         out?(value: Value): void;
+        err?(e: AiScriptError): void;
         log?(type: string, params: Record<string, any>): void;
         maxStep?: number;
     });
@@ -540,8 +542,8 @@ export class Interpreter {
     static collectMetadata(script?: Ast.Node[]): Map<any, any> | undefined;
     // (undocumented)
     exec(script?: Ast.Node[]): Promise<void>;
-    // (undocumented)
     execFn(fn: VFn, args: Value[]): Promise<Value>;
+    execFnSimple(fn: VFn, args: Value[]): Promise<Value>;
     // (undocumented)
     registerAbortHandler(handler: () => void): void;
     // (undocumented)
@@ -672,6 +674,11 @@ type Node_2 = Namespace | Meta | Statement | Expression | TypeSource;
 
 // @public
 type Node_3 = Namespace_2 | Meta_2 | Statement_2 | Expression_2 | ChainMember | TypeSource_2;
+
+// @public
+class NonAiScriptError extends AiScriptError {
+    constructor(error: any);
+}
 
 // @public (undocumented)
 type Not = NodeBase & {
@@ -1003,13 +1010,14 @@ type VError = {
     info?: Value;
 };
 
-// @public (undocumented)
+// @public
 type VFn = {
     type: 'fn';
     args?: string[];
     statements?: Node_2[];
     native?: (args: (Value | undefined)[], opts: {
         call: (fn: VFn, args: Value[]) => Promise<Value>;
+        topCall: (fn: VFn, args: Value[]) => Promise<Value>;
         registerAbortHandler: (handler: () => void) => void;
         unregisterAbortHandler: (handler: () => void) => void;
     }) => Value | Promise<Value> | void;
