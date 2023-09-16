@@ -107,7 +107,7 @@ export class Interpreter {
 	 * @returns Return value of the function.
 	 */
 	@autobind
-	public async execFnSimple(fn: VFn, args: Value[]): Promise<Value> {
+	public execFnSimple(fn: VFn, args: Value[]): Promise<Value> {
 		return this._fn(fn, args);
 	}
 
