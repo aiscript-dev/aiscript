@@ -1,4 +1,4 @@
-import { SyntaxError } from '../../error.js';
+import { AiScriptSyntaxError } from '../../error.js';
 import type * as Cst from '../node.js';
 
 export function setAttribute(node: Cst.Expression[]): Cst.Expression[]
@@ -25,7 +25,7 @@ export function setAttribute(nodes: Cst.Node[]): Cst.Node[] {
 			result.push(node);
 		} else {
 			if (stockedAttrs.length > 0) {
-				throw new SyntaxError('invalid attribute.');
+				throw new AiScriptSyntaxError('invalid attribute.');
 			}
 			switch (node.type) {
 				case 'fn': {
@@ -41,7 +41,7 @@ export function setAttribute(nodes: Cst.Node[]): Cst.Node[] {
 		}
 	}
 	if (stockedAttrs.length > 0) {
-		throw new SyntaxError('invalid attribute.');
+		throw new AiScriptSyntaxError('invalid attribute.');
 	}
 
 	return result;

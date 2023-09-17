@@ -3,7 +3,7 @@ import { v4 as uuid } from 'uuid';
 import seedrandom from 'seedrandom';
 import { NUM, STR, FN_NATIVE, FALSE, TRUE, ARR, NULL, BOOL, OBJ, ERROR } from '../value.js';
 import { assertNumber, assertString, assertBoolean, valToJs, jsToVal, assertFunction, assertObject, eq, expectAny, assertArray, reprValue } from '../util.js';
-import { RuntimeError } from '../../error.js';
+import { AiScriptRuntimeError } from '../../error.js';
 import type { Value } from '../value.js';
 
 export const std: Record<string, Value> = {
@@ -67,7 +67,7 @@ export const std: Record<string, Value> = {
 		assertNumber(a);
 		assertNumber(b);
 		const res = a.value ** b.value;
-		if (isNaN(res)) throw new RuntimeError('Invalid operation.'); // ex. √-1
+		if (isNaN(res)) throw new AiScriptRuntimeError('Invalid operation.'); // ex. √-1
 		return NUM(res);
 	}),
 
@@ -75,7 +75,7 @@ export const std: Record<string, Value> = {
 		assertNumber(a);
 		assertNumber(b);
 		const res = a.value / b.value;
-		if (isNaN(res)) throw new RuntimeError('Invalid operation.');
+		if (isNaN(res)) throw new AiScriptRuntimeError('Invalid operation.');
 		return NUM(res);
 	}),
 
@@ -386,7 +386,7 @@ export const std: Record<string, Value> = {
 	'Math:sqrt': FN_NATIVE(([v]) => {
 		assertNumber(v);
 		const res = Math.sqrt(v.value);
-		if (isNaN(res)) throw new RuntimeError('Invalid operation.');
+		if (isNaN(res)) throw new AiScriptRuntimeError('Invalid operation.');
 		return NUM(res);
 	}),
 

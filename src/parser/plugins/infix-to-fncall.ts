@@ -1,5 +1,5 @@
 import { visitNode } from '../visit.js';
-import { SyntaxError } from '../../error.js';
+import { AiScriptSyntaxError } from '../../error.js';
 import type * as Cst from '../node.js';
 
 /**
@@ -122,7 +122,7 @@ function transform(node: Cst.Infix): Cst.Node {
 	const infos = node.operators.map(op => {
 		const info = infoTable[op];
 		if (info == null) {
-			throw new SyntaxError(`No such operator: ${op}.`);
+			throw new AiScriptSyntaxError(`No such operator: ${op}.`);
 		}
 		return info;
 	});

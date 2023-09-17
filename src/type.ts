@@ -1,4 +1,4 @@
-import { SyntaxError } from './error.js';
+import { AiScriptSyntaxError } from './error.js';
 import type * as Ast from './node.js';
 
 // Type (Semantic analyzed)
@@ -151,7 +151,7 @@ export function getTypeBySource(typeSource: Ast.TypeSource): Type {
 				return T_GENERIC(typeSource.name, [innerType]);
 			}
 		}
-		throw new SyntaxError(`Unknown type: '${getTypeNameBySource(typeSource)}'`);
+		throw new AiScriptSyntaxError(`Unknown type: '${getTypeNameBySource(typeSource)}'`);
 	} else {
 		const argTypes = typeSource.args.map(arg => getTypeBySource(arg));
 		return T_FN(argTypes, getTypeBySource(typeSource.result));

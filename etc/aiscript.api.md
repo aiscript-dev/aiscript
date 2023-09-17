@@ -29,6 +29,26 @@ abstract class AiScriptError extends Error {
     info?: any;
 }
 
+// @public
+class AiScriptIndexOutOfRangeError extends AiScriptRuntimeError {
+    constructor(message: string, info?: any);
+}
+
+// @public
+class AiScriptRuntimeError extends AiScriptError {
+    constructor(message: string, info?: any);
+}
+
+// @public
+class AiScriptSyntaxError extends AiScriptError {
+    constructor(message: string, info?: any);
+}
+
+// @public
+class AiScriptTypeError extends AiScriptError {
+    constructor(message: string, info?: any);
+}
+
 // @public (undocumented)
 type And = NodeBase & {
     type: 'and';
@@ -345,10 +365,10 @@ declare namespace errors {
     export {
         AiScriptError,
         NonAiScriptError,
-        SyntaxError_2 as SyntaxError,
-        TypeError_2 as TypeError,
-        RuntimeError,
-        IndexOutOfRangeError
+        AiScriptSyntaxError,
+        AiScriptTypeError,
+        AiScriptRuntimeError,
+        AiScriptIndexOutOfRangeError
     }
 }
 export { errors }
@@ -511,11 +531,6 @@ type IndexChain = NodeBase_2 & {
     type: 'indexChain';
     index: Expression_2;
 };
-
-// @public (undocumented)
-class IndexOutOfRangeError extends RuntimeError {
-    constructor(message: string, info?: any);
-}
 
 // @public (undocumented)
 type Infix = NodeBase_2 & {
@@ -813,11 +828,6 @@ type Return_2 = NodeBase_2 & {
 };
 
 // @public (undocumented)
-class RuntimeError extends AiScriptError {
-    constructor(message: string, info?: any);
-}
-
-// @public (undocumented)
 export class Scope {
     constructor(layerdStates?: Scope['layerdStates'], parent?: Scope, name?: Scope['name']);
     add(name: string, variable: Variable): void;
@@ -875,11 +885,6 @@ type SubAssign_2 = NodeBase_2 & {
 };
 
 // @public (undocumented)
-class SyntaxError_2 extends AiScriptError {
-    constructor(message: string, info?: any);
-}
-
-// @public (undocumented)
 type Tmpl = NodeBase & {
     type: 'tmpl';
     tmpl: (string | Expression)[];
@@ -896,11 +901,6 @@ const TRUE: {
     type: "bool";
     value: boolean;
 };
-
-// @public (undocumented)
-class TypeError_2 extends AiScriptError {
-    constructor(message: string, info?: any);
-}
 
 // @public (undocumented)
 type TypeSource = NamedTypeSource | FnTypeSource;

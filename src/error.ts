@@ -22,25 +22,35 @@ export class NonAiScriptError extends AiScriptError {
 	}
 }
 
-export class SyntaxError extends AiScriptError {
+/**
+ * Parse-time errors.
+ */
+export class AiScriptSyntaxError extends AiScriptError {
+	constructor(message: string, info?: any) {
+		super(message, info);
+	}
+}
+/**
+ * Type validation(parser/plugins/validate-type) errors.
+ */ 
+export class AiScriptTypeError extends AiScriptError {
 	constructor(message: string, info?: any) {
 		super(message, info);
 	}
 }
 
-export class TypeError extends AiScriptError {
+/**
+ * Interpret-time errors.
+ */
+export class AiScriptRuntimeError extends AiScriptError {
 	constructor(message: string, info?: any) {
 		super(message, info);
 	}
 }
-
-export class RuntimeError extends AiScriptError {
-	constructor(message: string, info?: any) {
-		super(message, info);
-	}
-}
-
-export class IndexOutOfRangeError extends RuntimeError {
+/**
+ * RuntimeError for illegal access to arrays.
+ */
+export class AiScriptIndexOutOfRangeError extends AiScriptRuntimeError {
 	constructor(message: string, info?: any) {
 		super(message, info);
 	}

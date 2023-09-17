@@ -1,5 +1,5 @@
 import { substring, length, indexOf, toArray } from 'stringz';
-import { RuntimeError } from '../error.js';
+import { AiScriptRuntimeError } from '../error.js';
 import { assertArray, assertBoolean, assertFunction, assertNumber, assertString, expectAny } from './util.js';
 import { ARR, FALSE, FN_NATIVE, NULL, NUM, STR, TRUE } from './value.js';
 import type { Value, VArr, VFn, VNum, VStr, VError } from './value.js';
@@ -235,9 +235,9 @@ export function getPrimProp(target: Value, name: string): Value {
 		if (Object.hasOwn(props, name)) {
 			return props[name]!(target);
 		} else {
-			throw new RuntimeError(`No such prop (${name}) in ${target.type}.`);
+			throw new AiScriptRuntimeError(`No such prop (${name}) in ${target.type}.`);
 		}
 	} else {
-		throw new RuntimeError(`Cannot read prop of ${target.type}. (reading ${name})`);
+		throw new AiScriptRuntimeError(`Cannot read prop of ${target.type}. (reading ${name})`);
 	}
 }
