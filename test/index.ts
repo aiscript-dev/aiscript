@@ -73,7 +73,7 @@ describe('Interpreter', () => {
 
 describe('error handler', () => {
 	test.concurrent('error from outside caller', async () => {
-		let outsideCaller: () => Promise<null> = async () => {};
+		let outsideCaller: () => Promise<void> = async () => {};
 		let errCount: number = 0;
 		const aiscript = new Interpreter({
 			emitError: FN_NATIVE((_args, _opts) => {
@@ -82,11 +82,11 @@ describe('error handler', () => {
 			genOutsideCaller: FN_NATIVE(([fn], opts) => {
 				utils.assertFunction(fn);
 				outsideCaller = async () => {
-					opts.topCall(fn);
+					opts.topCall(fn, []);
 				};
 			}),
 		}, {
-			err(e){ errCount+=1 },
+			err(e) { errCount++ },
 		});
 		await aiscript.exec(Parser.parse(`
 		genOutsideCaller(emitError)
@@ -95,6 +95,7 @@ describe('error handler', () => {
 		await outsideCaller();
 		assert.strictEqual(errCount, 1);
 	});
+
 	test.concurrent('array.map calls the handler just once', async () => {
 		let errCount: number = 0;
 		const aiscript = new Interpreter({}, {
@@ -104,6 +105,7 @@ describe('error handler', () => {
 		Core:range(1,5).map(@(){ hoge })
 		`));
 		assert.strictEqual(errCount, 1);
+	});
 });
 
 describe('ops', () => {
@@ -1091,6 +1093,7 @@ describe('chain', () => {
 		<: ai[{a: 'chan'}['a']]
 		`);
 		eq(res, STR('kawaii'));
+	});
 });
 
 describe('Template syntax', () => {
@@ -2469,8 +2472,7 @@ describe('primitive props', () => {
 			eq(res, ARR([NUM(2), NUM(4), NUM(6)]));
 		});
 
-		test.concurrent('map with index', async () =>
-		{
+		test.concurrent('map with index', async () => {
 			const res = await exe(`
 			let arr = [1, 2, 3]
 			<: arr.map(@(item, index) { item * index })
@@ -2486,8 +2488,7 @@ describe('primitive props', () => {
 			eq(res, ARR([NUM(1), NUM(3)]));
 		});
 
-		test.concurrent('filter with index', async () =>
-		{
+		test.concurrent('filter with index', async () => {
 			const res = await exe(`
 			let arr = [1, 2, 3, 4]
 			<: arr.filter(@(item, index) { item != 2 && index != 3 })
@@ -2503,8 +2504,7 @@ describe('primitive props', () => {
 			eq(res, NUM(10));
 		});
 
-		test.concurrent('reduce with index', async () =>
-		{
+		test.concurrent('reduce with index', async () => {
 			const res = await exe(`
 			let arr = [1, 2, 3, 4]
 			<: arr.reduce(@(accumulator, currentValue, index) { (accumulator + (currentValue * index)) } 0)
@@ -2520,8 +2520,7 @@ describe('primitive props', () => {
 			eq(res, STR('def'));
 		});
 
-		test.concurrent('find with index', async () =>
-		{
+		test.concurrent('find with index', async () => {
 			const res = await exe(`
 			let arr = ["abc1", "def1", "ghi1", "abc2", "def2", "ghi2"]
 			<: arr.find(@(item, index) { item.incl("e") && index > 1 })
@@ -2558,41 +2557,45 @@ describe('primitive props', () => {
 				ARR([NUM(1), NUM(2), NUM(3)])
 			]));
 		});
-	test.concurrent('sort num array', async () => {
-			const res = await exe(`
-					var arr = [2, 10, 3]
-					let comp = @(a, b) { a - b }
-					arr.sort(comp)
-					<: arr
-				`);
-			eq(res, ARR([NUM(2), NUM(3), NUM(10)]));
-	});
-	test.concurrent('sort string array (with Str:lt)', async () => {
-			const res = await exe(`
-					var arr = ["hoge", "huga", "piyo", "hoge"]
-					arr.sort(Str:lt)
-					<: arr
-				`);
-			eq(res, ARR([STR('hoge'), STR('hoge'), STR('huga'), STR('piyo')]));
-	});
-	test.concurrent('sort string array (with Str:gt)', async () => {
-			const res = await exe(`
-					var arr = ["hoge", "huga", "piyo", "hoge"]
-					arr.sort(Str:gt)
-					<: arr
-				`);
-		eq(res, ARR([ STR('piyo'),  STR('huga'), STR('hoge'), STR('hoge')]));
-	});
-	test.concurrent('sort object array', async () => {
-			const res = await exe(`
-					var arr = [{x: 2}, {x: 10}, {x: 3}]
-					let comp = @(a, b) { a.x - b.x }
 
-					arr.sort(comp)
-					<: arr
-				`);
+		test.concurrent('sort num array', async () => {
+			const res = await exe(`
+				var arr = [2, 10, 3]
+				let comp = @(a, b) { a - b }
+				arr.sort(comp)
+				<: arr
+			`);
+			eq(res, ARR([NUM(2), NUM(3), NUM(10)]));
+		});
+
+		test.concurrent('sort string array (with Str:lt)', async () => {
+			const res = await exe(`
+				var arr = ["hoge", "huga", "piyo", "hoge"]
+				arr.sort(Str:lt)
+				<: arr
+			`);
+			eq(res, ARR([STR('hoge'), STR('hoge'), STR('huga'), STR('piyo')]));
+		});
+
+		test.concurrent('sort string array (with Str:gt)', async () => {
+			const res = await exe(`
+				var arr = ["hoge", "huga", "piyo", "hoge"]
+				arr.sort(Str:gt)
+				<: arr
+			`);
+			eq(res, ARR([ STR('piyo'),  STR('huga'), STR('hoge'), STR('hoge')]));
+		});
+
+		test.concurrent('sort object array', async () => {
+			const res = await exe(`
+				var arr = [{x: 2}, {x: 10}, {x: 3}]
+				let comp = @(a, b) { a.x - b.x }
+
+				arr.sort(comp)
+				<: arr
+			`);
 			eq(res, ARR([OBJ(new Map([['x', NUM(2)]])), OBJ(new Map([['x', NUM(3)]])), OBJ(new Map([['x', NUM(10)]]))]));
-	});
+		});
 	});
 });
 
