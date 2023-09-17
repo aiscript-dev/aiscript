@@ -1,5 +1,6 @@
 [Read translated version (en)](./translations/en/CHANGELOG.md)
 
+- **ネームスペースのトップレベルに`var`は定義できなくなりました。(`let`は可能)**
 - `Core:to_str`, `テンプレート文字列` でどの値でも文字列へ変換できるように
 - 指定時間待機する関数`Core:sleep`を追加
 - `exists 変数名` の構文で変数が存在するか判定できるように

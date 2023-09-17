@@ -197,6 +197,10 @@ export class Interpreter {
 		for (const node of ns.members) {
 			switch (node.type) {
 				case 'def': {
+					if (node.mut) {
+						throw new Error('Namespaces cannot include mutable variable: ' + node.name);
+					}
+
 					const variable: Variable = {
 						isMutable: node.mut,
 						value: await this._eval(node.expr, scope),
