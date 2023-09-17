@@ -99,7 +99,7 @@ describe('error handler', () => {
 	test.concurrent('array.map calls the handler just once', async () => {
 		let errCount: number = 0;
 		const aiscript = new Interpreter({}, {
-			err(e){ errCount+=1 },
+			err(e) { errCount++ },
 		});
 		await aiscript.exec(Parser.parse(`
 		Core:range(1,5).map(@(){ hoge })
