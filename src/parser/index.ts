@@ -1,5 +1,5 @@
 import { AiScriptSyntaxError } from '../error.js';
-import * as parser from './parser.js';
+import { TokenStream } from './token-stream.js';
 
 import { validateKeyword } from './plugins/validate-keyword.js';
 import { validateType } from './plugins/validate-type.js';
@@ -56,22 +56,7 @@ export class Parser {
 	public parse(input: string): Ast.Node[] {
 		let nodes: Cst.Node[];
 
-		// generate a node tree
-		try {
-			// apply preprocessor
-			const code = parser.parse(input, { startRule: 'Preprocess' });
-			// apply main parser
-			nodes = parser.parse(code, { startRule: 'Main' });
-		} catch (e) {
-			if (e.location) {
-				if (e.expected) {
-					throw new AiScriptSyntaxError(`Parsing error. (Line ${e.location.start.line}:${e.location.start.column})`, e);
-				} else {
-					throw new AiScriptSyntaxError(`${e.message} (Line ${e.location.start.line}:${e.location.start.column})`, e);
-				}
-			}
-			throw e;
-		}
+		nodes = parse(input);
 
 		// validate the node tree
 		for (const plugin of this.plugins.validate) {
@@ -85,4 +70,14 @@ export class Parser {
 
 		return nodes as Ast.Node[];
 	}
+}
+
+function parse(source: string): Cst.Node[] {
+	const stream = new TokenStream(source);
+	//stream.read();
+	//stream.current;
+
+	// TODO
+
+	return [];
 }
