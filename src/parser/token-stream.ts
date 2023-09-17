@@ -1,5 +1,6 @@
 import { AiScriptSyntaxError } from '../error.js';
-import { TOKEN, Token, TokenKind } from './token.js';
+import { TOKEN, TokenKind } from './token.js';
+import type { Token } from './token.js';
 
 const spacingChars = [' ', '\t', '\r', '\n'];
 
