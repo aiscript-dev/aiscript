@@ -1,4 +1,4 @@
-import { SyntaxError } from '../error.js';
+import { AiScriptSyntaxError } from '../error.js';
 import * as parser from './parser.js';
 
 import { validateKeyword } from './plugins/validate-keyword.js';
@@ -65,9 +65,9 @@ export class Parser {
 		} catch (e) {
 			if (e.location) {
 				if (e.expected) {
-					throw new SyntaxError(`Parsing error. (Line ${e.location.start.line}:${e.location.start.column})`, e);
+					throw new AiScriptSyntaxError(`Parsing error. (Line ${e.location.start.line}:${e.location.start.column})`, e);
 				} else {
-					throw new SyntaxError(`${e.message} (Line ${e.location.start.line}:${e.location.start.column})`, e);
+					throw new AiScriptSyntaxError(`${e.message} (Line ${e.location.start.line}:${e.location.start.column})`, e);
 				}
 			}
 			throw e;

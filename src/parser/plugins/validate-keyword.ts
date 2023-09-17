@@ -1,4 +1,4 @@
-import { SyntaxError } from '../../error.js';
+import { AiScriptSyntaxError } from '../../error.js';
 import { visitNode } from '../visit.js';
 import type * as Cst from '../node.js';
 
@@ -43,7 +43,7 @@ const reservedWord = [
 ];
 
 function throwReservedWordError(name: string): void {
-	throw new SyntaxError(`Reserved word "${name}" cannot be used as variable name.`);
+	throw new AiScriptSyntaxError(`Reserved word "${name}" cannot be used as variable name.`);
 }
 
 function validateNode(node: Cst.Node): Cst.Node {

@@ -1,5 +1,5 @@
 import { autobind } from '../utils/mini-autobind.js';
-import { RuntimeError } from '../error.js';
+import { AiScriptRuntimeError } from '../error.js';
 import type { Value } from './value.js';
 import type { Variable } from './variable.js';
 
@@ -56,7 +56,7 @@ export class Scope {
 			}
 		}
 
-		throw new RuntimeError(
+		throw new AiScriptRuntimeError(
 			`No such variable '${name}' in scope '${this.name}'`,
 			{ scope: this.layerdStates });
 	}
@@ -99,7 +99,7 @@ export class Scope {
 		this.log('add', { var: name, val: variable });
 		const states = this.layerdStates[0]!;
 		if (states.has(name)) {
-			throw new RuntimeError(
+			throw new AiScriptRuntimeError(
 				`Variable '${name}' is alerady exists in scope '${this.name}'`,
 				{ scope: this.layerdStates });
 		}
@@ -119,7 +119,7 @@ export class Scope {
 			if (layer.has(name)) {
 				const variable = layer.get(name)!;
 				if (!variable.isMutable) {
-					throw new RuntimeError(`Cannot assign to an immutable variable ${name}.`);
+					throw new AiScriptRuntimeError(`Cannot assign to an immutable variable ${name}.`);
 				}
 
 				variable.value = val;
@@ -131,7 +131,7 @@ export class Scope {
 			i++;
 		}
 
-		throw new RuntimeError(
+		throw new AiScriptRuntimeError(
 			`No such variable '${name}' in scope '${this.name}'`,
 			{ scope: this.layerdStates });
 	}

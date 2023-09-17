@@ -3,7 +3,7 @@
  */
 
 import { autobind } from '../utils/mini-autobind.js';
-import { AiScriptError, NonAiScriptError, IndexOutOfRangeError, RuntimeError } from '../error.js';
+import { AiScriptError, NonAiScriptError, AiScriptIndexOutOfRangeError, AiScriptRuntimeError } from '../error.js';
 import { Scope } from './scope.js';
 import { std } from './lib/std.js';
 import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray, eq, isObject, isArray, expectAny, reprValue } from './util.js';
@@ -248,7 +248,7 @@ export class Interpreter {
 		if (this.stepCount % IRQ_RATE === IRQ_AT) await new Promise(resolve => setTimeout(resolve, 5));
 		this.stepCount++;
 		if (this.opts.maxStep && this.stepCount > this.opts.maxStep) {
-			throw new RuntimeError('max step exceeded');
+			throw new AiScriptRuntimeError('max step exceeded');
 		}
 
 		switch (node.type) {
@@ -452,7 +452,7 @@ export class Interpreter {
 					assertNumber(i);
 					const item = target.value[i.value];
 					if (item === undefined) {
-						throw new IndexOutOfRangeError(`Index out of range. index: ${i.value} max: ${target.value.length - 1}`);
+						throw new AiScriptIndexOutOfRangeError(`Index out of range. index: ${i.value} max: ${target.value.length - 1}`);
 					}
 					return item;
 				} else if (isObject(target)) {
@@ -463,7 +463,7 @@ export class Interpreter {
 						return NULL;
 					}
 				} else {
-					throw new RuntimeError(`Cannot read prop (${reprValue(i)}) of ${target.type}.`);
+					throw new AiScriptRuntimeError(`Cannot read prop (${reprValue(i)}) of ${target.type}.`);
 				}
 			}
 
@@ -613,7 +613,7 @@ export class Interpreter {
 				assertString(i);
 				assignee.value.set(i.value, value);
 			} else {
-				throw new RuntimeError(`Cannot read prop (${reprValue(i)}) of ${assignee.type}.`);
+				throw new AiScriptRuntimeError(`Cannot read prop (${reprValue(i)}) of ${assignee.type}.`);
 			}
 		} else if (dest.type === 'prop') {
 			const assignee = await this._eval(dest.target, scope);
@@ -621,7 +621,7 @@ export class Interpreter {
 
 			assignee.value.set(dest.name, value);
 		} else {
-			throw new RuntimeError('The left-hand side of an assignment expression must be a variable or a property/index access.');
+			throw new AiScriptRuntimeError('The left-hand side of an assignment expression must be a variable or a property/index access.');
 		}
 	}
 }

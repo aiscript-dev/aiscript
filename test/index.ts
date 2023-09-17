@@ -6,7 +6,7 @@
 import * as assert from 'assert';
 import { Parser, Interpreter, utils, errors, Ast } from '../src';
 import { NUM, STR, NULL, ARR, OBJ, BOOL, TRUE, FALSE, ERROR ,FN_NATIVE } from '../src/interpreter/value';
-import { RuntimeError } from '../src/error';
+let { AiScriptRuntimeError, AiScriptIndexOutOfRangeError } = errors;
 
 const exe = (program: string): Promise<any> => new Promise((ok, err) => {
 	const aiscript = new Interpreter({}, {
@@ -126,7 +126,7 @@ describe('ops', () => {
 		try {
 			await exe('<: (true && null)');
 		} catch (e) {
-			if (!(e instanceof RuntimeError)) assert.fail();
+			assert.ok(e instanceof AiScriptRuntimeError);
 			return;
 		}
 
@@ -174,7 +174,7 @@ describe('ops', () => {
 		try {
 			await exe('<: (false || null)');
 		} catch (e) {
-			if (!(e instanceof RuntimeError)) assert.fail();
+			assert.ok(e instanceof AiScriptRuntimeError);
 			return;
 		}
 
@@ -911,7 +911,7 @@ describe('Array', () => {
 					<: null
 				`)
 		} catch (e) {
-			eq(e instanceof errors.IndexOutOfRangeError, false);
+			eq(e instanceof AiScriptIndexOutOfRangeError, false);
 		}
 
 		try {
@@ -923,7 +923,7 @@ describe('Array', () => {
 					<: null
 				`)
 		} catch (e) {
-			eq(e instanceof errors.IndexOutOfRangeError, true);
+			eq(e instanceof AiScriptIndexOutOfRangeError, true);
 		}
 	});
 
@@ -933,7 +933,7 @@ describe('Array', () => {
 			<: [42][1]
 			`);
 		} catch (e) {
-			assert.equal(e instanceof errors.IndexOutOfRangeError, true);
+			assert.equal(e instanceof AiScriptIndexOutOfRangeError, true);
 			return;
 		}
 		assert.fail();
@@ -1189,7 +1189,7 @@ describe('Function call', () => {
 			<: Core:eq(1)
 			`);
 		} catch (e) {
-			assert.equal(e instanceof errors.RuntimeError, true);
+			assert.ok(e instanceof AiScriptRuntimeError);
 			return;
 		}
 		assert.fail();
@@ -2292,7 +2292,7 @@ describe('Variable declaration', () => {
 			hoge = 4
 		`).then(() => undefined).catch(err => err);
 
-		assert.ok(err instanceof RuntimeError);
+		assert.ok(err instanceof AiScriptRuntimeError);
 	});
 })
 
@@ -2878,7 +2878,7 @@ describe('Security', () => {
 			`);
 			assert.fail();
 		} catch (e) {
-			assert.equal(e instanceof errors.RuntimeError, true);
+			assert.ok(e instanceof AiScriptRuntimeError);
 		}
 
 		try {
@@ -2887,7 +2887,7 @@ describe('Security', () => {
 			`);
 			assert.fail();
 		} catch (e) {
-			assert.equal(e instanceof errors.RuntimeError, true);
+			assert.ok(e instanceof AiScriptRuntimeError);
 		}
 
 		try {
@@ -2896,7 +2896,7 @@ describe('Security', () => {
 			`);
 			assert.fail();
 		} catch (e) {
-			assert.equal(e instanceof errors.RuntimeError, true);
+			assert.ok(e instanceof AiScriptRuntimeError);
 		}
 	});
 
@@ -2930,7 +2930,7 @@ describe('Security', () => {
 			`);
 			assert.fail();
 		} catch (e) {
-			assert.equal(e instanceof errors.RuntimeError, true);
+			assert.ok(e instanceof AiScriptRuntimeError);
 		}
 
 		try {
@@ -2939,7 +2939,7 @@ describe('Security', () => {
 			`);
 			assert.fail();
 		} catch (e) {
-			assert.equal(e instanceof errors.RuntimeError, true);
+			assert.ok(e instanceof AiScriptRuntimeError);
 		}
 
 		try {
@@ -2948,7 +2948,7 @@ describe('Security', () => {
 			`);
 			assert.fail();
 		} catch (e) {
-			assert.equal(e instanceof errors.RuntimeError, true);
+			assert.equal(e instanceof AiScriptRuntimeError, true);
 		}
 	});
 });
