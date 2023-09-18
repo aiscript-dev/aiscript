@@ -93,6 +93,10 @@ export class TokenStream {
 				this.token = TOKEN(TokenKind.MatchKeyword);
 				break;
 			}
+			case 'if': {
+				this.token = TOKEN(TokenKind.IfKeyword);
+				break;
+			}
 			case 'elif': {
 				this.token = TOKEN(TokenKind.ElifKeyword);
 				break;
