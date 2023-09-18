@@ -100,7 +100,7 @@ const run = async () => {
 			});
 		},
 		err: (e) => {
-			window.alert('Error: ' + e.message);
+			window.alert(e.toString());
 		},
 		log: (type, params) => {
 			switch (type) {
