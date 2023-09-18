@@ -1,4 +1,6 @@
 export abstract class AiScriptError extends Error {
+	// name is read by Error.prototype.toString
+	public name = 'AiScript';
 	public info?: any;
 
 	constructor(message: string, info?: any) {
@@ -17,8 +19,9 @@ export abstract class AiScriptError extends Error {
  * Wrapper for non-AiScript errors.
  */
 export class NonAiScriptError extends AiScriptError {
+	public name = 'Internal';
 	constructor(error: any) {
-		super(`Internal Error. ${error}`, error);
+		super(error.message ?? `${error}`, error);
 	}
 }
 
@@ -26,6 +29,7 @@ export class NonAiScriptError extends AiScriptError {
  * Parse-time errors.
  */
 export class AiScriptSyntaxError extends AiScriptError {
+	public name = 'Syntax';
 	constructor(message: string, info?: any) {
 		super(message, info);
 	}
@@ -34,6 +38,7 @@ export class AiScriptSyntaxError extends AiScriptError {
  * Type validation(parser/plugins/validate-type) errors.
  */ 
 export class AiScriptTypeError extends AiScriptError {
+	public name = 'Type';
 	constructor(message: string, info?: any) {
 		super(message, info);
 	}
@@ -43,6 +48,7 @@ export class AiScriptTypeError extends AiScriptError {
  * Interpret-time errors.
  */
 export class AiScriptRuntimeError extends AiScriptError {
+	public name = 'Runtime';
 	constructor(message: string, info?: any) {
 		super(message, info);
 	}
