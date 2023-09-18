@@ -162,133 +162,187 @@ export class TokenStream {
 			let match = true;
 			switch (this.char) {
 				case '!': {
-					this.token = TOKEN(TokenKind.Not);
 					this.nextChar();
+					if ((this.char as string) === '=') {
+						this.nextChar();
+						this.token = TOKEN(TokenKind.NotEq);
+					} else {
+						this.token = TOKEN(TokenKind.Not);
+					}
 					break;
 				}
 				case '#': {
-					this.token = TOKEN(TokenKind.Sharp);
 					this.nextChar();
+					if ((this.char as string) === '#') {
+						this.nextChar();
+						if ((this.char as string) === '#') {
+							this.nextChar();
+							this.token = TOKEN(TokenKind.Sharp3);
+						} else {
+							match = false;
+						}
+					} else if ((this.char as string) === '[') {
+						this.nextChar();
+						this.token = TOKEN(TokenKind.OpenSharpBracket);
+					} else {
+						this.token = TOKEN(TokenKind.Sharp);
+					}
 					break;
 				}
 				case '%': {
-					this.token = TOKEN(TokenKind.Percent);
 					this.nextChar();
+					this.token = TOKEN(TokenKind.Percent);
 					break;
 				}
 				case '&': {
 					this.nextChar();
-					if (this.char === '&') {
-						this.token = TOKEN(TokenKind.And2);
+					if ((this.char as string) === '&') {
 						this.nextChar();
+						this.token = TOKEN(TokenKind.And2);
 					} else {
 						match = false;
 					}
 					break;
 				}
 				case '(': {
-					this.token = TOKEN(TokenKind.OpenParen);
 					this.nextChar();
+					this.token = TOKEN(TokenKind.OpenParen);
 					break;
 				}
 				case ')': {
-					this.token = TOKEN(TokenKind.CloseParen);
 					this.nextChar();
+					this.token = TOKEN(TokenKind.CloseParen);
 					break;
 				}
 				case '*': {
-					this.token = TOKEN(TokenKind.Asterisk);
 					this.nextChar();
+					this.token = TOKEN(TokenKind.Asterisk);
 					break;
 				}
 				case '+': {
-					this.token = TOKEN(TokenKind.Plus);
 					this.nextChar();
+					if ((this.char as string) === '=') {
+						this.nextChar();
+						this.token = TOKEN(TokenKind.PlusEq);
+					} else {
+						this.token = TOKEN(TokenKind.Plus);
+					}
 					break;
 				}
 				case ',': {
-					this.token = TOKEN(TokenKind.Comma);
 					this.nextChar();
+					this.token = TOKEN(TokenKind.Comma);
 					break;
 				}
 				case '-': {
-					this.token = TOKEN(TokenKind.Minus);
 					this.nextChar();
+					if ((this.char as string) === '=') {
+						this.nextChar();
+						this.token = TOKEN(TokenKind.MinusEq);
+					} else {
+						this.token = TOKEN(TokenKind.Minus);
+					}
 					break;
 				}
 				case '.': {
-					this.token = TOKEN(TokenKind.Dot);
 					this.nextChar();
+					this.token = TOKEN(TokenKind.Dot);
 					break;
 				}
 				case '/': {
-					this.token = TOKEN(TokenKind.Slash);
 					this.nextChar();
+					this.token = TOKEN(TokenKind.Slash);
 					break;
 				}
 				case ':': {
-					this.token = TOKEN(TokenKind.Colon);
 					this.nextChar();
+					if ((this.char as string) === ':') {
+						this.nextChar();
+						this.token = TOKEN(TokenKind.Colon2);
+					} else {
+						this.token = TOKEN(TokenKind.Colon);
+					}
 					break;
 				}
 				case ';': {
-					this.token = TOKEN(TokenKind.SemiColon);
 					this.nextChar();
+					this.token = TOKEN(TokenKind.SemiColon);
 					break;
 				}
 				case '<': {
-					this.token = TOKEN(TokenKind.Lt);
 					this.nextChar();
+					if ((this.char as string) === '=') {
+						this.nextChar();
+						this.token = TOKEN(TokenKind.LtEq);
+					} else if ((this.char as string) === ':') {
+						this.nextChar();
+						this.token = TOKEN(TokenKind.Out);
+					} else {
+						this.token = TOKEN(TokenKind.Lt);
+					}
 					break;
 				}
 				case '=': {
-					this.token = TOKEN(TokenKind.Eq);
 					this.nextChar();
+					if ((this.char as string) === '=') {
+						this.nextChar();
+						this.token = TOKEN(TokenKind.Eq2);
+					} else if ((this.char as string) === '>') {
+						this.nextChar();
+						this.token = TOKEN(TokenKind.Arrow);
+					} else {
+						this.token = TOKEN(TokenKind.Eq);
+					}
 					break;
 				}
 				case '>': {
-					this.token = TOKEN(TokenKind.Gt);
 					this.nextChar();
+					if ((this.char as string) === '=') {
+						this.nextChar();
+						this.token = TOKEN(TokenKind.GtEq);
+					} else {
+						this.token = TOKEN(TokenKind.Gt);
+					}
 					break;
 				}
 				case '@': {
-					this.token = TOKEN(TokenKind.At);
 					this.nextChar();
+					this.token = TOKEN(TokenKind.At);
 					break;
 				}
 				case '[': {
-					this.token = TOKEN(TokenKind.OpenBracket);
 					this.nextChar();
+					this.token = TOKEN(TokenKind.OpenBracket);
 					break;
 				}
 				case ']': {
-					this.token = TOKEN(TokenKind.CloseBracket);
 					this.nextChar();
+					this.token = TOKEN(TokenKind.CloseBracket);
 					break;
 				}
 				case '^': {
-					this.token = TOKEN(TokenKind.Hat);
 					this.nextChar();
+					this.token = TOKEN(TokenKind.Hat);
 					break;
 				}
 				case '{': {
-					this.token = TOKEN(TokenKind.OpenBrace);
 					this.nextChar();
+					this.token = TOKEN(TokenKind.OpenBrace);
 					break;
 				}
 				case '|': {
 					this.nextChar();
-					if (this.char === '|') {
-						this.token = TOKEN(TokenKind.Or2);
+					if ((this.char as string) === '|') {
 						this.nextChar();
+						this.token = TOKEN(TokenKind.Or2);
 					} else {
 						match = false;
 					}
 					break;
 				}
 				case '}': {
-					this.token = TOKEN(TokenKind.CloseBrace);
 					this.nextChar();
+					this.token = TOKEN(TokenKind.CloseBrace);
 					break;
 				}
 				default: {
