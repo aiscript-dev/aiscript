@@ -27,6 +27,8 @@ abstract class AiScriptError extends Error {
     constructor(message: string, info?: any);
     // (undocumented)
     info?: any;
+    // (undocumented)
+    name: string;
 }
 
 // @public
@@ -37,16 +39,22 @@ class AiScriptIndexOutOfRangeError extends AiScriptRuntimeError {
 // @public
 class AiScriptRuntimeError extends AiScriptError {
     constructor(message: string, info?: any);
+    // (undocumented)
+    name: string;
 }
 
 // @public
 class AiScriptSyntaxError extends AiScriptError {
     constructor(message: string, info?: any);
+    // (undocumented)
+    name: string;
 }
 
 // @public
 class AiScriptTypeError extends AiScriptError {
     constructor(message: string, info?: any);
+    // (undocumented)
+    name: string;
 }
 
 // @public (undocumented)
@@ -693,6 +701,8 @@ type Node_3 = Namespace_2 | Meta_2 | Statement_2 | Expression_2 | ChainMember | 
 // @public
 class NonAiScriptError extends AiScriptError {
     constructor(error: any);
+    // (undocumented)
+    name: string;
 }
 
 // @public (undocumented)
