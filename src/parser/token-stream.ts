@@ -146,6 +146,36 @@ export class TokenStream {
 		return true;
 	}
 
+  private skipCommentLine() {
+    while (true) {
+      if (this.char == null) {
+        break;
+      }
+      if (this.char == '\n') {
+        this.nextChar();
+        break;
+      }
+      this.nextChar();
+    }
+  }
+
+  private skipCommentRange() {
+    while (true) {
+      if (this.char == null) {
+        break;
+      }
+      if (this.char == '*') {
+        this.nextChar();
+        if ((this.char as string) == '/') {
+          this.nextChar();
+          break;
+        }
+        continue;
+      }
+      this.nextChar();
+    }
+  }
+
 	/** トークンを読み取ります。 */
 	public read(): void {
 		while (true) {
@@ -251,7 +281,17 @@ export class TokenStream {
 				}
 				case '/': {
 					this.nextChar();
-					this.token = TOKEN(TokenKind.Slash);
+					if ((this.char as string) === '*') {
+						this.nextChar();
+						this.skipCommentRange();
+						continue;
+					} else if ((this.char as string) === '/') {
+						this.nextChar();
+						this.skipCommentLine();
+						continue;
+					} else {
+						this.token = TOKEN(TokenKind.Slash);
+					}
 					break;
 				}
 				case ':': {
