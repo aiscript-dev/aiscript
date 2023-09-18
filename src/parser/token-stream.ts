@@ -174,7 +174,7 @@ export class TokenStream {
 				}
 				case '&': {
 					this.nextChar();
-					if (this.char == '&') {
+					if (this.char === '&') {
 						this.token = TOKEN(TokenKind.And2);
 						this.nextChar();
 					} else {
@@ -274,7 +274,7 @@ export class TokenStream {
 				}
 				case '|': {
 					this.nextChar();
-					if (this.char == '|') {
+					if (this.char === '|') {
 						this.token = TOKEN(TokenKind.Or2);
 						this.nextChar();
 					} else {
