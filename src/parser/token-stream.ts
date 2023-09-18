@@ -25,8 +25,9 @@ export class TokenStream {
 	private loadChar(): void {
 		if (this.isEof) {
 			this.char = undefined;
+		} else {
+			this.char = this.source[this.index];
 		}
-		this.char = this.source[this.index];
 	}
 
 	private nextChar(): void {
@@ -156,6 +157,31 @@ export class TokenStream {
 			}
 			let match = true;
 			switch (this.char) {
+				case '!': {
+					this.token = TOKEN(TokenKind.Not);
+					this.nextChar();
+					break;
+				}
+				case '#': {
+					this.token = TOKEN(TokenKind.Sharp);
+					this.nextChar();
+					break;
+				}
+				case '%': {
+					this.token = TOKEN(TokenKind.Percent);
+					this.nextChar();
+					break;
+				}
+				case '&': {
+					this.nextChar();
+					if (this.char == '&') {
+						this.token = TOKEN(TokenKind.And2);
+						this.nextChar();
+					} else {
+						match = false;
+					}
+					break;
+				}
 				case '(': {
 					this.token = TOKEN(TokenKind.OpenParen);
 					this.nextChar();
@@ -166,13 +192,58 @@ export class TokenStream {
 					this.nextChar();
 					break;
 				}
-				case '{': {
-					this.token = TOKEN(TokenKind.OpenBrace);
+				case '*': {
+					this.token = TOKEN(TokenKind.Asterisk);
 					this.nextChar();
 					break;
 				}
-				case '}': {
-					this.token = TOKEN(TokenKind.CloseBrace);
+				case '+': {
+					this.token = TOKEN(TokenKind.Plus);
+					this.nextChar();
+					break;
+				}
+				case ',': {
+					this.token = TOKEN(TokenKind.Comma);
+					this.nextChar();
+					break;
+				}
+				case '-': {
+					this.token = TOKEN(TokenKind.Minus);
+					this.nextChar();
+					break;
+				}
+				case '.': {
+					this.token = TOKEN(TokenKind.Dot);
+					this.nextChar();
+					break;
+				}
+				case '/': {
+					this.token = TOKEN(TokenKind.Slash);
+					this.nextChar();
+					break;
+				}
+				case ':': {
+					this.token = TOKEN(TokenKind.Colon);
+					this.nextChar();
+					break;
+				}
+				case ';': {
+					this.token = TOKEN(TokenKind.SemiColon);
+					this.nextChar();
+					break;
+				}
+				case '<': {
+					this.token = TOKEN(TokenKind.Lt);
+					this.nextChar();
+					break;
+				}
+				case '=': {
+					this.token = TOKEN(TokenKind.Eq);
+					this.nextChar();
+					break;
+				}
+				case '>': {
+					this.token = TOKEN(TokenKind.Gt);
 					this.nextChar();
 					break;
 				}
@@ -181,7 +252,41 @@ export class TokenStream {
 					this.nextChar();
 					break;
 				}
-				// TODO
+				case '[': {
+					this.token = TOKEN(TokenKind.OpenBracket);
+					this.nextChar();
+					break;
+				}
+				case ']': {
+					this.token = TOKEN(TokenKind.CloseBracket);
+					this.nextChar();
+					break;
+				}
+				case '^': {
+					this.token = TOKEN(TokenKind.Hat);
+					this.nextChar();
+					break;
+				}
+				case '{': {
+					this.token = TOKEN(TokenKind.OpenBrace);
+					this.nextChar();
+					break;
+				}
+				case '|': {
+					this.nextChar();
+					if (this.char == '|') {
+						this.token = TOKEN(TokenKind.Or2);
+						this.nextChar();
+					} else {
+						match = false;
+					}
+					break;
+				}
+				case '}': {
+					this.token = TOKEN(TokenKind.CloseBrace);
+					this.nextChar();
+					break;
+				}
 				default: {
 					match = false;
 				}
