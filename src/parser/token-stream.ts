@@ -377,6 +377,7 @@ export class TokenStream {
 	}
 
 	private readDigits(): boolean {
+		// TODO: float number
 		let digits = '';
 		while (this.char != null && digit.test(this.char)) {
 			digits += this.char;

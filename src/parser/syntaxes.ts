@@ -179,8 +179,12 @@ function parseAssign(s: TokenStream): Cst.Node {
 //#region Expression
 
 function parseExpr(s: TokenStream): Cst.Node {
+	// TODO: Pratt parsing
+
 	switch (s.token.kind) {
 		case TokenKind.NumberLiteral: {
+			// TODO: sign
+			// TODO: validate value
 			const value = Number(s.token.value!);
 			s.next();
 			return NODE('num', { value });
