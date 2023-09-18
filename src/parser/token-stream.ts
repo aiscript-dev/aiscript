@@ -56,7 +56,6 @@ export class TokenStream {
 		this.loadChar();
 	}
 
-	/** readメソッドで読み取ったトークンを取得します。 */
 	public get token(): Token {
 		if (this._token == null) {
 			throw new Error('invalid operation: token is not read yet');
@@ -64,7 +63,6 @@ export class TokenStream {
 		return this._token;
 	}
 
-	/** トークンを読み取ります。 */
 	public next(): void {
 		while (true) {
 			// EOF terminated
