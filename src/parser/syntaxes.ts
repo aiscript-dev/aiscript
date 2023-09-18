@@ -15,6 +15,9 @@ function createNode(type: string, params: Record<string, any>): Cst.Node {
 	return node as Cst.Node;
 }
 
+
+// Top-level Statement ========================================================
+
 /**
  * ```text
  * <TopLevel> = (<Namespace> | <Meta> | <Statement>)*
@@ -46,7 +49,7 @@ export function parseTopLevel(s: TokenStream): Cst.Node[] {
  * <Namespace> = "::" <IDENT> "{" (<VarDef> | <FnDef> | <Namespace>)* "}"
  * ```
 */
-export function parseNamespace(s: TokenStream): Cst.Node {
+function parseNamespace(s: TokenStream): Cst.Node {
 	s.consumeAs(TokenKind.Colon2);
 
 	s.expect(TokenKind.Identifier);
@@ -80,9 +83,12 @@ export function parseNamespace(s: TokenStream): Cst.Node {
 /**
  * <Meta> = "###" <IDENT>? <StaticLiteral>
 */
-export function parseMeta(s: TokenStream): Cst.Node {
+function parseMeta(s: TokenStream): Cst.Node {
 	throw new Error('todo');
 }
+
+
+// Statement ==================================================================
 
 /**
  * ```text
@@ -90,7 +96,7 @@ export function parseMeta(s: TokenStream): Cst.Node {
  *             | <Break> | <Continue> | <Assign> | <Expr>
  * ```
 */
-export function parseStatement(s: TokenStream): Cst.Node {
+function parseStatement(s: TokenStream): Cst.Node {
 	switch (s.token.kind) {
 		case TokenKind.VarKeyword:
 		case TokenKind.LetKeyword: {
@@ -110,15 +116,89 @@ export function parseStatement(s: TokenStream): Cst.Node {
  * <VarDef> = ("let" | "var") <IDENT> (":" <Type>)? "=" <Expr>
  * ```
 */
-export function parseVarDef(s: TokenStream): Cst.Node {
+function parseVarDef(s: TokenStream): Cst.Node {
 	throw new Error('todo');
 }
 
+// Out
+
+// Attr
+
+// Each
+
+// For
+
+// Return
+
+// Loop
+
+// Break
+
+// Continue
+
+// Assign
+
+
+// Expression =================================================================
+
+// expression
+
+// If
+
+// Match
+
+// Eval
+
+// Exists
+
+// Reference
+
+// template
+
+// object
+
+// array
+
+
+// Function ===================================================================
+
 /**
  * ```text
- * <FnDef> = "@" <IDENT> "(" <Args> ")" (":" <Type>)? "{" <Statement>* "}"
+ * <FnDef> = "@" <IDENT> "(" <Args> ")" (":" <Type>)? <Block>
  * ```
 */
-export function parseFnDef(s: TokenStream): Cst.Node {
+function parseFnDef(s: TokenStream): Cst.Node {
 	throw new Error('todo');
 }
+
+// fn expression
+
+
+// Static Literal =============================================================
+
+// static array
+
+// static object
+
+
+// Type =======================================================================
+
+// fn type
+
+// named type
+
+
+// Common =====================================================================
+
+// namespace path
+
+/**
+ * ```text
+ * <Block> = "{" <Statement>* "}"
+ * ```
+*/
+function parseBlock(s: TokenStream): Cst.Node[] {
+	throw new Error('todo');
+}
+
+// block or statement
