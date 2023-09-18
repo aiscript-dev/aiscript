@@ -8,6 +8,16 @@ describe('TokenStream', () => {
 		assert.deepStrictEqual(stream.current, TOKEN(kind, value));
 	}
 
+	test.concurrent('can get a token after reading', async () => {
+		const source = '';
+		const stream = new TokenStream(source);
+		try {
+			stream.current;
+			assert.fail();
+		} catch (e) { }
+		stream.read();
+		stream.current;
+	});
 	test.concurrent('eof', async () => {
 		const source = '';
 		const stream = new TokenStream(source);
