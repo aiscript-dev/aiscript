@@ -36,6 +36,14 @@ describe('TokenStream', () => {
 		next(stream, TokenKind.Identifier, 'xyz');
 		next(stream, TokenKind.EOF);
 	});
+	test.concurrent('invalid token', async () => {
+		const source = '$';
+		const stream = new TokenStream(source);
+		try {
+			stream.read();
+			assert.fail();
+		} catch (e) { }
+	});
 	test.concurrent('words', async () => {
 		const source = 'abc xyz';
 		const stream = new TokenStream(source);
