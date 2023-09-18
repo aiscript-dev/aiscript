@@ -45,137 +45,6 @@ export class TokenStream {
 		return this.token;
 	}
 
-	private readWord(): boolean {
-		// read a word
-		let word = '';
-		while (this.char != null && wordChar.test(this.char)) {
-			word += this.char;
-			this.nextChar();
-		}
-		if (word.length === 0) {
-			return false;
-		}
-		// check word kind
-		switch (word) {
-			case 'null': {
-				this.token = TOKEN(TokenKind.NullKeyword);
-				break;
-			}
-			case 'true': {
-				this.token = TOKEN(TokenKind.TrueKeyword);
-				break;
-			}
-			case 'false': {
-				this.token = TOKEN(TokenKind.FalseKeyword);
-				break;
-			}
-			case 'each': {
-				this.token = TOKEN(TokenKind.EachKeyword);
-				break;
-			}
-			case 'for': {
-				this.token = TOKEN(TokenKind.ForKeyword);
-				break;
-			}
-			case 'loop': {
-				this.token = TOKEN(TokenKind.LoopKeyword);
-				break;
-			}
-			case 'break': {
-				this.token = TOKEN(TokenKind.BreakKeyword);
-				break;
-			}
-			case 'continue': {
-				this.token = TOKEN(TokenKind.ContinueKeyword);
-				break;
-			}
-			case 'match': {
-				this.token = TOKEN(TokenKind.MatchKeyword);
-				break;
-			}
-			case 'if': {
-				this.token = TOKEN(TokenKind.IfKeyword);
-				break;
-			}
-			case 'elif': {
-				this.token = TOKEN(TokenKind.ElifKeyword);
-				break;
-			}
-			case 'else': {
-				this.token = TOKEN(TokenKind.ElseKeyword);
-				break;
-			}
-			case 'return': {
-				this.token = TOKEN(TokenKind.ReturnKeyword);
-				break;
-			}
-			case 'eval': {
-				this.token = TOKEN(TokenKind.EvalKeyword);
-				break;
-			}
-			case 'var': {
-				this.token = TOKEN(TokenKind.VarKeyword);
-				break;
-			}
-			case 'let': {
-				this.token = TOKEN(TokenKind.LetKeyword);
-				break;
-			}
-			case 'exists': {
-				this.token = TOKEN(TokenKind.ExistsKeyword);
-				break;
-			}
-			default: {
-				this.token = TOKEN(TokenKind.Identifier, word);
-				break;
-			}
-		}
-		return true;
-	}
-
-	private readDigits(): boolean {
-		let digits = '';
-		while (this.char != null && digit.test(this.char)) {
-			digits += this.char;
-			this.nextChar();
-		}
-		if (digits.length === 0) {
-			return false;
-		}
-		this.token = TOKEN(TokenKind.NumberLiteral, digits);
-		return true;
-	}
-
-  private skipCommentLine() {
-    while (true) {
-      if (this.char == null) {
-        break;
-      }
-      if (this.char == '\n') {
-        this.nextChar();
-        break;
-      }
-      this.nextChar();
-    }
-  }
-
-  private skipCommentRange() {
-    while (true) {
-      if (this.char == null) {
-        break;
-      }
-      if (this.char == '*') {
-        this.nextChar();
-        if ((this.char as string) == '/') {
-          this.nextChar();
-          break;
-        }
-        continue;
-      }
-      this.nextChar();
-    }
-  }
-
 	/** トークンを読み取ります。 */
 	public read(): void {
 		while (true) {
@@ -399,6 +268,137 @@ export class TokenStream {
 				throw new AiScriptSyntaxError(`invalid character: "${this.char}"`);
 			}
 			break;
+		}
+	}
+
+	private readWord(): boolean {
+		// read a word
+		let word = '';
+		while (this.char != null && wordChar.test(this.char)) {
+			word += this.char;
+			this.nextChar();
+		}
+		if (word.length === 0) {
+			return false;
+		}
+		// check word kind
+		switch (word) {
+			case 'null': {
+				this.token = TOKEN(TokenKind.NullKeyword);
+				break;
+			}
+			case 'true': {
+				this.token = TOKEN(TokenKind.TrueKeyword);
+				break;
+			}
+			case 'false': {
+				this.token = TOKEN(TokenKind.FalseKeyword);
+				break;
+			}
+			case 'each': {
+				this.token = TOKEN(TokenKind.EachKeyword);
+				break;
+			}
+			case 'for': {
+				this.token = TOKEN(TokenKind.ForKeyword);
+				break;
+			}
+			case 'loop': {
+				this.token = TOKEN(TokenKind.LoopKeyword);
+				break;
+			}
+			case 'break': {
+				this.token = TOKEN(TokenKind.BreakKeyword);
+				break;
+			}
+			case 'continue': {
+				this.token = TOKEN(TokenKind.ContinueKeyword);
+				break;
+			}
+			case 'match': {
+				this.token = TOKEN(TokenKind.MatchKeyword);
+				break;
+			}
+			case 'if': {
+				this.token = TOKEN(TokenKind.IfKeyword);
+				break;
+			}
+			case 'elif': {
+				this.token = TOKEN(TokenKind.ElifKeyword);
+				break;
+			}
+			case 'else': {
+				this.token = TOKEN(TokenKind.ElseKeyword);
+				break;
+			}
+			case 'return': {
+				this.token = TOKEN(TokenKind.ReturnKeyword);
+				break;
+			}
+			case 'eval': {
+				this.token = TOKEN(TokenKind.EvalKeyword);
+				break;
+			}
+			case 'var': {
+				this.token = TOKEN(TokenKind.VarKeyword);
+				break;
+			}
+			case 'let': {
+				this.token = TOKEN(TokenKind.LetKeyword);
+				break;
+			}
+			case 'exists': {
+				this.token = TOKEN(TokenKind.ExistsKeyword);
+				break;
+			}
+			default: {
+				this.token = TOKEN(TokenKind.Identifier, word);
+				break;
+			}
+		}
+		return true;
+	}
+
+	private readDigits(): boolean {
+		let digits = '';
+		while (this.char != null && digit.test(this.char)) {
+			digits += this.char;
+			this.nextChar();
+		}
+		if (digits.length === 0) {
+			return false;
+		}
+		this.token = TOKEN(TokenKind.NumberLiteral, digits);
+		return true;
+	}
+
+	private skipCommentLine() {
+		while (true) {
+			if (this.char == null) {
+				break;
+			}
+			if (this.char == '\n') {
+				this.nextChar();
+				break;
+			}
+			this.nextChar();
+		}
+	}
+
+	private skipCommentRange() {
+		while (true) {
+			if (this.char == null) {
+				break;
+			}
+			if (this.char == '*') {
+				this.nextChar();
+				if ((this.char as string) == '/') {
+					this.nextChar();
+					break;
+				}
+				continue;
+			}
+			this.nextChar();
 		}
 	}
 }
