@@ -1,7 +1,5 @@
-import { AiScriptSyntaxError } from '../error.js';
 import { TokenStream } from './token-stream.js';
-import type { Token } from './token.js';
-import { TokenKind } from './token.js';
+import { parseTopLevel } from './syntaxes.js';
 
 import { validateKeyword } from './plugins/validate-keyword.js';
 import { validateType } from './plugins/validate-type.js';
@@ -58,7 +56,9 @@ export class Parser {
 	public parse(input: string): Ast.Node[] {
 		let nodes: Cst.Node[];
 
-		nodes = parse(input);
+		const stream = new TokenStream(input);
+		stream.init();
+		nodes = parseTopLevel(stream);
 
 		// validate the node tree
 		for (const plugin of this.plugins.validate) {
@@ -72,78 +72,4 @@ export class Parser {
 
 		return nodes as Ast.Node[];
 	}
-}
-
-class ParseContext {
-	private stream: TokenStream;
-
-	public constructor(stream: TokenStream) {
-		this.stream = stream;
-	}
-
-	public init(): void {
-		this.stream.read();
-	}
-
-	public get token(): Token {
-		return this.stream.current;
-	}
-
-	public kindOf(kind: TokenKind): boolean {
-		return (this.token.kind === kind);
-	}
-
-	public expect(kind: TokenKind): void {
-		if (!this.kindOf(kind)) {
-			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[this.token.kind]}`);
-		}
-	}
-
-	public next(): void {
-		this.stream.read();
-	}
-
-	public consumeAs(kind: TokenKind): void {
-		this.expect(kind);
-		this.next();
-	}
-}
-
-function parse(source: string): Cst.Node[] {
-	const stream = new TokenStream(source);
-	const ctx = new ParseContext(stream);
-	stream.init();
-	ctx.init();
-
-	const nodes: Cst.Node[] = [];
-	while (!ctx.kindOf(TokenKind.EOF)) {
-		switch (ctx.token.kind) {
-			case TokenKind.Colon2: {
-				nodes.push(parseNamespace(ctx));
-				break;
-			}
-			case TokenKind.Sharp3: {
-				nodes.push(parseMeta(ctx));
-				break;
-			}
-			default: {
-				nodes.push(parseStatement(ctx));
-				break;
-			}
-		}
-	}
-
-	return nodes;
-}
-
-function parseNamespace(ctx: ParseContext): Cst.Node {
-	throw new Error('todo');
-}
-
-function parseMeta(ctx: ParseContext): Cst.Node {
-	throw new Error('todo');
-}
-
-function parseStatement(ctx: ParseContext): Cst.Node {
-	throw new Error('todo');
 }

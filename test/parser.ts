@@ -9,19 +9,19 @@ describe('TokenStream', () => {
 		return stream;
 	}
 	function next(stream: TokenStream, kind: TokenKind, value?: string) {
-		stream.read();
-		assert.deepStrictEqual(stream.current, TOKEN(kind, value));
+		assert.deepStrictEqual(stream.token, TOKEN(kind, value));
+		stream.next();
 	}
 
-	test.concurrent('can get a token after reading', async () => {
+	test.concurrent('can get a token after init', async () => {
 		const source = '';
-		const stream = init(source);
+		const stream = new TokenStream(source);
 		try {
-			stream.current;
+			stream.token;
 			assert.fail();
 		} catch (e) { }
-		stream.read();
-		stream.current;
+		stream.init();
+		stream.token;
 	});
 	test.concurrent('eof', async () => {
 		const source = '';
@@ -43,9 +43,9 @@ describe('TokenStream', () => {
 	});
 	test.concurrent('invalid token', async () => {
 		const source = '$';
-		const stream = init(source);
+		const stream = new TokenStream(source);
 		try {
-			stream.read();
+			stream.init();
 			assert.fail();
 		} catch (e) { }
 	});

@@ -8,7 +8,7 @@ const wordChar = /^[A-Za-z0-9_]$/;
 
 export class TokenStream {
 	private source: string;
-	private token?: Token;
+	private _token?: Token;
 	private index: number;
 	private char?: string;
 
@@ -19,6 +19,22 @@ export class TokenStream {
 
 	public init() {
 		this.loadChar();
+		this.next();
+	}
+
+	public kindOf(kind: TokenKind): boolean {
+		return (this.token.kind === kind);
+	}
+
+	public expect(kind: TokenKind): void {
+		if (!this.kindOf(kind)) {
+			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[this.token.kind]}`);
+		}
+	}
+
+	public consumeAs(kind: TokenKind): void {
+		this.expect(kind);
+		this.next();
 	}
 
 	private get isEof(): boolean {
@@ -41,19 +57,19 @@ export class TokenStream {
 	}
 
 	/** readメソッドで読み取ったトークンを取得します。 */
-	public get current(): Token {
-		if (this.token == null) {
+	public get token(): Token {
+		if (this._token == null) {
 			throw new Error('invalid operation: token is not read yet');
 		}
-		return this.token;
+		return this._token;
 	}
 
 	/** トークンを読み取ります。 */
-	public read(): void {
+	public next(): void {
 		while (true) {
 			// EOF terminated
 			if (this.char == null) {
-				this.token = TOKEN(TokenKind.EOF);
+				this._token = TOKEN(TokenKind.EOF);
 				break;
 			}
 			// skip spasing
@@ -67,9 +83,9 @@ export class TokenStream {
 					this.nextChar();
 					if ((this.char as string) === '=') {
 						this.nextChar();
-						this.token = TOKEN(TokenKind.NotEq);
+						this._token = TOKEN(TokenKind.NotEq);
 					} else {
-						this.token = TOKEN(TokenKind.Not);
+						this._token = TOKEN(TokenKind.Not);
 					}
 					break;
 				}
@@ -79,28 +95,28 @@ export class TokenStream {
 						this.nextChar();
 						if ((this.char as string) === '#') {
 							this.nextChar();
-							this.token = TOKEN(TokenKind.Sharp3);
+							this._token = TOKEN(TokenKind.Sharp3);
 						} else {
 							match = false;
 						}
 					} else if ((this.char as string) === '[') {
 						this.nextChar();
-						this.token = TOKEN(TokenKind.OpenSharpBracket);
+						this._token = TOKEN(TokenKind.OpenSharpBracket);
 					} else {
-						this.token = TOKEN(TokenKind.Sharp);
+						this._token = TOKEN(TokenKind.Sharp);
 					}
 					break;
 				}
 				case '%': {
 					this.nextChar();
-					this.token = TOKEN(TokenKind.Percent);
+					this._token = TOKEN(TokenKind.Percent);
 					break;
 				}
 				case '&': {
 					this.nextChar();
 					if ((this.char as string) === '&') {
 						this.nextChar();
-						this.token = TOKEN(TokenKind.And2);
+						this._token = TOKEN(TokenKind.And2);
 					} else {
 						match = false;
 					}
@@ -108,47 +124,47 @@ export class TokenStream {
 				}
 				case '(': {
 					this.nextChar();
-					this.token = TOKEN(TokenKind.OpenParen);
+					this._token = TOKEN(TokenKind.OpenParen);
 					break;
 				}
 				case ')': {
 					this.nextChar();
-					this.token = TOKEN(TokenKind.CloseParen);
+					this._token = TOKEN(TokenKind.CloseParen);
 					break;
 				}
 				case '*': {
 					this.nextChar();
-					this.token = TOKEN(TokenKind.Asterisk);
+					this._token = TOKEN(TokenKind.Asterisk);
 					break;
 				}
 				case '+': {
 					this.nextChar();
 					if ((this.char as string) === '=') {
 						this.nextChar();
-						this.token = TOKEN(TokenKind.PlusEq);
+						this._token = TOKEN(TokenKind.PlusEq);
 					} else {
-						this.token = TOKEN(TokenKind.Plus);
+						this._token = TOKEN(TokenKind.Plus);
 					}
 					break;
 				}
 				case ',': {
 					this.nextChar();
-					this.token = TOKEN(TokenKind.Comma);
+					this._token = TOKEN(TokenKind.Comma);
 					break;
 				}
 				case '-': {
 					this.nextChar();
 					if ((this.char as string) === '=') {
 						this.nextChar();
-						this.token = TOKEN(TokenKind.MinusEq);
+						this._token = TOKEN(TokenKind.MinusEq);
 					} else {
-						this.token = TOKEN(TokenKind.Minus);
+						this._token = TOKEN(TokenKind.Minus);
 					}
 					break;
 				}
 				case '.': {
 					this.nextChar();
-					this.token = TOKEN(TokenKind.Dot);
+					this._token = TOKEN(TokenKind.Dot);
 					break;
 				}
 				case '/': {
@@ -162,7 +178,7 @@ export class TokenStream {
 						this.skipCommentLine();
 						continue;
 					} else {
-						this.token = TOKEN(TokenKind.Slash);
+						this._token = TOKEN(TokenKind.Slash);
 					}
 					break;
 				}
@@ -170,27 +186,27 @@ export class TokenStream {
 					this.nextChar();
 					if ((this.char as string) === ':') {
 						this.nextChar();
-						this.token = TOKEN(TokenKind.Colon2);
+						this._token = TOKEN(TokenKind.Colon2);
 					} else {
-						this.token = TOKEN(TokenKind.Colon);
+						this._token = TOKEN(TokenKind.Colon);
 					}
 					break;
 				}
 				case ';': {
 					this.nextChar();
-					this.token = TOKEN(TokenKind.SemiColon);
+					this._token = TOKEN(TokenKind.SemiColon);
 					break;
 				}
 				case '<': {
 					this.nextChar();
 					if ((this.char as string) === '=') {
 						this.nextChar();
-						this.token = TOKEN(TokenKind.LtEq);
+						this._token = TOKEN(TokenKind.LtEq);
 					} else if ((this.char as string) === ':') {
 						this.nextChar();
-						this.token = TOKEN(TokenKind.Out);
+						this._token = TOKEN(TokenKind.Out);
 					} else {
-						this.token = TOKEN(TokenKind.Lt);
+						this._token = TOKEN(TokenKind.Lt);
 					}
 					break;
 				}
@@ -198,12 +214,12 @@ export class TokenStream {
 					this.nextChar();
 					if ((this.char as string) === '=') {
 						this.nextChar();
-						this.token = TOKEN(TokenKind.Eq2);
+						this._token = TOKEN(TokenKind.Eq2);
 					} else if ((this.char as string) === '>') {
 						this.nextChar();
-						this.token = TOKEN(TokenKind.Arrow);
+						this._token = TOKEN(TokenKind.Arrow);
 					} else {
-						this.token = TOKEN(TokenKind.Eq);
+						this._token = TOKEN(TokenKind.Eq);
 					}
 					break;
 				}
@@ -211,42 +227,42 @@ export class TokenStream {
 					this.nextChar();
 					if ((this.char as string) === '=') {
 						this.nextChar();
-						this.token = TOKEN(TokenKind.GtEq);
+						this._token = TOKEN(TokenKind.GtEq);
 					} else {
-						this.token = TOKEN(TokenKind.Gt);
+						this._token = TOKEN(TokenKind.Gt);
 					}
 					break;
 				}
 				case '@': {
 					this.nextChar();
-					this.token = TOKEN(TokenKind.At);
+					this._token = TOKEN(TokenKind.At);
 					break;
 				}
 				case '[': {
 					this.nextChar();
-					this.token = TOKEN(TokenKind.OpenBracket);
+					this._token = TOKEN(TokenKind.OpenBracket);
 					break;
 				}
 				case ']': {
 					this.nextChar();
-					this.token = TOKEN(TokenKind.CloseBracket);
+					this._token = TOKEN(TokenKind.CloseBracket);
 					break;
 				}
 				case '^': {
 					this.nextChar();
-					this.token = TOKEN(TokenKind.Hat);
+					this._token = TOKEN(TokenKind.Hat);
 					break;
 				}
 				case '{': {
 					this.nextChar();
-					this.token = TOKEN(TokenKind.OpenBrace);
+					this._token = TOKEN(TokenKind.OpenBrace);
 					break;
 				}
 				case '|': {
 					this.nextChar();
 					if ((this.char as string) === '|') {
 						this.nextChar();
-						this.token = TOKEN(TokenKind.Or2);
+						this._token = TOKEN(TokenKind.Or2);
 					} else {
 						match = false;
 					}
@@ -254,7 +270,7 @@ export class TokenStream {
 				}
 				case '}': {
 					this.nextChar();
-					this.token = TOKEN(TokenKind.CloseBrace);
+					this._token = TOKEN(TokenKind.CloseBrace);
 					break;
 				}
 				default: {
@@ -287,75 +303,75 @@ export class TokenStream {
 		// check word kind
 		switch (word) {
 			case 'null': {
-				this.token = TOKEN(TokenKind.NullKeyword);
+				this._token = TOKEN(TokenKind.NullKeyword);
 				break;
 			}
 			case 'true': {
-				this.token = TOKEN(TokenKind.TrueKeyword);
+				this._token = TOKEN(TokenKind.TrueKeyword);
 				break;
 			}
 			case 'false': {
-				this.token = TOKEN(TokenKind.FalseKeyword);
+				this._token = TOKEN(TokenKind.FalseKeyword);
 				break;
 			}
 			case 'each': {
-				this.token = TOKEN(TokenKind.EachKeyword);
+				this._token = TOKEN(TokenKind.EachKeyword);
 				break;
 			}
 			case 'for': {
-				this.token = TOKEN(TokenKind.ForKeyword);
+				this._token = TOKEN(TokenKind.ForKeyword);
 				break;
 			}
 			case 'loop': {
-				this.token = TOKEN(TokenKind.LoopKeyword);
+				this._token = TOKEN(TokenKind.LoopKeyword);
 				break;
 			}
 			case 'break': {
-				this.token = TOKEN(TokenKind.BreakKeyword);
+				this._token = TOKEN(TokenKind.BreakKeyword);
 				break;
 			}
 			case 'continue': {
-				this.token = TOKEN(TokenKind.ContinueKeyword);
+				this._token = TOKEN(TokenKind.ContinueKeyword);
 				break;
 			}
 			case 'match': {
-				this.token = TOKEN(TokenKind.MatchKeyword);
+				this._token = TOKEN(TokenKind.MatchKeyword);
 				break;
 			}
 			case 'if': {
-				this.token = TOKEN(TokenKind.IfKeyword);
+				this._token = TOKEN(TokenKind.IfKeyword);
 				break;
 			}
 			case 'elif': {
-				this.token = TOKEN(TokenKind.ElifKeyword);
+				this._token = TOKEN(TokenKind.ElifKeyword);
 				break;
 			}
 			case 'else': {
-				this.token = TOKEN(TokenKind.ElseKeyword);
+				this._token = TOKEN(TokenKind.ElseKeyword);
 				break;
 			}
 			case 'return': {
-				this.token = TOKEN(TokenKind.ReturnKeyword);
+				this._token = TOKEN(TokenKind.ReturnKeyword);
 				break;
 			}
 			case 'eval': {
-				this.token = TOKEN(TokenKind.EvalKeyword);
+				this._token = TOKEN(TokenKind.EvalKeyword);
 				break;
 			}
 			case 'var': {
-				this.token = TOKEN(TokenKind.VarKeyword);
+				this._token = TOKEN(TokenKind.VarKeyword);
 				break;
 			}
 			case 'let': {
-				this.token = TOKEN(TokenKind.LetKeyword);
+				this._token = TOKEN(TokenKind.LetKeyword);
 				break;
 			}
 			case 'exists': {
-				this.token = TOKEN(TokenKind.ExistsKeyword);
+				this._token = TOKEN(TokenKind.ExistsKeyword);
 				break;
 			}
 			default: {
-				this.token = TOKEN(TokenKind.Identifier, word);
+				this._token = TOKEN(TokenKind.Identifier, word);
 				break;
 			}
 		}
@@ -371,7 +387,7 @@ export class TokenStream {
 		if (digits.length === 0) {
 			return false;
 		}
-		this.token = TOKEN(TokenKind.NumberLiteral, digits);
+		this._token = TOKEN(TokenKind.NumberLiteral, digits);
 		return true;
 	}
 
