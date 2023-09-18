@@ -1,5 +1,7 @@
 import { AiScriptSyntaxError } from '../error.js';
 import { TokenStream } from './token-stream.js';
+import type { Token } from './token.js';
+import { TokenKind } from './token.js';
 
 import { validateKeyword } from './plugins/validate-keyword.js';
 import { validateType } from './plugins/validate-type.js';
@@ -72,12 +74,76 @@ export class Parser {
 	}
 }
 
+class ParseContext {
+	private stream: TokenStream;
+
+	public constructor(stream: TokenStream) {
+		this.stream = stream;
+	}
+
+	public init(): void {
+		this.stream.read();
+	}
+
+	public get token(): Token {
+		return this.stream.current;
+	}
+
+	public kindOf(kind: TokenKind): boolean {
+		return (this.token.kind === kind);
+	}
+
+	public expect(kind: TokenKind): void {
+		if (!this.kindOf(kind)) {
+			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[this.token.kind]}`);
+		}
+	}
+
+	public next(): void {
+		this.stream.read();
+	}
+
+	public consumeAs(kind: TokenKind): void {
+		this.expect(kind);
+		this.next();
+	}
+}
+
 function parse(source: string): Cst.Node[] {
 	const stream = new TokenStream(source);
-	//stream.read();
-	//stream.current;
+	const ctx = new ParseContext(stream);
+	stream.init();
+	ctx.init();
 
-	// TODO
+	const nodes: Cst.Node[] = [];
+	while (!ctx.kindOf(TokenKind.EOF)) {
+		switch (ctx.token.kind) {
+			case TokenKind.Colon2: {
+				nodes.push(parseNamespace(ctx));
+				break;
+			}
+			case TokenKind.Sharp3: {
+				nodes.push(parseMeta(ctx));
+				break;
+			}
+			default: {
+				nodes.push(parseStatement(ctx));
+				break;
+			}
+		}
+	}
 
-	return [];
+	return nodes;
+}
+
+function parseNamespace(ctx: ParseContext): Cst.Node {
+	throw new Error('todo');
+}
+
+function parseMeta(ctx: ParseContext): Cst.Node {
+	throw new Error('todo');
+}
+
+function parseStatement(ctx: ParseContext): Cst.Node {
+	throw new Error('todo');
 }

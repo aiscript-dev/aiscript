@@ -3,6 +3,11 @@ import { TokenStream } from '../src/parser/token-stream';
 import { TOKEN, TokenKind } from '../src/parser/token';
 
 describe('TokenStream', () => {
+	function init(source: string) {
+		const stream = new TokenStream(source);
+		stream.init();
+		return stream;
+	}
 	function next(stream: TokenStream, kind: TokenKind, value?: string) {
 		stream.read();
 		assert.deepStrictEqual(stream.current, TOKEN(kind, value));
@@ -10,7 +15,7 @@ describe('TokenStream', () => {
 
 	test.concurrent('can get a token after reading', async () => {
 		const source = '';
-		const stream = new TokenStream(source);
+		const stream = init(source);
 		try {
 			stream.current;
 			assert.fail();
@@ -20,25 +25,25 @@ describe('TokenStream', () => {
 	});
 	test.concurrent('eof', async () => {
 		const source = '';
-		const stream = new TokenStream(source);
+		const stream = init(source);
 		next(stream, TokenKind.EOF);
 		next(stream, TokenKind.EOF);
 	});
 	test.concurrent('keyword', async () => {
 		const source = 'if';
-		const stream = new TokenStream(source);
+		const stream = init(source);
 		next(stream, TokenKind.IfKeyword);
 		next(stream, TokenKind.EOF);
 	});
 	test.concurrent('identifier', async () => {
 		const source = 'xyz';
-		const stream = new TokenStream(source);
+		const stream = init(source);
 		next(stream, TokenKind.Identifier, 'xyz');
 		next(stream, TokenKind.EOF);
 	});
 	test.concurrent('invalid token', async () => {
 		const source = '$';
-		const stream = new TokenStream(source);
+		const stream = init(source);
 		try {
 			stream.read();
 			assert.fail();
@@ -46,14 +51,14 @@ describe('TokenStream', () => {
 	});
 	test.concurrent('words', async () => {
 		const source = 'abc xyz';
-		const stream = new TokenStream(source);
+		const stream = init(source);
 		next(stream, TokenKind.Identifier, 'abc');
 		next(stream, TokenKind.Identifier, 'xyz');
 		next(stream, TokenKind.EOF);
 	});
 	test.concurrent('stream', async () => {
 		const source = '@abc() { }';
-		const stream = new TokenStream(source);
+		const stream = init(source);
 		next(stream, TokenKind.At);
 		next(stream, TokenKind.Identifier, 'abc');
 		next(stream, TokenKind.OpenParen);

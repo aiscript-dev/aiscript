@@ -15,6 +15,9 @@ export class TokenStream {
 	public constructor(source: string) {
 		this.source = source;
 		this.index = 0;
+	}
+
+	public init() {
 		this.loadChar();
 	}
 
