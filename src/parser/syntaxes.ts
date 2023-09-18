@@ -107,7 +107,37 @@ function parseStatement(s: TokenStream): Cst.Node {
  * ```
 */
 function parseVarDef(s: TokenStream): Cst.Node {
-	throw new Error('todo');
+	let mut;
+	switch (s.token.kind) {
+		case TokenKind.LetKeyword: {
+			mut = false;
+			break;
+		}
+		case TokenKind.VarKeyword: {
+			mut = true;
+			break;
+		}
+		default: {
+			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[s.token.kind]}`);
+		}
+	}
+	s.next();
+
+	s.expect(TokenKind.Identifier);
+	const name = s.token.value!;
+	s.next();
+
+	let ty;
+	if (s.kindOf(TokenKind.Colon)) {
+		s.next();
+		ty = parseType(s);
+	}
+
+	s.consumeAs(TokenKind.Eq);
+
+	const expr = parseExpr(s);
+
+	return NODE('def', { name, varType: ty, expr, mut, attr: [] });
 }
 
 function parseOut(s: TokenStream): Cst.Node {
@@ -149,7 +179,16 @@ function parseAssign(s: TokenStream): Cst.Node {
 //#region Expression
 
 function parseExpr(s: TokenStream): Cst.Node {
-	throw new Error('todo');
+	switch (s.token.kind) {
+		case TokenKind.NumberLiteral: {
+			const value = Number(s.token.value!);
+			s.next();
+			return NODE('num', { value });
+		}
+		default: {
+			throw new Error('todo');
+		}
+	}
 }
 
 function parseIf(s: TokenStream): Cst.Node {
@@ -216,6 +255,10 @@ function parseStaticObject(s: TokenStream): Cst.Node {
 //#endregion Static Literal
 
 //#region Type
+
+function parseType(s: TokenStream): Cst.Node {
+	throw new Error('todo');
+}
 
 function parseFnType(s: TokenStream): Cst.Node {
 	throw new Error('todo');
