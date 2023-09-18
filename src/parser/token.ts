@@ -25,11 +25,74 @@ export enum TokenKind {
 	LetKeyword,
 	ExistsKeyword,
 
+	/** "!" */
+	Not,
+	/** "!=" */
+	NotEq,
+	/** "#" */
+	Sharp,
+	/** "###" */
+	Sharp3,
+	/** "%" */
+	Percent,
+	/** "&&" */
+	And2,
+	/** "(" */
 	OpenParen,
+	/** ")" */
 	CloseParen,
-	OpenBrace,
-	CloseBrace,
+	/** "*" */
+	Asterisk,
+	/** "+" */
+	Plus,
+	/** "+=" */
+	PlusEq,
+	/** "," */
+	Comma,
+	/** "-" */
+	Minus,
+	/** "-=" */
+	MinusEq,
+	/** "." */
+	Dot,
+	/** "/" */
+	Slash,
+	/** ":" */
+	Colon,
+	/** "::" */
+	Colon2,
+	/** ";" */
+	SemiColon,
+	/** "<" */
+	Lt,
+	/** "<=" */
+	LtEq,
+	/** "<:" */
+	Out,
+	/** "=" */
+	Eq,
+	/** "==" */
+	Eq2,
+	/** "=>" */
+	Arrow,
+	/** ">" */
+	Gt,
+	/** ">=" */
+	GtEq,
+	/** "@" */
 	At,
+	/** "[" */
+	OpenBracket,
+	/** "]" */
+	CloseBracket,
+	/** "^" */
+	Hat,
+	/** "{" */
+	OpenBrace,
+	/** "||" */
+	Or2,
+	/** "}" */
+	CloseBrace,
 }
 
 export class Token {
