@@ -3,20 +3,7 @@ import type { Cst } from '../index.js';
 import type { TokenStream } from './token-stream.js';
 import { TokenKind } from './token.js';
 
-function createNode(type: string, params: Record<string, any>): Cst.Node {
-	const node: Record<string, any> = { type };
-	//params.children;
-	for (const key of Object.keys(params)) {
-		if (params[key] !== undefined) {
-			node[key] = params[key];
-		}
-	}
-	//node.loc = { start, end };
-	return node as Cst.Node;
-}
-
-
-// Top-level Statement ========================================================
+//#region Top-level Statement
 
 /**
  * ```text
@@ -25,6 +12,7 @@ function createNode(type: string, params: Record<string, any>): Cst.Node {
 */
 export function parseTopLevel(s: TokenStream): Cst.Node[] {
 	const nodes: Cst.Node[] = [];
+
 	while (!s.kindOf(TokenKind.EOF)) {
 		switch (s.token.kind) {
 			case TokenKind.Colon2: {
@@ -41,6 +29,7 @@ export function parseTopLevel(s: TokenStream): Cst.Node[] {
 			}
 		}
 	}
+
 	return nodes;
 }
 
@@ -77,7 +66,7 @@ function parseNamespace(s: TokenStream): Cst.Node {
 	}
 	s.consumeAs(TokenKind.CloseBrace);
 
-	return createNode('ns', { name, members });
+	return NODE('ns', { name, members });
 }
 
 /**
@@ -87,8 +76,9 @@ function parseMeta(s: TokenStream): Cst.Node {
 	throw new Error('todo');
 }
 
+//#endregion Top-level Statement
 
-// Statement ==================================================================
+//#region Statement
 
 /**
  * ```text
@@ -120,47 +110,83 @@ function parseVarDef(s: TokenStream): Cst.Node {
 	throw new Error('todo');
 }
 
-// Out
+function parseOut(s: TokenStream): Cst.Node {
+	throw new Error('todo');
+}
 
 // Attr
 
-// Each
+function parseEach(s: TokenStream): Cst.Node {
+	throw new Error('todo');
+}
 
-// For
+function parseFor(s: TokenStream): Cst.Node {
+	throw new Error('todo');
+}
 
-// Return
+function parseReturn(s: TokenStream): Cst.Node {
+	throw new Error('todo');
+}
 
-// Loop
+function parseLoop(s: TokenStream): Cst.Node {
+	throw new Error('todo');
+}
 
-// Break
+function parseBreak(s: TokenStream): Cst.Node {
+	throw new Error('todo');
+}
 
-// Continue
+function parseContinue(s: TokenStream): Cst.Node {
+	throw new Error('todo');
+}
 
-// Assign
+function parseAssign(s: TokenStream): Cst.Node {
+	throw new Error('todo');
+}
 
+//#endregion Statement
 
-// Expression =================================================================
+//#region Expression
 
-// expression
+function parseExpr(s: TokenStream): Cst.Node {
+	throw new Error('todo');
+}
 
-// If
+function parseIf(s: TokenStream): Cst.Node {
+	throw new Error('todo');
+}
 
-// Match
+function parseMatch(s: TokenStream): Cst.Node {
+	throw new Error('todo');
+}
 
-// Eval
+function parseEval(s: TokenStream): Cst.Node {
+	throw new Error('todo');
+}
 
-// Exists
+function parseExists(s: TokenStream): Cst.Node {
+	throw new Error('todo');
+}
 
-// Reference
+function parseReference(s: TokenStream): Cst.Node {
+	throw new Error('todo');
+}
 
-// template
+function parseTemplate(s: TokenStream): Cst.Node {
+	throw new Error('todo');
+}
 
-// object
+function parseObject(s: TokenStream): Cst.Node {
+	throw new Error('todo');
+}
 
-// array
+function parseArray(s: TokenStream): Cst.Node {
+	throw new Error('todo');
+}
 
+//#endregion Expression
 
-// Function ===================================================================
+//#region Function
 
 /**
  * ```text
@@ -171,26 +197,58 @@ function parseFnDef(s: TokenStream): Cst.Node {
 	throw new Error('todo');
 }
 
-// fn expression
+function parseFnExpr(s: TokenStream): Cst.Node {
+	throw new Error('todo');
+}
 
+//#endregion Function
 
-// Static Literal =============================================================
+//#region Static Literal
 
-// static array
+function parseStaticArray(s: TokenStream): Cst.Node {
+	throw new Error('todo');
+}
 
-// static object
+function parseStaticObject(s: TokenStream): Cst.Node {
+	throw new Error('todo');
+}
 
+//#endregion Static Literal
 
-// Type =======================================================================
+//#region Type
 
-// fn type
+function parseFnType(s: TokenStream): Cst.Node {
+	throw new Error('todo');
+}
 
-// named type
+function parseNamedType(s: TokenStream): Cst.Node {
+	throw new Error('todo');
+}
 
+//#endregion Type
 
-// Common =====================================================================
+//#region Common
 
-// namespace path
+function NODE(type: string, params: Record<string, any>): Cst.Node {
+	const node: Record<string, any> = { type };
+	//params.children;
+	for (const key of Object.keys(params)) {
+		if (params[key] !== undefined) {
+			node[key] = params[key];
+		}
+	}
+	//node.loc = { start, end };
+	return node as Cst.Node;
+}
+
+/**
+ * ```text
+ * <NamePath> = <Identifier> (":" <Identifier>)*
+ * ```
+*/
+function parseNamePath(s: TokenStream): string {
+	throw new Error('todo');
+}
 
 /**
  * ```text
@@ -201,4 +259,13 @@ function parseBlock(s: TokenStream): Cst.Node[] {
 	throw new Error('todo');
 }
 
-// block or statement
+/**
+ * ```text
+ * <BlockOrStatement> = <Block> | <Statement>
+ * ```
+*/
+function parseBlockOrStatement(s: TokenStream): Cst.Node {
+	throw new Error('todo');
+}
+
+//#endregion Common
