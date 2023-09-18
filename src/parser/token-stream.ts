@@ -22,12 +22,12 @@ export class TokenStream {
 		this.next();
 	}
 
-	public kindOf(kind: TokenKind): boolean {
+	public kindIs(kind: TokenKind): boolean {
 		return (this.token.kind === kind);
 	}
 
 	public expect(kind: TokenKind): void {
-		if (!this.kindOf(kind)) {
+		if (!this.kindIs(kind)) {
 			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[this.token.kind]}`);
 		}
 	}

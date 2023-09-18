@@ -13,7 +13,7 @@ import { TokenKind } from './token.js';
 export function parseTopLevel(s: TokenStream): Cst.Node[] {
 	const nodes: Cst.Node[] = [];
 
-	while (!s.kindOf(TokenKind.EOF)) {
+	while (!s.kindIs(TokenKind.EOF)) {
 		switch (s.token.kind) {
 			case TokenKind.Colon2: {
 				nodes.push(parseNamespace(s));
@@ -47,7 +47,7 @@ function parseNamespace(s: TokenStream): Cst.Node {
 
 	const members: Cst.Node[] = [];
 	s.consumeAs(TokenKind.OpenBrace);
-	while (!s.kindOf(TokenKind.CloseBrace)) {
+	while (!s.kindIs(TokenKind.CloseBrace)) {
 		switch (s.token.kind) {
 			case TokenKind.VarKeyword:
 			case TokenKind.LetKeyword: {
@@ -128,7 +128,7 @@ function parseVarDef(s: TokenStream): Cst.Node {
 	s.next();
 
 	let ty;
-	if (s.kindOf(TokenKind.Colon)) {
+	if (s.kindIs(TokenKind.Colon)) {
 		s.next();
 		ty = parseType(s);
 	}
