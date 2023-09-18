@@ -68,6 +68,58 @@ export class TokenStream {
 				this.token = TOKEN(TokenKind.FalseKeyword);
 				break;
 			}
+			case 'each': {
+				this.token = TOKEN(TokenKind.EachKeyword);
+				break;
+			}
+			case 'for': {
+				this.token = TOKEN(TokenKind.ForKeyword);
+				break;
+			}
+			case 'loop': {
+				this.token = TOKEN(TokenKind.LoopKeyword);
+				break;
+			}
+			case 'break': {
+				this.token = TOKEN(TokenKind.BreakKeyword);
+				break;
+			}
+			case 'continue': {
+				this.token = TOKEN(TokenKind.ContinueKeyword);
+				break;
+			}
+			case 'match': {
+				this.token = TOKEN(TokenKind.MatchKeyword);
+				break;
+			}
+			case 'elif': {
+				this.token = TOKEN(TokenKind.ElifKeyword);
+				break;
+			}
+			case 'else': {
+				this.token = TOKEN(TokenKind.ElseKeyword);
+				break;
+			}
+			case 'return': {
+				this.token = TOKEN(TokenKind.ReturnKeyword);
+				break;
+			}
+			case 'eval': {
+				this.token = TOKEN(TokenKind.EvalKeyword);
+				break;
+			}
+			case 'var': {
+				this.token = TOKEN(TokenKind.VarKeyword);
+				break;
+			}
+			case 'let': {
+				this.token = TOKEN(TokenKind.LetKeyword);
+				break;
+			}
+			case 'exists': {
+				this.token = TOKEN(TokenKind.ExistsKeyword);
+				break;
+			}
 			default: {
 				this.token = TOKEN(TokenKind.Identifier, word);
 				break;
@@ -104,11 +156,6 @@ export class TokenStream {
 			}
 			let match = true;
 			switch (this.char) {
-				case '@': {
-					this.token = TOKEN(TokenKind.At);
-					this.nextChar();
-					break;
-				}
 				case '(': {
 					this.token = TOKEN(TokenKind.OpenParen);
 					this.nextChar();
@@ -126,6 +173,11 @@ export class TokenStream {
 				}
 				case '}': {
 					this.token = TOKEN(TokenKind.CloseBrace);
+					this.nextChar();
+					break;
+				}
+				case '@': {
+					this.token = TOKEN(TokenKind.At);
 					this.nextChar();
 					break;
 				}
