@@ -380,7 +380,7 @@ export class TokenStream {
 			if (this.char == null) {
 				break;
 			}
-			if (this.char == '\n') {
+			if (this.char === '\n') {
 				this.nextChar();
 				break;
 			}
@@ -393,9 +393,9 @@ export class TokenStream {
 			if (this.char == null) {
 				break;
 			}
-			if (this.char == '*') {
+			if (this.char === '*') {
 				this.nextChar();
-				if ((this.char as string) == '/') {
+				if ((this.char as string) === '/') {
 					this.nextChar();
 					break;
 				}
