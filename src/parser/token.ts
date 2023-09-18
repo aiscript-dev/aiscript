@@ -1,40 +1,30 @@
 export enum TokenKind {
 	EOF,
 	Identifier,
-	Literal,
+
+	// literal
+	NumberLiteral,
+	StringLiteral,
+
+	// keyword
+	NullKeyword,
+	TrueKeyword,
+	FalseKeyword,
 
 	OpenParen,
 	CloseParen,
-
 	OpenBrace,
 	CloseBrace,
-
 	At,
 }
 
 export class Token {
 	constructor(
 		public kind: TokenKind,
-		public literal?: Literal,
+		public value?: string,
 	) { }
 }
 
-export function TOKEN(kind: TokenKind) {
-	return new Token(kind);
-}
-
-export type Literal = NumberLiteral | StringLiteral;
-
-export class NumberLiteral {
-	kind = 'NumberLiteral' as const;
-	constructor(
-		public value: number
-	) { }
-}
-
-export class StringLiteral {
-	kind = 'StringLiteral' as const;
-	constructor(
-		public value: string
-	) { }
+export function TOKEN(kind: TokenKind, value?: Token['value']) {
+	return new Token(kind, value);
 }

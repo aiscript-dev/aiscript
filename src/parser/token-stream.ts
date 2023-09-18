@@ -3,6 +3,8 @@ import { TOKEN, TokenKind } from './token.js';
 import type { Token } from './token.js';
 
 const spacingChars = [' ', '\t', '\r', '\n'];
+const digit = /^[0-9]$/;
+const wordChar = /^[A-Za-z0-9_]$/;
 
 export class TokenStream {
 	private source: string;
@@ -43,13 +45,48 @@ export class TokenStream {
 	}
 
 	private readWord(): boolean {
-		// TODO
-		return false;
+		// read a word
+		let word = '';
+		while (this.char != null && wordChar.test(this.char)) {
+			word += this.char;
+			this.nextChar();
+		}
+		if (word.length === 0) {
+			return false;
+		}
+		// check word kind
+		switch (word) {
+			case 'null': {
+				this.token = TOKEN(TokenKind.NullKeyword);
+				break;
+			}
+			case 'true': {
+				this.token = TOKEN(TokenKind.TrueKeyword);
+				break;
+			}
+			case 'false': {
+				this.token = TOKEN(TokenKind.FalseKeyword);
+				break;
+			}
+			default: {
+				this.token = TOKEN(TokenKind.Identifier, word);
+				break;
+			}
+		}
+		return true;
 	}
 
 	private readDigits(): boolean {
-		// TODO
-		return false;
+		let digits = '';
+		while (this.char != null && digit.test(this.char)) {
+			digits += this.char;
+			this.nextChar();
+		}
+		if (digits.length === 0) {
+			return false;
+		}
+		this.token = TOKEN(TokenKind.NumberLiteral, digits);
+		return true;
 	}
 
 	/** トークンを読み取ります。 */
