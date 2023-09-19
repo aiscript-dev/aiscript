@@ -144,7 +144,9 @@ function parseOut(s: TokenStream): Cst.Node {
 	throw new Error('todo');
 }
 
-// Attr
+function parseAttr(s: TokenStream): Cst.Node {
+	throw new Error('todo');
+}
 
 function parseEach(s: TokenStream): Cst.Node {
 	throw new Error('todo');
@@ -195,6 +197,11 @@ function parseExpr(s: TokenStream): Cst.Node {
 	}
 }
 
+/**
+ * ```text
+ * <If> = "if" <Expr> <BlockOrStatement> ("elif" <Expr> <BlockOrStatement>)* ("else" <BlockOrStatement>)?
+ * ```
+*/
 function parseIf(s: TokenStream): Cst.Node {
 	throw new Error('todo');
 }
@@ -211,8 +218,26 @@ function parseExists(s: TokenStream): Cst.Node {
 	throw new Error('todo');
 }
 
-function parseReference(s: TokenStream): Cst.Node {
-	throw new Error('todo');
+/**
+ * ```text
+ * <Reference> = <Identifier> (":" <Identifier>)*
+ * ```
+*/
+function parseReference(s: TokenStream): string {
+	const segs: string[] = [];
+	while (true) {
+		if (segs.length > 0) {
+			if (s.kindIs(TokenKind.Colon)) {
+				s.next();
+			} else {
+				break;
+			}
+		}
+		s.expect(TokenKind.Identifier);
+		segs.push(s.token.value!);
+		s.next();
+	}
+	return segs.join(':');
 }
 
 function parseTemplate(s: TokenStream): Cst.Node {
@@ -290,20 +315,17 @@ function NODE(type: string, params: Record<string, any>): Cst.Node {
 
 /**
  * ```text
- * <NamePath> = <Identifier> (":" <Identifier>)*
- * ```
-*/
-function parseNamePath(s: TokenStream): string {
-	throw new Error('todo');
-}
-
-/**
- * ```text
  * <Block> = "{" <Statement>* "}"
  * ```
 */
 function parseBlock(s: TokenStream): Cst.Node[] {
-	throw new Error('todo');
+	s.consumeAs(TokenKind.OpenBrace);
+	const steps: Cst.Node[] = [];
+	while (!s.kindIs(TokenKind.CloseBrace)) {
+		steps.push(parseStatement(s));
+	}
+	s.consumeAs(TokenKind.CloseBrace);
+	return steps;
 }
 
 /**
@@ -312,7 +334,11 @@ function parseBlock(s: TokenStream): Cst.Node[] {
  * ```
 */
 function parseBlockOrStatement(s: TokenStream): Cst.Node {
-	throw new Error('todo');
+	if (s.kindIs(TokenKind.OpenBrace)) {
+		return NODE('block', { statements: parseBlock(s) });
+	} else {
+		return parseStatement(s);
+	}
 }
 
 //#endregion Common
