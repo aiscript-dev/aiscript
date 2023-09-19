@@ -6,8 +6,8 @@ import { TokenKind } from './token.js';
 //#region Top-level Statement
 
 /**
- * ```text
- * <TopLevel> = (<Namespace> | <Meta> | <Statement>)*
+ * ```abnf
+ * TopLevel = *(Namespace / Meta / Statement)
  * ```
 */
 export function parseTopLevel(s: TokenStream): Cst.Node[] {
@@ -34,8 +34,8 @@ export function parseTopLevel(s: TokenStream): Cst.Node[] {
 }
 
 /**
- * ```text
- * <Namespace> = "::" <IDENT> "{" (<VarDef> | <FnDef> | <Namespace>)* "}"
+ * ```abnf
+ * Namespace = "::" IDENT "{" *(VarDef / FnDef / Namespace) "}"
  * ```
 */
 function parseNamespace(s: TokenStream): Cst.Node {
@@ -70,7 +70,9 @@ function parseNamespace(s: TokenStream): Cst.Node {
 }
 
 /**
- * <Meta> = "###" <IDENT>? <StaticLiteral>
+ * ```abnf
+ * Meta = "###" [IDENT] StaticLiteral
+ * ```
 */
 function parseMeta(s: TokenStream): Cst.Node {
 	throw new Error('todo');
@@ -81,9 +83,9 @@ function parseMeta(s: TokenStream): Cst.Node {
 //#region Statement
 
 /**
- * ```text
- * <Statement> = <VarDef> | <FnDef> | <Out> | <Return> | <Attr> | <Each> | <For> | <Loop>
- *             | <Break> | <Continue> | <Assign> | <Expr>
+ * ```abnf
+ * Statement = VarDef / FnDef / Out / Return / Attr / Each / For / Loop
+ *           / Break / Continue / Assign / Expr
  * ```
 */
 function parseStatement(s: TokenStream): Cst.Node {
@@ -102,8 +104,8 @@ function parseStatement(s: TokenStream): Cst.Node {
 }
 
 /**
- * ```text
- * <VarDef> = ("let" | "var") <IDENT> (":" <Type>)? "=" <Expr>
+ * ```abnf
+ * VarDef = ("let" / "var") IDENT [":" Type] "=" Expr
  * ```
 */
 function parseVarDef(s: TokenStream): Cst.Node {
@@ -198,8 +200,8 @@ function parseExpr(s: TokenStream): Cst.Node {
 }
 
 /**
- * ```text
- * <If> = "if" <Expr> <BlockOrStatement> ("elif" <Expr> <BlockOrStatement>)* ("else" <BlockOrStatement>)?
+ * ```abnf
+ * If = "if" Expr BlockOrStatement *("elif" Expr BlockOrStatement) ["else" BlockOrStatement]
  * ```
 */
 function parseIf(s: TokenStream): Cst.Node {
@@ -219,8 +221,8 @@ function parseExists(s: TokenStream): Cst.Node {
 }
 
 /**
- * ```text
- * <Reference> = <Identifier> (":" <Identifier>)*
+ * ```abnf
+ * Reference = IDENT *(":" IDENT)
  * ```
 */
 function parseReference(s: TokenStream): string {
@@ -257,8 +259,8 @@ function parseArray(s: TokenStream): Cst.Node {
 //#region Function
 
 /**
- * ```text
- * <FnDef> = "@" <IDENT> "(" <Args> ")" (":" <Type>)? <Block>
+ * ```abnf
+ * FnDef = "@" IDENT "(" Args ")" [":" Type] Block
  * ```
 */
 function parseFnDef(s: TokenStream): Cst.Node {
@@ -314,8 +316,8 @@ function NODE(type: string, params: Record<string, any>): Cst.Node {
 }
 
 /**
- * ```text
- * <Block> = "{" <Statement>* "}"
+ * ```abnf
+ * Block = "{" *Statement "}"
  * ```
 */
 function parseBlock(s: TokenStream): Cst.Node[] {
@@ -329,8 +331,8 @@ function parseBlock(s: TokenStream): Cst.Node[] {
 }
 
 /**
- * ```text
- * <BlockOrStatement> = <Block> | <Statement>
+ * ```abnf
+ * BlockOrStatement = Block / Statement
  * ```
 */
 function parseBlockOrStatement(s: TokenStream): Cst.Node {
