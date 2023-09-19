@@ -81,10 +81,12 @@ const setCode = () => {
 }`;
 };
 
+let interpreter = null;
 const run = async () => {
 	logs.value = [];
 
-	const interpreter = new Interpreter({}, {
+	interpreter?.abort();
+	interpreter = new Interpreter({}, {
 		in: (q) => {
 			return new Promise(ok => {
 				const res = window.prompt(q);
