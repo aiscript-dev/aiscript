@@ -98,7 +98,7 @@ function parseStatement(s: TokenStream): Cst.Node {
 			return parseFnDef(s);
 		}
 		default: {
-			throw new Error('todo');
+			return parseExpr(s);
 		}
 	}
 }
@@ -186,12 +186,18 @@ function parseExpr(s: TokenStream): Cst.Node {
 	// TODO: Pratt parsing
 
 	switch (s.token.kind) {
+		case TokenKind.Identifier: {
+			return parseReference(s);
+		}
 		case TokenKind.NumberLiteral: {
 			// TODO: sign
 			// TODO: validate value
 			const value = Number(s.token.value!);
 			s.next();
 			return NODE('num', { value });
+		}
+		case TokenKind.IfKeyword: {
+			return parseIf(s);
 		}
 		default: {
 			throw new Error('todo');
@@ -205,7 +211,25 @@ function parseExpr(s: TokenStream): Cst.Node {
  * ```
 */
 function parseIf(s: TokenStream): Cst.Node {
-	throw new Error('todo');
+	s.consumeAs(TokenKind.IfKeyword);
+	const cond = parseExpr(s);
+	const then = parseBlockOrStatement(s);
+
+	const elseif: { cond: any, then: any }[] = [];
+	while (s.kindIs(TokenKind.ElifKeyword)) {
+		s.next();
+		const elifCond = parseExpr(s);
+		const elifThen = parseBlockOrStatement(s);
+		elseif.push({ cond: elifCond, then: elifThen });
+	}
+
+	let _else = undefined;
+	if (s.kindIs(TokenKind.ElseKeyword)) {
+		s.next();
+		_else = parseBlockOrStatement(s);
+	}
+
+	return NODE('if', { cond, then, elseif, else: _else });
 }
 
 function parseMatch(s: TokenStream): Cst.Node {
@@ -225,7 +249,7 @@ function parseExists(s: TokenStream): Cst.Node {
  * Reference = IDENT *(":" IDENT)
  * ```
 */
-function parseReference(s: TokenStream): string {
+function parseReference(s: TokenStream): Cst.Node {
 	const segs: string[] = [];
 	while (true) {
 		if (segs.length > 0) {
@@ -239,7 +263,7 @@ function parseReference(s: TokenStream): string {
 		segs.push(s.token.value!);
 		s.next();
 	}
-	return segs.join(':');
+	return NODE('identifier', { name: segs.join(':') });
 }
 
 function parseTemplate(s: TokenStream): Cst.Node {
