@@ -1,4 +1,7 @@
 [Read translated version (en)](./translations/en/CHANGELOG.md)
+## Note
+バージョン0.16.0に記録漏れがありました。
+>- 関数`Str:from_codepoint` `Str#codepoint_at`を追加
 
 # 0.16.0
 - **ネームスペースのトップレベルに`var`は定義できなくなりました。(`let`は可能)**
@@ -9,6 +12,7 @@
 - 「エラー型（`error`）」を導入
 - `Json:parse`がパース失敗時にエラー型の値を返すように
 - `let` で定義した変数が上書きできてしまうのを修正
+- 関数`Str:from_codepoint` `Str#codepoint_at`を追加
 
 ## For Hosts
 - **Breaking Change** AiScriptErrorのサブクラス４種にAiScript-の接頭辞を追加（例：SyntaxError→AiScriptSyntaxError）
