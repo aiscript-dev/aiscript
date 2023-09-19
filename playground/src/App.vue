@@ -42,7 +42,7 @@
 
 <script setup>
 import { ref, watch } from 'vue';
-import { Interpreter, Parser, utils, serialize } from '../../src';
+import { Interpreter, Parser, utils } from '../../src';
 
 import { PrismEditor } from 'vue-prism-editor';
 import 'vue-prism-editor/dist/prismeditor.min.css';
