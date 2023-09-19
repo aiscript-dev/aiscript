@@ -42,7 +42,7 @@
 
 <script setup>
 import { ref, watch } from 'vue';
-import { Interpreter, Parser, utils, serialize } from '../../src';
+import { Interpreter, Parser, utils } from '../../src';
 
 import { PrismEditor } from 'vue-prism-editor';
 import 'vue-prism-editor/dist/prismeditor.min.css';
@@ -81,10 +81,12 @@ const setCode = () => {
 }`;
 };
 
+let interpreter = null;
 const run = async () => {
 	logs.value = [];
 
-	const interpreter = new Interpreter({}, {
+	interpreter?.abort();
+	interpreter = new Interpreter({}, {
 		in: (q) => {
 			return new Promise(ok => {
 				const res = window.prompt(q);
