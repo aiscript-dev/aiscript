@@ -236,12 +236,26 @@ function parseMatch(s: TokenStream): Cst.Node {
 	throw new Error('todo');
 }
 
+/**
+ * ```abnf
+ * Eval = "eval" Block
+ * ```
+*/
 function parseEval(s: TokenStream): Cst.Node {
-	throw new Error('todo');
+	s.nextWith(TokenKind.EvalKeyword);
+	const statements = parseBlock(s);
+	return NODE('block', { statements });
 }
 
+/**
+ * ```abnf
+ * Exists = "exists" Reference
+ * ```
+*/
 function parseExists(s: TokenStream): Cst.Node {
-	throw new Error('todo');
+	s.nextWith(TokenKind.ExistsKeyword);
+	const identifier = parseReference(s);
+	return NODE('exists', { identifier });
 }
 
 /**
@@ -361,7 +375,8 @@ function parseBlock(s: TokenStream): Cst.Node[] {
 */
 function parseBlockOrStatement(s: TokenStream): Cst.Node {
 	if (s.kind === TokenKind.OpenBrace) {
-		return NODE('block', { statements: parseBlock(s) });
+		const statements = parseBlock(s);
+		return NODE('block', { statements });
 	} else {
 		return parseStatement(s);
 	}
