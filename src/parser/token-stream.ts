@@ -22,17 +22,13 @@ export class TokenStream {
 		this.next();
 	}
 
-	public kindIs(kind: TokenKind): boolean {
-		return (this.token.kind === kind);
-	}
-
 	public expect(kind: TokenKind): void {
-		if (!this.kindIs(kind)) {
+		if (this.kind !== kind) {
 			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[this.token.kind]}`);
 		}
 	}
 
-	public consumeAs(kind: TokenKind): void {
+	public nextWith(kind: TokenKind): void {
 		this.expect(kind);
 		this.next();
 	}
@@ -61,6 +57,10 @@ export class TokenStream {
 			throw new Error('invalid operation: token is not read yet');
 		}
 		return this._token;
+	}
+
+	public get kind(): TokenKind {
+		return this.token.kind;
 	}
 
 	public next(): void {

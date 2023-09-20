@@ -13,7 +13,7 @@ import { TokenKind } from './token.js';
 export function parseTopLevel(s: TokenStream): Cst.Node[] {
 	const nodes: Cst.Node[] = [];
 
-	while (!s.kindIs(TokenKind.EOF)) {
+	while (s.kind !== TokenKind.EOF) {
 		switch (s.token.kind) {
 			case TokenKind.Colon2: {
 				nodes.push(parseNamespace(s));
@@ -39,15 +39,15 @@ export function parseTopLevel(s: TokenStream): Cst.Node[] {
  * ```
 */
 function parseNamespace(s: TokenStream): Cst.Node {
-	s.consumeAs(TokenKind.Colon2);
+	s.nextWith(TokenKind.Colon2);
 
 	s.expect(TokenKind.Identifier);
 	const name = s.token.value!;
 	s.next();
 
 	const members: Cst.Node[] = [];
-	s.consumeAs(TokenKind.OpenBrace);
-	while (!s.kindIs(TokenKind.CloseBrace)) {
+	s.nextWith(TokenKind.OpenBrace);
+	while (s.kind !== TokenKind.CloseBrace) {
 		switch (s.token.kind) {
 			case TokenKind.VarKeyword:
 			case TokenKind.LetKeyword: {
@@ -64,7 +64,7 @@ function parseNamespace(s: TokenStream): Cst.Node {
 			}
 		}
 	}
-	s.consumeAs(TokenKind.CloseBrace);
+	s.nextWith(TokenKind.CloseBrace);
 
 	return NODE('ns', { name, members });
 }
@@ -130,12 +130,12 @@ function parseVarDef(s: TokenStream): Cst.Node {
 	s.next();
 
 	let ty;
-	if (s.kindIs(TokenKind.Colon)) {
+	if (s.kind === TokenKind.Colon) {
 		s.next();
 		ty = parseType(s);
 	}
 
-	s.consumeAs(TokenKind.Eq);
+	s.nextWith(TokenKind.Eq);
 
 	const expr = parseExpr(s);
 
@@ -211,12 +211,12 @@ function parseExpr(s: TokenStream): Cst.Node {
  * ```
 */
 function parseIf(s: TokenStream): Cst.Node {
-	s.consumeAs(TokenKind.IfKeyword);
+	s.nextWith(TokenKind.IfKeyword);
 	const cond = parseExpr(s);
 	const then = parseBlockOrStatement(s);
 
 	const elseif: { cond: any, then: any }[] = [];
-	while (s.kindIs(TokenKind.ElifKeyword)) {
+	while (s.kind === TokenKind.ElifKeyword) {
 		s.next();
 		const elifCond = parseExpr(s);
 		const elifThen = parseBlockOrStatement(s);
@@ -224,7 +224,7 @@ function parseIf(s: TokenStream): Cst.Node {
 	}
 
 	let _else = undefined;
-	if (s.kindIs(TokenKind.ElseKeyword)) {
+	if (s.kind === TokenKind.ElseKeyword) {
 		s.next();
 		_else = parseBlockOrStatement(s);
 	}
@@ -253,7 +253,7 @@ function parseReference(s: TokenStream): Cst.Node {
 	const segs: string[] = [];
 	while (true) {
 		if (segs.length > 0) {
-			if (s.kindIs(TokenKind.Colon)) {
+			if (s.kind === TokenKind.Colon) {
 				s.next();
 			} else {
 				break;
@@ -345,12 +345,12 @@ function NODE(type: string, params: Record<string, any>): Cst.Node {
  * ```
 */
 function parseBlock(s: TokenStream): Cst.Node[] {
-	s.consumeAs(TokenKind.OpenBrace);
+	s.nextWith(TokenKind.OpenBrace);
 	const steps: Cst.Node[] = [];
-	while (!s.kindIs(TokenKind.CloseBrace)) {
+	while (s.kind !== TokenKind.CloseBrace) {
 		steps.push(parseStatement(s));
 	}
-	s.consumeAs(TokenKind.CloseBrace);
+	s.nextWith(TokenKind.CloseBrace);
 	return steps;
 }
 
@@ -360,7 +360,7 @@ function parseBlock(s: TokenStream): Cst.Node[] {
  * ```
 */
 function parseBlockOrStatement(s: TokenStream): Cst.Node {
-	if (s.kindIs(TokenKind.OpenBrace)) {
+	if (s.kind === TokenKind.OpenBrace) {
 		return NODE('block', { statements: parseBlock(s) });
 	} else {
 		return parseStatement(s);
