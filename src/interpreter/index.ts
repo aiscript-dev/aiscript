@@ -10,6 +10,7 @@ import { assertNumber, assertString, assertFunction, assertBoolean, assertObject
 import { NULL, RETURN, unWrapRet, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, BREAK, CONTINUE, ERROR } from './value.js';
 import { getPrimProp } from './primitive-props.js';
 import { Variable } from './variable.js';
+import { getTypeBySource } from '../type.js';
 import type { Value, VFn } from './value.js';
 import type * as Ast from '../node.js';
 
@@ -379,9 +380,12 @@ export class Interpreter {
 					}
 					value.attr = attrs;
 				}
+				let type = undefined;
+				if (node.varType) type = getTypeBySource(node.varType);
 				scope.add(node.name, {
 					isMutable: node.mut,
-					value: value,
+					value,
+					type,
 				});
 				return NULL;
 			}
