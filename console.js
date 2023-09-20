@@ -1,7 +1,6 @@
 import * as readline from 'readline/promises';
 import chalk from 'chalk';
-import { Parser, Interpreter, errors, utils } from '@syuilo/aiscript';
-const { AiScriptError } = errors;
+import { Parser, Interpreter, utils } from '@syuilo/aiscript';
 const { valToString } = utils;
 
 const i = readline.createInterface({
