@@ -169,6 +169,9 @@ _codepoint_ は 0 以上、10FFFF<sub>16</sub> 以下である必要がありま
 ### @Obj:copy(_v_: obj): obj
 オブジェクトのコピーを生成します。  
 
+### @Obj:merge(_o1_: obj, _o2_: obj): obj
+２つのオブジェクトを併合したものを返します。
+
 ## :: Async
 ### @Async:interval(_interval_: num, _callback_: fn, _immediate_?: bool): fn
 指定した周期でコールバック関数を呼び出します。  
