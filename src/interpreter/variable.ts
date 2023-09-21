@@ -9,24 +9,29 @@ export type Variable = (
   | {
     isMutable: true
     value: Value
-  })
-	& {
-		type?: Type
-	}
+  }
+)	& {
+	type?: Type
+	attrs?: Attr[];
+};
+export type Attr = {
+	name: string;
+	value: Value;
+};
 
 export const Variable = {
-	mut(value: Value, opts?: { type?: Type }): Variable {
+	mut(value: Value, opts?: { type?: Type, attrs?: Attr[] }): Variable {
 		return {
 			isMutable: true,
 			value,
-			type: opts?.type,
+			...opts,
 		};
 	},
-	const(value: Value, opts?: { type?: Type }): Variable {
+	const(value: Value, opts?: { type?: Type, attrs?: Attr[] }): Variable {
 		return {
 			isMutable: false,
 			value,
-			type: opts?.type,
+			...opts,
 		};
 	},
 };

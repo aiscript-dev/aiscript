@@ -370,15 +370,15 @@ export class Interpreter {
 
 			case 'def': {
 				const value = await this._eval(node.expr, scope);
+				let attrs: Variable['attrs'] = undefined;
 				if (node.attr.length > 0) {
-					const attrs: Value['attr'] = [];
+					attrs = [];
 					for (const nAttr of node.attr) {
 						attrs.push({
 							name: nAttr.name,
 							value: await this._eval(nAttr.value, scope),
 						});
 					}
-					value.attr = attrs;
 				}
 				let type = undefined;
 				if (node.varType) type = getTypeBySource(node.varType);
@@ -386,6 +386,7 @@ export class Interpreter {
 					isMutable: node.mut,
 					value,
 					type,
+					attrs,
 				});
 				return NULL;
 			}
