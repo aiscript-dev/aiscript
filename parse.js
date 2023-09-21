@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { Parser } from './built/esm/parser/index.js';
+import { Parser } from '@syuilo/aiscript';
 
 const script = fs.readFileSync('./debug.ais', 'utf8');
 const ast = Parser.parse(script);
