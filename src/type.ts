@@ -45,14 +45,10 @@ export function T_FN(args: Type[], result: Type): TFn {
 	};
 }
 
-export function isTSimple(x: Type): x is TSimple { return x.type === 'simple'; }
-export function isTGeneric(x: Type): x is TGeneric { return x.type === 'generic'; }
-export function isTFn(x: Type): x is TFn { return x.type === 'fn'; }
-export function isAny(x: Type): x is TSimple<'any'> { return x.type === 'simple' && x.name === 'any'; }
-
-function assertTSimple(t: Type): asserts t is TSimple { if (t.type !== 'simple') { throw new AiScriptTypeError(`Expect simple type, but got ${t.type} type.`); } }
-function assertTGeneric(t: Type): asserts t is TGeneric { if (t.type !== 'generic') { throw new AiScriptTypeError(`Expect generic type, but got ${t.type} type.`); } }
-function assertTFn(t: Type): asserts t is TFn { if (t.type !== 'fn') { throw new AiScriptTypeError(`Expect fn type, but got ${t.type} type.`); } }
+function isTSimple(x: Type): x is TSimple { return x.type === 'simple'; }
+function isTGeneric(x: Type): x is TGeneric { return x.type === 'generic'; }
+function isTFn(x: Type): x is TFn { return x.type === 'fn'; }
+function isAny(x: Type): x is TSimple<'any'> { return x.type === 'simple' && x.name === 'any'; }
 
 // Utility
 

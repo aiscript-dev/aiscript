@@ -168,14 +168,6 @@ declare namespace Ast {
 export { Ast }
 
 // @public (undocumented)
-type Attr_2 = {
-    attr?: {
-        name: string;
-        value: Value;
-    }[];
-};
-
-// @public (undocumented)
 type Attribute = NodeBase & {
     type: 'attr';
     name: string;
@@ -953,7 +945,7 @@ function valToJs(val: Value): any;
 function valToString(val: Value, simple?: boolean): string;
 
 // @public (undocumented)
-type Value = (VNull | VBool | VNum | VStr | VArr | VObj | VFn | VReturn | VBreak | VContinue | VError) & Attr_2;
+type Value = VNull | VBool | VNum | VStr | VArr | VObj | VFn | VReturn | VBreak | VContinue | VError;
 
 declare namespace values {
     export {
@@ -968,7 +960,6 @@ declare namespace values {
         VBreak,
         VContinue,
         VError,
-        Attr_2 as Attr,
         Value,
         NULL,
         TRUE,
