@@ -75,7 +75,17 @@ function parseNamespace(s: TokenStream): Cst.Node {
  * ```
 */
 function parseMeta(s: TokenStream): Cst.Node {
-	throw new Error('todo');
+	s.nextWith(TokenKind.Sharp3);
+
+	let name;
+	if (s.kind === TokenKind.Identifier) {
+		name = s.token.value;
+		s.next();
+	}
+
+	const value = parseStaticLiteral(s);
+
+	return NODE('meta', { name, value });
 }
 
 //#endregion Top-level Statement
@@ -96,6 +106,14 @@ function parseStatement(s: TokenStream): Cst.Node {
 		}
 		case TokenKind.At: {
 			return parseFnDef(s);
+		}
+		case TokenKind.BreakKeyword: {
+			s.next();
+			return NODE('break', {});
+		}
+		case TokenKind.ContinueKeyword: {
+			s.next();
+			return NODE('continue', {});
 		}
 		default: {
 			return parseExpr(s);
@@ -142,8 +160,18 @@ function parseVarDef(s: TokenStream): Cst.Node {
 	return NODE('def', { name, varType: ty, expr, mut, attr: [] });
 }
 
+/**
+ * ```abnf
+ * Out = "<:" Expr
+ * ```
+*/
 function parseOut(s: TokenStream): Cst.Node {
-	throw new Error('todo');
+	s.nextWith(TokenKind.Out);
+	const expr = parseExpr(s);
+	return NODE('identifier', {
+		name: 'print',
+		chain: [NODE('callChain', { args: [expr] })],
+	});
 }
 
 function parseAttr(s: TokenStream): Cst.Node {
@@ -158,20 +186,26 @@ function parseFor(s: TokenStream): Cst.Node {
 	throw new Error('todo');
 }
 
+/**
+ * ```abnf
+ * Return = "return" Expr
+ * ```
+*/
 function parseReturn(s: TokenStream): Cst.Node {
-	throw new Error('todo');
+	s.nextWith(TokenKind.ReturnKeyword);
+	const expr = parseExpr(s);
+	return NODE('return', { expr });
 }
 
+/**
+ * ```abnf
+ * Loop = "loop" Block
+ * ```
+*/
 function parseLoop(s: TokenStream): Cst.Node {
-	throw new Error('todo');
-}
-
-function parseBreak(s: TokenStream): Cst.Node {
-	throw new Error('todo');
-}
-
-function parseContinue(s: TokenStream): Cst.Node {
-	throw new Error('todo');
+	s.nextWith(TokenKind.LoopKeyword);
+	const statements = parseBlock(s);
+	return NODE('loop', { statements });
 }
 
 function parseAssign(s: TokenStream): Cst.Node {
@@ -186,9 +220,6 @@ function parseExpr(s: TokenStream): Cst.Node {
 	// TODO: Pratt parsing
 
 	switch (s.token.kind) {
-		case TokenKind.Identifier: {
-			return parseReference(s);
-		}
 		case TokenKind.NumberLiteral: {
 			// TODO: sign
 			// TODO: validate value
@@ -198,6 +229,15 @@ function parseExpr(s: TokenStream): Cst.Node {
 		}
 		case TokenKind.IfKeyword: {
 			return parseIf(s);
+		}
+		case TokenKind.EvalKeyword: {
+			return parseEval(s);
+		}
+		case TokenKind.ExistsKeyword: {
+			return parseExists(s);
+		}
+		case TokenKind.Identifier: {
+			return parseReference(s);
 		}
 		default: {
 			throw new Error('todo');
@@ -313,6 +353,10 @@ function parseFnExpr(s: TokenStream): Cst.Node {
 
 //#region Static Literal
 
+function parseStaticLiteral(s: TokenStream): Cst.Node {
+	throw new Error('todo');
+}
+
 function parseStaticArray(s: TokenStream): Cst.Node {
 	throw new Error('todo');
 }
@@ -360,11 +404,14 @@ function NODE(type: string, params: Record<string, any>): Cst.Node {
 */
 function parseBlock(s: TokenStream): Cst.Node[] {
 	s.nextWith(TokenKind.OpenBrace);
+
 	const steps: Cst.Node[] = [];
 	while (s.kind !== TokenKind.CloseBrace) {
 		steps.push(parseStatement(s));
 	}
+
 	s.nextWith(TokenKind.CloseBrace);
+
 	return steps;
 }
 
