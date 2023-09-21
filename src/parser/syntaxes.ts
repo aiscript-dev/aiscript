@@ -107,6 +107,18 @@ function parseStatement(s: TokenStream): Cst.Node {
 		case TokenKind.At: {
 			return parseFnDef(s);
 		}
+		case TokenKind.Out: {
+			return parseOut(s);
+		}
+		case TokenKind.ReturnKeyword: {
+			return parseReturn(s);
+		}
+		// Attr
+		// Each
+		// For
+		case TokenKind.LoopKeyword: {
+			return parseLoop(s);
+		}
 		case TokenKind.BreakKeyword: {
 			s.next();
 			return NODE('break', {});
@@ -115,6 +127,7 @@ function parseStatement(s: TokenStream): Cst.Node {
 			s.next();
 			return NODE('continue', {});
 		}
+		// Assign
 		default: {
 			return parseExpr(s);
 		}
