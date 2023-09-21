@@ -55,20 +55,31 @@ function isAny(x: Type): x is TSimple<'any'> { return x.type === 'simple' && x.n
 export function isCompatibleType(a: Type, b: Type): boolean {
 	if (isAny(a) || isAny(b)) return true;
 
-	if (isTSimple(a)) return isTSimple(b)
-		&& (a.name === b.name);
+	// isTSimple系のif文で分岐すると網羅性チェックができない？
+	switch (a.type) {
+		case 'simple' :
+			if (!isTSimple(b)) return false;
+			if (!(a.name === b.name)) return false;
+			return true;
 
-	if (isTGeneric(a)) return isTGeneric(b)
-		&& (a.name === b.name)
-		&& (a.inners.length !== b.inners.length)
-		&& (a.inners.filter((v, i) => !isCompatibleType(v, b.inners[i]!)).length === 0);
+		case 'generic' :
+			if (!isTGeneric(b)) return false;
+			if (!(a.name === b.name)) return false;
+			if (!(a.inners.length !== b.inners.length)) return false;
+			for (const i in a.inners) {
+				if (!isCompatibleType(a.inners[i]!, b.inners[i]!)) return false;
+			}
+			return true;
 
-	if (isTFn(a)) return isTFn(b)
-		&& isCompatibleType(a.result, b.result)
-		&& (a.args.length !== b.args.length)
-		&& (a.args.filter((v, i) => !isCompatibleType(v, b.args[i]!)).length === 0);
-
-	return false;
+		case 'fn' :
+			if (!isTFn(b)) return false;
+			if (!isCompatibleType(a.result, b.result)) return false;
+			if (!(a.args.length !== b.args.length)) return false;
+			for (const i in a.args) {
+				if (!isCompatibleType(a.args[i]!, b.args[i]!)) return false;
+			}
+			return true;
+	}
 }
 
 /**
