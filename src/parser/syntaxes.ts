@@ -252,6 +252,9 @@ function parseExpr(s: TokenStream): Cst.Node {
 		case TokenKind.Identifier: {
 			return parseReference(s);
 		}
+		case TokenKind.OpenBracket: {
+			return parseArray(s);
+		}
 		default: {
 			throw new Error('todo');
 		}
@@ -341,8 +344,25 @@ function parseObject(s: TokenStream): Cst.Node {
 	throw new Error('todo');
 }
 
+/**
+ * ```abnf
+ * Array = "[" *(Expr [","]) "]"
+ * ```
+*/
 function parseArray(s: TokenStream): Cst.Node {
-	throw new Error('todo');
+	s.nextWith(TokenKind.OpenBracket);
+
+	const value = [];
+	while (s.kind !== TokenKind.CloseBracket) {
+		value.push(parseExpr(s));
+		if (s.kind === TokenKind.Comma) {
+			s.next();
+		}
+	}
+
+	s.nextWith(TokenKind.CloseBracket);
+
+	return NODE('arr', { value });
 }
 
 //#endregion Expression
