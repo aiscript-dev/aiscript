@@ -57,6 +57,13 @@ class AiScriptTypeError extends AiScriptError {
     name: string;
 }
 
+// @public
+class AiScriptUserError extends AiScriptRuntimeError {
+    constructor(message: string, info?: any);
+    // (undocumented)
+    name: string;
+}
+
 // @public (undocumented)
 type And = NodeBase & {
     type: 'and';
@@ -376,7 +383,8 @@ declare namespace errors {
         AiScriptSyntaxError,
         AiScriptTypeError,
         AiScriptRuntimeError,
-        AiScriptIndexOutOfRangeError
+        AiScriptIndexOutOfRangeError,
+        AiScriptUserError
     }
 }
 export { errors }

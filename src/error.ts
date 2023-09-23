@@ -61,3 +61,12 @@ export class AiScriptIndexOutOfRangeError extends AiScriptRuntimeError {
 		super(message, info);
 	}
 }
+/**
+ * Errors thrown by users.
+ */
+export class AiScriptUserError extends AiScriptRuntimeError {
+	public name = '';
+	constructor(message: string, info?: any) {
+		super(message, info);
+	}
+}
