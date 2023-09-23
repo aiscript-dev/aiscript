@@ -1,4 +1,5 @@
 [Read translated version (en)](./translations/en/CHANGELOG.md)
+- `Core:abort`でプログラムを緊急停止できるように
 ## Note
 バージョン0.16.0に記録漏れがありました。
 >- 関数`Str:from_codepoint` `Str#codepoint_at`を追加
