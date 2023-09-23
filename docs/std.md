@@ -34,15 +34,17 @@ AiScriptのバージョンです。
 ### @Core:to_str(_v_: value): str
 値を表す文字列を取得します。  
 
-### @Core:sleep(_time_: value): void
+### @Core:sleep(_time_: num): void
 指定時間（ミリ秒）待機します。
-## :: Util
 
+### @Core:abort(_message_: str): never
+プログラムを緊急停止します。
+
+## :: Util
 ### @Util:uuid(): str
 新しいUUIDを生成します。  
 
 ## :: Json
-
 ### @Json:stringify(_v_: value): str
 JSONを生成します。  
 
@@ -53,7 +55,6 @@ JSONをパースします。 引数がJSONとしてパース可能性でない�
 文字列がJSONとしてパース可能であるかの判定を行います。歴史的理由により存在しています 
 
 ## :: Date
-
 ### @Date:now(): num
 現在時刻を取得します。  
 
