@@ -6,6 +6,11 @@ export enum TokenKind {
 	NumberLiteral,
 	StringLiteral,
 
+	// template string
+	Template,
+	TemplateStringElement,
+	TemplateExprElement,
+
 	// keyword
 	NullKeyword,
 	TrueKeyword,
@@ -100,10 +105,17 @@ export enum TokenKind {
 export class Token {
 	constructor(
 		public kind: TokenKind,
+		/** for number literal, string literal */
 		public value?: string,
+		/** for template syntax */
+		public children?: Token[],
 	) { }
 }
 
-export function TOKEN(kind: TokenKind, value?: Token['value']) {
-	return new Token(kind, value);
+/**
+ * - opts.value: for number literal, string literal
+ * - opts.children: for template syntax
+*/
+export function TOKEN(kind: TokenKind, opts?: { value?: Token['value'], children?: Token['children'] }) {
+	return new Token(kind, opts?.value, opts?.children);
 }

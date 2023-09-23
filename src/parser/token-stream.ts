@@ -6,7 +6,15 @@ const spacingChars = [' ', '\t', '\r', '\n'];
 const digit = /^[0-9]$/;
 const wordChar = /^[A-Za-z0-9_]$/;
 
-export class TokenStream {
+export interface ITokenStream {
+	expect(kind: TokenKind): void;
+	nextWith(kind: TokenKind): void;
+	get token(): Token;
+	get kind(): TokenKind;
+	next(): void;
+}
+
+export class SourceReader implements ITokenStream {
 	private source: string;
 	private _token?: Token;
 	private index: number;
@@ -17,9 +25,9 @@ export class TokenStream {
 		this.index = 0;
 	}
 
-	public init() {
+	public init(): void {
 		this.loadChar();
-		this.next();
+		this._token = this.nextToken();
 	}
 
 	public expect(kind: TokenKind): void {
@@ -54,7 +62,7 @@ export class TokenStream {
 
 	public get token(): Token {
 		if (this._token == null) {
-			throw new Error('invalid operation: token is not read yet');
+			throw new Error('stream is not initialized yet');
 		}
 		return this._token;
 	}
@@ -64,10 +72,18 @@ export class TokenStream {
 	}
 
 	public next(): void {
+		if (this._token == null) {
+			throw new Error('stream is not initialized yet');
+		}
+		this._token = this.nextToken();
+	}
+
+	private nextToken(): Token {
+		let token;
 		while (true) {
 			// EOF terminated
 			if (this.char == null) {
-				this._token = TOKEN(TokenKind.EOF);
+				token = TOKEN(TokenKind.EOF);
 				break;
 			}
 			// skip spasing
@@ -75,16 +91,20 @@ export class TokenStream {
 				this.nextChar();
 				continue;
 			}
-			let match = true;
 			switch (this.char) {
 				case '!': {
 					this.nextChar();
 					if ((this.char as string) === '=') {
 						this.nextChar();
-						this._token = TOKEN(TokenKind.NotEq);
+						token = TOKEN(TokenKind.NotEq);
 					} else {
-						this._token = TOKEN(TokenKind.Not);
+						token = TOKEN(TokenKind.Not);
 					}
+					break;
+				}
+				case '"': {
+					this.nextChar();
+					token = this.readStringLiteral();
 					break;
 				}
 				case '#': {
@@ -93,76 +113,72 @@ export class TokenStream {
 						this.nextChar();
 						if ((this.char as string) === '#') {
 							this.nextChar();
-							this._token = TOKEN(TokenKind.Sharp3);
-						} else {
-							match = false;
+							token = TOKEN(TokenKind.Sharp3);
 						}
 					} else if ((this.char as string) === '[') {
 						this.nextChar();
-						this._token = TOKEN(TokenKind.OpenSharpBracket);
+						token = TOKEN(TokenKind.OpenSharpBracket);
 					} else {
-						this._token = TOKEN(TokenKind.Sharp);
+						token = TOKEN(TokenKind.Sharp);
 					}
 					break;
 				}
 				case '%': {
 					this.nextChar();
-					this._token = TOKEN(TokenKind.Percent);
+					token = TOKEN(TokenKind.Percent);
 					break;
 				}
 				case '&': {
 					this.nextChar();
 					if ((this.char as string) === '&') {
 						this.nextChar();
-						this._token = TOKEN(TokenKind.And2);
-					} else {
-						match = false;
+						token = TOKEN(TokenKind.And2);
 					}
 					break;
 				}
 				case '(': {
 					this.nextChar();
-					this._token = TOKEN(TokenKind.OpenParen);
+					token = TOKEN(TokenKind.OpenParen);
 					break;
 				}
 				case ')': {
 					this.nextChar();
-					this._token = TOKEN(TokenKind.CloseParen);
+					token = TOKEN(TokenKind.CloseParen);
 					break;
 				}
 				case '*': {
 					this.nextChar();
-					this._token = TOKEN(TokenKind.Asterisk);
+					token = TOKEN(TokenKind.Asterisk);
 					break;
 				}
 				case '+': {
 					this.nextChar();
 					if ((this.char as string) === '=') {
 						this.nextChar();
-						this._token = TOKEN(TokenKind.PlusEq);
+						token = TOKEN(TokenKind.PlusEq);
 					} else {
-						this._token = TOKEN(TokenKind.Plus);
+						token = TOKEN(TokenKind.Plus);
 					}
 					break;
 				}
 				case ',': {
 					this.nextChar();
-					this._token = TOKEN(TokenKind.Comma);
+					token = TOKEN(TokenKind.Comma);
 					break;
 				}
 				case '-': {
 					this.nextChar();
 					if ((this.char as string) === '=') {
 						this.nextChar();
-						this._token = TOKEN(TokenKind.MinusEq);
+						token = TOKEN(TokenKind.MinusEq);
 					} else {
-						this._token = TOKEN(TokenKind.Minus);
+						token = TOKEN(TokenKind.Minus);
 					}
 					break;
 				}
 				case '.': {
 					this.nextChar();
-					this._token = TOKEN(TokenKind.Dot);
+					token = TOKEN(TokenKind.Dot);
 					break;
 				}
 				case '/': {
@@ -176,7 +192,7 @@ export class TokenStream {
 						this.skipCommentLine();
 						continue;
 					} else {
-						this._token = TOKEN(TokenKind.Slash);
+						token = TOKEN(TokenKind.Slash);
 					}
 					break;
 				}
@@ -184,27 +200,27 @@ export class TokenStream {
 					this.nextChar();
 					if ((this.char as string) === ':') {
 						this.nextChar();
-						this._token = TOKEN(TokenKind.Colon2);
+						token = TOKEN(TokenKind.Colon2);
 					} else {
-						this._token = TOKEN(TokenKind.Colon);
+						token = TOKEN(TokenKind.Colon);
 					}
 					break;
 				}
 				case ';': {
 					this.nextChar();
-					this._token = TOKEN(TokenKind.SemiColon);
+					token = TOKEN(TokenKind.SemiColon);
 					break;
 				}
 				case '<': {
 					this.nextChar();
 					if ((this.char as string) === '=') {
 						this.nextChar();
-						this._token = TOKEN(TokenKind.LtEq);
+						token = TOKEN(TokenKind.LtEq);
 					} else if ((this.char as string) === ':') {
 						this.nextChar();
-						this._token = TOKEN(TokenKind.Out);
+						token = TOKEN(TokenKind.Out);
 					} else {
-						this._token = TOKEN(TokenKind.Lt);
+						token = TOKEN(TokenKind.Lt);
 					}
 					break;
 				}
@@ -212,12 +228,12 @@ export class TokenStream {
 					this.nextChar();
 					if ((this.char as string) === '=') {
 						this.nextChar();
-						this._token = TOKEN(TokenKind.Eq2);
+						token = TOKEN(TokenKind.Eq2);
 					} else if ((this.char as string) === '>') {
 						this.nextChar();
-						this._token = TOKEN(TokenKind.Arrow);
+						token = TOKEN(TokenKind.Arrow);
 					} else {
-						this._token = TOKEN(TokenKind.Eq);
+						token = TOKEN(TokenKind.Eq);
 					}
 					break;
 				}
@@ -225,169 +241,234 @@ export class TokenStream {
 					this.nextChar();
 					if ((this.char as string) === '=') {
 						this.nextChar();
-						this._token = TOKEN(TokenKind.GtEq);
+						token = TOKEN(TokenKind.GtEq);
 					} else {
-						this._token = TOKEN(TokenKind.Gt);
+						token = TOKEN(TokenKind.Gt);
 					}
 					break;
 				}
 				case '@': {
 					this.nextChar();
-					this._token = TOKEN(TokenKind.At);
+					token = TOKEN(TokenKind.At);
 					break;
 				}
 				case '[': {
 					this.nextChar();
-					this._token = TOKEN(TokenKind.OpenBracket);
+					token = TOKEN(TokenKind.OpenBracket);
 					break;
 				}
 				case ']': {
 					this.nextChar();
-					this._token = TOKEN(TokenKind.CloseBracket);
+					token = TOKEN(TokenKind.CloseBracket);
 					break;
 				}
 				case '^': {
 					this.nextChar();
-					this._token = TOKEN(TokenKind.Hat);
+					token = TOKEN(TokenKind.Hat);
+					break;
+				}
+				case '`': {
+					this.nextChar();
+					token = this.readTemplate();
 					break;
 				}
 				case '{': {
 					this.nextChar();
-					this._token = TOKEN(TokenKind.OpenBrace);
+					token = TOKEN(TokenKind.OpenBrace);
 					break;
 				}
 				case '|': {
 					this.nextChar();
 					if ((this.char as string) === '|') {
 						this.nextChar();
-						this._token = TOKEN(TokenKind.Or2);
-					} else {
-						match = false;
+						token = TOKEN(TokenKind.Or2);
 					}
 					break;
 				}
 				case '}': {
 					this.nextChar();
-					this._token = TOKEN(TokenKind.CloseBrace);
+					token = TOKEN(TokenKind.CloseBrace);
 					break;
-				}
-				default: {
-					match = false;
 				}
 			}
-			if (!match) {
-				if (this.readDigits()) {
+			if (token == null) {
+				const digitToken = this.tryReadDigits();
+				if (digitToken) {
+					token = digitToken;
 					break;
 				}
-				if (this.readWord()) {
+				const wordToken = this.tryReadWord();
+				if (wordToken) {
+					token = wordToken;
 					break;
 				}
 				throw new AiScriptSyntaxError(`invalid character: "${this.char}"`);
 			}
 			break;
 		}
+		return token;
 	}
 
-	private readWord(): boolean {
+	private tryReadWord(): Token | undefined {
 		// read a word
-		let word = '';
+		let value = '';
 		while (this.char != null && wordChar.test(this.char)) {
-			word += this.char;
+			value += this.char;
 			this.nextChar();
 		}
-		if (word.length === 0) {
-			return false;
+		if (value.length === 0) {
+			return;
 		}
 		// check word kind
-		switch (word) {
+		switch (value) {
 			case 'null': {
-				this._token = TOKEN(TokenKind.NullKeyword);
-				break;
+				return TOKEN(TokenKind.NullKeyword);
 			}
 			case 'true': {
-				this._token = TOKEN(TokenKind.TrueKeyword);
-				break;
+				return TOKEN(TokenKind.TrueKeyword);
 			}
 			case 'false': {
-				this._token = TOKEN(TokenKind.FalseKeyword);
-				break;
+				return TOKEN(TokenKind.FalseKeyword);
 			}
 			case 'each': {
-				this._token = TOKEN(TokenKind.EachKeyword);
-				break;
+				return TOKEN(TokenKind.EachKeyword);
 			}
 			case 'for': {
-				this._token = TOKEN(TokenKind.ForKeyword);
-				break;
+				return TOKEN(TokenKind.ForKeyword);
 			}
 			case 'loop': {
-				this._token = TOKEN(TokenKind.LoopKeyword);
-				break;
+				return TOKEN(TokenKind.LoopKeyword);
 			}
 			case 'break': {
-				this._token = TOKEN(TokenKind.BreakKeyword);
-				break;
+				return TOKEN(TokenKind.BreakKeyword);
 			}
 			case 'continue': {
-				this._token = TOKEN(TokenKind.ContinueKeyword);
-				break;
+				return TOKEN(TokenKind.ContinueKeyword);
 			}
 			case 'match': {
-				this._token = TOKEN(TokenKind.MatchKeyword);
-				break;
+				return TOKEN(TokenKind.MatchKeyword);
 			}
 			case 'if': {
-				this._token = TOKEN(TokenKind.IfKeyword);
-				break;
+				return TOKEN(TokenKind.IfKeyword);
 			}
 			case 'elif': {
-				this._token = TOKEN(TokenKind.ElifKeyword);
-				break;
+				return TOKEN(TokenKind.ElifKeyword);
 			}
 			case 'else': {
-				this._token = TOKEN(TokenKind.ElseKeyword);
-				break;
+				return TOKEN(TokenKind.ElseKeyword);
 			}
 			case 'return': {
-				this._token = TOKEN(TokenKind.ReturnKeyword);
-				break;
+				return TOKEN(TokenKind.ReturnKeyword);
 			}
 			case 'eval': {
-				this._token = TOKEN(TokenKind.EvalKeyword);
-				break;
+				return TOKEN(TokenKind.EvalKeyword);
 			}
 			case 'var': {
-				this._token = TOKEN(TokenKind.VarKeyword);
-				break;
+				return TOKEN(TokenKind.VarKeyword);
 			}
 			case 'let': {
-				this._token = TOKEN(TokenKind.LetKeyword);
-				break;
+				return TOKEN(TokenKind.LetKeyword);
 			}
 			case 'exists': {
-				this._token = TOKEN(TokenKind.ExistsKeyword);
-				break;
+				return TOKEN(TokenKind.ExistsKeyword);
 			}
 			default: {
-				this._token = TOKEN(TokenKind.Identifier, word);
-				break;
+				return TOKEN(TokenKind.Identifier, { value });
 			}
 		}
-		return true;
 	}
 
-	private readDigits(): boolean {
+	private tryReadDigits(): Token | undefined {
 		// TODO: float number
-		let digits = '';
+		let value = '';
 		while (this.char != null && digit.test(this.char)) {
-			digits += this.char;
+			value += this.char;
 			this.nextChar();
 		}
-		if (digits.length === 0) {
-			return false;
+		if (value.length === 0) {
+			return;
 		}
-		this._token = TOKEN(TokenKind.NumberLiteral, digits);
-		return true;
+		return TOKEN(TokenKind.NumberLiteral, { value });
+	}
+
+	private readStringLiteral(): Token {
+		let value = '';
+		while (true) {
+			if (this.char == null) {
+				throw new AiScriptSyntaxError(`unexpected EOF`);
+			}
+			if (this.char === '"') {
+				this.nextChar();
+				break;
+			}
+			value += this.char;
+			this.nextChar();
+		}
+		return TOKEN(TokenKind.StringLiteral, { value });
+	}
+
+	private readTemplate(): Token {
+		const elements: Token[] = [];
+		let buf = '';
+		let tokenBuf: Token[] = [];
+		let state: 'string' | 'expr' | 'finish' = 'string';
+
+		while (state != 'finish') {
+			switch (state) {
+				case 'string': {
+					// テンプレートの終了が無いままEOFに達した
+					if (this.char == null) {
+						throw new AiScriptSyntaxError(`unexpected EOF`);
+					}
+					// テンプレートの終了
+					if (this.char == '`') {
+						this.nextChar();
+						if (buf.length > 0) {
+							elements.push(TOKEN(TokenKind.TemplateStringElement, { value: buf }));
+						}
+						state = 'finish';
+						break;
+					}
+					// 埋め込み式の開始
+					if (this.char == '{') {
+						this.nextChar();
+						if (buf.length > 0) {
+							elements.push(TOKEN(TokenKind.TemplateStringElement, { value: buf }));
+							buf = '';
+						}
+						state = 'expr';
+						break;
+					}
+					buf += this.char;
+					this.nextChar();
+					break;
+				}
+				case 'expr': {
+					// 埋め込み式の終端記号が無いままEOFに達した
+					if (this.char == null) {
+						throw new AiScriptSyntaxError(`unexpected EOF`);
+					}
+					// skip spasing
+					if (spacingChars.includes(this.char)) {
+						this.nextChar();
+						continue;
+					}
+					// 埋め込み式の終了
+					if ((this.char as string) === '}') {
+						this.nextChar();
+						elements.push(TOKEN(TokenKind.TemplateExprElement, { children: tokenBuf }));
+						tokenBuf = [];
+						state = 'string';
+						break;
+					}
+					const token = this.nextToken();
+					tokenBuf.push(token);
+					break;
+				}
+			}
+		}
+
+		return TOKEN(TokenKind.Template, { children: elements });
 	}
 
 	private skipCommentLine() {
@@ -417,6 +498,51 @@ export class TokenStream {
 				continue;
 			}
 			this.nextChar();
+		}
+	}
+}
+export class TokenSequence implements ITokenStream {
+	private seq: Token[];
+	private _token?: Token;
+	private index: number;
+
+	constructor(sequence: TokenSequence['seq']) {
+		this.seq = sequence;
+		this.index = 0;
+	}
+
+	public init() {
+		this.next();
+	}
+
+	public expect(kind: TokenKind): void {
+		if (this.kind !== kind) {
+			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[this.token.kind]}`);
+		}
+	}
+
+	public nextWith(kind: TokenKind): void {
+		this.expect(kind);
+		this.next();
+	}
+
+	public get token(): Token {
+		if (this._token == null) {
+			throw new Error('stream is not initialized yet');
+		}
+		return this._token;
+	}
+
+	public get kind(): TokenKind {
+		return this.token.kind;
+	}
+
+	public next(): void {
+		if (this.index >= this.seq.length) {
+			this._token = TOKEN(TokenKind.EOF);
+		} else {
+			this._token = this.seq[this.index];
+			this.index++;
 		}
 	}
 }
