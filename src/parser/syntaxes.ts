@@ -260,7 +260,7 @@ function parseExpr(s: ITokenStream): Cst.Node {
 						const exprStream = new TokenSequence(element.children!);
 						exprStream.init();
 						const expr = parseExpr(exprStream);
-						if (exprStream.kind != TokenKind.EOF) {
+						if (exprStream.kind !== TokenKind.EOF) {
 							throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[exprStream.token.kind]}`);
 						}
 						values.push(expr);

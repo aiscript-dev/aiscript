@@ -413,7 +413,7 @@ export class SourceReader implements ITokenStream {
 		let tokenBuf: Token[] = [];
 		let state: 'string' | 'expr' | 'finish' = 'string';
 
-		while (state != 'finish') {
+		while (state !== 'finish') {
 			switch (state) {
 				case 'string': {
 					// テンプレートの終了が無いままEOFに達した
