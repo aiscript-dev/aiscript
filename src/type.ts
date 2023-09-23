@@ -52,8 +52,13 @@ function isAny(x: Type): x is TSimple<'any'> { return x.type === 'simple' && x.n
 
 // Utility
 
+/**
+ * Checks value of type b is assignable to type a,
+ * or in other words type a is superset of type b.
+ */
 export function isCompatibleType(a: Type, b: Type): boolean {
-	if (isAny(a) || isAny(b)) return true;
+	if (isAny(a)) return true;
+	if (isAny(b)) return false;
 
 	// isTSimple系のif文で分岐すると網羅性チェックができない？
 	switch (a.type) {
