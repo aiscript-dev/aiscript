@@ -89,7 +89,6 @@ export class Scanner implements ITokenStream {
 					break;
 				}
 				case '"': {
-					this.stream.next();
 					token = this.readStringLiteral(spaceSkipped);
 					break;
 				}
@@ -384,11 +383,15 @@ export class Scanner implements ITokenStream {
 
 	private readStringLiteral(spaceSkipped: boolean): Token {
 		let value = '';
+
+		const literalMark = this.stream.char;
+		this.stream.next();
+
 		while (true) {
 			if (this.stream.eof) {
 				throw new AiScriptSyntaxError(`unexpected EOF`);
 			}
-			if (this.stream.char === '"') {
+			if (this.stream.char === literalMark) {
 				this.stream.next();
 				break;
 			}
