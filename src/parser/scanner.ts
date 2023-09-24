@@ -1,6 +1,6 @@
 import { AiScriptSyntaxError } from '../error.js';
 import { CharStream } from './streams/char-stream.js';
-import { ITokenStream } from './streams/token-stream.js';
+import type { ITokenStream } from './streams/token-stream.js';
 import { TOKEN, TokenKind } from './token.js';
 import type { Token } from './token.js';
 
@@ -405,7 +405,7 @@ export class Scanner implements ITokenStream {
 						throw new AiScriptSyntaxError(`unexpected EOF`);
 					}
 					// テンプレートの終了
-					if (this.stream.char == '`') {
+					if (this.stream.char === '`') {
 						this.stream.next();
 						if (buf.length > 0) {
 							elements.push(TOKEN(TokenKind.TemplateStringElement, { value: buf }));
@@ -414,7 +414,7 @@ export class Scanner implements ITokenStream {
 						break;
 					}
 					// 埋め込み式の開始
-					if (this.stream.char == '{') {
+					if (this.stream.char === '{') {
 						this.stream.next();
 						if (buf.length > 0) {
 							elements.push(TOKEN(TokenKind.TemplateStringElement, { value: buf }));
