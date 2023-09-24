@@ -14,27 +14,43 @@ export function parseExpr(s: ITokenStream) {
 }
 
 const operators: OpInfo[] = [
+	{ opKind: 'postfix', kind: TokenKind.OpenParen, bp: 90 },
+	{ opKind: 'postfix', kind: TokenKind.OpenBracket, bp: 90 },
 
+	{ opKind: 'infix', kind: TokenKind.Dot, lbp: 80, rbp: 81 },
+
+	{ opKind: 'prefix', kind: TokenKind.Plus, bp: 70 },
+	{ opKind: 'prefix', kind: TokenKind.Minus, bp: 70 },
+	{ opKind: 'prefix', kind: TokenKind.Not, bp: 70 },
+
+	{ opKind: 'infix', kind: TokenKind.Asterisk, lbp: 60, rbp: 61 },
+	{ opKind: 'infix', kind: TokenKind.Slash, lbp: 60, rbp: 61 },
+
+	{ opKind: 'infix', kind: TokenKind.Plus, lbp: 50, rbp: 51 },
+	{ opKind: 'infix', kind: TokenKind.Minus, lbp: 50, rbp: 51 },
+
+	{ opKind: 'infix', kind: TokenKind.Lt, lbp: 40, rbp: 41 },
+	{ opKind: 'infix', kind: TokenKind.LtEq, lbp: 40, rbp: 41 },
+	{ opKind: 'infix', kind: TokenKind.Gt, lbp: 40, rbp: 41 },
+	{ opKind: 'infix', kind: TokenKind.GtEq, lbp: 40, rbp: 41 },
+
+	{ opKind: 'infix', kind: TokenKind.Eq2, lbp: 30, rbp: 31 },
+	{ opKind: 'infix', kind: TokenKind.NotEq, lbp: 30, rbp: 31 },
+
+	{ opKind: 'infix', kind: TokenKind.And2, lbp: 20, rbp: 21 },
+
+	{ opKind: 'infix', kind: TokenKind.Or2, lbp: 10, rbp: 11 },
 ];
 
 function parsePrefix(s: ITokenStream, info: PrefixInfo): Cst.Node {
-	// not
-	// sign
-
 	throw new Error('todo');
 }
 
 function parseInfix(s: ITokenStream, left: Cst.Node, info: InfixInfo): Cst.Node {
-	// arithmetic ops
-	// prop chain
-
 	throw new Error('todo');
 }
 
 function parsePostfix(s: ITokenStream, left: Cst.Node, info: PostfixInfo): Cst.Node {
-	// call chain
-	// index chain
-
 	throw new Error('todo');
 }
 
