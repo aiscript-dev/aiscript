@@ -8,6 +8,18 @@
 
 export type Node = Namespace | Meta | Statement | Expression | ChainMember | TypeSource;
 
+export function NODE(type: string, params: Record<string, any>): Node {
+	const node: Record<string, any> = { type };
+	//params.children;
+	for (const key of Object.keys(params)) {
+		if (params[key] !== undefined) {
+			node[key] = params[key];
+		}
+	}
+	//node.loc = { start, end };
+	return node as Node;
+}
+
 export type Statement =
 	Definition |
 	Return |
