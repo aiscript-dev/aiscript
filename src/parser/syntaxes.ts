@@ -257,6 +257,7 @@ function parseExpr(s: ITokenStream): Cst.Node {
 						break;
 					}
 					case TokenKind.TemplateExprElement: {
+						// スキャナで埋め込み式として事前に読み取っておいたトークン列をパースする
 						const exprStream = new TokenStream(element.children!);
 						exprStream.init();
 						const expr = parseExpr(exprStream);

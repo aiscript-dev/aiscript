@@ -27,7 +27,7 @@ export class Scanner implements ITokenStream {
 	}
 
 	public init(): void {
-		this._token = this.nextToken();
+		this._token = this.readToken();
 	}
 
 	public get eof(): boolean {
@@ -49,7 +49,7 @@ export class Scanner implements ITokenStream {
 		if (this._token == null) {
 			throw new Error('stream is not initialized yet');
 		}
-		this._token = this.nextToken();
+		this._token = this.readToken();
 	}
 
 	public expect(kind: TokenKind): void {
@@ -63,7 +63,7 @@ export class Scanner implements ITokenStream {
 		this.next();
 	}
 
-	private nextToken(): Token {
+	private readToken(): Token {
 		let token;
 		while (true) {
 			if (this.stream.eof) {
@@ -445,7 +445,7 @@ export class Scanner implements ITokenStream {
 						state = 'string';
 						break;
 					}
-					const token = this.nextToken();
+					const token = this.readToken();
 					tokenBuf.push(token);
 					break;
 				}
