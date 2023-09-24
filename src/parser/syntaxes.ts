@@ -116,7 +116,9 @@ function parseStatement(s: ITokenStream): Cst.Node {
 			return parseReturn(s);
 		}
 		// Attr
-		// Each
+		case TokenKind.EachKeyword: {
+			return parseEach(s);
+		}
 		// For
 		case TokenKind.LoopKeyword: {
 			return parseLoop(s);
@@ -189,12 +191,45 @@ function parseOut(s: ITokenStream): Cst.Node {
 	});
 }
 
-function parseAttr(s: ITokenStream): Cst.Node {
-	throw new Error('todo');
-}
-
+/**
+ * ```abnf
+ * Each = "each" "let" IDENT [","] Expr BlockOrStatement
+ *      / "each" "(" "let" IDENT [","] Expr ")" BlockOrStatement
+ * ```
+*/
 function parseEach(s: ITokenStream): Cst.Node {
-	throw new Error('todo');
+	let hasParen = false;
+
+	s.nextWith(TokenKind.EachKeyword);
+
+	if (s.kind === TokenKind.OpenParen) {
+		hasParen = true;
+		s.next();
+	}
+
+	s.nextWith(TokenKind.LetKeyword);
+
+	s.expect(TokenKind.Identifier);
+	const name = s.token.value!;
+	s.next();
+
+	if (s.kind == TokenKind.Comma) {
+		s.next();
+	}
+
+	const items = parseExpr(s);
+
+	if (hasParen) {
+		s.nextWith(TokenKind.CloseParen);
+	}
+
+	const body = parseBlockOrStatement(s);
+
+	return NODE('each', {
+		var: name,
+		items: items,
+		for: body,
+	});
 }
 
 function parseFor(s: ITokenStream): Cst.Node {
@@ -233,6 +268,8 @@ function parseAssign(s: ITokenStream): Cst.Node {
 
 function parseExpr(s: ITokenStream): Cst.Node {
 	// TODO: Pratt parsing
+
+	// prefix: attr
 
 	switch (s.kind) {
 		case TokenKind.NumberLiteral: {
