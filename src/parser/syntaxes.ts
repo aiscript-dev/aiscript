@@ -119,7 +119,9 @@ function parseStatement(s: ITokenStream): Cst.Node {
 		case TokenKind.EachKeyword: {
 			return parseEach(s);
 		}
-		// For
+		case TokenKind.ForKeyword: {
+			return parseFor(s);
+		}
 		case TokenKind.LoopKeyword: {
 			return parseLoop(s);
 		}
@@ -233,7 +235,61 @@ function parseEach(s: ITokenStream): Cst.Node {
 }
 
 function parseFor(s: ITokenStream): Cst.Node {
-	throw new Error('todo');
+	let hasParen = false;
+
+	s.nextWith(TokenKind.ForKeyword);
+
+	if (s.kind === TokenKind.OpenParen) {
+		hasParen = true;
+		s.next();
+	}
+
+	if (s.kind == TokenKind.LetKeyword) {
+		// range syntax
+		s.next();
+
+		s.expect(TokenKind.Identifier);
+		const name = s.token.value!;
+		s.next();
+
+		let from;
+		if ((s.kind as TokenKind) == TokenKind.Eq) {
+			s.next();
+			from = parseExpr(s);
+		} else {
+			from = NODE('num', { value: 0 });
+		}
+
+		const to = parseExpr(s);
+
+		if (hasParen) {
+			s.nextWith(TokenKind.CloseParen);
+		}
+
+		const body = parseBlockOrStatement(s);
+
+		return NODE('for', {
+			var: name,
+			from,
+			to,
+			for: body,
+		});
+	} else {
+		// times syntax
+
+		const times = parseExpr(s);
+
+		if (hasParen) {
+			s.nextWith(TokenKind.CloseParen);
+		}
+	
+		const body = parseBlockOrStatement(s);
+
+		return NODE('for', {
+			times,
+			for: body,
+		});
+	}
 }
 
 /**
@@ -268,8 +324,6 @@ function parseAssign(s: ITokenStream): Cst.Node {
 
 function parseExpr(s: ITokenStream): Cst.Node {
 	// TODO: Pratt parsing
-
-	// prefix: attr
 
 	switch (s.kind) {
 		case TokenKind.NumberLiteral: {
