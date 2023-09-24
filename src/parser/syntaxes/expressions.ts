@@ -234,7 +234,7 @@ function parsePratt(s: ITokenStream, minBp: number) {
 	let left: Cst.Node;
 
 	const tokenKind = s.kind;
-	const prefix = operators.find((x): x is PrefixInfo => x.opKind == 'prefix' && x.kind == tokenKind);
+	const prefix = operators.find((x): x is PrefixInfo => x.opKind === 'prefix' && x.kind === tokenKind);
 	if (prefix != null) {
 		left = parsePrefix(s, prefix);
 	} else {
@@ -244,7 +244,7 @@ function parsePratt(s: ITokenStream, minBp: number) {
 	while (true) {
 		const tokenKind = s.kind;
 
-		const postfix = operators.find((x): x is PostfixInfo => x.opKind == 'postfix' && x.kind == tokenKind);
+		const postfix = operators.find((x): x is PostfixInfo => x.opKind === 'postfix' && x.kind === tokenKind);
 		if (postfix != null) {
 			if (postfix.bp < minBp) {
 				break;
@@ -254,7 +254,7 @@ function parsePratt(s: ITokenStream, minBp: number) {
 			continue;
 		}
 
-		const infix = operators.find((x): x is InfixInfo => x.opKind == 'infix' && x.kind == tokenKind);
+		const infix = operators.find((x): x is InfixInfo => x.opKind === 'infix' && x.kind === tokenKind);
 		if (infix != null) {
 			if (infix.lbp < minBp) {
 				break;
