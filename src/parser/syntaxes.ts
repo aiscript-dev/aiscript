@@ -1,7 +1,7 @@
 import { AiScriptSyntaxError } from '../error.js';
 import { TokenKind } from './token.js';
-import { TokenStream } from './token-stream.js';
-import type { ITokenStream } from './token-stream.js';
+import { TokenStream } from './streams/token-stream.js';
+import type { ITokenStream } from './streams/token-stream.js';
 
 import type * as Cst from './node.js';
 

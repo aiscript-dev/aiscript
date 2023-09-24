@@ -1,4 +1,6 @@
 import { AiScriptSyntaxError } from '../error.js';
+import { CharStream } from './streams/char-stream.js';
+import { ITokenStream } from './streams/token-stream.js';
 import { TOKEN, TokenKind } from './token.js';
 import type { Token } from './token.js';
 
@@ -7,75 +9,17 @@ const digit = /^[0-9]$/;
 const wordChar = /^[A-Za-z0-9_]$/;
 
 /**
- * 入力文字列から文字を読み取るクラス
- * 通常はScannerクラスの内部で利用される。
-*/
-export class StringReader {
-	private source: string;
-	private index: number;
-	private _char?: string;
-
-	constructor(source: string) {
-		this.source = source;
-		this.index = 0;
-	}
-
-	public init(): void {
-		this.load();
-	}
-
-	public get eof(): boolean {
-		return (this.index >= this.source.length);
-	}
-
-	public get char(): string {
-		if (this.eof) {
-			throw new Error('End of stream');
-		}
-		if (this._char == null) {
-			throw new Error('stream is not initialized yet');
-		}
-		return this._char;
-	}
-
-	public next(): void {
-		if (!this.eof) {
-			this.index++;
-		}
-		this.load();
-	}
-
-	private load(): void {
-		if (!this.eof) {
-			this._char = this.source[this.index];
-		}
-	}
-}
-
-/**
- * トークンの読み取りに関するインターフェース
-*/
-export interface ITokenStream {
-	get eof(): boolean;
-	get token(): Token;
-	get kind(): TokenKind;
-	next(): void;
-	expect(kind: TokenKind): void;
-	nextWith(kind: TokenKind): void;
-}
-
-/**
  * 入力文字列からトークンを読み取るクラス
 */
 export class Scanner implements ITokenStream {
-	private stream: StringReader;
+	private stream: CharStream;
 	private _token?: Token;
 
 	constructor(source: string)
-	constructor(stream: StringReader)
-	constructor(x: string | StringReader) {
+	constructor(stream: CharStream)
+	constructor(x: string | CharStream) {
 		if (typeof x === 'string') {
-			this.stream = new StringReader(x);
+			this.stream = new CharStream(x);
 			this.stream.init();
 		} else {
 			this.stream = x;
@@ -539,58 +483,5 @@ export class Scanner implements ITokenStream {
 			}
 			this.stream.next();
 		}
-	}
-}
-
-/**
- * 既に生成済みのトークン列からトークンを読み取るクラス
-*/
-export class TokenStream implements ITokenStream {
-	private seq: Token[];
-	private _token?: Token;
-	private index: number;
-
-	constructor(sequence: TokenStream['seq']) {
-		this.seq = sequence;
-		this.index = 0;
-	}
-
-	public init() {
-		this.next();
-	}
-
-	public get eof(): boolean {
-		return (this.index >= this.seq.length);
-	}
-
-	public get token(): Token {
-		if (this._token == null) {
-			throw new Error('stream is not initialized yet');
-		}
-		return this._token;
-	}
-
-	public get kind(): TokenKind {
-		return this.token.kind;
-	}
-
-	public next(): void {
-		if (this.eof) {
-			this._token = TOKEN(TokenKind.EOF);
-		} else {
-			this._token = this.seq[this.index];
-			this.index++;
-		}
-	}
-
-	public expect(kind: TokenKind): void {
-		if (this.kind !== kind) {
-			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[this.token.kind]}`);
-		}
-	}
-
-	public nextWith(kind: TokenKind): void {
-		this.expect(kind);
-		this.next();
 	}
 }

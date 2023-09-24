@@ -1,4 +1,4 @@
-import { Scanner } from './token-stream.js';
+import { Scanner } from './scanner.js';
 import { parseTopLevel } from './syntaxes.js';
 
 import { validateKeyword } from './plugins/validate-keyword.js';
