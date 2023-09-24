@@ -1,21 +1,21 @@
 import * as assert from 'assert';
-import { TokenStream } from '../src/parser/token-stream';
+import { Scanner } from '../src/parser/scanner';
 import { TOKEN, TokenKind } from '../src/parser/token';
 
-describe('TokenStream', () => {
+describe('Scanner', () => {
 	function init(source: string) {
-		const stream = new TokenStream(source);
+		const stream = new Scanner(source);
 		stream.init();
 		return stream;
 	}
-	function next(stream: TokenStream, kind: TokenKind, value?: string) {
-		assert.deepStrictEqual(stream.token, TOKEN(kind, value));
+	function next(stream: Scanner, kind: TokenKind, value?: string) {
+		assert.deepStrictEqual(stream.token, TOKEN(kind, { value }));
 		stream.next();
 	}
 
 	test.concurrent('can get a token after init', async () => {
 		const source = '';
-		const stream = new TokenStream(source);
+		const stream = new Scanner(source);
 		try {
 			stream.token;
 			assert.fail();
@@ -43,7 +43,7 @@ describe('TokenStream', () => {
 	});
 	test.concurrent('invalid token', async () => {
 		const source = '$';
-		const stream = new TokenStream(source);
+		const stream = new Scanner(source);
 		try {
 			stream.init();
 			assert.fail();
