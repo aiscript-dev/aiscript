@@ -133,9 +133,13 @@ function parseStatement(s: ITokenStream): Cst.Node {
 			s.next();
 			return NODE('continue', {});
 		}
-		// Assign
 		default: {
-			return parseExpr(s);
+			const expr = parseExpr(s);
+			const assign = tryParseAssign(s, expr);
+			if (assign) {
+				return assign;
+			}
+			return expr;
 		}
 	}
 }
@@ -314,8 +318,33 @@ function parseLoop(s: ITokenStream): Cst.Node {
 	return NODE('loop', { statements });
 }
 
-function parseAssign(s: ITokenStream): Cst.Node {
-	throw new Error('todo');
+/**
+ * ```abnf
+ * Assign = Expr ("=" / "+=" / "-=") Expr
+ * ```
+*/
+function tryParseAssign(s: ITokenStream, dest: Cst.Node): Cst.Node | undefined {
+	// Assign
+	switch (s.kind) {
+		case TokenKind.Eq: {
+			s.next();
+			const expr = parseExpr(s);
+			return NODE('assign', { dest, expr });
+		}
+		case TokenKind.PlusEq: {
+			s.next();
+			const expr = parseExpr(s);
+			return NODE('addAssign', { dest, expr });
+		}
+		case TokenKind.MinusEq: {
+			s.next();
+			const expr = parseExpr(s);
+			return NODE('subAssign', { dest, expr });
+		}
+		default: {
+			return;
+		}
+	}
 }
 
 //#endregion Statement
@@ -325,18 +354,28 @@ function parseAssign(s: ITokenStream): Cst.Node {
 function parseExpr(s: ITokenStream): Cst.Node {
 	// TODO: Pratt parsing
 
+	// prefix: not
+	// prefix: sign
+	// infix
+	// call chain
+	// prop chain
+	// index chain
+
 	switch (s.kind) {
-		case TokenKind.NumberLiteral: {
-			// TODO: sign
-			// TODO: validate value
-			const value = Number(s.token.value!);
-			s.next();
-			return NODE('num', { value });
+		case TokenKind.IfKeyword: {
+			return parseIf(s);
 		}
-		case TokenKind.StringLiteral: {
-			const value = s.token.value!;
-			s.next();
-			return NODE('str', { value });
+		case TokenKind.OpenAtParen: {
+			return parseFnExpr(s);
+		}
+		case TokenKind.MatchKeyword: {
+			return parseMatch(s);
+		}
+		case TokenKind.EvalKeyword: {
+			return parseEval(s);
+		}
+		case TokenKind.ExistsKeyword: {
+			return parseExists(s);
 		}
 		case TokenKind.Template: {
 			const values: (string | Cst.Node)[] = [];
@@ -367,20 +406,35 @@ function parseExpr(s: ITokenStream): Cst.Node {
 			s.next();
 			return NODE('tmpl', { tmpl: values });
 		}
-		case TokenKind.IfKeyword: {
-			return parseIf(s);
+		case TokenKind.StringLiteral: {
+			const value = s.token.value!;
+			s.next();
+			return NODE('str', { value });
 		}
-		case TokenKind.EvalKeyword: {
-			return parseEval(s);
+		case TokenKind.NumberLiteral: {
+			// TODO: validate number value
+			const value = Number(s.token.value!);
+			s.next();
+			return NODE('num', { value });
 		}
-		case TokenKind.ExistsKeyword: {
-			return parseExists(s);
+		case TokenKind.TrueKeyword:
+		case TokenKind.FalseKeyword: {
+			const value = (s.kind === TokenKind.TrueKeyword);
+			s.next();
+			return NODE('bool', { value });
 		}
-		case TokenKind.Identifier: {
-			return parseReference(s);
+		case TokenKind.NullKeyword: {
+			s.next();
+			return NODE('null', { });
+		}
+		case TokenKind.OpenBrace: {
+			return parseObject(s);
 		}
 		case TokenKind.OpenBracket: {
 			return parseArray(s);
+		}
+		case TokenKind.Identifier: {
+			return parseReference(s);
 		}
 		default: {
 			throw new Error('todo');

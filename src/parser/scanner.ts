@@ -233,7 +233,12 @@ export class Scanner implements ITokenStream {
 				}
 				case '@': {
 					this.stream.next();
-					token = TOKEN(TokenKind.At);
+					if ((this.stream.char as string) == '(') {
+						this.stream.next();
+						token = TOKEN(TokenKind.OpenAtParen);
+					} else {
+						token = TOKEN(TokenKind.At);
+					}
 					break;
 				}
 				case '[': {
