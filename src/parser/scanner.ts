@@ -296,7 +296,7 @@ export class Scanner implements ITokenStream {
 	private tryReadWord(): Token | undefined {
 		// read a word
 		let value = '';
-		while (this.stream.char != null && wordChar.test(this.stream.char)) {
+		while (!this.stream.eof && wordChar.test(this.stream.char)) {
 			value += this.stream.char;
 			this.stream.next();
 		}
@@ -365,7 +365,7 @@ export class Scanner implements ITokenStream {
 	private tryReadDigits(): Token | undefined {
 		// TODO: float number
 		let value = '';
-		while (this.stream.char != null && digit.test(this.stream.char)) {
+		while (!this.stream.eof && digit.test(this.stream.char)) {
 			value += this.stream.char;
 			this.stream.next();
 		}
@@ -378,7 +378,7 @@ export class Scanner implements ITokenStream {
 	private readStringLiteral(): Token {
 		let value = '';
 		while (true) {
-			if (this.stream.char == null) {
+			if (this.stream.eof) {
 				throw new AiScriptSyntaxError(`unexpected EOF`);
 			}
 			if (this.stream.char === '"') {
