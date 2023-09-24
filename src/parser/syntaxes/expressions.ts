@@ -13,33 +13,38 @@ export function parseExpr(s: ITokenStream) {
 	return parsePratt(s, 0);
 }
 
+// NOTE: infix(中置演算子)ではlbpを大きくすると右結合、rbpを大きくすると左結合の演算子になります。
+// この値は演算子が左と右に対してどのくらい結合力があるかを表わしています。詳細はpratt parsingの説明ページを参照してください。
+
 const operators: OpInfo[] = [
-	{ opKind: 'postfix', kind: TokenKind.OpenParen, bp: 90 },
-	{ opKind: 'postfix', kind: TokenKind.OpenBracket, bp: 90 },
+	{ opKind: 'postfix', kind: TokenKind.OpenParen, bp: 20 },
+	{ opKind: 'postfix', kind: TokenKind.OpenBracket, bp: 20 },
 
-	{ opKind: 'infix', kind: TokenKind.Dot, lbp: 80, rbp: 81 },
+	{ opKind: 'infix', kind: TokenKind.Dot, lbp: 18, rbp: 19 },
 
-	{ opKind: 'prefix', kind: TokenKind.Plus, bp: 70 },
-	{ opKind: 'prefix', kind: TokenKind.Minus, bp: 70 },
-	{ opKind: 'prefix', kind: TokenKind.Not, bp: 70 },
+	{ opKind: 'infix', kind: TokenKind.Hat, lbp: 17, rbp: 16 },
 
-	{ opKind: 'infix', kind: TokenKind.Asterisk, lbp: 60, rbp: 61 },
-	{ opKind: 'infix', kind: TokenKind.Slash, lbp: 60, rbp: 61 },
+	{ opKind: 'prefix', kind: TokenKind.Plus, bp: 14 },
+	{ opKind: 'prefix', kind: TokenKind.Minus, bp: 14 },
+	{ opKind: 'prefix', kind: TokenKind.Not, bp: 14 },
 
-	{ opKind: 'infix', kind: TokenKind.Plus, lbp: 50, rbp: 51 },
-	{ opKind: 'infix', kind: TokenKind.Minus, lbp: 50, rbp: 51 },
+	{ opKind: 'infix', kind: TokenKind.Asterisk, lbp: 12, rbp: 13 },
+	{ opKind: 'infix', kind: TokenKind.Slash, lbp: 12, rbp: 13 },
 
-	{ opKind: 'infix', kind: TokenKind.Lt, lbp: 40, rbp: 41 },
-	{ opKind: 'infix', kind: TokenKind.LtEq, lbp: 40, rbp: 41 },
-	{ opKind: 'infix', kind: TokenKind.Gt, lbp: 40, rbp: 41 },
-	{ opKind: 'infix', kind: TokenKind.GtEq, lbp: 40, rbp: 41 },
+	{ opKind: 'infix', kind: TokenKind.Plus, lbp: 10, rbp: 11 },
+	{ opKind: 'infix', kind: TokenKind.Minus, lbp: 10, rbp: 11 },
 
-	{ opKind: 'infix', kind: TokenKind.Eq2, lbp: 30, rbp: 31 },
-	{ opKind: 'infix', kind: TokenKind.NotEq, lbp: 30, rbp: 31 },
+	{ opKind: 'infix', kind: TokenKind.Lt, lbp: 8, rbp: 9 },
+	{ opKind: 'infix', kind: TokenKind.LtEq, lbp: 8, rbp: 9 },
+	{ opKind: 'infix', kind: TokenKind.Gt, lbp: 8, rbp: 9 },
+	{ opKind: 'infix', kind: TokenKind.GtEq, lbp: 8, rbp: 9 },
 
-	{ opKind: 'infix', kind: TokenKind.And2, lbp: 20, rbp: 21 },
+	{ opKind: 'infix', kind: TokenKind.Eq2, lbp: 6, rbp: 7 },
+	{ opKind: 'infix', kind: TokenKind.NotEq, lbp: 6, rbp: 7 },
 
-	{ opKind: 'infix', kind: TokenKind.Or2, lbp: 10, rbp: 11 },
+	{ opKind: 'infix', kind: TokenKind.And2, lbp: 4, rbp: 5 },
+
+	{ opKind: 'infix', kind: TokenKind.Or2, lbp: 2, rbp: 3 },
 ];
 
 function parsePrefix(s: ITokenStream, minBp: number): Cst.Node {
@@ -80,6 +85,9 @@ function parseInfix(s: ITokenStream, left: Cst.Node, minBp: number): Cst.Node {
 		const right = parsePratt(s, minBp);
 
 		switch (op) {
+			case TokenKind.Hat: {
+				return CALL_NODE('Core:pow', [left, right]);
+			}
 			case TokenKind.Asterisk: {
 				return CALL_NODE('Core:mul', [left, right]);
 			}
