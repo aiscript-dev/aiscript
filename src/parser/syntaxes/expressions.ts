@@ -9,16 +9,36 @@ import { parseBlockOrStatement } from './statements.js';
 import { parseBlock } from './common.js';
 import { parseFnExpr } from './function.js';
 
-export function parseExpr(s: ITokenStream): Cst.Node {
-	// TODO: Pratt parsing
+export function parseExpr(s: ITokenStream) {
+	return parsePratt(s, 0);
+}
 
-	// prefix: not
-	// prefix: sign
-	// infix
-	// call chain
+const operators: OpInfo[] = [
+
+];
+
+function parsePrefix(s: ITokenStream, info: PrefixInfo): Cst.Node {
+	// not
+	// sign
+
+	throw new Error('todo');
+}
+
+function parseInfix(s: ITokenStream, left: Cst.Node, info: InfixInfo): Cst.Node {
+	// arithmetic ops
 	// prop chain
+
+	throw new Error('todo');
+}
+
+function parsePostfix(s: ITokenStream, left: Cst.Node, info: PostfixInfo): Cst.Node {
+	// call chain
 	// index chain
 
+	throw new Error('todo');
+}
+
+function parseAtom(s: ITokenStream): Cst.Node {
 	switch (s.kind) {
 		case TokenKind.IfKeyword: {
 			return parseIf(s);
@@ -199,3 +219,55 @@ export function parseArray(s: ITokenStream): Cst.Node {
 
 	return NODE('arr', { value });
 }
+
+//#region Pratt parsing
+
+type PrefixInfo = { opKind: 'prefix', kind: TokenKind, bp: number };
+type InfixInfo = { opKind: 'infix', kind: TokenKind, lbp: number, rbp: number };
+type PostfixInfo = { opKind: 'postfix', kind: TokenKind, bp: number };
+type OpInfo = PrefixInfo | InfixInfo | PostfixInfo;
+
+function parsePratt(s: ITokenStream, minBp: number) {
+	// pratt parsing
+	// https://matklad.github.io/2020/04/13/simple-but-powerful-pratt-parsing.html
+
+	let left: Cst.Node;
+
+	const tokenKind = s.kind;
+	const prefix = operators.find((x): x is PrefixInfo => x.opKind == 'prefix' && x.kind == tokenKind);
+	if (prefix != null) {
+		left = parsePrefix(s, prefix);
+	} else {
+		left = parseAtom(s);
+	}
+
+	while (true) {
+		const tokenKind = s.kind;
+
+		const postfix = operators.find((x): x is PostfixInfo => x.opKind == 'postfix' && x.kind == tokenKind);
+		if (postfix != null) {
+			if (postfix.bp < minBp) {
+				break;
+			}
+
+			left = parsePostfix(s, left, postfix);
+			continue;
+		}
+
+		const infix = operators.find((x): x is InfixInfo => x.opKind == 'infix' && x.kind == tokenKind);
+		if (infix != null) {
+			if (infix.lbp < minBp) {
+				break;
+			}
+
+			left = parseInfix(s, left, infix);
+			continue;
+		}
+
+		break;
+	}
+
+	return left;
+}
+
+//#endregion Pratt parsing
