@@ -134,7 +134,7 @@ export function parseEach(s: ITokenStream): Cst.Node {
 	const name = s.token.value!;
 	s.next();
 
-	if (s.kind == TokenKind.Comma) {
+	if (s.kind === TokenKind.Comma) {
 		s.next();
 	}
 
@@ -163,7 +163,7 @@ export function parseFor(s: ITokenStream): Cst.Node {
 		s.next();
 	}
 
-	if (s.kind == TokenKind.LetKeyword) {
+	if (s.kind === TokenKind.LetKeyword) {
 		// range syntax
 		s.next();
 
@@ -172,7 +172,7 @@ export function parseFor(s: ITokenStream): Cst.Node {
 		s.next();
 
 		let from;
-		if ((s.kind as TokenKind) == TokenKind.Eq) {
+		if ((s.kind as TokenKind) === TokenKind.Eq) {
 			s.next();
 			from = parseExpr(s);
 		} else {
