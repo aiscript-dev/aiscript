@@ -18,26 +18,30 @@ export interface ITokenStream {
  * トークン列からトークンを読み取るクラス
 */
 export class TokenStream implements ITokenStream {
-	private seq: Token[];
-	private _token?: Token;
+	private source: Token[];
 	private index: number;
+	private _token?: Token;
 
-	constructor(sequence: TokenStream['seq']) {
-		this.seq = sequence;
+	constructor(source: TokenStream['source']) {
+		this.source = source;
 		this.index = 0;
 	}
 
 	public init() {
-		this.next();
+		this.load();
 	}
 
 	public get eof(): boolean {
-		return (this.index >= this.seq.length);
+		return (this.index >= this.source.length);
 	}
 
 	public get token(): Token {
 		if (this._token == null) {
+			// EOFトークンさえも入っていなかったらinitされていない
 			throw new Error('stream is not initialized yet');
+		}
+		if (this.eof) {
+			throw new Error('end of stream');
 		}
 		return this._token;
 	}
@@ -47,22 +51,28 @@ export class TokenStream implements ITokenStream {
 	}
 
 	public next(): void {
-		if (this.eof) {
-			this._token = TOKEN(TokenKind.EOF);
-		} else {
-			this._token = this.seq[this.index];
+		if (!this.eof) {
 			this.index++;
 		}
+		this.load();
 	}
 
 	public expect(kind: TokenKind): void {
 		if (this.kind !== kind) {
-			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[this.token.kind]}`);
+			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[this.kind]}`);
 		}
 	}
 
 	public nextWith(kind: TokenKind): void {
 		this.expect(kind);
 		this.next();
+	}
+
+	private load(): void {
+		if (this.eof) {
+			this._token = TOKEN(TokenKind.EOF);
+		} else {
+			this._token = this.source[this.index];
+		}
 	}
 }

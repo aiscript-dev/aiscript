@@ -21,9 +21,10 @@ export class CharStream {
 
 	public get char(): string {
 		if (this.eof) {
-			throw new Error('End of stream');
+			throw new Error('end of stream');
 		}
 		if (this._char == null) {
+			// EOFではない時にnullだったらinitされていない
 			throw new Error('stream is not initialized yet');
 		}
 		return this._char;
