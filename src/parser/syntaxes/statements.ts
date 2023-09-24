@@ -171,12 +171,12 @@ export function parseFor(s: ITokenStream): Cst.Node {
 		const name = s.token.value!;
 		s.next();
 
-		let from;
+		let _from;
 		if ((s.kind as TokenKind) === TokenKind.Eq) {
 			s.next();
-			from = parseExpr(s);
+			_from = parseExpr(s);
 		} else {
-			from = NODE('num', { value: 0 });
+			_from = NODE('num', { value: 0 });
 		}
 
 		const to = parseExpr(s);
@@ -189,7 +189,7 @@ export function parseFor(s: ITokenStream): Cst.Node {
 
 		return NODE('for', {
 			var: name,
-			from,
+			from: _from,
 			to,
 			for: body,
 		});
