@@ -107,6 +107,7 @@ export enum TokenKind {
 export class Token {
 	constructor(
 		public kind: TokenKind,
+		public spaceSkipped: boolean,
 		/** for number literal, string literal */
 		public value?: string,
 		/** for template syntax */
@@ -118,6 +119,6 @@ export class Token {
  * - opts.value: for number literal, string literal
  * - opts.children: for template syntax
 */
-export function TOKEN(kind: TokenKind, opts?: { value?: Token['value'], children?: Token['children'] }) {
-	return new Token(kind, opts?.value, opts?.children);
+export function TOKEN(kind: TokenKind, spaceSkipped: boolean, opts?: { value?: Token['value'], children?: Token['children'] }) {
+	return new Token(kind, spaceSkipped, opts?.value, opts?.children);
 }

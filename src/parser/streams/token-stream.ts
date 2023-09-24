@@ -70,7 +70,7 @@ export class TokenStream implements ITokenStream {
 
 	private load(): void {
 		if (this.eof) {
-			this._token = TOKEN(TokenKind.EOF);
+			this._token = TOKEN(TokenKind.EOF, false);
 		} else {
 			this._token = this.source[this.index];
 		}

@@ -42,16 +42,112 @@ const operators: OpInfo[] = [
 	{ opKind: 'infix', kind: TokenKind.Or2, lbp: 10, rbp: 11 },
 ];
 
-function parsePrefix(s: ITokenStream, info: PrefixInfo): Cst.Node {
-	throw new Error('todo');
+function parsePrefix(s: ITokenStream, minBp: number): Cst.Node {
+	const op = s.kind;
+	s.next();
+
+	const expr = parsePratt(s, minBp);
+
+	switch (op) {
+		case TokenKind.Plus: {
+			return NODE('plus', { expr });
+		}
+		case TokenKind.Minus: {
+			return NODE('minus', { expr });
+		}
+		case TokenKind.Not: {
+			return NODE('not', { expr });
+		}
+		default: {
+			throw new Error('unexpected token');
+		}
+	}
 }
 
-function parseInfix(s: ITokenStream, left: Cst.Node, info: InfixInfo): Cst.Node {
-	throw new Error('todo');
+function parseInfix(s: ITokenStream, left: Cst.Node, minBp: number): Cst.Node {
+	const op = s.kind;
+	s.next();
+
+	if (op === TokenKind.Dot) {
+		s.expect(TokenKind.Identifier);
+		const name = s.token.value!;
+
+		return NODE('prop', {
+			target: left,
+			name,
+		});
+	} else {
+		const right = parsePratt(s, minBp);
+
+		switch (op) {
+			case TokenKind.Asterisk: {
+				return NODE('mul', { left, right });
+			}
+			case TokenKind.Slash: {
+				return NODE('div', { left, right });
+			}
+			case TokenKind.Plus: {
+				return NODE('add', { left, right });
+			}
+			case TokenKind.Minus: {
+				return NODE('sub', { left, right });
+			}
+			case TokenKind.Lt: {
+				return NODE('lt', { left, right });
+			}
+			case TokenKind.LtEq: {
+				return NODE('lteq', { left, right });
+			}
+			case TokenKind.Gt: {
+				return NODE('gt', { left, right });
+			}
+			case TokenKind.GtEq: {
+				return NODE('gteq', { left, right });
+			}
+			case TokenKind.Eq2: {
+				return NODE('eq', { left, right });
+			}
+			case TokenKind.NotEq: {
+				return NODE('neq', { left, right });
+			}
+			case TokenKind.And2: {
+				return NODE('and', { left, right });
+			}
+			case TokenKind.Or2: {
+				return NODE('or', { left, right });
+			}
+			default: {
+				throw new Error('unexpected token');
+			}
+		}
+	}
 }
 
-function parsePostfix(s: ITokenStream, left: Cst.Node, info: PostfixInfo): Cst.Node {
-	throw new Error('todo');
+function parsePostfix(s: ITokenStream, expr: Cst.Node): Cst.Node {
+	const op = s.kind;
+	s.next();
+
+	switch (op) {
+		case TokenKind.OpenParen: {
+			const args = parseCallArgs(s);
+
+			return NODE('call', {
+				target: expr,
+				args,
+			});
+		}
+		case TokenKind.OpenBracket: {
+			const index = parseExpr(s);
+
+			return NODE('index', {
+				target: expr,
+				index,
+			});
+		}
+		default: {
+			throw new Error('unexpected token');
+		}
+	}
 }
 
 function parseAtom(s: ITokenStream): Cst.Node {
@@ -134,6 +230,13 @@ function parseAtom(s: ITokenStream): Cst.Node {
 			throw new Error('todo');
 		}
 	}
+}
+
+/**
+ * CallArgs = [Expr *(SEP Expr)]
+*/
+function parseCallArgs(s: ITokenStream): Cst.Node[] {
+	throw new Error('todo');
 }
 
 /**
@@ -252,7 +355,7 @@ function parsePratt(s: ITokenStream, minBp: number) {
 	const tokenKind = s.kind;
 	const prefix = operators.find((x): x is PrefixInfo => x.opKind === 'prefix' && x.kind === tokenKind);
 	if (prefix != null) {
-		left = parsePrefix(s, prefix);
+		left = parsePrefix(s, prefix.bp);
 	} else {
 		left = parseAtom(s);
 	}
@@ -266,7 +369,7 @@ function parsePratt(s: ITokenStream, minBp: number) {
 				break;
 			}
 
-			left = parsePostfix(s, left, postfix);
+			left = parsePostfix(s, left);
 			continue;
 		}
 
@@ -276,7 +379,7 @@ function parsePratt(s: ITokenStream, minBp: number) {
 				break;
 			}
 
-			left = parseInfix(s, left, infix);
+			left = parseInfix(s, left, infix.rbp);
 			continue;
 		}
 
