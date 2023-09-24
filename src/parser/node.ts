@@ -20,6 +20,13 @@ export function NODE(type: string, params: Record<string, any>): Node {
 	return node as Node;
 }
 
+export function CALL_NODE(name: string, args: Node[]) {
+	return NODE('call', {
+		target: NODE('identifier', { name }),
+		args,
+	});
+}
+
 export type Statement =
 	Definition |
 	Return |

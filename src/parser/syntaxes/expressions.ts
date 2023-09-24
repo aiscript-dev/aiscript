@@ -2,7 +2,7 @@ import { AiScriptSyntaxError } from '../../error.js';
 import { TokenKind } from '../token.js';
 import { TokenStream } from '../streams/token-stream.js';
 import type { ITokenStream } from '../streams/token-stream.js';
-import { NODE } from '../node.js';
+import { CALL_NODE, NODE } from '../node.js';
 import type * as Cst from '../node.js';
 
 import { parseBlockOrStatement } from './statements.js';
@@ -81,34 +81,34 @@ function parseInfix(s: ITokenStream, left: Cst.Node, minBp: number): Cst.Node {
 
 		switch (op) {
 			case TokenKind.Asterisk: {
-				return NODE('mul', { left, right });
+				return CALL_NODE('Core:mul', [left, right]);
 			}
 			case TokenKind.Slash: {
-				return NODE('div', { left, right });
+				return CALL_NODE('Core:div', [left, right]);
 			}
 			case TokenKind.Plus: {
-				return NODE('add', { left, right });
+				return CALL_NODE('Core:add', [left, right]);
 			}
 			case TokenKind.Minus: {
-				return NODE('sub', { left, right });
+				return CALL_NODE('Core:sub', [left, right]);
 			}
 			case TokenKind.Lt: {
-				return NODE('lt', { left, right });
+				return CALL_NODE('Core:lt', [left, right]);
 			}
 			case TokenKind.LtEq: {
-				return NODE('lteq', { left, right });
+				return CALL_NODE('Core:lteq', [left, right]);
 			}
 			case TokenKind.Gt: {
-				return NODE('gt', { left, right });
+				return CALL_NODE('Core:gt', [left, right]);
 			}
 			case TokenKind.GtEq: {
-				return NODE('gteq', { left, right });
+				return CALL_NODE('Core:gteq', [left, right]);
 			}
 			case TokenKind.Eq2: {
-				return NODE('eq', { left, right });
+				return CALL_NODE('Core:eq', [left, right]);
 			}
 			case TokenKind.NotEq: {
-				return NODE('neq', { left, right });
+				return CALL_NODE('Core:neq', [left, right]);
 			}
 			case TokenKind.And2: {
 				return NODE('and', { left, right });
