@@ -1,6 +1,6 @@
 import { AiScriptSyntaxError } from '../error.js';
 import { TokenKind } from './token.js';
-import { TokenSequence } from './token-stream.js';
+import { TokenStream } from './token-stream.js';
 import type { ITokenStream } from './token-stream.js';
 
 import type * as Cst from './node.js';
@@ -257,7 +257,7 @@ function parseExpr(s: ITokenStream): Cst.Node {
 						break;
 					}
 					case TokenKind.TemplateExprElement: {
-						const exprStream = new TokenSequence(element.children!);
+						const exprStream = new TokenStream(element.children!);
 						exprStream.init();
 						const expr = parseExpr(exprStream);
 						if (exprStream.kind !== TokenKind.EOF) {

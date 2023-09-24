@@ -1,4 +1,4 @@
-import { SourceReader } from './token-stream.js';
+import { Scanner } from './token-stream.js';
 import { parseTopLevel } from './syntaxes.js';
 
 import { validateKeyword } from './plugins/validate-keyword.js';
@@ -56,9 +56,9 @@ export class Parser {
 	public parse(input: string): Ast.Node[] {
 		let nodes: Cst.Node[];
 
-		const stream = new SourceReader(input);
-		stream.init();
-		nodes = parseTopLevel(stream);
+		const scanner = new Scanner(input);
+		scanner.init();
+		nodes = parseTopLevel(scanner);
 
 		// validate the node tree
 		for (const plugin of this.plugins.validate) {

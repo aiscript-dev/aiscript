@@ -6,58 +6,88 @@ const spacingChars = [' ', '\t', '\r', '\n'];
 const digit = /^[0-9]$/;
 const wordChar = /^[A-Za-z0-9_]$/;
 
-export interface ITokenStream {
-	expect(kind: TokenKind): void;
-	nextWith(kind: TokenKind): void;
-	get token(): Token;
-	get kind(): TokenKind;
-	next(): void;
-}
-
-export class SourceReader implements ITokenStream {
+/**
+ * 入力文字列から文字を読み取るクラス
+ * 通常はScannerクラスの内部で利用される。
+*/
+export class StringReader {
 	private source: string;
-	private _token?: Token;
 	private index: number;
-	private char?: string;
+	private _char?: string;
 
-	public constructor(source: string) {
+	constructor(source: string) {
 		this.source = source;
 		this.index = 0;
 	}
 
 	public init(): void {
-		this.loadChar();
-		this._token = this.nextToken();
+		this.load();
 	}
 
-	public expect(kind: TokenKind): void {
-		if (this.kind !== kind) {
-			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[this.token.kind]}`);
-		}
-	}
-
-	public nextWith(kind: TokenKind): void {
-		this.expect(kind);
-		this.next();
-	}
-
-	private get isEof(): boolean {
+	public get eof(): boolean {
 		return (this.index >= this.source.length);
 	}
 
-	private loadChar(): void {
-		if (this.isEof) {
-			this.char = undefined;
+	public get char(): string {
+		if (this.eof) {
+			throw new Error('End of stream');
+		}
+		if (this._char == null) {
+			throw new Error('stream is not initialized yet');
+		}
+		return this._char;
+	}
+
+	public next(): void {
+		if (!this.eof) {
+			this.index++;
+		}
+		this.load();
+	}
+
+	private load(): void {
+		if (!this.eof) {
+			this._char = this.source[this.index];
+		}
+	}
+}
+
+/**
+ * トークンの読み取りに関するインターフェース
+*/
+export interface ITokenStream {
+	get eof(): boolean;
+	get token(): Token;
+	get kind(): TokenKind;
+	next(): void;
+	expect(kind: TokenKind): void;
+	nextWith(kind: TokenKind): void;
+}
+
+/**
+ * 入力文字列からトークンを読み取るクラス
+*/
+export class Scanner implements ITokenStream {
+	private stream: StringReader;
+	private _token?: Token;
+
+	constructor(source: string)
+	constructor(stream: StringReader)
+	constructor(x: string | StringReader) {
+		if (typeof x === 'string') {
+			this.stream = new StringReader(x);
+			this.stream.init();
 		} else {
-			this.char = this.source[this.index];
+			this.stream = x;
 		}
 	}
 
-	private nextChar(): void {
-		if (!this.isEof) {
-			this.index++;
-		}
-		this.loadChar();
+	public init(): void {
+		this._token = this.nextToken();
+	}
+
+	public get eof(): boolean {
+		return this.stream.eof;
 	}
 
 	public get token(): Token {
@@ -78,24 +108,34 @@ export class SourceReader implements ITokenStream {
 		this._token = this.nextToken();
 	}
 
+	public expect(kind: TokenKind): void {
+		if (this.kind !== kind) {
+			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[this.token.kind]}`);
+		}
+	}
+
+	public nextWith(kind: TokenKind): void {
+		this.expect(kind);
+		this.next();
+	}
+
 	private nextToken(): Token {
 		let token;
 		while (true) {
-			// EOF terminated
-			if (this.char == null) {
+			if (this.stream.eof) {
 				token = TOKEN(TokenKind.EOF);
 				break;
 			}
 			// skip spasing
-			if (spacingChars.includes(this.char)) {
-				this.nextChar();
+			if (spacingChars.includes(this.stream.char)) {
+				this.stream.next();
 				continue;
 			}
-			switch (this.char) {
+			switch (this.stream.char) {
 				case '!': {
-					this.nextChar();
-					if ((this.char as string) === '=') {
-						this.nextChar();
+					this.stream.next();
+					if ((this.stream.char as string) === '=') {
+						this.stream.next();
 						token = TOKEN(TokenKind.NotEq);
 					} else {
 						token = TOKEN(TokenKind.Not);
@@ -103,20 +143,20 @@ export class SourceReader implements ITokenStream {
 					break;
 				}
 				case '"': {
-					this.nextChar();
+					this.stream.next();
 					token = this.readStringLiteral();
 					break;
 				}
 				case '#': {
-					this.nextChar();
-					if ((this.char as string) === '#') {
-						this.nextChar();
-						if ((this.char as string) === '#') {
-							this.nextChar();
+					this.stream.next();
+					if ((this.stream.char as string) === '#') {
+						this.stream.next();
+						if ((this.stream.char as string) === '#') {
+							this.stream.next();
 							token = TOKEN(TokenKind.Sharp3);
 						}
-					} else if ((this.char as string) === '[') {
-						this.nextChar();
+					} else if ((this.stream.char as string) === '[') {
+						this.stream.next();
 						token = TOKEN(TokenKind.OpenSharpBracket);
 					} else {
 						token = TOKEN(TokenKind.Sharp);
@@ -124,37 +164,37 @@ export class SourceReader implements ITokenStream {
 					break;
 				}
 				case '%': {
-					this.nextChar();
+					this.stream.next();
 					token = TOKEN(TokenKind.Percent);
 					break;
 				}
 				case '&': {
-					this.nextChar();
-					if ((this.char as string) === '&') {
-						this.nextChar();
+					this.stream.next();
+					if ((this.stream.char as string) === '&') {
+						this.stream.next();
 						token = TOKEN(TokenKind.And2);
 					}
 					break;
 				}
 				case '(': {
-					this.nextChar();
+					this.stream.next();
 					token = TOKEN(TokenKind.OpenParen);
 					break;
 				}
 				case ')': {
-					this.nextChar();
+					this.stream.next();
 					token = TOKEN(TokenKind.CloseParen);
 					break;
 				}
 				case '*': {
-					this.nextChar();
+					this.stream.next();
 					token = TOKEN(TokenKind.Asterisk);
 					break;
 				}
 				case '+': {
-					this.nextChar();
-					if ((this.char as string) === '=') {
-						this.nextChar();
+					this.stream.next();
+					if ((this.stream.char as string) === '=') {
+						this.stream.next();
 						token = TOKEN(TokenKind.PlusEq);
 					} else {
 						token = TOKEN(TokenKind.Plus);
@@ -162,14 +202,14 @@ export class SourceReader implements ITokenStream {
 					break;
 				}
 				case ',': {
-					this.nextChar();
+					this.stream.next();
 					token = TOKEN(TokenKind.Comma);
 					break;
 				}
 				case '-': {
-					this.nextChar();
-					if ((this.char as string) === '=') {
-						this.nextChar();
+					this.stream.next();
+					if ((this.stream.char as string) === '=') {
+						this.stream.next();
 						token = TOKEN(TokenKind.MinusEq);
 					} else {
 						token = TOKEN(TokenKind.Minus);
@@ -177,18 +217,18 @@ export class SourceReader implements ITokenStream {
 					break;
 				}
 				case '.': {
-					this.nextChar();
+					this.stream.next();
 					token = TOKEN(TokenKind.Dot);
 					break;
 				}
 				case '/': {
-					this.nextChar();
-					if ((this.char as string) === '*') {
-						this.nextChar();
+					this.stream.next();
+					if ((this.stream.char as string) === '*') {
+						this.stream.next();
 						this.skipCommentRange();
 						continue;
-					} else if ((this.char as string) === '/') {
-						this.nextChar();
+					} else if ((this.stream.char as string) === '/') {
+						this.stream.next();
 						this.skipCommentLine();
 						continue;
 					} else {
@@ -197,9 +237,9 @@ export class SourceReader implements ITokenStream {
 					break;
 				}
 				case ':': {
-					this.nextChar();
-					if ((this.char as string) === ':') {
-						this.nextChar();
+					this.stream.next();
+					if ((this.stream.char as string) === ':') {
+						this.stream.next();
 						token = TOKEN(TokenKind.Colon2);
 					} else {
 						token = TOKEN(TokenKind.Colon);
@@ -207,17 +247,17 @@ export class SourceReader implements ITokenStream {
 					break;
 				}
 				case ';': {
-					this.nextChar();
+					this.stream.next();
 					token = TOKEN(TokenKind.SemiColon);
 					break;
 				}
 				case '<': {
-					this.nextChar();
-					if ((this.char as string) === '=') {
-						this.nextChar();
+					this.stream.next();
+					if ((this.stream.char as string) === '=') {
+						this.stream.next();
 						token = TOKEN(TokenKind.LtEq);
-					} else if ((this.char as string) === ':') {
-						this.nextChar();
+					} else if ((this.stream.char as string) === ':') {
+						this.stream.next();
 						token = TOKEN(TokenKind.Out);
 					} else {
 						token = TOKEN(TokenKind.Lt);
@@ -225,12 +265,12 @@ export class SourceReader implements ITokenStream {
 					break;
 				}
 				case '=': {
-					this.nextChar();
-					if ((this.char as string) === '=') {
-						this.nextChar();
+					this.stream.next();
+					if ((this.stream.char as string) === '=') {
+						this.stream.next();
 						token = TOKEN(TokenKind.Eq2);
-					} else if ((this.char as string) === '>') {
-						this.nextChar();
+					} else if ((this.stream.char as string) === '>') {
+						this.stream.next();
 						token = TOKEN(TokenKind.Arrow);
 					} else {
 						token = TOKEN(TokenKind.Eq);
@@ -238,9 +278,9 @@ export class SourceReader implements ITokenStream {
 					break;
 				}
 				case '>': {
-					this.nextChar();
-					if ((this.char as string) === '=') {
-						this.nextChar();
+					this.stream.next();
+					if ((this.stream.char as string) === '=') {
+						this.stream.next();
 						token = TOKEN(TokenKind.GtEq);
 					} else {
 						token = TOKEN(TokenKind.Gt);
@@ -248,45 +288,45 @@ export class SourceReader implements ITokenStream {
 					break;
 				}
 				case '@': {
-					this.nextChar();
+					this.stream.next();
 					token = TOKEN(TokenKind.At);
 					break;
 				}
 				case '[': {
-					this.nextChar();
+					this.stream.next();
 					token = TOKEN(TokenKind.OpenBracket);
 					break;
 				}
 				case ']': {
-					this.nextChar();
+					this.stream.next();
 					token = TOKEN(TokenKind.CloseBracket);
 					break;
 				}
 				case '^': {
-					this.nextChar();
+					this.stream.next();
 					token = TOKEN(TokenKind.Hat);
 					break;
 				}
 				case '`': {
-					this.nextChar();
+					this.stream.next();
 					token = this.readTemplate();
 					break;
 				}
 				case '{': {
-					this.nextChar();
+					this.stream.next();
 					token = TOKEN(TokenKind.OpenBrace);
 					break;
 				}
 				case '|': {
-					this.nextChar();
-					if ((this.char as string) === '|') {
-						this.nextChar();
+					this.stream.next();
+					if ((this.stream.char as string) === '|') {
+						this.stream.next();
 						token = TOKEN(TokenKind.Or2);
 					}
 					break;
 				}
 				case '}': {
-					this.nextChar();
+					this.stream.next();
 					token = TOKEN(TokenKind.CloseBrace);
 					break;
 				}
@@ -302,7 +342,7 @@ export class SourceReader implements ITokenStream {
 					token = wordToken;
 					break;
 				}
-				throw new AiScriptSyntaxError(`invalid character: "${this.char}"`);
+				throw new AiScriptSyntaxError(`invalid character: "${this.stream.char}"`);
 			}
 			break;
 		}
@@ -312,9 +352,9 @@ export class SourceReader implements ITokenStream {
 	private tryReadWord(): Token | undefined {
 		// read a word
 		let value = '';
-		while (this.char != null && wordChar.test(this.char)) {
-			value += this.char;
-			this.nextChar();
+		while (this.stream.char != null && wordChar.test(this.stream.char)) {
+			value += this.stream.char;
+			this.stream.next();
 		}
 		if (value.length === 0) {
 			return;
@@ -381,9 +421,9 @@ export class SourceReader implements ITokenStream {
 	private tryReadDigits(): Token | undefined {
 		// TODO: float number
 		let value = '';
-		while (this.char != null && digit.test(this.char)) {
-			value += this.char;
-			this.nextChar();
+		while (this.stream.char != null && digit.test(this.stream.char)) {
+			value += this.stream.char;
+			this.stream.next();
 		}
 		if (value.length === 0) {
 			return;
@@ -394,15 +434,15 @@ export class SourceReader implements ITokenStream {
 	private readStringLiteral(): Token {
 		let value = '';
 		while (true) {
-			if (this.char == null) {
+			if (this.stream.char == null) {
 				throw new AiScriptSyntaxError(`unexpected EOF`);
 			}
-			if (this.char === '"') {
-				this.nextChar();
+			if (this.stream.char === '"') {
+				this.stream.next();
 				break;
 			}
-			value += this.char;
-			this.nextChar();
+			value += this.stream.char;
+			this.stream.next();
 		}
 		return TOKEN(TokenKind.StringLiteral, { value });
 	}
@@ -417,12 +457,12 @@ export class SourceReader implements ITokenStream {
 			switch (state) {
 				case 'string': {
 					// テンプレートの終了が無いままEOFに達した
-					if (this.char == null) {
+					if (this.stream.eof) {
 						throw new AiScriptSyntaxError(`unexpected EOF`);
 					}
 					// テンプレートの終了
-					if (this.char == '`') {
-						this.nextChar();
+					if (this.stream.char == '`') {
+						this.stream.next();
 						if (buf.length > 0) {
 							elements.push(TOKEN(TokenKind.TemplateStringElement, { value: buf }));
 						}
@@ -430,8 +470,8 @@ export class SourceReader implements ITokenStream {
 						break;
 					}
 					// 埋め込み式の開始
-					if (this.char == '{') {
-						this.nextChar();
+					if (this.stream.char == '{') {
+						this.stream.next();
 						if (buf.length > 0) {
 							elements.push(TOKEN(TokenKind.TemplateStringElement, { value: buf }));
 							buf = '';
@@ -439,23 +479,23 @@ export class SourceReader implements ITokenStream {
 						state = 'expr';
 						break;
 					}
-					buf += this.char;
-					this.nextChar();
+					buf += this.stream.char;
+					this.stream.next();
 					break;
 				}
 				case 'expr': {
 					// 埋め込み式の終端記号が無いままEOFに達した
-					if (this.char == null) {
+					if (this.stream.eof) {
 						throw new AiScriptSyntaxError(`unexpected EOF`);
 					}
 					// skip spasing
-					if (spacingChars.includes(this.char)) {
-						this.nextChar();
+					if (spacingChars.includes(this.stream.char)) {
+						this.stream.next();
 						continue;
 					}
 					// 埋め込み式の終了
-					if ((this.char as string) === '}') {
-						this.nextChar();
+					if ((this.stream.char as string) === '}') {
+						this.stream.next();
 						elements.push(TOKEN(TokenKind.TemplateExprElement, { children: tokenBuf }));
 						tokenBuf = [];
 						state = 'string';
@@ -473,40 +513,44 @@ export class SourceReader implements ITokenStream {
 
 	private skipCommentLine() {
 		while (true) {
-			if (this.char == null) {
+			if (this.stream.eof) {
 				break;
 			}
-			if (this.char === '\n') {
-				this.nextChar();
+			if (this.stream.char === '\n') {
+				this.stream.next();
 				break;
 			}
-			this.nextChar();
+			this.stream.next();
 		}
 	}
 
 	private skipCommentRange() {
 		while (true) {
-			if (this.char == null) {
+			if (this.stream.eof) {
 				break;
 			}
-			if (this.char === '*') {
-				this.nextChar();
-				if ((this.char as string) === '/') {
-					this.nextChar();
+			if (this.stream.char === '*') {
+				this.stream.next();
+				if ((this.stream.char as string) === '/') {
+					this.stream.next();
 					break;
 				}
 				continue;
 			}
-			this.nextChar();
+			this.stream.next();
 		}
 	}
 }
-export class TokenSequence implements ITokenStream {
+
+/**
+ * 既に生成済みのトークン列からトークンを読み取るクラス
+*/
+export class TokenStream implements ITokenStream {
 	private seq: Token[];
 	private _token?: Token;
 	private index: number;
 
-	constructor(sequence: TokenSequence['seq']) {
+	constructor(sequence: TokenStream['seq']) {
 		this.seq = sequence;
 		this.index = 0;
 	}
@@ -515,15 +559,8 @@ export class TokenSequence implements ITokenStream {
 		this.next();
 	}
 
-	public expect(kind: TokenKind): void {
-		if (this.kind !== kind) {
-			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[this.token.kind]}`);
-		}
-	}
-
-	public nextWith(kind: TokenKind): void {
-		this.expect(kind);
-		this.next();
+	public get eof(): boolean {
+		return (this.index >= this.seq.length);
 	}
 
 	public get token(): Token {
@@ -538,11 +575,22 @@ export class TokenSequence implements ITokenStream {
 	}
 
 	public next(): void {
-		if (this.index >= this.seq.length) {
+		if (this.eof) {
 			this._token = TOKEN(TokenKind.EOF);
 		} else {
 			this._token = this.seq[this.index];
 			this.index++;
 		}
+	}
+
+	public expect(kind: TokenKind): void {
+		if (this.kind !== kind) {
+			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[this.token.kind]}`);
+		}
+	}
+
+	public nextWith(kind: TokenKind): void {
+		this.expect(kind);
+		this.next();
 	}
 }
