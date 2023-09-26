@@ -42,7 +42,8 @@ export function parseFnDef(s: ITokenStream): Cst.Node {
  * ```
 */
 export function parseFnExpr(s: ITokenStream): Cst.Node {
-	s.nextWith(TokenKind.OpenAtParen);
+	s.nextWith(TokenKind.At);
+	s.nextWith(TokenKind.OpenParen);
 
 	const params = parseParams(s);
 
