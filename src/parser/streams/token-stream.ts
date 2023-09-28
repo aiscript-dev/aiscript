@@ -10,6 +10,7 @@ export interface ITokenStream {
 	get token(): Token;
 	get kind(): TokenKind;
 	next(): void;
+	lookahead(offset: number): Token;
 	expect(kind: TokenKind): void;
 	nextWith(kind: TokenKind): void;
 }
@@ -55,6 +56,14 @@ export class TokenStream implements ITokenStream {
 			this.index++;
 		}
 		this.load();
+	}
+
+	public lookahead(offset: number): Token {
+		if (this.index + offset < this.source.length) {
+			return this.source[this.index + offset]!;
+		} else {
+			return TOKEN(TokenKind.EOF, false);
+		}
 	}
 
 	public expect(kind: TokenKind): void {
