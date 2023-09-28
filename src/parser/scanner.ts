@@ -35,7 +35,7 @@ export class Scanner implements ITokenStream {
 	}
 
 	public get token(): Token {
-		if (this._tokens.length == 0) {
+		if (this._tokens.length === 0) {
 			throw new Error('stream is not initialized yet');
 		}
 		return this._tokens[0]!;
@@ -46,19 +46,19 @@ export class Scanner implements ITokenStream {
 	}
 
 	public next(): void {
-		if (this._tokens.length == 0) {
+		if (this._tokens.length === 0) {
 			throw new Error('stream is not initialized yet');
 		}
 
 		this._tokens.shift();
 
-		if (this._tokens.length == 0) {
+		if (this._tokens.length === 0) {
 			this._tokens.push(this.readToken());
 		}
 	}
 
 	public lookahead(offset: number): Token {
-		if (this._tokens.length == 0) {
+		if (this._tokens.length === 0) {
 			throw new Error('stream is not initialized yet');
 		}
 
