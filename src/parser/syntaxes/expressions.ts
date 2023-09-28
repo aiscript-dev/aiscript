@@ -6,8 +6,7 @@ import { CALL_NODE, NODE } from '../node.js';
 import type * as Cst from '../node.js';
 
 import { parseBlockOrStatement } from './statements.js';
-import { parseBlock } from './common.js';
-import { parseFnExpr } from './function.js';
+import { parseBlock, parseParams } from './common.js';
 
 export function parseExpr(s: ITokenStream) {
 	return parsePratt(s, 0);
@@ -272,6 +271,26 @@ export function parseIf(s: ITokenStream): Cst.Node {
 	}
 
 	return NODE('if', { cond, then, elseif, else: _else });
+}
+
+/**
+ * ```abnf
+ * FnExpr = "@(" Params ")" [":" Type] Block
+ * ```
+*/
+export function parseFnExpr(s: ITokenStream): Cst.Node {
+	s.nextWith(TokenKind.At);
+	s.nextWith(TokenKind.OpenParen);
+
+	const params = parseParams(s);
+
+	s.nextWith(TokenKind.CloseParen);
+
+	// type
+
+	const body = parseBlock(s);
+
+	return NODE('fn', { args: params ?? [], retType: undefined, children: body ?? [] });
 }
 
 export function parseMatch(s: ITokenStream): Cst.Node {

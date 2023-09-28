@@ -4,9 +4,7 @@ import { TokenStream } from '../streams/token-stream.js';
 import type { ITokenStream } from '../streams/token-stream.js';
 import { NODE } from '../node.js';
 import type * as Cst from '../node.js';
-
-import { parseStatement, parseVarDef } from './statements.js';
-import { parseFnDef } from './function.js';
+import { parseFnDef, parseStatement, parseVarDef } from './statements.js';
 
 /**
  * ```abnf

@@ -5,9 +5,8 @@ import type { ITokenStream } from '../streams/token-stream.js';
 import { NODE } from '../node.js';
 import type * as Cst from '../node.js';
 
-import { parseBlock, parseType } from './common.js';
+import { parseBlock, parseParams, parseType } from './common.js';
 import { parseExpr } from './expressions.js';
-import { parseFnDef } from './function.js';
 
 /**
  * ```abnf
@@ -22,7 +21,10 @@ export function parseStatement(s: ITokenStream): Cst.Node {
 			return parseVarDef(s);
 		}
 		case TokenKind.At: {
-			return parseFnDef(s);
+			if (s.lookahead(1).kind === TokenKind.Identifier) {
+				return parseFnDef(s);
+			}
+			break;
 		}
 		case TokenKind.Out: {
 			return parseOut(s);
@@ -48,15 +50,13 @@ export function parseStatement(s: ITokenStream): Cst.Node {
 			s.next();
 			return NODE('continue', {});
 		}
-		default: {
-			const expr = parseExpr(s);
-			const assign = tryParseAssign(s, expr);
-			if (assign) {
-				return assign;
-			}
-			return expr;
-		}
 	}
+	const expr = parseExpr(s);
+	const assign = tryParseAssign(s, expr);
+	if (assign) {
+		return assign;
+	}
+	return expr;
 }
 
 /**
@@ -96,6 +96,36 @@ export function parseVarDef(s: ITokenStream): Cst.Node {
 	const expr = parseExpr(s);
 
 	return NODE('def', { name, varType: ty, expr, mut, attr: [] });
+}
+
+/**
+ * ```abnf
+ * FnDef = "@" IDENT "(" Params ")" [":" Type] Block
+ * ```
+*/
+export function parseFnDef(s: ITokenStream): Cst.Node {
+	s.nextWith(TokenKind.At);
+
+	s.expect(TokenKind.Identifier);
+	const name = s.token.value;
+	s.next();
+
+	s.nextWith(TokenKind.OpenParen);
+
+	const params = parseParams(s);
+
+	s.nextWith(TokenKind.CloseParen);
+
+	// type
+
+	const body = parseBlock(s);
+
+	return NODE('def', {
+		name,
+		expr: NODE('fn', { args: params ?? [], retType: undefined, children: body ?? [] }),
+		mut: false,
+		attr: []
+	});
 }
 
 /**

@@ -4,6 +4,10 @@ import { parseStatement } from './statements.js';
 
 import type * as Cst from '../node.js';
 
+export function parseParams(s: ITokenStream): Cst.Node[] {
+	throw new Error('todo');
+}
+
 /**
  * ```abnf
  * Block = "{" *Statement "}"
