@@ -13,7 +13,7 @@ const wordChar = /^[A-Za-z0-9_]$/;
 */
 export class Scanner implements ITokenStream {
 	private stream: CharStream;
-	private _token?: Token;
+	private _tokens: Token[] = [];
 
 	constructor(source: string)
 	constructor(stream: CharStream)
@@ -27,7 +27,7 @@ export class Scanner implements ITokenStream {
 	}
 
 	public init(): void {
-		this._token = this.readToken();
+		this._tokens.push(this.readToken());
 	}
 
 	public get eof(): boolean {
@@ -35,10 +35,10 @@ export class Scanner implements ITokenStream {
 	}
 
 	public get token(): Token {
-		if (this._token == null) {
+		if (this._tokens.length == 0) {
 			throw new Error('stream is not initialized yet');
 		}
-		return this._token;
+		return this._tokens[0]!;
 	}
 
 	public get kind(): TokenKind {
@@ -46,10 +46,27 @@ export class Scanner implements ITokenStream {
 	}
 
 	public next(): void {
-		if (this._token == null) {
+		if (this._tokens.length == 0) {
 			throw new Error('stream is not initialized yet');
 		}
-		this._token = this.readToken();
+
+		this._tokens.shift();
+
+		if (this._tokens.length == 0) {
+			this._tokens.push(this.readToken());
+		}
+	}
+
+	public lookahead(offset: number): Token {
+		if (this._tokens.length == 0) {
+			throw new Error('stream is not initialized yet');
+		}
+
+		while (this._tokens.length <= offset) {
+			this._tokens.push(this.readToken());
+		}
+
+		return this._tokens[offset]!;
 	}
 
 	public expect(kind: TokenKind): void {

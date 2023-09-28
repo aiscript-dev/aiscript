@@ -118,4 +118,12 @@ describe('Scanner', () => {
 		next(stream, TokenKind.CloseBrace, true);
 		next(stream, TokenKind.EOF, false);
 	});
+	test.concurrent('lookahead', async () => {
+		const source = '@abc() { }';
+		const stream = init(source);
+		assert.deepStrictEqual(stream.lookahead(1), TOKEN(TokenKind.Identifier, false, { value: 'abc' }));
+		next(stream, TokenKind.At, false);
+		next(stream, TokenKind.Identifier, false, 'abc');
+		next(stream, TokenKind.OpenParen, false);
+	});
 });
