@@ -20,7 +20,7 @@ export function NODE(type: string, params: Record<string, any>): Node {
 	return node as Node;
 }
 
-export function CALL_NODE(name: string, args: Node[]) {
+export function CALL_NODE(name: string, args: Node[]): Node {
 	return NODE('call', {
 		target: NODE('identifier', { name }),
 		args,

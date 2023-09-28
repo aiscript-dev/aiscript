@@ -1,7 +1,8 @@
 import { AiScriptSyntaxError } from '../error.js';
 import { CharStream } from './streams/char-stream.js';
-import type { ITokenStream } from './streams/token-stream.js';
 import { TOKEN, TokenKind } from './token.js';
+
+import type { ITokenStream } from './streams/token-stream.js';
 import type { Token } from './token.js';
 
 const spacingChars = [' ', '\t', '\r', '\n'];
@@ -36,7 +37,7 @@ export class Scanner implements ITokenStream {
 
 	public get token(): Token {
 		if (this._tokens.length === 0) {
-			throw new Error('stream is not initialized yet');
+			throw new Error('scanner is not initialized yet');
 		}
 		return this._tokens[0]!;
 	}
@@ -47,7 +48,7 @@ export class Scanner implements ITokenStream {
 
 	public next(): void {
 		if (this._tokens.length === 0) {
-			throw new Error('stream is not initialized yet');
+			throw new Error('scanner is not initialized yet');
 		}
 
 		this._tokens.shift();
@@ -59,7 +60,7 @@ export class Scanner implements ITokenStream {
 
 	public lookahead(offset: number): Token {
 		if (this._tokens.length === 0) {
-			throw new Error('stream is not initialized yet');
+			throw new Error('scanner is not initialized yet');
 		}
 
 		while (this._tokens.length <= offset) {
@@ -401,7 +402,7 @@ export class Scanner implements ITokenStream {
 
 		while (true) {
 			if (this.stream.eof) {
-				throw new AiScriptSyntaxError(`unexpected EOF`);
+				throw new AiScriptSyntaxError('unexpected EOF');
 			}
 			if (this.stream.char === literalMark) {
 				this.stream.next();
@@ -424,7 +425,7 @@ export class Scanner implements ITokenStream {
 				case 'string': {
 					// テンプレートの終了が無いままEOFに達した
 					if (this.stream.eof) {
-						throw new AiScriptSyntaxError(`unexpected EOF`);
+						throw new AiScriptSyntaxError('unexpected EOF');
 					}
 					// テンプレートの終了
 					if (this.stream.char === '`') {
@@ -452,7 +453,7 @@ export class Scanner implements ITokenStream {
 				case 'expr': {
 					// 埋め込み式の終端記号が無いままEOFに達した
 					if (this.stream.eof) {
-						throw new AiScriptSyntaxError(`unexpected EOF`);
+						throw new AiScriptSyntaxError('unexpected EOF');
 					}
 					// skip spasing
 					if (spacingChars.includes(this.stream.char)) {
@@ -477,7 +478,7 @@ export class Scanner implements ITokenStream {
 		return TOKEN(TokenKind.Template, spaceSkipped, { children: elements });
 	}
 
-	private skipCommentLine() {
+	private skipCommentLine(): void {
 		while (true) {
 			if (this.stream.eof) {
 				break;
@@ -490,7 +491,7 @@ export class Scanner implements ITokenStream {
 		}
 	}
 
-	private skipCommentRange() {
+	private skipCommentRange(): void {
 		while (true) {
 			if (this.stream.eof) {
 				break;

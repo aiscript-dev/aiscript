@@ -57,11 +57,11 @@ export class CharStream {
 		this.loadChar();
 	}
 
-	private get isFirstPage() {
+	private get isFirstPage(): boolean {
 		return (this.pageIndex <= this.firstPageIndex);
 	}
 
-	private get isLastPage() {
+	private get isLastPage(): boolean {
 		return (this.pageIndex >= this.lastPageIndex);
 	}
 

@@ -28,7 +28,7 @@ export class TokenStream implements ITokenStream {
 		this.index = 0;
 	}
 
-	public init() {
+	public init(): void {
 		this.load();
 	}
 

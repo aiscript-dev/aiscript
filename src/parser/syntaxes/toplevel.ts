@@ -1,10 +1,9 @@
-import { AiScriptSyntaxError } from '../../error.js';
-import { TokenKind } from '../token.js';
-import { TokenStream } from '../streams/token-stream.js';
-import type { ITokenStream } from '../streams/token-stream.js';
 import { NODE } from '../node.js';
-import type * as Cst from '../node.js';
+import { TokenKind } from '../token.js';
 import { parseFnDef, parseStatement, parseVarDef } from './statements.js';
+
+import type * as Cst from '../node.js';
+import type { ITokenStream } from '../streams/token-stream.js';
 
 /**
  * ```abnf

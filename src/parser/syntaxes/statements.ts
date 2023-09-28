@@ -1,12 +1,11 @@
 import { AiScriptSyntaxError } from '../../error.js';
-import { TokenKind } from '../token.js';
-import { TokenStream } from '../streams/token-stream.js';
-import type { ITokenStream } from '../streams/token-stream.js';
 import { NODE } from '../node.js';
-import type * as Cst from '../node.js';
-
+import { TokenKind } from '../token.js';
 import { parseBlock, parseParams, parseType } from './common.js';
 import { parseExpr } from './expressions.js';
+
+import type * as Cst from '../node.js';
+import type { ITokenStream } from '../streams/token-stream.js';
 
 /**
  * ```abnf
@@ -124,7 +123,7 @@ export function parseFnDef(s: ITokenStream): Cst.Node {
 		name,
 		expr: NODE('fn', { args: params ?? [], retType: undefined, children: body ?? [] }),
 		mut: false,
-		attr: []
+		attr: [],
 	});
 }
 

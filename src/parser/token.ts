@@ -119,6 +119,6 @@ export class Token {
  * - opts.value: for number literal, string literal
  * - opts.children: for template syntax
 */
-export function TOKEN(kind: TokenKind, spaceSkipped: boolean, opts?: { value?: Token['value'], children?: Token['children'] }) {
+export function TOKEN(kind: TokenKind, spaceSkipped: boolean, opts?: { value?: Token['value'], children?: Token['children'] }): Token {
 	return new Token(kind, spaceSkipped, opts?.value, opts?.children);
 }

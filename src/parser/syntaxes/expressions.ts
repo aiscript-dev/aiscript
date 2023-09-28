@@ -1,14 +1,14 @@
 import { AiScriptSyntaxError } from '../../error.js';
-import { TokenKind } from '../token.js';
-import { TokenStream } from '../streams/token-stream.js';
-import type { ITokenStream } from '../streams/token-stream.js';
 import { CALL_NODE, NODE } from '../node.js';
-import type * as Cst from '../node.js';
-
-import { parseBlockOrStatement } from './statements.js';
+import { TokenStream } from '../streams/token-stream.js';
+import { TokenKind } from '../token.js';
 import { parseBlock, parseParams } from './common.js';
+import { parseBlockOrStatement } from './statements.js';
 
-export function parseExpr(s: ITokenStream) {
+import type * as Cst from '../node.js';
+import type { ITokenStream } from '../streams/token-stream.js';
+
+export function parseExpr(s: ITokenStream): Cst.Node {
 	return parsePratt(s, 0);
 }
 
@@ -256,7 +256,7 @@ export function parseIf(s: ITokenStream): Cst.Node {
 	const cond = parseExpr(s);
 	const then = parseBlockOrStatement(s);
 
-	const elseif: { cond: any, then: any }[] = [];
+	const elseif: { cond: Cst.Node, then: Cst.Node }[] = [];
 	while (s.kind === TokenKind.ElifKeyword) {
 		s.next();
 		const elifCond = parseExpr(s);
@@ -373,7 +373,7 @@ type InfixInfo = { opKind: 'infix', kind: TokenKind, lbp: number, rbp: number };
 type PostfixInfo = { opKind: 'postfix', kind: TokenKind, bp: number };
 type OpInfo = PrefixInfo | InfixInfo | PostfixInfo;
 
-function parsePratt(s: ITokenStream, minBp: number) {
+function parsePratt(s: ITokenStream, minBp: number): Cst.Node {
 	// pratt parsing
 	// https://matklad.github.io/2020/04/13/simple-but-powerful-pratt-parsing.html
 
