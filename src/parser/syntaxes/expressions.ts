@@ -29,6 +29,7 @@ const operators: OpInfo[] = [
 
 	{ opKind: 'infix', kind: TokenKind.Asterisk, lbp: 12, rbp: 13 },
 	{ opKind: 'infix', kind: TokenKind.Slash, lbp: 12, rbp: 13 },
+	{ opKind: 'infix', kind: TokenKind.Percent, lbp: 12, rbp: 13 },
 
 	{ opKind: 'infix', kind: TokenKind.Plus, lbp: 10, rbp: 11 },
 	{ opKind: 'infix', kind: TokenKind.Minus, lbp: 10, rbp: 11 },
@@ -106,6 +107,9 @@ function parseInfix(s: ITokenStream, left: Cst.Node, minBp: number): Cst.Node {
 			}
 			case TokenKind.Slash: {
 				return CALL_NODE('Core:div', [left, right]);
+			}
+			case TokenKind.Percent: {
+				return CALL_NODE('Core:mod', [left, right]);
 			}
 			case TokenKind.Plus: {
 				return CALL_NODE('Core:add', [left, right]);
