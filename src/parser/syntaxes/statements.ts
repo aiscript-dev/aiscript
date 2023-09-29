@@ -31,7 +31,9 @@ export function parseStatement(s: ITokenStream): Cst.Node {
 		case TokenKind.ReturnKeyword: {
 			return parseReturn(s);
 		}
-		// Attr
+		case TokenKind.OpenSharpBracket: {
+			return parseStatementWithAttr(s);
+		}
 		case TokenKind.EachKeyword: {
 			return parseEach(s);
 		}
@@ -249,6 +251,50 @@ export function parseReturn(s: ITokenStream): Cst.Node {
 	s.nextWith(TokenKind.ReturnKeyword);
 	const expr = parseExpr(s);
 	return NODE('return', { expr });
+}
+
+/**
+ * ```abnf
+ * StatementWithAttr = *Attr Statement
+ * ```
+*/
+export function parseStatementWithAttr(s: ITokenStream): Cst.Node {
+	const attrs: Cst.Attribute[] = [];
+	while (s.kind === TokenKind.OpenSharpBracket) {
+		attrs.push(parseAttr(s) as Cst.Attribute);
+	}
+
+	const statement = parseStatement(s);
+
+	if (statement.type !== 'def') {
+		throw new AiScriptSyntaxError('invalid attribute.');
+	}
+	if (statement.attr != null) {
+		statement.attr.push(...attrs);
+	} else {
+		statement.attr = attrs;
+	}
+
+	return statement;
+}
+
+/**
+ * ```abnf
+ * Attr = "#[" IDENT [StaticLiteral] "]"
+ * ```
+*/
+function parseAttr(s: ITokenStream): Cst.Node {
+	s.nextWith(TokenKind.OpenSharpBracket);
+
+	s.expect(TokenKind.Identifier);
+	const name = s.token.value!;
+	s.next();
+
+	// TODO: value
+
+	s.nextWith(TokenKind.CloseBracket);
+
+	return NODE('attr', { name, value: undefined });
 }
 
 /**
