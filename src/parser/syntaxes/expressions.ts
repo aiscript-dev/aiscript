@@ -53,10 +53,24 @@ function parsePrefix(s: ITokenStream, minBp: number): Cst.Node {
 
 	switch (op) {
 		case TokenKind.Plus: {
-			return NODE('plus', { expr });
+			// 数値リテラル以外は非サポート
+			if (expr.type === 'num') {
+				return expr;
+			} else {
+				throw new AiScriptSyntaxError('currently, sign is only supported for number literal.');
+			}
+			// TODO: 将来的にサポートされる式を拡張
+			// return NODE('plus', { expr });
 		}
 		case TokenKind.Minus: {
-			return NODE('minus', { expr });
+			// 数値リテラル以外は非サポート
+			if (expr.type == 'num') {
+				return NODE('num', { value: -1 * expr.value });
+			} else {
+				throw new AiScriptSyntaxError('currently, sign is only supported for number literal.');
+			}
+			// TODO: 将来的にサポートされる式を拡張
+			// return NODE('minus', { expr });
 		}
 		case TokenKind.Not: {
 			return NODE('not', { expr });
