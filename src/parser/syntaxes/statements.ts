@@ -99,7 +99,7 @@ export function parseVarDef(s: ITokenStream): Cst.Node {
 
 /**
  * ```abnf
- * FnDef = "@" IDENT "(" Params ")" [":" Type] Block
+ * FnDef = "@" IDENT Params [":" Type] Block
  * ```
 */
 export function parseFnDef(s: ITokenStream): Cst.Node {
@@ -109,11 +109,7 @@ export function parseFnDef(s: ITokenStream): Cst.Node {
 	const name = s.token.value;
 	s.next();
 
-	s.nextWith(TokenKind.OpenParen);
-
 	const params = parseParams(s);
-
-	s.nextWith(TokenKind.CloseParen);
 
 	// type
 

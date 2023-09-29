@@ -235,30 +235,31 @@ function parseAtom(s: ITokenStream): Cst.Node {
 }
 
 /**
- * Call = "(" [Expr *(("," / +(" " / "\t")) Expr)] ")"
+ * Call = "(" [Expr *(SEP Expr)] ")"
 */
 function parseCall(s: ITokenStream, target: Cst.Node): Cst.Node {
-	const args: Cst.Node[] = [];
+	const items: Cst.Node[] = [];
+
 	s.nextWith(TokenKind.OpenParen);
-	while (true) {
-		if (s.kind == TokenKind.CloseParen) {
-			break;
-		}
+
+	while (s.kind !== TokenKind.CloseParen) {
 		// separator
-		if (args.length > 0) {
+		if (items.length > 0) {
 			if (s.kind === TokenKind.Comma) {
 				s.next();
 			} else if (!s.token.spaceSkipped) {
-				throw new AiScriptSyntaxError('separator required');
+				throw new AiScriptSyntaxError('separator token expected');
 			}
 		}
-		args.push(parseExpr(s));
+
+		items.push(parseExpr(s));
 	}
+
 	s.nextWith(TokenKind.CloseParen);
 
 	return NODE('call', {
 		target,
-		args,
+		args: items,
 	});
 }
 
@@ -291,16 +292,13 @@ export function parseIf(s: ITokenStream): Cst.Node {
 
 /**
  * ```abnf
- * FnExpr = "@(" Params ")" [":" Type] Block
+ * FnExpr = "@" Params [":" Type] Block
  * ```
 */
 export function parseFnExpr(s: ITokenStream): Cst.Node {
 	s.nextWith(TokenKind.At);
-	s.nextWith(TokenKind.OpenParen);
 
 	const params = parseParams(s);
-
-	s.nextWith(TokenKind.CloseParen);
 
 	// type
 

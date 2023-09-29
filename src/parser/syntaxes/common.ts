@@ -1,11 +1,38 @@
 import { TokenKind } from '../token.js';
 import { parseStatement } from './statements.js';
+import { AiScriptSyntaxError } from '../../error.js';
 
 import type { ITokenStream } from '../streams/token-stream.js';
 import type * as Cst from '../node.js';
 
-export function parseParams(s: ITokenStream): Cst.Node[] {
-	throw new Error('todo');
+/**
+ * ```abnf
+ * Params = "(" [IDENT *(SEP IDENT)] ")"
+ * ```
+*/
+export function parseParams(s: ITokenStream): { name: string }[] {
+	const items: { name: string }[] = [];
+
+	s.nextWith(TokenKind.OpenParen);
+
+	while (s.kind !== TokenKind.CloseParen) {
+		// separator
+		if (items.length > 0) {
+			if (s.kind === TokenKind.Comma) {
+				s.next();
+			} else if (!s.token.spaceSkipped) {
+				throw new AiScriptSyntaxError('separator token expected');
+			}
+		}
+
+		s.expect(TokenKind.Identifier);
+		items.push({ name: s.token.value! });
+		s.next();
+	}
+
+	s.nextWith(TokenKind.CloseParen);
+
+	return items;
 }
 
 /**
