@@ -64,7 +64,7 @@ function parsePrefix(s: ITokenStream, minBp: number): Cst.Node {
 		}
 		case TokenKind.Minus: {
 			// 数値リテラル以外は非サポート
-			if (expr.type == 'num') {
+			if (expr.type === 'num') {
 				return NODE('num', { value: -1 * expr.value });
 			} else {
 				throw new AiScriptSyntaxError('currently, sign is only supported for number literal.');
