@@ -49,7 +49,6 @@ const operators: OpInfo[] = [
 function parsePrefix(s: ITokenStream, minBp: number): Cst.Node {
 	const op = s.kind;
 	s.next();
-
 	const expr = parsePratt(s, minBp);
 
 	switch (op) {
@@ -63,16 +62,15 @@ function parsePrefix(s: ITokenStream, minBp: number): Cst.Node {
 			return NODE('not', { expr });
 		}
 		default: {
-			throw new Error('unexpected token');
+			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[op]}`);
 		}
 	}
 }
 
 function parseInfix(s: ITokenStream, left: Cst.Node, minBp: number): Cst.Node {
 	const op = s.kind;
-	s.next();
-
 	if (op === TokenKind.Dot) {
+		s.next();
 		s.expect(TokenKind.Identifier);
 		const name = s.token.value!;
 		s.next();
@@ -82,6 +80,7 @@ function parseInfix(s: ITokenStream, left: Cst.Node, minBp: number): Cst.Node {
 			name,
 		});
 	} else {
+		s.next();
 		const right = parsePratt(s, minBp);
 
 		switch (op) {
@@ -125,7 +124,7 @@ function parseInfix(s: ITokenStream, left: Cst.Node, minBp: number): Cst.Node {
 				return NODE('or', { left, right });
 			}
 			default: {
-				throw new Error('unexpected token');
+				throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[op]}`);
 			}
 		}
 	}
@@ -133,19 +132,14 @@ function parseInfix(s: ITokenStream, left: Cst.Node, minBp: number): Cst.Node {
 
 function parsePostfix(s: ITokenStream, expr: Cst.Node): Cst.Node {
 	const op = s.kind;
-	s.next();
-
 	switch (op) {
 		case TokenKind.OpenParen: {
-			const args = parseCallArgs(s);
-
-			return NODE('call', {
-				target: expr,
-				args,
-			});
+			return parseCall(s, expr);
 		}
 		case TokenKind.OpenBracket: {
+			s.next();
 			const index = parseExpr(s);
+			s.nextWith(TokenKind.CloseBracket);
 
 			return NODE('index', {
 				target: expr,
@@ -153,7 +147,7 @@ function parsePostfix(s: ITokenStream, expr: Cst.Node): Cst.Node {
 			});
 		}
 		default: {
-			throw new Error('unexpected token');
+			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[op]}`);
 		}
 	}
 }
@@ -235,16 +229,37 @@ function parseAtom(s: ITokenStream): Cst.Node {
 			return parseReference(s);
 		}
 		default: {
-			throw new Error('todo');
+			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[s.token.kind]}`);
 		}
 	}
 }
 
 /**
- * CallArgs = [Expr *(SEP Expr)]
+ * Call = "(" [Expr *(("," / +(" " / "\t")) Expr)] ")"
 */
-function parseCallArgs(s: ITokenStream): Cst.Node[] {
-	throw new Error('todo');
+function parseCall(s: ITokenStream, target: Cst.Node): Cst.Node {
+	const args: Cst.Node[] = [];
+	s.nextWith(TokenKind.OpenParen);
+	while (true) {
+		if (s.kind == TokenKind.CloseParen) {
+			break;
+		}
+		// separator
+		if (args.length > 0) {
+			if (s.kind === TokenKind.Comma) {
+				s.next();
+			} else if (!s.token.spaceSkipped) {
+				throw new AiScriptSyntaxError('separator required');
+			}
+		}
+		args.push(parseExpr(s));
+	}
+	s.nextWith(TokenKind.CloseParen);
+
+	return NODE('call', {
+		target,
+		args,
+	});
 }
 
 /**
