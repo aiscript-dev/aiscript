@@ -75,6 +75,7 @@ function parseInfix(s: ITokenStream, left: Cst.Node, minBp: number): Cst.Node {
 	if (op === TokenKind.Dot) {
 		s.expect(TokenKind.Identifier);
 		const name = s.token.value!;
+		s.next();
 
 		return NODE('prop', {
 			target: left,
