@@ -117,7 +117,11 @@ export function parseFnDef(s: ITokenStream): Cst.Node {
 
 	return NODE('def', {
 		name,
-		expr: NODE('fn', { args: params ?? [], retType: undefined, children: body ?? [] }),
+		expr: NODE('fn', {
+			args: params,
+			retType: undefined, // TODO: type
+			children: body,
+		}),
 		mut: false,
 		attr: [],
 	});
