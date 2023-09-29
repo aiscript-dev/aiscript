@@ -3,7 +3,6 @@ import { parseTopLevel } from './syntaxes/toplevel.js';
 
 import { validateKeyword } from './plugins/validate-keyword.js';
 import { validateType } from './plugins/validate-type.js';
-import { setAttribute } from './plugins/set-attribute.js';
 import { transformChain } from './plugins/transform-chain.js';
 import type * as Cst from './node.js';
 import type * as Ast from '../node.js';
@@ -25,7 +24,6 @@ export class Parser {
 				validateType,
 			],
 			transform: [
-				setAttribute,
 				transformChain,
 			],
 		};
