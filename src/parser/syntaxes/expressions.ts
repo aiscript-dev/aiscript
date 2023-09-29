@@ -157,7 +157,7 @@ function parseAtom(s: ITokenStream): Cst.Node {
 		case TokenKind.IfKeyword: {
 			return parseIf(s);
 		}
-		case TokenKind.OpenAtParen: {
+		case TokenKind.At: {
 			return parseFnExpr(s);
 		}
 		case TokenKind.MatchKeyword: {
