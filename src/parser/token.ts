@@ -88,8 +88,6 @@ export enum TokenKind {
 	GtEq,
 	/** "@" */
 	At,
-	/** "@(" */
-	OpenAtParen,
 	/** "[" */
 	OpenBracket,
 	/** "]" */

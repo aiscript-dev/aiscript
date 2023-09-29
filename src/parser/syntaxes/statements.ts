@@ -14,7 +14,7 @@ import type { ITokenStream } from '../streams/token-stream.js';
  * ```
 */
 export function parseStatement(s: ITokenStream): Cst.Node {
-	switch (s.token.kind) {
+	switch (s.kind) {
 		case TokenKind.VarKeyword:
 		case TokenKind.LetKeyword: {
 			return parseVarDef(s);
