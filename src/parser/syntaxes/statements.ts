@@ -60,7 +60,7 @@ export function parseStatement(s: ITokenStream): Cst.Node {
 	return expr;
 }
 
-export function parseDefStatement(s: ITokenStream) {
+export function parseDefStatement(s: ITokenStream): Cst.Node {
 	switch (s.kind) {
 		case TokenKind.VarKeyword:
 		case TokenKind.LetKeyword: {
