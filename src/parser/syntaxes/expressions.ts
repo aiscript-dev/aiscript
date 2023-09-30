@@ -253,7 +253,7 @@ function parseAtom(s: ITokenStream): Cst.Node {
 }
 
 /**
- * Call = "(" [Expr *(SEP Expr)] ")"
+ * Call = "(" [Expr *(("," / SPACE) Expr)] ")"
 */
 function parseCall(s: ITokenStream, target: Cst.Node): Cst.Node {
 	const items: Cst.Node[] = [];
@@ -373,13 +373,48 @@ function parseReference(s: ITokenStream): Cst.Node {
 	return NODE('identifier', { name: segs.join(':') });
 }
 
+/**
+ * ```abnf
+ * Object = "{" [IDENT ":" Expr *(("," / ";" / SPACE) IDENT ":" Expr) ["," / ";"]] "}"
+ * ```
+*/
 function parseObject(s: ITokenStream): Cst.Node {
-	throw new Error('todo');
+	s.nextWith(TokenKind.OpenBrace);
+
+	const map = new Map();
+	while (s.kind !== TokenKind.CloseBrace) {
+		s.expect(TokenKind.Identifier);
+		const k = s.token.value!;
+		s.next();
+
+		s.nextWith(TokenKind.Colon);
+
+		const v = parseExpr(s);
+
+		map.set(k, v);
+
+		// separator
+		if ((s.kind as TokenKind) === TokenKind.CloseBrace) {
+			break;
+		} else if (s.kind === TokenKind.Comma) {
+			s.next();
+		} else if (s.kind === TokenKind.SemiColon) {
+			s.next();
+		} else {
+			if (!s.token.spaceSkipped) {
+				throw new AiScriptSyntaxError('separator token expected');
+			}
+		}
+	}
+
+	s.nextWith(TokenKind.CloseBrace);
+
+	return NODE('obj', { value: map });
 }
 
 /**
  * ```abnf
- * Array = "[" *(Expr [","]) "]"
+ * Array = "[" [Expr *(("," / SPACE) Expr) [","]] "]"
  * ```
 */
 function parseArray(s: ITokenStream): Cst.Node {
@@ -388,8 +423,16 @@ function parseArray(s: ITokenStream): Cst.Node {
 	const value = [];
 	while (s.kind !== TokenKind.CloseBracket) {
 		value.push(parseExpr(s));
-		if (s.kind === TokenKind.Comma) {
+
+		// separator
+		if ((s.kind as TokenKind) === TokenKind.CloseBracket) {
+			break;
+		} else if (s.kind === TokenKind.Comma) {
 			s.next();
+		} else {
+			if (!s.token.spaceSkipped) {
+				throw new AiScriptSyntaxError('separator token expected');
+			}
 		}
 	}
 

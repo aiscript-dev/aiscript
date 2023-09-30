@@ -7,7 +7,7 @@ import type * as Cst from '../node.js';
 
 /**
  * ```abnf
- * Params = "(" [IDENT *(SEP IDENT)] ")"
+ * Params = "(" [IDENT *(("," / SPACE) IDENT)] ")"
  * ```
 */
 export function parseParams(s: ITokenStream): { name: string }[] {
