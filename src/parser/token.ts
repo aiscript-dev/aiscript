@@ -21,6 +21,8 @@ export enum TokenKind {
 	BreakKeyword,
 	ContinueKeyword,
 	MatchKeyword,
+	CaseKeyword,
+	DefaultKeyword,
 	IfKeyword,
 	ElifKeyword,
 	ElseKeyword,

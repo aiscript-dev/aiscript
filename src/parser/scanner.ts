@@ -351,6 +351,12 @@ export class Scanner implements ITokenStream {
 			case 'match': {
 				return TOKEN(TokenKind.MatchKeyword, spaceSkipped);
 			}
+			case 'case': {
+				return TOKEN(TokenKind.CaseKeyword, spaceSkipped);
+			}
+			case 'default': {
+				return TOKEN(TokenKind.DefaultKeyword, spaceSkipped);
+			}
 			case 'if': {
 				return TOKEN(TokenKind.IfKeyword, spaceSkipped);
 			}

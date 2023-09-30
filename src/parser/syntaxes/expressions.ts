@@ -322,11 +322,39 @@ function parseFnExpr(s: ITokenStream): Cst.Node {
 
 	const body = parseBlock(s);
 
-	return NODE('fn', { args: params ?? [], retType: undefined, children: body ?? [] });
+	return NODE('fn', { args: params, retType: undefined, children: body });
 }
 
+/**
+ * ```abnf
+ * Match = "match" Expr "{" *("case" Expr "=>" BlockOrStatement) ["default" "=>" BlockOrStatement] "}"
+ * ```
+*/
 function parseMatch(s: ITokenStream): Cst.Node {
-	throw new Error('todo');
+	s.nextWith(TokenKind.MatchKeyword);
+	const about = parseExpr(s);
+
+	s.nextWith(TokenKind.OpenBrace);
+
+	const qs: { q: Cst.Node, a: Cst.Node }[] = [];
+	while (s.kind !== TokenKind.DefaultKeyword && s.kind !== TokenKind.CloseBrace) {
+		s.nextWith(TokenKind.CaseKeyword);
+		const q = parseExpr(s);
+		s.nextWith(TokenKind.Arrow);
+		const a = parseBlockOrStatement(s);
+		qs.push({ q, a });
+	}
+
+	let x;
+	if (s.kind === TokenKind.DefaultKeyword) {
+		s.next();
+		s.nextWith(TokenKind.Arrow);
+		x = parseBlockOrStatement(s);
+	}
+
+	s.nextWith(TokenKind.CloseBrace);
+
+	return NODE('match', { about, qs, default: x });
 }
 
 /**
