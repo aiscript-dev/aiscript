@@ -247,7 +247,7 @@ function parseAtom(s: ITokenStream): Cst.Node {
 			return parseReference(s);
 		}
 		default: {
-			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[s.token.kind]}`);
+			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[s.kind]}`);
 		}
 	}
 }
@@ -286,7 +286,7 @@ function parseCall(s: ITokenStream, target: Cst.Node): Cst.Node {
  * If = "if" Expr BlockOrStatement *("elif" Expr BlockOrStatement) ["else" BlockOrStatement]
  * ```
 */
-export function parseIf(s: ITokenStream): Cst.Node {
+function parseIf(s: ITokenStream): Cst.Node {
 	s.nextWith(TokenKind.IfKeyword);
 	const cond = parseExpr(s);
 	const then = parseBlockOrStatement(s);
@@ -313,7 +313,7 @@ export function parseIf(s: ITokenStream): Cst.Node {
  * FnExpr = "@" Params [":" Type] Block
  * ```
 */
-export function parseFnExpr(s: ITokenStream): Cst.Node {
+function parseFnExpr(s: ITokenStream): Cst.Node {
 	s.nextWith(TokenKind.At);
 
 	const params = parseParams(s);
@@ -325,7 +325,7 @@ export function parseFnExpr(s: ITokenStream): Cst.Node {
 	return NODE('fn', { args: params ?? [], retType: undefined, children: body ?? [] });
 }
 
-export function parseMatch(s: ITokenStream): Cst.Node {
+function parseMatch(s: ITokenStream): Cst.Node {
 	throw new Error('todo');
 }
 
@@ -334,7 +334,7 @@ export function parseMatch(s: ITokenStream): Cst.Node {
  * Eval = "eval" Block
  * ```
 */
-export function parseEval(s: ITokenStream): Cst.Node {
+function parseEval(s: ITokenStream): Cst.Node {
 	s.nextWith(TokenKind.EvalKeyword);
 	const statements = parseBlock(s);
 	return NODE('block', { statements });
@@ -345,7 +345,7 @@ export function parseEval(s: ITokenStream): Cst.Node {
  * Exists = "exists" Reference
  * ```
 */
-export function parseExists(s: ITokenStream): Cst.Node {
+function parseExists(s: ITokenStream): Cst.Node {
 	s.nextWith(TokenKind.ExistsKeyword);
 	const identifier = parseReference(s);
 	return NODE('exists', { identifier });
@@ -356,7 +356,7 @@ export function parseExists(s: ITokenStream): Cst.Node {
  * Reference = IDENT *(":" IDENT)
  * ```
 */
-export function parseReference(s: ITokenStream): Cst.Node {
+function parseReference(s: ITokenStream): Cst.Node {
 	const segs: string[] = [];
 	while (true) {
 		if (segs.length > 0) {
@@ -373,7 +373,7 @@ export function parseReference(s: ITokenStream): Cst.Node {
 	return NODE('identifier', { name: segs.join(':') });
 }
 
-export function parseObject(s: ITokenStream): Cst.Node {
+function parseObject(s: ITokenStream): Cst.Node {
 	throw new Error('todo');
 }
 
@@ -382,7 +382,7 @@ export function parseObject(s: ITokenStream): Cst.Node {
  * Array = "[" *(Expr [","]) "]"
  * ```
 */
-export function parseArray(s: ITokenStream): Cst.Node {
+function parseArray(s: ITokenStream): Cst.Node {
 	s.nextWith(TokenKind.OpenBracket);
 
 	const value = [];

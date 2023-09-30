@@ -72,7 +72,7 @@ export class Scanner implements ITokenStream {
 
 	public expect(kind: TokenKind): void {
 		if (this.kind !== kind) {
-			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[this.token.kind]}`);
+			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[this.kind]}`);
 		}
 	}
 

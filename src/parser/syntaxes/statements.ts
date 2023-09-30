@@ -60,14 +60,43 @@ export function parseStatement(s: ITokenStream): Cst.Node {
 	return expr;
 }
 
+export function parseDefStatement(s: ITokenStream) {
+	switch (s.kind) {
+		case TokenKind.VarKeyword:
+		case TokenKind.LetKeyword: {
+			return parseVarDef(s);
+		}
+		case TokenKind.At: {
+			return parseFnDef(s);
+		}
+		default: {
+			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[s.kind]}`);
+		}
+	}
+}
+
+/**
+ * ```abnf
+ * BlockOrStatement = Block / Statement
+ * ```
+*/
+export function parseBlockOrStatement(s: ITokenStream): Cst.Node {
+	if (s.kind === TokenKind.OpenBrace) {
+		const statements = parseBlock(s);
+		return NODE('block', { statements });
+	} else {
+		return parseStatement(s);
+	}
+}
+
 /**
  * ```abnf
  * VarDef = ("let" / "var") IDENT [":" Type] "=" Expr
  * ```
 */
-export function parseVarDef(s: ITokenStream): Cst.Node {
+function parseVarDef(s: ITokenStream): Cst.Node {
 	let mut;
-	switch (s.token.kind) {
+	switch (s.kind) {
 		case TokenKind.LetKeyword: {
 			mut = false;
 			break;
@@ -77,7 +106,7 @@ export function parseVarDef(s: ITokenStream): Cst.Node {
 			break;
 		}
 		default: {
-			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[s.token.kind]}`);
+			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[s.kind]}`);
 		}
 	}
 	s.next();
@@ -87,7 +116,7 @@ export function parseVarDef(s: ITokenStream): Cst.Node {
 	s.next();
 
 	let ty;
-	if (s.kind === TokenKind.Colon) {
+	if ((s.kind as TokenKind) === TokenKind.Colon) {
 		s.next();
 		ty = parseType(s);
 	}
@@ -104,7 +133,7 @@ export function parseVarDef(s: ITokenStream): Cst.Node {
  * FnDef = "@" IDENT Params [":" Type] Block
  * ```
 */
-export function parseFnDef(s: ITokenStream): Cst.Node {
+function parseFnDef(s: ITokenStream): Cst.Node {
 	s.nextWith(TokenKind.At);
 
 	s.expect(TokenKind.Identifier);
@@ -134,7 +163,7 @@ export function parseFnDef(s: ITokenStream): Cst.Node {
  * Out = "<:" Expr
  * ```
 */
-export function parseOut(s: ITokenStream): Cst.Node {
+function parseOut(s: ITokenStream): Cst.Node {
 	s.nextWith(TokenKind.Out);
 	const expr = parseExpr(s);
 	return NODE('identifier', {
@@ -149,7 +178,7 @@ export function parseOut(s: ITokenStream): Cst.Node {
  *      / "each" "(" "let" IDENT [","] Expr ")" BlockOrStatement
  * ```
 */
-export function parseEach(s: ITokenStream): Cst.Node {
+function parseEach(s: ITokenStream): Cst.Node {
 	let hasParen = false;
 
 	s.nextWith(TokenKind.EachKeyword);
@@ -184,7 +213,7 @@ export function parseEach(s: ITokenStream): Cst.Node {
 	});
 }
 
-export function parseFor(s: ITokenStream): Cst.Node {
+function parseFor(s: ITokenStream): Cst.Node {
 	let hasParen = false;
 
 	s.nextWith(TokenKind.ForKeyword);
@@ -247,7 +276,7 @@ export function parseFor(s: ITokenStream): Cst.Node {
  * Return = "return" Expr
  * ```
 */
-export function parseReturn(s: ITokenStream): Cst.Node {
+function parseReturn(s: ITokenStream): Cst.Node {
 	s.nextWith(TokenKind.ReturnKeyword);
 	const expr = parseExpr(s);
 	return NODE('return', { expr });
@@ -258,7 +287,7 @@ export function parseReturn(s: ITokenStream): Cst.Node {
  * StatementWithAttr = *Attr Statement
  * ```
 */
-export function parseStatementWithAttr(s: ITokenStream): Cst.Node {
+function parseStatementWithAttr(s: ITokenStream): Cst.Node {
 	const attrs: Cst.Attribute[] = [];
 	while (s.kind === TokenKind.OpenSharpBracket) {
 		attrs.push(parseAttr(s) as Cst.Attribute);
@@ -302,7 +331,7 @@ function parseAttr(s: ITokenStream): Cst.Node {
  * Loop = "loop" Block
  * ```
 */
-export function parseLoop(s: ITokenStream): Cst.Node {
+function parseLoop(s: ITokenStream): Cst.Node {
 	s.nextWith(TokenKind.LoopKeyword);
 	const statements = parseBlock(s);
 	return NODE('loop', { statements });
@@ -313,7 +342,7 @@ export function parseLoop(s: ITokenStream): Cst.Node {
  * Assign = Expr ("=" / "+=" / "-=") Expr
  * ```
 */
-export function tryParseAssign(s: ITokenStream, dest: Cst.Node): Cst.Node | undefined {
+function tryParseAssign(s: ITokenStream, dest: Cst.Node): Cst.Node | undefined {
 	// Assign
 	switch (s.kind) {
 		case TokenKind.Eq: {
@@ -334,19 +363,5 @@ export function tryParseAssign(s: ITokenStream, dest: Cst.Node): Cst.Node | unde
 		default: {
 			return;
 		}
-	}
-}
-
-/**
- * ```abnf
- * BlockOrStatement = Block / Statement
- * ```
-*/
-export function parseBlockOrStatement(s: ITokenStream): Cst.Node {
-	if (s.kind === TokenKind.OpenBrace) {
-		const statements = parseBlock(s);
-		return NODE('block', { statements });
-	} else {
-		return parseStatement(s);
 	}
 }

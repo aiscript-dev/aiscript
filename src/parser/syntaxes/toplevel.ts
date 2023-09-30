@@ -1,6 +1,7 @@
 import { NODE } from '../node.js';
 import { TokenKind } from '../token.js';
-import { parseFnDef, parseStatement, parseVarDef } from './statements.js';
+import { parseDefStatement, parseStatement } from './statements.js';
+import { parseStaticLiteral } from './common.js';
 
 import type * as Cst from '../node.js';
 import type { ITokenStream } from '../streams/token-stream.js';
@@ -14,7 +15,7 @@ export function parseTopLevel(s: ITokenStream): Cst.Node[] {
 	const nodes: Cst.Node[] = [];
 
 	while (s.kind !== TokenKind.EOF) {
-		switch (s.token.kind) {
+		switch (s.kind) {
 			case TokenKind.Colon2: {
 				nodes.push(parseNamespace(s));
 				break;
@@ -48,14 +49,11 @@ export function parseNamespace(s: ITokenStream): Cst.Node {
 	const members: Cst.Node[] = [];
 	s.nextWith(TokenKind.OpenBrace);
 	while (s.kind !== TokenKind.CloseBrace) {
-		switch (s.token.kind) {
+		switch (s.kind) {
 			case TokenKind.VarKeyword:
-			case TokenKind.LetKeyword: {
-				members.push(parseVarDef(s));
-				break;
-			}
+			case TokenKind.LetKeyword:
 			case TokenKind.At: {
-				members.push(parseFnDef(s));
+				members.push(parseDefStatement(s));
 				break;
 			}
 			case TokenKind.Colon2: {
@@ -87,19 +85,3 @@ export function parseMeta(s: ITokenStream): Cst.Node {
 
 	return NODE('meta', { name, value });
 }
-
-//#region Static Literal
-
-export function parseStaticLiteral(s: ITokenStream): Cst.Node {
-	throw new Error('todo');
-}
-
-export function parseStaticArray(s: ITokenStream): Cst.Node {
-	throw new Error('todo');
-}
-
-export function parseStaticObject(s: ITokenStream): Cst.Node {
-	throw new Error('todo');
-}
-
-//#endregion Static Literal
