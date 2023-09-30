@@ -1,5 +1,5 @@
 import { AiScriptSyntaxError } from '../../error.js';
-import { NODE } from '../node.js';
+import { CALL_NODE, NODE } from '../node.js';
 import { TokenKind } from '../token.js';
 import { parseBlock, parseParams, parseType } from './common.js';
 import { parseExpr } from './expressions.js';
@@ -166,10 +166,7 @@ function parseFnDef(s: ITokenStream): Cst.Node {
 function parseOut(s: ITokenStream): Cst.Node {
 	s.nextWith(TokenKind.Out);
 	const expr = parseExpr(s);
-	return NODE('identifier', {
-		name: 'print',
-		chain: [NODE('callChain', { args: [expr] })],
-	});
+	return CALL_NODE('print', [expr]);
 }
 
 /**
