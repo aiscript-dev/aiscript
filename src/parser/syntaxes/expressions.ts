@@ -246,6 +246,12 @@ function parseAtom(s: ITokenStream): Cst.Node {
 		case TokenKind.Identifier: {
 			return parseReference(s);
 		}
+		case TokenKind.OpenParen: {
+			s.next();
+			const expr = parseExpr(s);
+			s.nextWith(TokenKind.CloseParen);
+			return expr;
+		}
 		default: {
 			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[s.kind]}`);
 		}
@@ -265,8 +271,8 @@ function parseCall(s: ITokenStream, target: Cst.Node): Cst.Node {
 		if (items.length > 0) {
 			if (s.kind === TokenKind.Comma) {
 				s.next();
-			} else if (!s.token.spaceSkipped) {
-				throw new AiScriptSyntaxError('separator token expected');
+			} else if (!s.token.hasLeftSpacing) {
+				throw new AiScriptSyntaxError('separator expected');
 			}
 		}
 
@@ -429,8 +435,8 @@ function parseObject(s: ITokenStream): Cst.Node {
 		} else if (s.kind === TokenKind.SemiColon) {
 			s.next();
 		} else {
-			if (!s.token.spaceSkipped) {
-				throw new AiScriptSyntaxError('separator token expected');
+			if (!s.token.hasLeftSpacing) {
+				throw new AiScriptSyntaxError('separator expected');
 			}
 		}
 	}
@@ -458,8 +464,8 @@ function parseArray(s: ITokenStream): Cst.Node {
 		} else if (s.kind === TokenKind.Comma) {
 			s.next();
 		} else {
-			if (!s.token.spaceSkipped) {
-				throw new AiScriptSyntaxError('separator token expected');
+			if (!s.token.hasLeftSpacing) {
+				throw new AiScriptSyntaxError('separator expected');
 			}
 		}
 	}

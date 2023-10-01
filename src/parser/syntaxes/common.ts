@@ -20,8 +20,8 @@ export function parseParams(s: ITokenStream): { name: string }[] {
 		if (items.length > 0) {
 			if (s.kind === TokenKind.Comma) {
 				s.next();
-			} else if (!s.token.spaceSkipped) {
-				throw new AiScriptSyntaxError('separator token expected');
+			} else if (!s.token.hasLeftSpacing) {
+				throw new AiScriptSyntaxError('separator expected');
 			}
 		}
 

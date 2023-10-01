@@ -5,6 +5,7 @@ import { parseStaticLiteral } from './common.js';
 
 import type * as Cst from '../node.js';
 import type { ITokenStream } from '../streams/token-stream.js';
+import { AiScriptSyntaxError } from '../../error.js';
 
 /**
  * ```abnf
@@ -40,6 +41,10 @@ export function parseTopLevel(s: ITokenStream): Cst.Node[] {
  * ```
 */
 export function parseNamespace(s: ITokenStream): Cst.Node {
+	if (!s.token.lineBegin) {
+		throw new AiScriptSyntaxError('Statement must be at the beginning of the line.');
+	}
+
 	s.nextWith(TokenKind.Colon2);
 
 	s.expect(TokenKind.Identifier);
@@ -73,6 +78,10 @@ export function parseNamespace(s: ITokenStream): Cst.Node {
  * ```
 */
 export function parseMeta(s: ITokenStream): Cst.Node {
+	if (!s.token.lineBegin) {
+		throw new AiScriptSyntaxError('Statement must be at the beginning of the line.');
+	}
+
 	s.nextWith(TokenKind.Sharp3);
 
 	let name;

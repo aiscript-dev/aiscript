@@ -14,6 +14,10 @@ import type { ITokenStream } from '../streams/token-stream.js';
  * ```
 */
 export function parseStatement(s: ITokenStream): Cst.Node {
+	if (!s.token.lineBegin) {
+		throw new AiScriptSyntaxError('Statement must be at the beginning of the line.');
+	}
+
 	switch (s.kind) {
 		case TokenKind.VarKeyword:
 		case TokenKind.LetKeyword: {
@@ -171,8 +175,8 @@ function parseOut(s: ITokenStream): Cst.Node {
 
 /**
  * ```abnf
- * Each = "each" "let" IDENT [","] Expr BlockOrStatement
- *      / "each" "(" "let" IDENT [","] Expr ")" BlockOrStatement
+ * Each = "each" "let" IDENT ("," / SPACE) Expr BlockOrStatement
+ *      / "each" "(" "let" IDENT ("," / SPACE) Expr ")" BlockOrStatement
  * ```
 */
 function parseEach(s: ITokenStream): Cst.Node {
@@ -193,6 +197,8 @@ function parseEach(s: ITokenStream): Cst.Node {
 
 	if (s.kind === TokenKind.Comma) {
 		s.next();
+	} else if (!s.token.hasLeftSpacing) {
+		throw new AiScriptSyntaxError('separator expected');
 	}
 
 	const items = parseExpr(s);
@@ -234,6 +240,12 @@ function parseFor(s: ITokenStream): Cst.Node {
 			_from = parseExpr(s);
 		} else {
 			_from = NODE('num', { value: 0 });
+		}
+
+		if ((s.kind as TokenKind) === TokenKind.Comma) {
+			s.next();
+		} else if (!s.token.hasLeftSpacing) {
+			throw new AiScriptSyntaxError('separator expected');
 		}
 
 		const to = parseExpr(s);

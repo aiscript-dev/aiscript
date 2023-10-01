@@ -5,7 +5,8 @@ import { TOKEN, TokenKind } from './token.js';
 import type { ITokenStream } from './streams/token-stream.js';
 import type { Token } from './token.js';
 
-const spacingChars = [' ', '\t', '\r', '\n'];
+const spaceChars = [' ', '\t'];
+const lineBreakChars = ['\r', '\n'];
 const digit = /^[0-9]$/;
 const wordChar = /^[A-Za-z0-9_]$/;
 
@@ -15,6 +16,7 @@ const wordChar = /^[A-Za-z0-9_]$/;
 export class Scanner implements ITokenStream {
 	private stream: CharStream;
 	private _tokens: Token[] = [];
+	private firstRead: boolean;
 
 	constructor(source: string)
 	constructor(stream: CharStream)
@@ -28,6 +30,7 @@ export class Scanner implements ITokenStream {
 	}
 
 	public init(): void {
+		this.firstRead = true;
 		this._tokens.push(this.readToken());
 	}
 
@@ -49,6 +52,11 @@ export class Scanner implements ITokenStream {
 	public next(): void {
 		if (this._tokens.length === 0) {
 			throw new Error('scanner is not initialized yet');
+		}
+
+		// 現在のトークンがEOFだったら次のトークンに進まない
+		if (this._tokens[0]!.kind === TokenKind.EOF) {
+			return;
 		}
 
 		this._tokens.shift();
@@ -83,16 +91,29 @@ export class Scanner implements ITokenStream {
 
 	private readToken(): Token {
 		let token;
-		let spaceSkipped = false;
+		let hasLeftSpacing = false;
+		let lineBegin = false;
+
+		if (this.firstRead) {
+			lineBegin = true;
+			this.firstRead = false;
+		}
+
 		while (true) {
 			if (this.stream.eof) {
-				token = TOKEN(TokenKind.EOF, spaceSkipped);
+				token = TOKEN(TokenKind.EOF, { hasLeftSpacing, lineBegin });
 				break;
 			}
 			// skip spasing
-			if (spacingChars.includes(this.stream.char)) {
+			if (spaceChars.includes(this.stream.char)) {
 				this.stream.next();
-				spaceSkipped = true;
+				hasLeftSpacing = true;
+				continue;
+			}
+			if (lineBreakChars.includes(this.stream.char)) {
+				this.stream.next();
+				hasLeftSpacing = true;
+				lineBegin = true;
 				continue;
 			}
 			switch (this.stream.char) {
@@ -100,14 +121,15 @@ export class Scanner implements ITokenStream {
 					this.stream.next();
 					if ((this.stream.char as string) === '=') {
 						this.stream.next();
-						token = TOKEN(TokenKind.NotEq, spaceSkipped);
+						token = TOKEN(TokenKind.NotEq, { hasLeftSpacing, lineBegin });
 					} else {
-						token = TOKEN(TokenKind.Not, spaceSkipped);
+						token = TOKEN(TokenKind.Not, { hasLeftSpacing, lineBegin });
 					}
 					break;
 				}
-				case '"': {
-					token = this.readStringLiteral(spaceSkipped);
+				case '"':
+				case '\'': {
+					token = this.readStringLiteral(hasLeftSpacing, lineBegin);
 					break;
 				}
 				case '#': {
@@ -116,72 +138,72 @@ export class Scanner implements ITokenStream {
 						this.stream.next();
 						if ((this.stream.char as string) === '#') {
 							this.stream.next();
-							token = TOKEN(TokenKind.Sharp3, spaceSkipped);
+							token = TOKEN(TokenKind.Sharp3, { hasLeftSpacing, lineBegin });
 						}
 					} else if ((this.stream.char as string) === '[') {
 						this.stream.next();
-						token = TOKEN(TokenKind.OpenSharpBracket, spaceSkipped);
+						token = TOKEN(TokenKind.OpenSharpBracket, { hasLeftSpacing, lineBegin });
 					} else {
-						token = TOKEN(TokenKind.Sharp, spaceSkipped);
+						token = TOKEN(TokenKind.Sharp, { hasLeftSpacing, lineBegin });
 					}
 					break;
 				}
 				case '%': {
 					this.stream.next();
-					token = TOKEN(TokenKind.Percent, spaceSkipped);
+					token = TOKEN(TokenKind.Percent, { hasLeftSpacing, lineBegin });
 					break;
 				}
 				case '&': {
 					this.stream.next();
 					if ((this.stream.char as string) === '&') {
 						this.stream.next();
-						token = TOKEN(TokenKind.And2, spaceSkipped);
+						token = TOKEN(TokenKind.And2, { hasLeftSpacing, lineBegin });
 					}
 					break;
 				}
 				case '(': {
 					this.stream.next();
-					token = TOKEN(TokenKind.OpenParen, spaceSkipped);
+					token = TOKEN(TokenKind.OpenParen, { hasLeftSpacing, lineBegin });
 					break;
 				}
 				case ')': {
 					this.stream.next();
-					token = TOKEN(TokenKind.CloseParen, spaceSkipped);
+					token = TOKEN(TokenKind.CloseParen, { hasLeftSpacing, lineBegin });
 					break;
 				}
 				case '*': {
 					this.stream.next();
-					token = TOKEN(TokenKind.Asterisk, spaceSkipped);
+					token = TOKEN(TokenKind.Asterisk, { hasLeftSpacing, lineBegin });
 					break;
 				}
 				case '+': {
 					this.stream.next();
 					if ((this.stream.char as string) === '=') {
 						this.stream.next();
-						token = TOKEN(TokenKind.PlusEq, spaceSkipped);
+						token = TOKEN(TokenKind.PlusEq, { hasLeftSpacing, lineBegin });
 					} else {
-						token = TOKEN(TokenKind.Plus, spaceSkipped);
+						token = TOKEN(TokenKind.Plus, { hasLeftSpacing, lineBegin });
 					}
 					break;
 				}
 				case ',': {
 					this.stream.next();
-					token = TOKEN(TokenKind.Comma, spaceSkipped);
+					token = TOKEN(TokenKind.Comma, { hasLeftSpacing, lineBegin });
 					break;
 				}
 				case '-': {
 					this.stream.next();
 					if ((this.stream.char as string) === '=') {
 						this.stream.next();
-						token = TOKEN(TokenKind.MinusEq, spaceSkipped);
+						token = TOKEN(TokenKind.MinusEq, { hasLeftSpacing, lineBegin });
 					} else {
-						token = TOKEN(TokenKind.Minus, spaceSkipped);
+						token = TOKEN(TokenKind.Minus, { hasLeftSpacing, lineBegin });
 					}
 					break;
 				}
 				case '.': {
 					this.stream.next();
-					token = TOKEN(TokenKind.Dot, spaceSkipped);
+					token = TOKEN(TokenKind.Dot, { hasLeftSpacing, lineBegin });
 					break;
 				}
 				case '/': {
@@ -195,7 +217,7 @@ export class Scanner implements ITokenStream {
 						this.skipCommentLine();
 						continue;
 					} else {
-						token = TOKEN(TokenKind.Slash, spaceSkipped);
+						token = TOKEN(TokenKind.Slash, { hasLeftSpacing, lineBegin });
 					}
 					break;
 				}
@@ -203,27 +225,27 @@ export class Scanner implements ITokenStream {
 					this.stream.next();
 					if ((this.stream.char as string) === ':') {
 						this.stream.next();
-						token = TOKEN(TokenKind.Colon2, spaceSkipped);
+						token = TOKEN(TokenKind.Colon2, { hasLeftSpacing, lineBegin });
 					} else {
-						token = TOKEN(TokenKind.Colon, spaceSkipped);
+						token = TOKEN(TokenKind.Colon, { hasLeftSpacing, lineBegin });
 					}
 					break;
 				}
 				case ';': {
 					this.stream.next();
-					token = TOKEN(TokenKind.SemiColon, spaceSkipped);
+					token = TOKEN(TokenKind.SemiColon, { hasLeftSpacing, lineBegin });
 					break;
 				}
 				case '<': {
 					this.stream.next();
 					if ((this.stream.char as string) === '=') {
 						this.stream.next();
-						token = TOKEN(TokenKind.LtEq, spaceSkipped);
+						token = TOKEN(TokenKind.LtEq, { hasLeftSpacing, lineBegin });
 					} else if ((this.stream.char as string) === ':') {
 						this.stream.next();
-						token = TOKEN(TokenKind.Out, spaceSkipped);
+						token = TOKEN(TokenKind.Out, { hasLeftSpacing, lineBegin });
 					} else {
-						token = TOKEN(TokenKind.Lt, spaceSkipped);
+						token = TOKEN(TokenKind.Lt, { hasLeftSpacing, lineBegin });
 					}
 					break;
 				}
@@ -231,12 +253,12 @@ export class Scanner implements ITokenStream {
 					this.stream.next();
 					if ((this.stream.char as string) === '=') {
 						this.stream.next();
-						token = TOKEN(TokenKind.Eq2, spaceSkipped);
+						token = TOKEN(TokenKind.Eq2, { hasLeftSpacing, lineBegin });
 					} else if ((this.stream.char as string) === '>') {
 						this.stream.next();
-						token = TOKEN(TokenKind.Arrow, spaceSkipped);
+						token = TOKEN(TokenKind.Arrow, { hasLeftSpacing, lineBegin });
 					} else {
-						token = TOKEN(TokenKind.Eq, spaceSkipped);
+						token = TOKEN(TokenKind.Eq, { hasLeftSpacing, lineBegin });
 					}
 					break;
 				}
@@ -244,63 +266,63 @@ export class Scanner implements ITokenStream {
 					this.stream.next();
 					if ((this.stream.char as string) === '=') {
 						this.stream.next();
-						token = TOKEN(TokenKind.GtEq, spaceSkipped);
+						token = TOKEN(TokenKind.GtEq, { hasLeftSpacing, lineBegin });
 					} else {
-						token = TOKEN(TokenKind.Gt, spaceSkipped);
+						token = TOKEN(TokenKind.Gt, { hasLeftSpacing, lineBegin });
 					}
 					break;
 				}
 				case '@': {
 					this.stream.next();
-					token = TOKEN(TokenKind.At, spaceSkipped);
+					token = TOKEN(TokenKind.At, { hasLeftSpacing, lineBegin });
 					break;
 				}
 				case '[': {
 					this.stream.next();
-					token = TOKEN(TokenKind.OpenBracket, spaceSkipped);
+					token = TOKEN(TokenKind.OpenBracket, { hasLeftSpacing, lineBegin });
 					break;
 				}
 				case ']': {
 					this.stream.next();
-					token = TOKEN(TokenKind.CloseBracket, spaceSkipped);
+					token = TOKEN(TokenKind.CloseBracket, { hasLeftSpacing, lineBegin });
 					break;
 				}
 				case '^': {
 					this.stream.next();
-					token = TOKEN(TokenKind.Hat, spaceSkipped);
+					token = TOKEN(TokenKind.Hat, { hasLeftSpacing, lineBegin });
 					break;
 				}
 				case '`': {
 					this.stream.next();
-					token = this.readTemplate(spaceSkipped);
+					token = this.readTemplate(hasLeftSpacing, lineBegin);
 					break;
 				}
 				case '{': {
 					this.stream.next();
-					token = TOKEN(TokenKind.OpenBrace, spaceSkipped);
+					token = TOKEN(TokenKind.OpenBrace, { hasLeftSpacing, lineBegin });
 					break;
 				}
 				case '|': {
 					this.stream.next();
 					if ((this.stream.char as string) === '|') {
 						this.stream.next();
-						token = TOKEN(TokenKind.Or2, spaceSkipped);
+						token = TOKEN(TokenKind.Or2, { hasLeftSpacing, lineBegin });
 					}
 					break;
 				}
 				case '}': {
 					this.stream.next();
-					token = TOKEN(TokenKind.CloseBrace, spaceSkipped);
+					token = TOKEN(TokenKind.CloseBrace, { hasLeftSpacing, lineBegin });
 					break;
 				}
 			}
 			if (token == null) {
-				const digitToken = this.tryReadDigits(spaceSkipped);
+				const digitToken = this.tryReadDigits(hasLeftSpacing, lineBegin);
 				if (digitToken) {
 					token = digitToken;
 					break;
 				}
-				const wordToken = this.tryReadWord(spaceSkipped);
+				const wordToken = this.tryReadWord(hasLeftSpacing, lineBegin);
 				if (wordToken) {
 					token = wordToken;
 					break;
@@ -312,7 +334,7 @@ export class Scanner implements ITokenStream {
 		return token;
 	}
 
-	private tryReadWord(spaceSkipped: boolean): Token | undefined {
+	private tryReadWord(hasLeftSpacing: boolean, lineBegin: boolean): Token | undefined {
 		// read a word
 		let value = '';
 		while (!this.stream.eof && wordChar.test(this.stream.char)) {
@@ -325,69 +347,69 @@ export class Scanner implements ITokenStream {
 		// check word kind
 		switch (value) {
 			case 'null': {
-				return TOKEN(TokenKind.NullKeyword, spaceSkipped);
+				return TOKEN(TokenKind.NullKeyword, { hasLeftSpacing, lineBegin });
 			}
 			case 'true': {
-				return TOKEN(TokenKind.TrueKeyword, spaceSkipped);
+				return TOKEN(TokenKind.TrueKeyword, { hasLeftSpacing, lineBegin });
 			}
 			case 'false': {
-				return TOKEN(TokenKind.FalseKeyword, spaceSkipped);
+				return TOKEN(TokenKind.FalseKeyword, { hasLeftSpacing, lineBegin });
 			}
 			case 'each': {
-				return TOKEN(TokenKind.EachKeyword, spaceSkipped);
+				return TOKEN(TokenKind.EachKeyword, { hasLeftSpacing, lineBegin });
 			}
 			case 'for': {
-				return TOKEN(TokenKind.ForKeyword, spaceSkipped);
+				return TOKEN(TokenKind.ForKeyword, { hasLeftSpacing, lineBegin });
 			}
 			case 'loop': {
-				return TOKEN(TokenKind.LoopKeyword, spaceSkipped);
+				return TOKEN(TokenKind.LoopKeyword, { hasLeftSpacing, lineBegin });
 			}
 			case 'break': {
-				return TOKEN(TokenKind.BreakKeyword, spaceSkipped);
+				return TOKEN(TokenKind.BreakKeyword, { hasLeftSpacing, lineBegin });
 			}
 			case 'continue': {
-				return TOKEN(TokenKind.ContinueKeyword, spaceSkipped);
+				return TOKEN(TokenKind.ContinueKeyword, { hasLeftSpacing, lineBegin });
 			}
 			case 'match': {
-				return TOKEN(TokenKind.MatchKeyword, spaceSkipped);
+				return TOKEN(TokenKind.MatchKeyword, { hasLeftSpacing, lineBegin });
 			}
 			case 'case': {
-				return TOKEN(TokenKind.CaseKeyword, spaceSkipped);
+				return TOKEN(TokenKind.CaseKeyword, { hasLeftSpacing, lineBegin });
 			}
 			case 'default': {
-				return TOKEN(TokenKind.DefaultKeyword, spaceSkipped);
+				return TOKEN(TokenKind.DefaultKeyword, { hasLeftSpacing, lineBegin });
 			}
 			case 'if': {
-				return TOKEN(TokenKind.IfKeyword, spaceSkipped);
+				return TOKEN(TokenKind.IfKeyword, { hasLeftSpacing, lineBegin });
 			}
 			case 'elif': {
-				return TOKEN(TokenKind.ElifKeyword, spaceSkipped);
+				return TOKEN(TokenKind.ElifKeyword, { hasLeftSpacing, lineBegin });
 			}
 			case 'else': {
-				return TOKEN(TokenKind.ElseKeyword, spaceSkipped);
+				return TOKEN(TokenKind.ElseKeyword, { hasLeftSpacing, lineBegin });
 			}
 			case 'return': {
-				return TOKEN(TokenKind.ReturnKeyword, spaceSkipped);
+				return TOKEN(TokenKind.ReturnKeyword, { hasLeftSpacing, lineBegin });
 			}
 			case 'eval': {
-				return TOKEN(TokenKind.EvalKeyword, spaceSkipped);
+				return TOKEN(TokenKind.EvalKeyword, { hasLeftSpacing, lineBegin });
 			}
 			case 'var': {
-				return TOKEN(TokenKind.VarKeyword, spaceSkipped);
+				return TOKEN(TokenKind.VarKeyword, { hasLeftSpacing, lineBegin });
 			}
 			case 'let': {
-				return TOKEN(TokenKind.LetKeyword, spaceSkipped);
+				return TOKEN(TokenKind.LetKeyword, { hasLeftSpacing, lineBegin });
 			}
 			case 'exists': {
-				return TOKEN(TokenKind.ExistsKeyword, spaceSkipped);
+				return TOKEN(TokenKind.ExistsKeyword, { hasLeftSpacing, lineBegin });
 			}
 			default: {
-				return TOKEN(TokenKind.Identifier, spaceSkipped, { value });
+				return TOKEN(TokenKind.Identifier, { hasLeftSpacing, lineBegin, value });
 			}
 		}
 	}
 
-	private tryReadDigits(spaceSkipped: boolean): Token | undefined {
+	private tryReadDigits(hasLeftSpacing: boolean, lineBegin: boolean): Token | undefined {
 		// TODO: float number
 		let value = '';
 		while (!this.stream.eof && digit.test(this.stream.char)) {
@@ -397,10 +419,10 @@ export class Scanner implements ITokenStream {
 		if (value.length === 0) {
 			return;
 		}
-		return TOKEN(TokenKind.NumberLiteral, spaceSkipped, { value });
+		return TOKEN(TokenKind.NumberLiteral, { hasLeftSpacing, lineBegin, value });
 	}
 
-	private readStringLiteral(spaceSkipped: boolean): Token {
+	private readStringLiteral(hasLeftSpacing: boolean, lineBegin: boolean): Token {
 		let value = '';
 
 		const literalMark = this.stream.char;
@@ -417,10 +439,10 @@ export class Scanner implements ITokenStream {
 			value += this.stream.char;
 			this.stream.next();
 		}
-		return TOKEN(TokenKind.StringLiteral, spaceSkipped, { value });
+		return TOKEN(TokenKind.StringLiteral, { hasLeftSpacing, lineBegin, value });
 	}
 
-	private readTemplate(spaceSkipped: boolean): Token {
+	private readTemplate(hasLeftSpacing: boolean, lineBegin: boolean): Token {
 		const elements: Token[] = [];
 		let buf = '';
 		let tokenBuf: Token[] = [];
@@ -437,7 +459,7 @@ export class Scanner implements ITokenStream {
 					if (this.stream.char === '`') {
 						this.stream.next();
 						if (buf.length > 0) {
-							elements.push(TOKEN(TokenKind.TemplateStringElement, spaceSkipped, { value: buf }));
+							elements.push(TOKEN(TokenKind.TemplateStringElement, { hasLeftSpacing, lineBegin, value: buf }));
 						}
 						state = 'finish';
 						break;
@@ -446,7 +468,7 @@ export class Scanner implements ITokenStream {
 					if (this.stream.char === '{') {
 						this.stream.next();
 						if (buf.length > 0) {
-							elements.push(TOKEN(TokenKind.TemplateStringElement, spaceSkipped, { value: buf }));
+							elements.push(TOKEN(TokenKind.TemplateStringElement, { hasLeftSpacing, lineBegin, value: buf }));
 							buf = '';
 						}
 						state = 'expr';
@@ -462,14 +484,14 @@ export class Scanner implements ITokenStream {
 						throw new AiScriptSyntaxError('unexpected EOF');
 					}
 					// skip spasing
-					if (spacingChars.includes(this.stream.char)) {
+					if (spaceChars.includes(this.stream.char)) {
 						this.stream.next();
 						continue;
 					}
 					// 埋め込み式の終了
 					if ((this.stream.char as string) === '}') {
 						this.stream.next();
-						elements.push(TOKEN(TokenKind.TemplateExprElement, spaceSkipped, { children: tokenBuf }));
+						elements.push(TOKEN(TokenKind.TemplateExprElement, { hasLeftSpacing, lineBegin, children: tokenBuf }));
 						tokenBuf = [];
 						state = 'string';
 						break;
@@ -481,7 +503,7 @@ export class Scanner implements ITokenStream {
 			}
 		}
 
-		return TOKEN(TokenKind.Template, spaceSkipped, { children: elements });
+		return TOKEN(TokenKind.Template, { hasLeftSpacing, lineBegin, children: elements });
 	}
 
 	private skipCommentLine(): void {
