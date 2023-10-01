@@ -6,7 +6,7 @@
  * この処理結果がプラグインによって処理されるとASTノードとなります。
 */
 
-export type Node = Namespace | Meta | Statement | Expression | ChainMember | TypeSource;
+export type Node = Namespace | Meta | Statement | Expression | Attribute | TypeSource;
 
 export function NODE(type: string, params: Record<string, any>): Node {
 	const node: Record<string, any> = { type };
@@ -30,7 +30,6 @@ export function CALL_NODE(name: string, args: Node[]): Node {
 export type Statement =
 	Definition |
 	Return |
-	Attribute | // AST
 	Each |
 	For |
 	Loop |
@@ -48,7 +47,6 @@ export function isStatement(x: Node): x is Statement {
 }
 
 export type Expression =
-	Infix |
 	Not |
 	And |
 	Or |
@@ -65,12 +63,12 @@ export type Expression =
 	Obj |
 	Arr |
 	Identifier |
-	Call | // IR
-	Index | // IR
-	Prop; // IR
+	Call |
+	Index |
+	Prop;
 
 const expressionTypes = [
-	'infix', 'if', 'fn', 'match', 'block', 'exists', 'tmpl', 'str', 'num', 'bool', 'null', 'obj', 'arr', 'identifier', 'call', 'index', 'prop',
+	'if', 'fn', 'match', 'block', 'exists', 'tmpl', 'str', 'num', 'bool', 'null', 'obj', 'arr', 'identifier', 'call', 'index', 'prop',
 ];
 export function isExpression(x: Node): x is Expression {
 	return expressionTypes.includes(x.type);
@@ -102,7 +100,7 @@ export type Definition = NodeBase & {
 	varType?: TypeSource;
 	expr: Expression;
 	mut: boolean;
-	attr?: Attribute[]; // IR
+	attr?: Attribute[];
 };
 
 export type Attribute = NodeBase & {
@@ -163,14 +161,6 @@ export type Assign = NodeBase & {
 	expr: Expression;
 };
 
-export type InfixOperator = '||' | '&&' | '==' | '!=' | '<=' | '>=' | '<' | '>' | '+' | '-' | '*' | '^' | '/' | '%';
-
-export type Infix = NodeBase & {
-	type: 'infix';
-	operands: Expression[];
-	operators: InfixOperator[];
-};
-
 export type Not = NodeBase & {
 	type: 'not';
 	expr: Expression;
@@ -199,7 +189,7 @@ export type If = NodeBase & {
 	else?: Statement | Expression;
 };
 
-export type Fn = NodeBase & ChainProp & {
+export type Fn = NodeBase & {
 	type: 'fn';
 	args: {
 		name: string;
@@ -209,7 +199,7 @@ export type Fn = NodeBase & ChainProp & {
 	children: (Statement | Expression)[];
 };
 
-export type Match = NodeBase & ChainProp & {
+export type Match = NodeBase & {
 	type: 'match';
 	about: Expression;
 	qs: {
@@ -219,117 +209,72 @@ export type Match = NodeBase & ChainProp & {
 	default?: Statement | Expression;
 };
 
-export type Block = NodeBase & ChainProp & {
+export type Block = NodeBase & {
 	type: 'block';
 	statements: (Statement | Expression)[];
 };
 
-export type Exists = NodeBase & ChainProp & {
+export type Exists = NodeBase & {
 	type: 'exists';
 	identifier: Identifier;
 };
 
-export type Tmpl = NodeBase & ChainProp & {
+export type Tmpl = NodeBase & {
 	type: 'tmpl';
 	tmpl: (string | Expression)[];
 };
 
-export type Str = NodeBase & ChainProp & {
+export type Str = NodeBase & {
 	type: 'str';
 	value: string;
 };
 
-export type Num = NodeBase & ChainProp & {
+export type Num = NodeBase & {
 	type: 'num';
 	value: number;
 };
 
-export type Bool = NodeBase & ChainProp & {
+export type Bool = NodeBase & {
 	type: 'bool';
 	value: boolean;
 };
 
-export type Null = NodeBase & ChainProp & {
+export type Null = NodeBase & {
 	type: 'null';
 };
 
-export type Obj = NodeBase & ChainProp & {
+export type Obj = NodeBase & {
 	type: 'obj';
 	value: Map<string, Expression>;
 };
 
-export type Arr = NodeBase & ChainProp & {
+export type Arr = NodeBase & {
 	type: 'arr';
 	value: Expression[];
 };
 
-export type Identifier = NodeBase & ChainProp & {
+export type Identifier = NodeBase & {
 	type: 'identifier';
 	name: string;
 };
 
-// AST
-type ChainProp = {
-	chain?: ChainMember[];
-};
-
-// AST
-export function hasChainProp<T extends Node>(x: T): x is T & ChainProp {
-	return 'chain' in x && x.chain !== null;
-}
-
-// AST
-export type ChainMember = CallChain | IndexChain | PropChain;
-
-// AST
-export type CallChain = NodeBase & {
-	type: 'callChain';
-	args: Expression[];
-};
-
-// AST
-export type IndexChain = NodeBase & {
-	type: 'indexChain';
-	index: Expression;
-};
-
-// AST
-export type PropChain = NodeBase & {
-	type: 'propChain';
-	name: string;
-};
-
-// IR
 export type Call = NodeBase & {
 	type: 'call';
 	target: Expression;
 	args: Expression[];
 };
-export function CALL(target: Call['target'], args: Call['args'], loc?: { start: number, end: number }): Call {
-	return { type: 'call', target, args, loc } as Call;
-}
 
-// IR
 export type Index = NodeBase & {
 	type: 'index';
 	target: Expression;
 	index: Expression;
 };
 
-export function INDEX(target: Index['target'], index: Index['index'], loc?: { start: number, end: number }): Index {
-	return { type: 'index', target, index, loc } as Index;
-}
-
-// IR
 export type Prop = NodeBase & {
 	type: 'prop';
 	target: Expression;
 	name: string;
 };
-
-export function PROP(target: Prop['target'], name: Prop['name'], loc?: { start: number, end: number }): Prop {
-	return { type: 'prop', target, name, loc } as Prop;
-}
 
 // Type source
 

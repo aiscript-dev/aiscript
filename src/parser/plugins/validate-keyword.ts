@@ -53,8 +53,7 @@ function validateNode(node: Cst.Node): Cst.Node {
 		case 'def':
 		case 'attr':
 		case 'ns':
-		case 'identifier':
-		case 'propChain': {
+		case 'identifier': {
 			if (reservedWord.includes(node.name)) {
 				throwReservedWordError(node.name);
 			}

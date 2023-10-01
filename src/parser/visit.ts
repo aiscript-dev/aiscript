@@ -44,12 +44,6 @@ export function visitNode(node: Cst.Node, fn: (node: Cst.Node) => Cst.Node): Cst
 			result.dest = visitNode(result.dest, fn) as Cst.Assign['dest'];
 			break;
 		}
-		case 'infix': {
-			for (let i = 0; i < result.operands.length; i++) {
-				result.operands[i] = visitNode(result.operands[i]!, fn) as Cst.Infix['operands'][number];
-			}
-			break;
-		}
 		case 'not': {
 			result.expr = visitNode(result.expr, fn) as Cst.Return['expr'];
 			break;
@@ -114,16 +108,6 @@ export function visitNode(node: Cst.Node, fn: (node: Cst.Node) => Cst.Node): Cst
 			}
 			break;
 		}
-		case 'callChain': {
-			for (let i = 0; i < result.args.length; i++) {
-				result.args[i] = visitNode(result.args[i]!, fn) as Cst.Call['args'][number];
-			}
-			break;
-		}
-		case 'indexChain': {
-			result.index = visitNode(result.index, fn) as Cst.Index['index'];
-			break;
-		}
 		case 'call': {
 			result.target = visitNode(result.target, fn) as Cst.Call['target'];
 			for (let i = 0; i < result.args.length; i++) {
@@ -152,14 +136,6 @@ export function visitNode(node: Cst.Node, fn: (node: Cst.Node) => Cst.Node): Cst
 			result.left = visitNode(result.left, fn) as (Cst.And | Cst.Or)['left'];
 			result.right = visitNode(result.right, fn) as (Cst.And | Cst.Or)['right'];
 			break;
-		}
-	}
-
-	if (Cst.hasChainProp(result)) {
-		if (result.chain != null) {
-			for (let i = 0; i < result.chain.length; i++) {
-				result.chain[i] = visitNode(result.chain[i]!, fn) as Cst.ChainMember;
-			}
 		}
 	}
 
