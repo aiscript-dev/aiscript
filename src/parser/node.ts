@@ -6,7 +6,7 @@
  * この処理結果がプラグインによって処理されるとASTノードとなります。
 */
 
-export type Node = Namespace | Meta | Statement | Expression | Attribute | TypeSource;
+export type Node = Namespace | Meta | Statement | Expression | TypeSource | Attribute;
 
 export function NODE(type: string, params: Record<string, any>): Node {
 	const node: Record<string, any> = { type };
@@ -25,53 +25,6 @@ export function CALL_NODE(name: string, args: Node[]): Node {
 		target: NODE('identifier', { name }),
 		args,
 	});
-}
-
-export type Statement =
-	Definition |
-	Return |
-	Each |
-	For |
-	Loop |
-	Break |
-	Continue |
-	Assign |
-	AddAssign |
-	SubAssign;
-
-const statementTypes = [
-	'def', 'return', 'attr', 'each', 'for', 'loop', 'break', 'continue', 'assign', 'addAssign', 'subAssign',
-];
-export function isStatement(x: Node): x is Statement {
-	return statementTypes.includes(x.type);
-}
-
-export type Expression =
-	Not |
-	And |
-	Or |
-	If |
-	Fn |
-	Match |
-	Block |
-	Exists |
-	Tmpl |
-	Str |
-	Num |
-	Bool |
-	Null |
-	Obj |
-	Arr |
-	Identifier |
-	Call |
-	Index |
-	Prop;
-
-const expressionTypes = [
-	'if', 'fn', 'match', 'block', 'exists', 'tmpl', 'str', 'num', 'bool', 'null', 'obj', 'arr', 'identifier', 'call', 'index', 'prop',
-];
-export function isExpression(x: Node): x is Expression {
-	return expressionTypes.includes(x.type);
 }
 
 type NodeBase = {
@@ -93,6 +46,18 @@ export type Meta = NodeBase & {
 	name: string | null;
 	value: Expression;
 };
+
+export type Statement =
+	Definition |
+	Return |
+	Each |
+	For |
+	Loop |
+	Break |
+	Continue |
+	Assign |
+	AddAssign |
+	SubAssign;
 
 export type Definition = NodeBase & {
 	type: 'def';
@@ -160,6 +125,29 @@ export type Assign = NodeBase & {
 	dest: Expression;
 	expr: Expression;
 };
+
+// expressions
+
+export type Expression =
+	If |
+	Fn |
+	Match |
+	Block |
+	Exists |
+	Tmpl |
+	Str |
+	Num |
+	Bool |
+	Null |
+	Obj |
+	Arr |
+	Not |
+	And |
+	Or |
+	Identifier |
+	Call |
+	Index |
+	Prop;
 
 export type Not = NodeBase & {
 	type: 'not';
