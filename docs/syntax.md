@@ -83,7 +83,7 @@ let foo = eval {
 
 ## match
 ```
-let x = 1;
+let x = 1
 let y = match x {
 	case 1 => "yes"
 	case 0 => "no"
