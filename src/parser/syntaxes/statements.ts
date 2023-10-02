@@ -14,10 +14,6 @@ import type { ITokenStream } from '../streams/token-stream.js';
  * ```
 */
 export function parseStatement(s: ITokenStream): Cst.Node {
-	if (!s.token.lineBegin) {
-		throw new AiScriptSyntaxError('Statement must be at the beginning of the line.');
-	}
-
 	switch (s.kind) {
 		case TokenKind.VarKeyword:
 		case TokenKind.LetKeyword: {

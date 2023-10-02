@@ -45,6 +45,11 @@ export function parseBlock(s: ITokenStream): Cst.Node[] {
 
 	const steps: Cst.Node[] = [];
 	while (s.kind !== TokenKind.CloseBrace) {
+		if (steps.length > 0) {
+			if (!s.token.lineBegin) {
+				throw new AiScriptSyntaxError('Multiple statements cannot be placed on a single line.');
+			}
+		}
 		steps.push(parseStatement(s));
 	}
 

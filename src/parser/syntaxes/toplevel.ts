@@ -16,6 +16,11 @@ export function parseTopLevel(s: ITokenStream): Cst.Node[] {
 	const nodes: Cst.Node[] = [];
 
 	while (s.kind !== TokenKind.EOF) {
+		if (nodes.length > 0) {
+			if (!s.token.lineBegin) {
+				throw new AiScriptSyntaxError('Multiple statements cannot be placed on a single line.');
+			}
+		}
 		switch (s.kind) {
 			case TokenKind.Colon2: {
 				nodes.push(parseNamespace(s));
@@ -41,10 +46,6 @@ export function parseTopLevel(s: ITokenStream): Cst.Node[] {
  * ```
 */
 export function parseNamespace(s: ITokenStream): Cst.Node {
-	if (!s.token.lineBegin) {
-		throw new AiScriptSyntaxError('Statement must be at the beginning of the line.');
-	}
-
 	s.nextWith(TokenKind.Colon2);
 
 	s.expect(TokenKind.Identifier);
@@ -78,10 +79,6 @@ export function parseNamespace(s: ITokenStream): Cst.Node {
  * ```
 */
 export function parseMeta(s: ITokenStream): Cst.Node {
-	if (!s.token.lineBegin) {
-		throw new AiScriptSyntaxError('Statement must be at the beginning of the line.');
-	}
-
 	s.nextWith(TokenKind.Sharp3);
 
 	let name;
