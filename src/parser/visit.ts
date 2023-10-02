@@ -1,4 +1,4 @@
-import * as Cst from './node.js';
+import type * as Cst from './node.js';
 
 export function visitNode(node: Cst.Node, fn: (node: Cst.Node) => Cst.Node): Cst.Node {
 	const result = fn(node);

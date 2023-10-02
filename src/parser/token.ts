@@ -109,8 +109,8 @@ export enum TokenKind {
 export class Token {
 	constructor(
 		public kind: TokenKind,
-		public hasLeftSpacing: boolean = false,
-		public lineBegin: boolean = false,
+		public hasLeftSpacing = false,
+		public lineBegin = false,
 		/** for number literal, string literal */
 		public value?: string,
 		/** for template syntax */
