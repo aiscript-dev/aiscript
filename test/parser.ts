@@ -59,7 +59,7 @@ describe('Scanner', () => {
 		stream.init();
 		return stream;
 	}
-	function next(stream: Scanner, kind: TokenKind, opts: { hasLeftSpacing?: boolean, lineBegin?: boolean, value?: string }) {
+	function next(stream: Scanner, kind: TokenKind, opts: { hasLeftSpacing?: boolean, value?: string }) {
 		assert.deepStrictEqual(stream.token, TOKEN(kind, opts));
 		stream.next();
 	}
@@ -77,20 +77,20 @@ describe('Scanner', () => {
 	test.concurrent('eof', async () => {
 		const source = '';
 		const stream = init(source);
-		next(stream, TokenKind.EOF, { lineBegin: true });
-		next(stream, TokenKind.EOF, { lineBegin: true });
+		next(stream, TokenKind.EOF, { });
+		next(stream, TokenKind.EOF, { });
 	});
 	test.concurrent('keyword', async () => {
 		const source = 'if';
 		const stream = init(source);
-		next(stream, TokenKind.IfKeyword, { lineBegin: true });
-		next(stream, TokenKind.EOF, {});
+		next(stream, TokenKind.IfKeyword, { });
+		next(stream, TokenKind.EOF, { });
 	});
 	test.concurrent('identifier', async () => {
 		const source = 'xyz';
 		const stream = init(source);
-		next(stream, TokenKind.Identifier, { lineBegin: true, value: 'xyz' });
-		next(stream, TokenKind.EOF, {});
+		next(stream, TokenKind.Identifier, { value: 'xyz' });
+		next(stream, TokenKind.EOF, { });
 	});
 	test.concurrent('invalid token', async () => {
 		const source = '$';
@@ -103,26 +103,26 @@ describe('Scanner', () => {
 	test.concurrent('words', async () => {
 		const source = 'abc xyz';
 		const stream = init(source);
-		next(stream, TokenKind.Identifier, { lineBegin: true, value: 'abc' });
+		next(stream, TokenKind.Identifier, { value: 'abc' });
 		next(stream, TokenKind.Identifier, { hasLeftSpacing: true, value: 'xyz' });
-		next(stream, TokenKind.EOF, {});
+		next(stream, TokenKind.EOF, { });
 	});
 	test.concurrent('stream', async () => {
 		const source = '@abc() { }';
 		const stream = init(source);
-		next(stream, TokenKind.At, { lineBegin: true });
+		next(stream, TokenKind.At, { });
 		next(stream, TokenKind.Identifier, { value: 'abc' });
-		next(stream, TokenKind.OpenParen, {});
-		next(stream, TokenKind.CloseParen, {});
+		next(stream, TokenKind.OpenParen, { });
+		next(stream, TokenKind.CloseParen, { });
 		next(stream, TokenKind.OpenBrace, { hasLeftSpacing: true });
 		next(stream, TokenKind.CloseBrace, { hasLeftSpacing: true });
-		next(stream, TokenKind.EOF, {});
+		next(stream, TokenKind.EOF, { });
 	});
 	test.concurrent('lookahead', async () => {
 		const source = '@abc() { }';
 		const stream = init(source);
 		assert.deepStrictEqual(stream.lookahead(1), TOKEN(TokenKind.Identifier, { value: 'abc' }));
-		next(stream, TokenKind.At, { lineBegin: true });
+		next(stream, TokenKind.At, { });
 		next(stream, TokenKind.Identifier, { value: 'abc' });
 		next(stream, TokenKind.OpenParen, { });
 	});

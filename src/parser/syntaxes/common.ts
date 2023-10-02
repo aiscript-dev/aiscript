@@ -43,14 +43,20 @@ export function parseParams(s: ITokenStream): { name: string }[] {
 export function parseBlock(s: ITokenStream): Cst.Node[] {
 	s.nextWith(TokenKind.OpenBrace);
 
+	while (s.kind === TokenKind.NewLine) {
+		s.next();
+	}
+
 	const steps: Cst.Node[] = [];
 	while (s.kind !== TokenKind.CloseBrace) {
-		if (steps.length > 0) {
-			if (!s.token.lineBegin) {
-				throw new AiScriptSyntaxError('Multiple statements cannot be placed on a single line.');
-			}
-		}
 		steps.push(parseStatement(s));
+
+		if ((s.kind as TokenKind) !== TokenKind.NewLine && (s.kind as TokenKind) !== TokenKind.CloseBrace) {
+			throw new AiScriptSyntaxError('Multiple statements cannot be placed on a single line.');
+		}
+		while ((s.kind as TokenKind) === TokenKind.NewLine) {
+			s.next();
+		}
 	}
 
 	s.nextWith(TokenKind.CloseBrace);

@@ -1,5 +1,6 @@
 export enum TokenKind {
 	EOF,
+	NewLine,
 	Identifier,
 
 	// literal
@@ -110,7 +111,6 @@ export class Token {
 	constructor(
 		public kind: TokenKind,
 		public hasLeftSpacing = false,
-		public lineBegin = false,
 		/** for number literal, string literal */
 		public value?: string,
 		/** for template syntax */
@@ -122,6 +122,6 @@ export class Token {
  * - opts.value: for number literal, string literal
  * - opts.children: for template syntax
 */
-export function TOKEN(kind: TokenKind, opts?: { hasLeftSpacing?: boolean, lineBegin?: boolean, value?: Token['value'], children?: Token['children'] }): Token {
-	return new Token(kind, opts?.hasLeftSpacing, opts?.lineBegin, opts?.value, opts?.children);
+export function TOKEN(kind: TokenKind, opts?: { hasLeftSpacing?: boolean, value?: Token['value'], children?: Token['children'] }): Token {
+	return new Token(kind, opts?.hasLeftSpacing, opts?.value, opts?.children);
 }

@@ -15,12 +15,11 @@ import type { ITokenStream } from '../streams/token-stream.js';
 export function parseTopLevel(s: ITokenStream): Cst.Node[] {
 	const nodes: Cst.Node[] = [];
 
+	while (s.kind === TokenKind.NewLine) {
+		s.next();
+	}
+
 	while (s.kind !== TokenKind.EOF) {
-		if (nodes.length > 0) {
-			if (!s.token.lineBegin) {
-				throw new AiScriptSyntaxError('Multiple statements cannot be placed on a single line.');
-			}
-		}
 		switch (s.kind) {
 			case TokenKind.Colon2: {
 				nodes.push(parseNamespace(s));
@@ -34,6 +33,13 @@ export function parseTopLevel(s: ITokenStream): Cst.Node[] {
 				nodes.push(parseStatement(s));
 				break;
 			}
+		}
+
+		if ((s.kind as TokenKind) !== TokenKind.NewLine && (s.kind as TokenKind) !== TokenKind.EOF) {
+			throw new AiScriptSyntaxError('Multiple statements cannot be placed on a single line.');
+		}
+		while ((s.kind as TokenKind) === TokenKind.NewLine) {
+			s.next();
 		}
 	}
 
@@ -54,6 +60,11 @@ export function parseNamespace(s: ITokenStream): Cst.Node {
 
 	const members: Cst.Node[] = [];
 	s.nextWith(TokenKind.OpenBrace);
+
+	while (s.kind === TokenKind.NewLine) {
+		s.next();
+	}
+
 	while (s.kind !== TokenKind.CloseBrace) {
 		switch (s.kind) {
 			case TokenKind.VarKeyword:
@@ -66,6 +77,13 @@ export function parseNamespace(s: ITokenStream): Cst.Node {
 				members.push(parseNamespace(s));
 				break;
 			}
+		}
+
+		if ((s.kind as TokenKind) !== TokenKind.NewLine && (s.kind as TokenKind) !== TokenKind.CloseBrace) {
+			throw new AiScriptSyntaxError('Multiple statements cannot be placed on a single line.');
+		}
+		while ((s.kind as TokenKind) === TokenKind.NewLine) {
+			s.next();
 		}
 	}
 	s.nextWith(TokenKind.CloseBrace);
