@@ -17,11 +17,26 @@
 let answer = 42
 ```
 
+## リテラル
+
+### 配列
+```
+[10,20,30]
+[10 20 30] // 改行区切り可
+```
+
+### オブジェクト
+```
+{a: 10,b: 20,c: 30} // :後の空白必須
+{a: 10 b: 20 c: 30} // :後の空白必須 改行区切りも可
+{a: 10;b: 20;c: 30} // :後の空白必須
+```
+
 ## if
 ```
-if answer == 42 {
-	<: "correct answer"
-}
+if true print(0)
+if (true) print(0) // ()外の空白必須
+if (true) {print(0)} // ()外の空白必須
 ```
 
 ### else:
@@ -56,20 +71,35 @@ let result =
 
 ## for
 ```
-for let i, 10 {
-	<: i
-}
+// for 括弧無し
+for 10 print(0)
+for let i 10 print(i)
+for let i=2,10 print(i)
+// for ()
+for(10) print(0)
+for(let i 10) print(i)
+for(let i=2,10) print(i)
+// for {}
+for 10 {print(0)} // {前の空白必須
+for let i 10 {print(i)} // {前の空白必須
+for let i=2,10 {print(i)} // {前の空白必須
+// for (){}
+for(10){print(0)}
+for(let i 10){print(i)}
+for(let i=2,10){print(i)}
+```
+
+## each
+```
+each let a [] print(0)
+each(let a [])print(i)
+each let i [] {print(i)} // {前の空白必須
+each(let i []){print(i)}
 ```
 
 ## Block
 ```
-let foo = eval {
-	let x = 1
-	let y = 2
-	x + y
-}
-
-<: foo // 3
+eval{print(0)}
 ```
 
 ## Function
@@ -83,13 +113,8 @@ let foo = eval {
 
 ## match
 ```
-let x = 1
-let y = match x {
-	case 1 => "yes"
-	case 0 => "no"
-	default => "other"
-}
-<: y // "yes"
+match 1{1 => print(1) 2 => print(2)} // 改行区切りも可
+match(1){1 => print(1) 2 => print(2)} // 改行区切りも可
 ```
 
 ## exists
@@ -99,4 +124,10 @@ let bar = exists foo
 
 <: foo //false
 <: bar //true
+```
+
+## 名前空間
+```
+:: A { let a = 1 } // A前後の空白必須
+A:a // :前後の空白不可
 ```
