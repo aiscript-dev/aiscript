@@ -50,6 +50,12 @@ const operators: OpInfo[] = [
 function parsePrefix(s: ITokenStream, minBp: number): Cst.Node {
 	const op = s.kind;
 	s.next();
+
+	// 改行ができなかった頃の下位互換性を維持
+	if (s.kind === TokenKind.BackSlash) {
+		s.next();
+	}
+
 	const expr = parsePratt(s, minBp);
 
 	switch (op) {
@@ -84,8 +90,14 @@ function parsePrefix(s: ITokenStream, minBp: number): Cst.Node {
 
 function parseInfix(s: ITokenStream, left: Cst.Node, minBp: number): Cst.Node {
 	const op = s.kind;
-	if (op === TokenKind.Dot) {
+	s.next();
+
+	// 改行ができなかった頃の下位互換性を維持
+	if (s.kind === TokenKind.BackSlash) {
 		s.next();
+	}
+
+	if (op === TokenKind.Dot) {
 		s.expect(TokenKind.Identifier);
 		const name = s.token.value!;
 		s.next();
@@ -95,7 +107,6 @@ function parseInfix(s: ITokenStream, left: Cst.Node, minBp: number): Cst.Node {
 			name,
 		});
 	} else {
-		s.next();
 		const right = parsePratt(s, minBp);
 
 		switch (op) {
@@ -497,6 +508,11 @@ function parsePratt(s: ITokenStream, minBp: number): Cst.Node {
 	}
 
 	while (true) {
+		// 下位互換性を維持
+		if (s.kind === TokenKind.BackSlash) {
+			s.next();
+		}
+
 		const tokenKind = s.kind;
 
 		const postfix = operators.find((x): x is PostfixInfo => x.opKind === 'postfix' && x.kind === tokenKind);

@@ -92,6 +92,8 @@ export enum TokenKind {
 	At,
 	/** "[" */
 	OpenBracket,
+	/** "\\" */
+	BackSlash,
 	/** "]" */
 	CloseBracket,
 	/** "^" */

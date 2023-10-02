@@ -282,6 +282,11 @@ export class Scanner implements ITokenStream {
 					token = TOKEN(TokenKind.OpenBracket, { hasLeftSpacing, lineBegin });
 					break;
 				}
+				case '\\': {
+					this.stream.next();
+					token = TOKEN(TokenKind.BackSlash, { hasLeftSpacing, lineBegin });
+					break;
+				}
 				case ']': {
 					this.stream.next();
 					token = TOKEN(TokenKind.CloseBracket, { hasLeftSpacing, lineBegin });
