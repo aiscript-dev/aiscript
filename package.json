@@ -10,7 +10,7 @@
 	"exports": {
 		".": {
 			"import": "./built/esm/index.js",
-			"types": "./built/dts/index.ts"
+			"types": "./built/dts/index.d.ts"
 		},
 		"./*": {
 			"import": "./built/esm/*",
