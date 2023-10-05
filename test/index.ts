@@ -16,9 +16,13 @@ const exe = (program: string): Promise<any> => new Promise((ok, err) => {
 		maxStep: 9999,
 	});
 
-	const parser = new Parser();
-	const ast = parser.parse(program);
-	aiscript.exec(ast).catch(err);
+	try {
+		const parser = new Parser();
+		const ast = parser.parse(program);
+		aiscript.exec(ast).catch(err);
+	} catch (e) {
+		err(e);
+	}
 });
 
 const getMeta = (program: string) => {
