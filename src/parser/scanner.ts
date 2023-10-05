@@ -408,14 +408,30 @@ export class Scanner implements ITokenStream {
 	}
 
 	private tryReadDigits(hasLeftSpacing: boolean): Token | undefined {
-		// TODO: float number
-		let value = '';
+		let wholeNumber = '';
+		let fractional = '';
 		while (!this.stream.eof && digit.test(this.stream.char)) {
-			value += this.stream.char;
+			wholeNumber += this.stream.char;
 			this.stream.next();
 		}
-		if (value.length === 0) {
+		if (wholeNumber.length === 0) {
 			return;
+		}
+		if (!this.stream.eof && this.stream.char === '.') {
+			this.stream.next();
+			while (!this.stream.eof && digit.test(this.stream.char)) {
+				fractional += this.stream.char;
+				this.stream.next();
+			}
+			if (fractional.length === 0) {
+				throw new AiScriptSyntaxError('digit expected');
+			}
+		}
+		let value;
+		if (fractional.length > 0) {
+			value = wholeNumber + '.' + fractional;
+		} else {
+			value = wholeNumber;
 		}
 		return TOKEN(TokenKind.NumberLiteral, { hasLeftSpacing, value });
 	}
