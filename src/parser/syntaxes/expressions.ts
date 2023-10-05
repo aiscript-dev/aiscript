@@ -352,6 +352,7 @@ function parseMatch(s: ITokenStream): Cst.Node {
 	const about = parseExpr(s);
 
 	s.nextWith(TokenKind.OpenBrace);
+	s.nextWith(TokenKind.NewLine);
 
 	const qs: { q: Cst.Node, a: Cst.Node }[] = [];
 	while (s.kind !== TokenKind.DefaultKeyword && s.kind !== TokenKind.CloseBrace) {
@@ -359,6 +360,7 @@ function parseMatch(s: ITokenStream): Cst.Node {
 		const q = parseExpr(s);
 		s.nextWith(TokenKind.Arrow);
 		const a = parseBlockOrStatement(s);
+		s.nextWith(TokenKind.NewLine);
 		qs.push({ q, a });
 	}
 
@@ -367,6 +369,7 @@ function parseMatch(s: ITokenStream): Cst.Node {
 		s.next();
 		s.nextWith(TokenKind.Arrow);
 		x = parseBlockOrStatement(s);
+		s.nextWith(TokenKind.NewLine);
 	}
 
 	s.nextWith(TokenKind.CloseBrace);
@@ -426,6 +429,10 @@ function parseReference(s: ITokenStream): Cst.Node {
 function parseObject(s: ITokenStream): Cst.Node {
 	s.nextWith(TokenKind.OpenBrace);
 
+	if (s.kind === TokenKind.NewLine) {
+		s.next();
+	}
+
 	const map = new Map();
 	while (s.kind !== TokenKind.CloseBrace) {
 		s.expect(TokenKind.Identifier);
@@ -445,10 +452,16 @@ function parseObject(s: ITokenStream): Cst.Node {
 			s.next();
 		} else if (s.kind === TokenKind.SemiColon) {
 			s.next();
+		} else if (s.kind === TokenKind.NewLine) {
+			// noop
 		} else {
 			if (!s.token.hasLeftSpacing) {
 				throw new AiScriptSyntaxError('separator expected');
 			}
+		}
+
+		if (s.kind === TokenKind.NewLine) {
+			s.next();
 		}
 	}
 
@@ -465,6 +478,10 @@ function parseObject(s: ITokenStream): Cst.Node {
 function parseArray(s: ITokenStream): Cst.Node {
 	s.nextWith(TokenKind.OpenBracket);
 
+	if (s.kind === TokenKind.NewLine) {
+		s.next();
+	}
+
 	const value = [];
 	while (s.kind !== TokenKind.CloseBracket) {
 		value.push(parseExpr(s));
@@ -474,10 +491,16 @@ function parseArray(s: ITokenStream): Cst.Node {
 			break;
 		} else if (s.kind === TokenKind.Comma) {
 			s.next();
+		} else if (s.kind === TokenKind.NewLine) {
+			// noop
 		} else {
 			if (!s.token.hasLeftSpacing) {
 				throw new AiScriptSyntaxError('separator expected');
 			}
+		}
+
+		if (s.kind === TokenKind.NewLine) {
+			s.next();
 		}
 	}
 
