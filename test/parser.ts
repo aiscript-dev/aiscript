@@ -105,6 +105,7 @@ describe('Scanner', () => {
 		const source = 'aaa\nbbb';
 		const stream = init(source);
 		next(stream, TokenKind.Identifier, { line: 1, column: 1 }, { value: 'aaa' });
+		next(stream, TokenKind.NewLine, { line: 1, column: 4 }, { });
 		next(stream, TokenKind.Identifier, { line: 2, column: 1 }, { value: 'bbb' });
 		next(stream, TokenKind.EOF, { line: 2, column: 4 }, { });
 	});

@@ -22,7 +22,7 @@ export class CharStream {
 		this.address = 0;
 		this.line = opts?.line ?? 0;
 		this.column = opts?.column ?? 0;
-		this.loadChar();
+		this.moveNext();
 	}
 
 	public get eof(): boolean {
@@ -44,35 +44,19 @@ export class CharStream {
 	}
 
 	public next(): void {
-		if (!this.endOfPage) {
-			this.address++;
-		} else if (!this.isLastPage) {
-			this.pageIndex++;
-			this.address = 0;
-		}
-		this.loadChar();
-
-		// column, line
-		if (!this.eof) {
-			if (this._char === '\n') {
-				this.line++;
-				this.column = 0;
-			} else if (this._char !== '\r') {
-				this.column++;
-			}
+		if (!this.eof && this._char === '\n') {
+			this.line++;
+			this.column = 0;
 		} else {
 			this.column++;
 		}
+		this.incAddr();
+		this.moveNext();
 	}
 
 	public prev(): void {
-		if (this.address > 0) {
-			this.address--;
-		} else if (!this.isFirstPage) {
-			this.pageIndex--;
-			this.address = this.pages.get(this.pageIndex)!.length - 1;
-		}
-		this.loadChar();
+		this.decAddr();
+		this.movePrev();
 	}
 
 	private get isFirstPage(): boolean {
@@ -86,6 +70,48 @@ export class CharStream {
 	private get endOfPage(): boolean {
 		const page = this.pages.get(this.pageIndex)!;
 		return (this.address >= page.length);
+	}
+
+	private moveNext() {
+		this.loadChar();
+		while (true) {
+			if (!this.eof && this._char === '\r') {
+				this.incAddr();
+				this.loadChar();
+				continue;
+			}
+			break;
+		}
+	}
+
+	private incAddr() {
+		if (!this.endOfPage) {
+			this.address++;
+		} else if (!this.isLastPage) {
+			this.pageIndex++;
+			this.address = 0;
+		}
+	}
+
+	private movePrev() {
+		this.loadChar();
+		while (true) {
+			if (!this.eof && this._char === '\r') {
+				this.decAddr();
+				this.loadChar();
+				continue;
+			}
+			break;
+		}
+	}
+
+	private decAddr() {
+		if (this.address > 0) {
+			this.address--;
+		} else if (!this.isFirstPage) {
+			this.pageIndex--;
+			this.address = this.pages.get(this.pageIndex)!.length - 1;
+		}
 	}
 
 	private loadChar(): void {
