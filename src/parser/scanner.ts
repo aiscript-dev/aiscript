@@ -16,7 +16,6 @@ const wordChar = /^[A-Za-z0-9_]$/;
 export class Scanner implements ITokenStream {
 	private stream: CharStream;
 	private _tokens: Token[] = [];
-	private firstRead: boolean;
 
 	constructor(source: string)
 	constructor(stream: CharStream)
@@ -30,7 +29,6 @@ export class Scanner implements ITokenStream {
 	}
 
 	public init(): void {
-		this.firstRead = true;
 		this._tokens.push(this.readToken());
 	}
 
