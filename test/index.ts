@@ -478,6 +478,20 @@ describe('Cannot put multiple statements in a line', () => {
 		}
 		assert.fail();
 	});
+
+	test.concurrent('var def in block', async () => {
+		try {
+			await exe(`
+			eval {
+				let a = 42 let b = 11
+			}
+			`);
+		} catch (e) {
+			assert.ok(true);
+			return;
+		}
+		assert.fail();
+	});
 });
 
 test.concurrent('empty function', async () => {
