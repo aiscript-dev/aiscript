@@ -6,14 +6,14 @@
 <table>
 	<tr><th>定数名</th><th>説明</th><th>概算値</th></tr>
 	<tr><td><code>Math:Infinity</code></td><td>無限大</td><td>なし</td></tr>
-	<tr><td><code>Math:E</code></td><td>ネイピア数</td><td><code>2.718281828459045</code></td></tr>
-	<tr><td><code>Math:LN2</code></td><td>ネイピア数</td><td><code>2.718281828459045</code></td></tr>
-	<tr><td><code>Math:LN10</code></td><td>ネイピア数</td><td><code>2.718281828459045</code></td></tr>
-	<tr><td><code>Math:LOG2E</code></td><td>ネイピア数</td><td><code>2.718281828459045</code></td></tr>
-	<tr><td><code>Math:LOG10E</code></td><td>ネイピア数</td><td><code>2.718281828459045</code></td></tr>
-	<tr><td><code>Math:PI</code></td><td>円周率</td><td><code>3.141592653589793</code></td></tr>
-	<tr><td><code>Math:SQRT1_2</code></td><td>ネイピア数</td><td><code>2.718281828459045</code></td></tr>
-	<tr><td><code>Math:SQRT2</code></td><td>ネイピア数</td><td><code>2.718281828459045</code></td></tr>
+	<tr><td><code>Math:E</code></td><td>ネイピア数e</td><td><code>2.718281828459045</code></td></tr>
+	<tr><td><code>Math:LN2</code></td><td>2の自然対数</td><td><code>0.6931471805599453</code></td></tr>
+	<tr><td><code>Math:LN10</code></td><td>10の自然対数</td><td><code>2.302585092994046</code></td></tr>
+	<tr><td><code>Math:LOG2E</code></td><td>2を底としたeの対数</td><td><code>1.4426950408889634</code></td></tr>
+	<tr><td><code>Math:LOG10E</code></td><td>10を底としたeの対数</td><td><code>0.4342944819032518</code></td></tr>
+	<tr><td><code>Math:PI</code></td><td>円周率π</td><td><code>3.141592653589793</code></td></tr>
+	<tr><td><code>Math:SQRT1_2</code></td><td>√(1/2)</td><td><code>0.7071067811865476</code></td></tr>
+	<tr><td><code>Math:SQRT2</code></td><td>√2</td><td><code>1.4142135623730951</code></td></tr>
 </table>
 
 ### @Math:sin(_x_: num): num
