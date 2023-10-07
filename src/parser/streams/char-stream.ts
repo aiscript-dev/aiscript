@@ -72,7 +72,7 @@ export class CharStream {
 		return (this.address >= page.length);
 	}
 
-	private moveNext() {
+	private moveNext(): void {
 		this.loadChar();
 		while (true) {
 			if (!this.eof && this._char === '\r') {
@@ -84,7 +84,7 @@ export class CharStream {
 		}
 	}
 
-	private incAddr() {
+	private incAddr(): void {
 		if (!this.endOfPage) {
 			this.address++;
 		} else if (!this.isLastPage) {
@@ -93,7 +93,7 @@ export class CharStream {
 		}
 	}
 
-	private movePrev() {
+	private movePrev(): void {
 		this.loadChar();
 		while (true) {
 			if (!this.eof && this._char === '\r') {
@@ -105,7 +105,7 @@ export class CharStream {
 		}
 	}
 
-	private decAddr() {
+	private decAddr(): void {
 		if (this.address > 0) {
 			this.address--;
 		} else if (!this.isFirstPage) {

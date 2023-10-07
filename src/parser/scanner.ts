@@ -120,7 +120,7 @@ export class Scanner implements ITokenStream {
 						this.stream.next();
 						token = TOKEN(TokenKind.OpenSharpBracket, loc, { hasLeftSpacing });
 					} else {
-						throw new AiScriptSyntaxError(`invalid character: "#"`);
+						throw new AiScriptSyntaxError('invalid character: "#"');
 					}
 					break;
 				}
@@ -407,7 +407,7 @@ export class Scanner implements ITokenStream {
 		}
 		if (!this.stream.eof && this.stream.char === '.') {
 			this.stream.next();
-			while (!this.stream.eof && digit.test(this.stream.char)) {
+			while (!this.stream.eof as boolean && digit.test(this.stream.char as string)) {
 				fractional += this.stream.char;
 				this.stream.next();
 			}
