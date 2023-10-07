@@ -547,8 +547,12 @@ function parsePratt(s: ITokenStream, minBp: number): Cst.Node {
 				break;
 			}
 
-			left = parsePostfix(s, left);
-			continue;
+			if ([TokenKind.OpenBracket, TokenKind.OpenParen].includes(tokenKind) && s.token.hasLeftSpacing) {
+				// 前にスペースがある場合は後置演算子として処理しない
+			} else {
+				left = parsePostfix(s, left);
+				continue;
+			}
 		}
 
 		const infix = operators.find((x): x is InfixInfo => x.opKind === 'infix' && x.kind === tokenKind);
