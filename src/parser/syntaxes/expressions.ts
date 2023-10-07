@@ -51,9 +51,10 @@ function parsePrefix(s: ITokenStream, minBp: number): Cst.Node {
 	const op = s.kind;
 	s.next();
 
-	// 改行ができなかった頃の下位互換性を維持
+	// 改行のエスケープ
 	if (s.kind === TokenKind.BackSlash) {
 		s.next();
+		s.nextWith(TokenKind.NewLine);
 	}
 
 	const expr = parsePratt(s, minBp);
@@ -92,9 +93,10 @@ function parseInfix(s: ITokenStream, left: Cst.Node, minBp: number): Cst.Node {
 	const op = s.kind;
 	s.next();
 
-	// 改行ができなかった頃の下位互換性を維持
+	// 改行のエスケープ
 	if (s.kind === TokenKind.BackSlash) {
 		s.next();
+		s.nextWith(TokenKind.NewLine);
 	}
 
 	if (op === TokenKind.Dot) {
@@ -531,9 +533,10 @@ function parsePratt(s: ITokenStream, minBp: number): Cst.Node {
 	}
 
 	while (true) {
-		// 下位互換性を維持
+		// 改行のエスケープ
 		if (s.kind === TokenKind.BackSlash) {
 			s.next();
+			s.nextWith(TokenKind.NewLine);
 		}
 
 		const tokenKind = s.kind;
