@@ -1,9 +1,20 @@
-## Math
+# Math
 数学・数値計算関連の標準定数・関数には`Math:`の名前空間が付与されています。
 
-### #Math:PI
-型: `num`  
-円周率です。  
+## 定数
+型は全て`num`です。
+<table>
+	<tr><th>定数名</th><th>説明</th><th>概算値</th></tr>
+	<tr><td><code>Math:Infinity</code></td><td>無限大</td><td>なし</td></tr>
+	<tr><td><code>Math:E</code></td><td>ネイピア数</td><td><code>2.718281828459045</code></td></tr>
+	<tr><td><code>Math:LN2</code></td><td>ネイピア数</td><td><code>2.718281828459045</code></td></tr>
+	<tr><td><code>Math:LN10</code></td><td>ネイピア数</td><td><code>2.718281828459045</code></td></tr>
+	<tr><td><code>Math:LOG2E</code></td><td>ネイピア数</td><td><code>2.718281828459045</code></td></tr>
+	<tr><td><code>Math:LOG10E</code></td><td>ネイピア数</td><td><code>2.718281828459045</code></td></tr>
+	<tr><td><code>Math:PI</code></td><td>円周率</td><td><code>3.141592653589793</code></td></tr>
+	<tr><td><code>Math:SQRT1_2</code></td><td>ネイピア数</td><td><code>2.718281828459045</code></td></tr>
+	<tr><td><code>Math:SQRT2</code></td><td>ネイピア数</td><td><code>2.718281828459045</code></td></tr>
+</table>
 
 ### @Math:sin(_x_: num): num
 正弦を計算します。  
