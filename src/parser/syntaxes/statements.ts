@@ -343,7 +343,6 @@ function parseAttr(s: ITokenStream): Cst.Node {
 
 	s.nextWith(TokenKind.OpenSharpBracket);
 
-
 	s.expect(TokenKind.Identifier);
 	const name = s.token.value!;
 	s.next();
