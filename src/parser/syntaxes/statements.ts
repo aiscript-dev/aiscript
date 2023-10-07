@@ -54,7 +54,7 @@ export function parseStatement(s: ITokenStream): Cst.Node {
 			return NODE('continue', {}, loc);
 		}
 	}
-	const expr = parseExpr(s);
+	const expr = parseExpr(s, false);
 	const assign = tryParseAssign(s, expr);
 	if (assign) {
 		return assign;
@@ -129,7 +129,7 @@ function parseVarDef(s: ITokenStream): Cst.Node {
 
 	s.nextWith(TokenKind.Eq);
 
-	const expr = parseExpr(s);
+	const expr = parseExpr(s, false);
 
 	return NODE('def', { name, varType: ty, expr, mut, attr: [] }, loc);
 }
@@ -175,7 +175,7 @@ function parseOut(s: ITokenStream): Cst.Node {
 	const loc = s.token.loc;
 
 	s.nextWith(TokenKind.Out);
-	const expr = parseExpr(s);
+	const expr = parseExpr(s, false);
 	return CALL_NODE('print', [expr], loc);
 }
 
@@ -208,7 +208,7 @@ function parseEach(s: ITokenStream): Cst.Node {
 		throw new AiScriptSyntaxError('separator expected');
 	}
 
-	const items = parseExpr(s);
+	const items = parseExpr(s, false);
 
 	if (hasParen) {
 		s.nextWith(TokenKind.CloseParen);
@@ -247,7 +247,7 @@ function parseFor(s: ITokenStream): Cst.Node {
 		let _from;
 		if ((s.kind as TokenKind) === TokenKind.Eq) {
 			s.next();
-			_from = parseExpr(s);
+			_from = parseExpr(s, false);
 		} else {
 			_from = NODE('num', { value: 0 }, identLoc);
 		}
@@ -258,7 +258,7 @@ function parseFor(s: ITokenStream): Cst.Node {
 			throw new AiScriptSyntaxError('separator expected');
 		}
 
-		const to = parseExpr(s);
+		const to = parseExpr(s, false);
 
 		if (hasParen) {
 			s.nextWith(TokenKind.CloseParen);
@@ -275,7 +275,7 @@ function parseFor(s: ITokenStream): Cst.Node {
 	} else {
 		// times syntax
 
-		const times = parseExpr(s);
+		const times = parseExpr(s, false);
 
 		if (hasParen) {
 			s.nextWith(TokenKind.CloseParen);
@@ -299,7 +299,7 @@ function parseReturn(s: ITokenStream): Cst.Node {
 	const loc = s.token.loc;
 
 	s.nextWith(TokenKind.ReturnKeyword);
-	const expr = parseExpr(s);
+	const expr = parseExpr(s, false);
 	return NODE('return', { expr }, loc);
 }
 
@@ -374,17 +374,17 @@ function tryParseAssign(s: ITokenStream, dest: Cst.Node): Cst.Node | undefined {
 	switch (s.kind) {
 		case TokenKind.Eq: {
 			s.next();
-			const expr = parseExpr(s);
+			const expr = parseExpr(s, false);
 			return NODE('assign', { dest, expr }, loc);
 		}
 		case TokenKind.PlusEq: {
 			s.next();
-			const expr = parseExpr(s);
+			const expr = parseExpr(s, false);
 			return NODE('addAssign', { dest, expr }, loc);
 		}
 		case TokenKind.MinusEq: {
 			s.next();
-			const expr = parseExpr(s);
+			const expr = parseExpr(s, false);
 			return NODE('subAssign', { dest, expr }, loc);
 		}
 		default: {

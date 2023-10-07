@@ -2,7 +2,7 @@ import { NODE } from '../node.js';
 import { TokenKind } from '../token.js';
 import { AiScriptSyntaxError } from '../../error.js';
 import { parseDefStatement, parseStatement } from './statements.js';
-import { parseStaticLiteral } from './common.js';
+import { parseExpr } from './expressions.js';
 
 import type * as Cst from '../node.js';
 import type { ITokenStream } from '../streams/token-stream.js';
@@ -95,7 +95,7 @@ export function parseNamespace(s: ITokenStream): Cst.Node {
 
 /**
  * ```abnf
- * Meta = "###" [IDENT] StaticLiteral
+ * Meta = "###" [IDENT] StaticExpr
  * ```
 */
 export function parseMeta(s: ITokenStream): Cst.Node {
@@ -103,13 +103,13 @@ export function parseMeta(s: ITokenStream): Cst.Node {
 
 	s.nextWith(TokenKind.Sharp3);
 
-	let name;
+	let name = null;
 	if (s.kind === TokenKind.Identifier) {
-		name = s.token.value;
+		name = s.token.value!;
 		s.next();
 	}
 
-	const value = parseStaticLiteral(s);
+	const value = parseExpr(s, true);
 
 	return NODE('meta', { name, value }, loc);
 }

@@ -8,8 +8,12 @@ import { parseBlockOrStatement } from './statements.js';
 import type * as Cst from '../node.js';
 import type { ITokenStream } from '../streams/token-stream.js';
 
-export function parseExpr(s: ITokenStream): Cst.Node {
-	return parsePratt(s, 0);
+export function parseExpr(s: ITokenStream, isStatic: boolean): Cst.Node {
+	if (isStatic) {
+		return parseAtom(s, true);
+	} else {
+		return parsePratt(s, 0);
+	}
 }
 
 // NOTE: infix(中置演算子)ではlbpを大きくすると右結合、rbpを大きくすると左結合の演算子になります。
@@ -173,7 +177,7 @@ function parsePostfix(s: ITokenStream, expr: Cst.Node): Cst.Node {
 		}
 		case TokenKind.OpenBracket: {
 			s.next();
-			const index = parseExpr(s);
+			const index = parseExpr(s, false);
 			s.nextWith(TokenKind.CloseBracket);
 
 			return NODE('index', {
@@ -187,27 +191,34 @@ function parsePostfix(s: ITokenStream, expr: Cst.Node): Cst.Node {
 	}
 }
 
-function parseAtom(s: ITokenStream): Cst.Node {
+function parseAtom(s: ITokenStream, isStatic: boolean): Cst.Node {
 	const loc = s.token.loc;
 
 	switch (s.kind) {
 		case TokenKind.IfKeyword: {
+			if (isStatic) break;
 			return parseIf(s);
 		}
 		case TokenKind.At: {
+			if (isStatic) break;
 			return parseFnExpr(s);
 		}
 		case TokenKind.MatchKeyword: {
+			if (isStatic) break;
 			return parseMatch(s);
 		}
 		case TokenKind.EvalKeyword: {
+			if (isStatic) break;
 			return parseEval(s);
 		}
 		case TokenKind.ExistsKeyword: {
+			if (isStatic) break;
 			return parseExists(s);
 		}
 		case TokenKind.Template: {
 			const values: (string | Cst.Node)[] = [];
+
+			if (isStatic) break;
 
 			for (const element of s.token.children!) {
 				switch (element.kind) {
@@ -218,7 +229,7 @@ function parseAtom(s: ITokenStream): Cst.Node {
 					case TokenKind.TemplateExprElement: {
 						// スキャナで埋め込み式として事前に読み取っておいたトークン列をパースする
 						const exprStream = new TokenStream(element.children!);
-						const expr = parseExpr(exprStream);
+						const expr = parseExpr(exprStream, false);
 						if (exprStream.kind !== TokenKind.EOF) {
 							throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[exprStream.token.kind]}`);
 						}
@@ -256,24 +267,23 @@ function parseAtom(s: ITokenStream): Cst.Node {
 			return NODE('null', { }, loc);
 		}
 		case TokenKind.OpenBrace: {
-			return parseObject(s);
+			return parseObject(s, isStatic);
 		}
 		case TokenKind.OpenBracket: {
-			return parseArray(s);
+			return parseArray(s, isStatic);
 		}
 		case TokenKind.Identifier: {
+			if (isStatic) break;
 			return parseReference(s);
 		}
 		case TokenKind.OpenParen: {
 			s.next();
-			const expr = parseExpr(s);
+			const expr = parseExpr(s, isStatic);
 			s.nextWith(TokenKind.CloseParen);
 			return expr;
 		}
-		default: {
-			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[s.kind]}`);
-		}
 	}
+	throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[s.kind]}`);
 }
 
 /**
@@ -295,7 +305,7 @@ function parseCall(s: ITokenStream, target: Cst.Node): Cst.Node {
 			}
 		}
 
-		items.push(parseExpr(s));
+		items.push(parseExpr(s, false));
 	}
 
 	s.nextWith(TokenKind.CloseParen);
@@ -315,13 +325,13 @@ function parseIf(s: ITokenStream): Cst.Node {
 	const loc = s.token.loc;
 
 	s.nextWith(TokenKind.IfKeyword);
-	const cond = parseExpr(s);
+	const cond = parseExpr(s, false);
 	const then = parseBlockOrStatement(s);
 
 	const elseif: { cond: Cst.Node, then: Cst.Node }[] = [];
 	while (s.kind === TokenKind.ElifKeyword) {
 		s.next();
-		const elifCond = parseExpr(s);
+		const elifCond = parseExpr(s, false);
 		const elifThen = parseBlockOrStatement(s);
 		elseif.push({ cond: elifCond, then: elifThen });
 	}
@@ -363,7 +373,7 @@ function parseMatch(s: ITokenStream): Cst.Node {
 	const loc = s.token.loc;
 
 	s.nextWith(TokenKind.MatchKeyword);
-	const about = parseExpr(s);
+	const about = parseExpr(s, false);
 
 	s.nextWith(TokenKind.OpenBrace);
 	s.nextWith(TokenKind.NewLine);
@@ -371,7 +381,7 @@ function parseMatch(s: ITokenStream): Cst.Node {
 	const qs: { q: Cst.Node, a: Cst.Node }[] = [];
 	while (s.kind !== TokenKind.DefaultKeyword && s.kind !== TokenKind.CloseBrace) {
 		s.nextWith(TokenKind.CaseKeyword);
-		const q = parseExpr(s);
+		const q = parseExpr(s, false);
 		s.nextWith(TokenKind.Arrow);
 		const a = parseBlockOrStatement(s);
 		s.nextWith(TokenKind.NewLine);
@@ -446,7 +456,7 @@ function parseReference(s: ITokenStream): Cst.Node {
  * Object = "{" [IDENT ":" Expr *(("," / ";" / SPACE) IDENT ":" Expr) ["," / ";"]] "}"
  * ```
 */
-function parseObject(s: ITokenStream): Cst.Node {
+function parseObject(s: ITokenStream, isStatic: boolean): Cst.Node {
 	const loc = s.token.loc;
 
 	s.nextWith(TokenKind.OpenBrace);
@@ -463,7 +473,7 @@ function parseObject(s: ITokenStream): Cst.Node {
 
 		s.nextWith(TokenKind.Colon);
 
-		const v = parseExpr(s);
+		const v = parseExpr(s, isStatic);
 
 		map.set(k, v);
 
@@ -497,7 +507,7 @@ function parseObject(s: ITokenStream): Cst.Node {
  * Array = "[" [Expr *(("," / SPACE) Expr) [","]] "]"
  * ```
 */
-function parseArray(s: ITokenStream): Cst.Node {
+function parseArray(s: ITokenStream, isStatic: boolean): Cst.Node {
 	const loc = s.token.loc;
 
 	s.nextWith(TokenKind.OpenBracket);
@@ -508,7 +518,7 @@ function parseArray(s: ITokenStream): Cst.Node {
 
 	const value = [];
 	while (s.kind !== TokenKind.CloseBracket) {
-		value.push(parseExpr(s));
+		value.push(parseExpr(s, isStatic));
 
 		// separator
 		if ((s.kind as TokenKind) === TokenKind.CloseBracket) {
@@ -551,7 +561,7 @@ function parsePratt(s: ITokenStream, minBp: number): Cst.Node {
 	if (prefix != null) {
 		left = parsePrefix(s, prefix.bp);
 	} else {
-		left = parseAtom(s);
+		left = parseAtom(s, false);
 	}
 
 	while (true) {

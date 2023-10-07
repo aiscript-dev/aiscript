@@ -64,22 +64,6 @@ export function parseBlock(s: ITokenStream): Cst.Node[] {
 	return steps;
 }
 
-//#region Static Literal
-
-export function parseStaticLiteral(s: ITokenStream): Cst.Node {
-	throw new Error('todo');
-}
-
-export function parseStaticArray(s: ITokenStream): Cst.Node {
-	throw new Error('todo');
-}
-
-export function parseStaticObject(s: ITokenStream): Cst.Node {
-	throw new Error('todo');
-}
-
-//#endregion Static Literal
-
 //#region Type
 
 export function parseType(s: ITokenStream): Cst.Node {
