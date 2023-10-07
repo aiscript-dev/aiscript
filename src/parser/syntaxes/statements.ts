@@ -129,6 +129,10 @@ function parseVarDef(s: ITokenStream): Cst.Node {
 
 	s.nextWith(TokenKind.Eq);
 
+	if ((s.kind as TokenKind) === TokenKind.NewLine) {
+		s.next();
+	}
+
 	const expr = parseExpr(s, false);
 
 	return NODE('def', { name, varType: ty, expr, mut, attr: [] }, loc);
@@ -312,6 +316,7 @@ function parseStatementWithAttr(s: ITokenStream): Cst.Node {
 	const attrs: Cst.Attribute[] = [];
 	while (s.kind === TokenKind.OpenSharpBracket) {
 		attrs.push(parseAttr(s) as Cst.Attribute);
+		s.nextWith(TokenKind.NewLine);
 	}
 
 	const statement = parseStatement(s);
@@ -330,7 +335,7 @@ function parseStatementWithAttr(s: ITokenStream): Cst.Node {
 
 /**
  * ```abnf
- * Attr = "#[" IDENT [StaticLiteral] "]"
+ * Attr = "#[" IDENT [StaticExpr] "]"
  * ```
 */
 function parseAttr(s: ITokenStream): Cst.Node {
@@ -338,15 +343,21 @@ function parseAttr(s: ITokenStream): Cst.Node {
 
 	s.nextWith(TokenKind.OpenSharpBracket);
 
+
 	s.expect(TokenKind.Identifier);
 	const name = s.token.value!;
 	s.next();
 
-	// TODO: value
+	let value;
+	if (s.kind !== TokenKind.CloseBracket) {
+		value = parseExpr(s, true);
+	} else {
+		value = NODE('bool', { value: true }, loc);
+	}
 
 	s.nextWith(TokenKind.CloseBracket);
 
-	return NODE('attr', { name, value: undefined }, loc);
+	return NODE('attr', { name, value }, loc);
 }
 
 /**

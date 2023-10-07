@@ -328,11 +328,18 @@ function parseIf(s: ITokenStream): Cst.Node {
 	const cond = parseExpr(s, false);
 	const then = parseBlockOrStatement(s);
 
+	if (s.kind === TokenKind.NewLine) {
+		s.next();
+	}
+
 	const elseif: { cond: Cst.Node, then: Cst.Node }[] = [];
 	while (s.kind === TokenKind.ElifKeyword) {
 		s.next();
 		const elifCond = parseExpr(s, false);
 		const elifThen = parseBlockOrStatement(s);
+		if ((s.kind as TokenKind) === TokenKind.NewLine) {
+			s.next();
+		}
 		elseif.push({ cond: elifCond, then: elifThen });
 	}
 
