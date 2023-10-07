@@ -328,11 +328,17 @@ describe('Infix expression', () => {
 		eq(await exe('<: eval { 1 } + eval { 1 }'), NUM(2));
 	});
 
-	test.concurrent('allow line break', async () => {
-		eq(await exe(`
+	test.concurrent('disallow line break', async () => {
+		try {
+			await exe(`
 			<: 1 +
 			1 + 1
-		`), NUM(3));
+			`);
+		} catch (e) {
+			assert.ok(true);
+			return;
+		}
+		assert.fail();
 	});
 
 	test.concurrent('escaped line break', async () => {
