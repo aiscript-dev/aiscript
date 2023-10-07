@@ -52,6 +52,8 @@ export function parseTopLevel(s: ITokenStream): Cst.Node[] {
  * ```
 */
 export function parseNamespace(s: ITokenStream): Cst.Node {
+	const loc = s.token.loc;
+
 	s.nextWith(TokenKind.Colon2);
 
 	s.expect(TokenKind.Identifier);
@@ -88,7 +90,7 @@ export function parseNamespace(s: ITokenStream): Cst.Node {
 	}
 	s.nextWith(TokenKind.CloseBrace);
 
-	return NODE('ns', { name, members });
+	return NODE('ns', { name, members }, loc);
 }
 
 /**
@@ -97,6 +99,8 @@ export function parseNamespace(s: ITokenStream): Cst.Node {
  * ```
 */
 export function parseMeta(s: ITokenStream): Cst.Node {
+	const loc = s.token.loc;
+
 	s.nextWith(TokenKind.Sharp3);
 
 	let name;
@@ -107,5 +111,5 @@ export function parseMeta(s: ITokenStream): Cst.Node {
 
 	const value = parseStaticLiteral(s);
 
-	return NODE('meta', { name, value });
+	return NODE('meta', { name, value }, loc);
 }

@@ -5,8 +5,8 @@
 */
 
 export type Loc = {
-	start: number;
-	end: number;
+	line: number;
+	column: number;
 };
 
 export type Node = Namespace | Meta | Statement | Expression | TypeSource | Attribute;

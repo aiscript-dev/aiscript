@@ -42,7 +42,7 @@ export class TokenStream implements ITokenStream {
 			throw new Error('stream is not initialized yet');
 		}
 		if (this.eof) {
-			return TOKEN(TokenKind.EOF);
+			return TOKEN(TokenKind.EOF, { line: -1, column: -1 });
 		}
 		return this._token;
 	}
@@ -62,7 +62,7 @@ export class TokenStream implements ITokenStream {
 		if (this.index + offset < this.source.length) {
 			return this.source[this.index + offset]!;
 		} else {
-			return TOKEN(TokenKind.EOF);
+			return TOKEN(TokenKind.EOF, { line: -1, column: -1 });
 		}
 	}
 
@@ -79,7 +79,7 @@ export class TokenStream implements ITokenStream {
 
 	private load(): void {
 		if (this.eof) {
-			this._token = TOKEN(TokenKind.EOF);
+			this._token = TOKEN(TokenKind.EOF, { line: -1, column: -1 });
 		} else {
 			this._token = this.source[this.index];
 		}

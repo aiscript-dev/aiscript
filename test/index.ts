@@ -2270,12 +2270,12 @@ describe('Location', () => {
 		let node: Ast.Node;
 		const parser = new Parser();
 		const nodes = parser.parse(`
-		@f(a) { a }
+			@f(a) { a }
 		`);
 		assert.equal(nodes.length, 1);
 		node = nodes[0];
 		if (!node.loc) assert.fail();
-		assert.deepEqual(node.loc, { start: 3, end: 13 });
+		assert.deepEqual(node.loc, { line: 2, column: 4 });
 	});
 });
 

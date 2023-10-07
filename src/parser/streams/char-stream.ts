@@ -7,7 +7,7 @@ export class CharStream {
 	private lastPageIndex: number;
 	private pageIndex: number;
 	private address: number;
-	private _char: string;
+	private _char?: string;
 	/** zero-based number */
 	private line: number;
 	/** zero-based number */
@@ -33,7 +33,14 @@ export class CharStream {
 		if (this.eof) {
 			throw new Error('end of stream');
 		}
-		return this._char;
+		return this._char!;
+	}
+
+	public getPos(): { line: number, column: number } {
+		return {
+			line: (this.line + 1),
+			column: (this.column + 1),
+		};
 	}
 
 	public next(): void {
@@ -44,6 +51,18 @@ export class CharStream {
 			this.address = 0;
 		}
 		this.loadChar();
+
+		// column, line
+		if (!this.eof) {
+			if (this._char === '\n') {
+				this.line++;
+				this.column = 0;
+			} else if (this._char !== '\r') {
+				this.column++;
+			}
+		} else {
+			this.column++;
+		}
 	}
 
 	public prev(): void {
@@ -70,7 +89,9 @@ export class CharStream {
 	}
 
 	private loadChar(): void {
-		if (!this.eof) {
+		if (this.eof) {
+			this._char = undefined;
+		} else {
 			this._char = this.pages.get(this.pageIndex)![this.address]!;
 		}
 	}

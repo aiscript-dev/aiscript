@@ -8,30 +8,29 @@
 
 export type Node = Namespace | Meta | Statement | Expression | TypeSource | Attribute;
 
-export function NODE(type: string, params: Record<string, any>): Node {
+export function NODE(type: string, params: Record<string, any>, loc: { column: number, line: number }): Node {
 	const node: Record<string, any> = { type };
-	//params.children;
 	for (const key of Object.keys(params)) {
 		if (params[key] !== undefined) {
 			node[key] = params[key];
 		}
 	}
-	//node.loc = { start, end };
+	node.loc = loc;
 	return node as Node;
 }
 
-export function CALL_NODE(name: string, args: Node[]): Node {
+export function CALL_NODE(name: string, args: Node[], loc: { column: number, line: number }): Node {
 	return NODE('call', {
-		target: NODE('identifier', { name }),
+		target: NODE('identifier', { name }, loc),
 		args,
-	});
+	}, loc);
 }
 
 type NodeBase = {
 	__AST_NODE: never; // phantom type
-	loc?: {
-		start: number;
-		end: number;
+	loc: {
+		line: number;
+		column: number;
 	};
 };
 

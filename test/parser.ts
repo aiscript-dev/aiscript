@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import { Scanner } from '../src/parser/scanner';
-import { TOKEN, TokenKind } from '../src/parser/token';
+import { TOKEN, TokenKind, TokenLocation } from '../src/parser/token';
 import { CharStream } from '../src/parser/streams/char-stream';
 
 describe('CharStream', () => {
@@ -53,28 +53,28 @@ describe('Scanner', () => {
 		const stream = new Scanner(source);
 		return stream;
 	}
-	function next(stream: Scanner, kind: TokenKind, opts: { hasLeftSpacing?: boolean, value?: string }) {
-		assert.deepStrictEqual(stream.token, TOKEN(kind, opts));
+	function next(stream: Scanner, kind: TokenKind, loc: TokenLocation, opts: { hasLeftSpacing?: boolean, value?: string }) {
+		assert.deepStrictEqual(stream.token, TOKEN(kind, loc, opts));
 		stream.next();
 	}
 
 	test.concurrent('eof', async () => {
 		const source = '';
 		const stream = init(source);
-		next(stream, TokenKind.EOF, { });
-		next(stream, TokenKind.EOF, { });
+		next(stream, TokenKind.EOF, { line: 1, column: 1 }, { });
+		next(stream, TokenKind.EOF, { line: 1, column: 1 }, { });
 	});
 	test.concurrent('keyword', async () => {
 		const source = 'if';
 		const stream = init(source);
-		next(stream, TokenKind.IfKeyword, { });
-		next(stream, TokenKind.EOF, { });
+		next(stream, TokenKind.IfKeyword, { line: 1, column: 1 }, { });
+		next(stream, TokenKind.EOF, { line: 1, column: 3 }, { });
 	});
 	test.concurrent('identifier', async () => {
 		const source = 'xyz';
 		const stream = init(source);
-		next(stream, TokenKind.Identifier, { value: 'xyz' });
-		next(stream, TokenKind.EOF, { });
+		next(stream, TokenKind.Identifier, { line: 1, column: 1 }, { value: 'xyz' });
+		next(stream, TokenKind.EOF, { line: 1, column: 4 }, { });
 	});
 	test.concurrent('invalid token', async () => {
 		const source = '$';
@@ -86,27 +86,34 @@ describe('Scanner', () => {
 	test.concurrent('words', async () => {
 		const source = 'abc xyz';
 		const stream = init(source);
-		next(stream, TokenKind.Identifier, { value: 'abc' });
-		next(stream, TokenKind.Identifier, { hasLeftSpacing: true, value: 'xyz' });
-		next(stream, TokenKind.EOF, { });
+		next(stream, TokenKind.Identifier, { line: 1, column: 1 }, { value: 'abc' });
+		next(stream, TokenKind.Identifier, { line: 1, column: 5 }, { hasLeftSpacing: true, value: 'xyz' });
+		next(stream, TokenKind.EOF, { line: 1, column: 8 }, { });
 	});
 	test.concurrent('stream', async () => {
 		const source = '@abc() { }';
 		const stream = init(source);
-		next(stream, TokenKind.At, { });
-		next(stream, TokenKind.Identifier, { value: 'abc' });
-		next(stream, TokenKind.OpenParen, { });
-		next(stream, TokenKind.CloseParen, { });
-		next(stream, TokenKind.OpenBrace, { hasLeftSpacing: true });
-		next(stream, TokenKind.CloseBrace, { hasLeftSpacing: true });
-		next(stream, TokenKind.EOF, { });
+		next(stream, TokenKind.At, { line: 1, column: 1 }, { });
+		next(stream, TokenKind.Identifier, { line: 1, column: 2 }, { value: 'abc' });
+		next(stream, TokenKind.OpenParen, { line: 1, column: 5 }, { });
+		next(stream, TokenKind.CloseParen, { line: 1, column: 6 }, { });
+		next(stream, TokenKind.OpenBrace, { line: 1, column: 8 }, { hasLeftSpacing: true });
+		next(stream, TokenKind.CloseBrace, { line: 1, column: 10 }, { hasLeftSpacing: true });
+		next(stream, TokenKind.EOF, { line: 1, column: 11 }, { });
+	});
+	test.concurrent('multi-lines', async () => {
+		const source = 'aaa\nbbb';
+		const stream = init(source);
+		next(stream, TokenKind.Identifier, { line: 1, column: 1 }, { value: 'aaa' });
+		next(stream, TokenKind.Identifier, { line: 2, column: 1 }, { value: 'bbb' });
+		next(stream, TokenKind.EOF, { line: 2, column: 4 }, { });
 	});
 	test.concurrent('lookahead', async () => {
 		const source = '@abc() { }';
 		const stream = init(source);
-		assert.deepStrictEqual(stream.lookahead(1), TOKEN(TokenKind.Identifier, { value: 'abc' }));
-		next(stream, TokenKind.At, { });
-		next(stream, TokenKind.Identifier, { value: 'abc' });
-		next(stream, TokenKind.OpenParen, { });
+		assert.deepStrictEqual(stream.lookahead(1), TOKEN(TokenKind.Identifier, { line: 1, column: 2 }, { value: 'abc' }));
+		next(stream, TokenKind.At, { line: 1, column: 1 }, { });
+		next(stream, TokenKind.Identifier, { line: 1, column: 2 }, { value: 'abc' });
+		next(stream, TokenKind.OpenParen, { line: 1, column: 5 }, { });
 	});
 });
