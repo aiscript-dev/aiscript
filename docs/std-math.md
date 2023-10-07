@@ -16,17 +16,9 @@
 	<tr><td><code>Math:SQRT2</code></td><td>√2</td><td><code>1.4142135623730951</code></td></tr>
 </table>
 
-### @Math:sin(_x_: num): num
-正弦を計算します。  
-
-### @Math:cos(_x_: num): num
-余弦を計算します。  
-
+## 基本的な関数
 ### @Math:abs(_x_: num): num
 絶対値を計算します。  
-
-### @Math:sqrt(_x_: num): num
-平方根を計算します。  
 
 ### @Math:round(_x_: num): num
 四捨五入して、もっとも近い整数を返します。
@@ -43,6 +35,55 @@
 ### @Math:max(_a_: num, _b_: num): num
 大きい方の値を取得します。  
 
+### @Math:sqrt(_x_: num): num
+平方根を計算します。  
+
+### @Math:cbrt(_x_: num): num
+立方根を計算します。  
+
+## 三角関数
+角度の単位はラジアンです。
+### @Math:sin(_rad_: num): num
+正弦を計算します。  
+
+### @Math:cos(_rad_: num): num
+余弦を計算します。  
+
+### @Math:tan(_rad_: num): num
+正接を計算します。  
+
+### @Math:asin(_x_: num): num
+逆正弦を計算します。  
+
+### @Math:acos(_x_: num): num
+逆余弦を計算します。  
+
+### @Math:atan(_x_: num): num
+逆正接を計算します。  
+
+### @Math:atan2(_y_: num, _x_: num): num
+_y_ /_x_ の正接を返しますが、_x_ が負値の場合はπだけずれた値を返します。
+
+## 双曲線関数
+### @Math:sinh(_x_: num): num
+双曲線正弦を計算します。  
+
+### @Math:cosh(_x_: num): num
+双曲線余弦を計算します。  
+
+### @Math:tanh(_x_: num): num
+双曲線正接を計算します。  
+
+### @Math:asinh(_x_: num): num
+双曲線逆正弦を計算します。  
+
+### @Math:acosh(_x_: num): num
+双曲線逆余弦を計算します。  
+
+### @Math:atanh(_x_: num): num
+双曲線逆正接を計算します。  
+
+## 乱数
 ### @Math:rnd(_min_?: num, _max_?: num): num
 乱数を生成します。  
 _min_ および _max_ を渡した場合、_min_ <= x, x <= _max_ の整数、  
@@ -50,3 +91,19 @@ _min_ および _max_ を渡した場合、_min_ <= x, x <= _max_ の整数、
 
 ### @Math:gen_rng(_seed_: num | str): fn
 シードから乱数生成機を生成します。  
+
+## その他
+### @Math:exp(_x_: num): num
+eの _x_ 乗を計算します。  
+
+### @Math:expm1(_x_: num): num
+eの _x_ 乗から1を引いた値を計算します。  
+
+### @Math:clz32(_x_: num): num
+xを32ビットのバイナリで表現したときの先頭の0の個数を返します。
+
+### @Math:fround(_x_: num): num
+_x_ を32ビットの浮動小数点数に変換した時の値を返します。
+
+### @Math:hypot(_vs_: arr): num
+_vs_ の要素をそれぞれ自乗してから合計した値の正の平方根を返します。
