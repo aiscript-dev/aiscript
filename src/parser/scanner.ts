@@ -291,7 +291,6 @@ export class Scanner implements ITokenStream {
 					break;
 				}
 				case '`': {
-					this.stream.next();
 					token = this.readTemplate(hasLeftSpacing);
 					break;
 				}
@@ -438,20 +437,41 @@ export class Scanner implements ITokenStream {
 
 	private readStringLiteral(hasLeftSpacing: boolean): Token {
 		let value = '';
-
 		const literalMark = this.stream.char;
+		let state: 'string' | 'escape' | 'finish' = 'string';
+
 		this.stream.next();
 
-		while (true) {
-			if (this.stream.eof) {
-				throw new AiScriptSyntaxError('unexpected EOF');
+		while (state !== 'finish') {
+			switch (state) {
+				case 'string': {
+					if (this.stream.eof) {
+						throw new AiScriptSyntaxError('unexpected EOF');
+					}
+					if (this.stream.char === '\\') {
+						this.stream.next();
+						state = 'escape';
+						break;
+					}
+					if (this.stream.char === literalMark) {
+						this.stream.next();
+						state = 'finish';
+						break;
+					}
+					value += this.stream.char;
+					this.stream.next();
+					break;
+				}
+				case 'escape': {
+					if (this.stream.eof) {
+						throw new AiScriptSyntaxError('unexpected EOF');
+					}
+					value += this.stream.char;
+					this.stream.next();
+					state = 'string';
+					break;
+				}
 			}
-			if (this.stream.char === literalMark) {
-				this.stream.next();
-				break;
-			}
-			value += this.stream.char;
-			this.stream.next();
 		}
 		return TOKEN(TokenKind.StringLiteral, { hasLeftSpacing, value });
 	}
@@ -461,6 +481,8 @@ export class Scanner implements ITokenStream {
 		let buf = '';
 		let tokenBuf: Token[] = [];
 		let state: 'string' | 'escape' | 'expr' | 'finish' = 'string';
+
+		this.stream.next();
 
 		while (state !== 'finish') {
 			switch (state) {
