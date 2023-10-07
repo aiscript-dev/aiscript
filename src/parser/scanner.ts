@@ -499,14 +499,11 @@ export class Scanner implements ITokenStream {
 					break;
 				}
 				case 'escape': {
-					// エスケープ文字が無いままEOFに達した
+					// エスケープ対象の文字が無いままEOFに達した
 					if (this.stream.eof) {
 						throw new AiScriptSyntaxError('unexpected EOF');
 					}
-					// エスケープ対象かどうか確認
-					if (!['`', '{', '}', '\\'].includes(this.stream.char)) {
-						throw new AiScriptSyntaxError(`unexpected char: ${this.stream.char}`);
-					}
+					// 普通の文字として取り込み
 					buf += this.stream.char;
 					this.stream.next();
 					// 通常の文字列に戻る
