@@ -46,6 +46,30 @@ describe('CharStream', () => {
 		stream.next();
 		assert.strictEqual(true, stream.eof);
 	});
+
+	test.concurrent('EOFでcharを参照するとエラー', async () => {
+		const source = '';
+		const stream = new CharStream(source);
+		assert.strictEqual(true, stream.eof);
+		try {
+			stream.char;
+		} catch (e) {
+			return;
+		}
+		assert.fail();
+	});
+
+	test.concurrent('CRは読み飛ばされる', async () => {
+		const source = 'a\r\nb';
+		const stream = new CharStream(source);
+		assert.strictEqual('a', stream.char);
+		stream.next();
+		assert.strictEqual('\n', stream.char);
+		stream.next();
+		assert.strictEqual('b', stream.char);
+		stream.next();
+		assert.strictEqual(true, stream.eof);
+	});
 });
 
 describe('Scanner', () => {
@@ -80,8 +104,10 @@ describe('Scanner', () => {
 		const source = '$';
 		try {
 			const stream = new Scanner(source);
-			assert.fail();
-		} catch (e) { }
+		} catch (e) {
+			return;
+		}
+		assert.fail();
 	});
 	test.concurrent('words', async () => {
 		const source = 'abc xyz';

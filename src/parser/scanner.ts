@@ -28,10 +28,6 @@ export class Scanner implements ITokenStream {
 		this._tokens.push(this.readToken());
 	}
 
-	public get eof(): boolean {
-		return this.stream.eof;
-	}
-
 	public get token(): Token {
 		return this._tokens[0]!;
 	}
@@ -124,7 +120,7 @@ export class Scanner implements ITokenStream {
 						this.stream.next();
 						token = TOKEN(TokenKind.OpenSharpBracket, loc, { hasLeftSpacing });
 					} else {
-						token = TOKEN(TokenKind.Sharp, loc, { hasLeftSpacing });
+						throw new AiScriptSyntaxError(`invalid character: "#"`);
 					}
 					break;
 				}

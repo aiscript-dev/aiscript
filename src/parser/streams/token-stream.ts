@@ -6,7 +6,6 @@ import type { Token } from '../token.js';
  * トークンの読み取りに関するインターフェース
 */
 export interface ITokenStream {
-	get eof(): boolean;
 	get token(): Token;
 	get kind(): TokenKind;
 	next(): void;
@@ -21,26 +20,19 @@ export interface ITokenStream {
 export class TokenStream implements ITokenStream {
 	private source: Token[];
 	private index: number;
-	private _token?: Token;
+	private _token: Token;
 
 	constructor(source: TokenStream['source']) {
 		this.source = source;
 		this.index = 0;
-	}
-
-	public init(): void {
 		this.load();
 	}
 
-	public get eof(): boolean {
+	private get eof(): boolean {
 		return (this.index >= this.source.length);
 	}
 
 	public get token(): Token {
-		if (this._token == null) {
-			// EOFトークンさえも入っていなかったらinitされていない
-			throw new Error('stream is not initialized yet');
-		}
 		if (this.eof) {
 			return TOKEN(TokenKind.EOF, { line: -1, column: -1 });
 		}
@@ -81,7 +73,7 @@ export class TokenStream implements ITokenStream {
 		if (this.eof) {
 			this._token = TOKEN(TokenKind.EOF, { line: -1, column: -1 });
 		} else {
-			this._token = this.source[this.index];
+			this._token = this.source[this.index]!;
 		}
 	}
 }

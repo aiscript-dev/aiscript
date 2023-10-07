@@ -218,7 +218,6 @@ function parseAtom(s: ITokenStream): Cst.Node {
 					case TokenKind.TemplateExprElement: {
 						// スキャナで埋め込み式として事前に読み取っておいたトークン列をパースする
 						const exprStream = new TokenStream(element.children!);
-						exprStream.init();
 						const expr = parseExpr(exprStream);
 						if (exprStream.kind !== TokenKind.EOF) {
 							throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[exprStream.token.kind]}`);

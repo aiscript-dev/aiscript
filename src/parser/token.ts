@@ -37,8 +37,6 @@ export enum TokenKind {
 	Not,
 	/** "!=" */
 	NotEq,
-	/** "#" */
-	Sharp,
 	/** "#[" */
 	OpenSharpBracket,
 	/** "###" */
