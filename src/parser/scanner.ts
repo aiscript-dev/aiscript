@@ -460,7 +460,7 @@ export class Scanner implements ITokenStream {
 		const elements: Token[] = [];
 		let buf = '';
 		let tokenBuf: Token[] = [];
-		let state: 'string' | 'expr' | 'finish' = 'string';
+		let state: 'string' | 'escape' | 'expr' | 'finish' = 'string';
 
 		while (state !== 'finish') {
 			switch (state) {
@@ -468,6 +468,12 @@ export class Scanner implements ITokenStream {
 					// テンプレートの終了が無いままEOFに達した
 					if (this.stream.eof) {
 						throw new AiScriptSyntaxError('unexpected EOF');
+					}
+					// エスケープ
+					if (this.stream.char === '\\') {
+						this.stream.next();
+						state = 'escape';
+						break;
 					}
 					// テンプレートの終了
 					if (this.stream.char === '`') {
@@ -490,6 +496,21 @@ export class Scanner implements ITokenStream {
 					}
 					buf += this.stream.char;
 					this.stream.next();
+					break;
+				}
+				case 'escape': {
+					// エスケープ文字が無いままEOFに達した
+					if (this.stream.eof) {
+						throw new AiScriptSyntaxError('unexpected EOF');
+					}
+					// エスケープ対象かどうか確認
+					if (!['`', '{', '}', '\\'].includes(this.stream.char)) {
+						throw new AiScriptSyntaxError(`unexpected char: ${this.stream.char}`);
+					}
+					buf += this.stream.char;
+					this.stream.next();
+					// 通常の文字列に戻る
+					state = 'string';
 					break;
 				}
 				case 'expr': {
