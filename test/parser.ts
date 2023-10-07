@@ -7,14 +7,12 @@ describe('CharStream', () => {
 	test.concurrent('char', async () => {
 		const source = 'abc';
 		const stream = new CharStream(source);
-		stream.init();
 		assert.strictEqual('a', stream.char);
 	});
 
 	test.concurrent('next', async () => {
 		const source = 'abc';
 		const stream = new CharStream(source);
-		stream.init();
 		stream.next();
 		assert.strictEqual('b', stream.char);
 	});
@@ -23,7 +21,6 @@ describe('CharStream', () => {
 		test.concurrent('move', async () => {
 			const source = 'abc';
 			const stream = new CharStream(source);
-			stream.init();
 			stream.next();
 			assert.strictEqual('b', stream.char);
 			stream.prev();
@@ -33,7 +30,6 @@ describe('CharStream', () => {
 		test.concurrent('境界外には移動しない', async () => {
 			const source = 'abc';
 			const stream = new CharStream(source);
-			stream.init();
 			stream.prev();
 			assert.strictEqual('a', stream.char);
 		});
@@ -42,7 +38,6 @@ describe('CharStream', () => {
 	test.concurrent('eof', async () => {
 		const source = 'abc';
 		const stream = new CharStream(source);
-		stream.init();
 		assert.strictEqual(false, stream.eof);
 		stream.next();
 		assert.strictEqual(false, stream.eof);
@@ -56,7 +51,6 @@ describe('CharStream', () => {
 describe('Scanner', () => {
 	function init(source: string) {
 		const stream = new Scanner(source);
-		stream.init();
 		return stream;
 	}
 	function next(stream: Scanner, kind: TokenKind, opts: { hasLeftSpacing?: boolean, value?: string }) {
@@ -64,16 +58,6 @@ describe('Scanner', () => {
 		stream.next();
 	}
 
-	test.concurrent('can get a token after init', async () => {
-		const source = '';
-		const stream = new Scanner(source);
-		try {
-			stream.token;
-			assert.fail();
-		} catch (e) { }
-		stream.init();
-		stream.token;
-	});
 	test.concurrent('eof', async () => {
 		const source = '';
 		const stream = init(source);
@@ -94,9 +78,8 @@ describe('Scanner', () => {
 	});
 	test.concurrent('invalid token', async () => {
 		const source = '$';
-		const stream = new Scanner(source);
 		try {
-			stream.init();
+			const stream = new Scanner(source);
 			assert.fail();
 		} catch (e) { }
 	});

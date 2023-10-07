@@ -51,7 +51,6 @@ export class Parser {
 		let nodes: Cst.Node[];
 
 		const scanner = new Scanner(input);
-		scanner.init();
 		nodes = parseTopLevel(scanner);
 
 		// validate the node tree

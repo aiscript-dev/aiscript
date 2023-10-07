@@ -7,18 +7,21 @@ export class CharStream {
 	private lastPageIndex: number;
 	private pageIndex: number;
 	private address: number;
-	private _char?: string;
+	private _char: string;
+	/** zero-based number */
+	private line: number;
+	/** zero-based number */
+	private column: number;
 
-	constructor(source: string) {
+	constructor(source: string, opts?: { line?: number, column?: number }) {
 		this.pages = new Map();
 		this.pages.set(0, source);
 		this.firstPageIndex = 0;
 		this.lastPageIndex = 0;
 		this.pageIndex = 0;
 		this.address = 0;
-	}
-
-	public init(): void {
+		this.line = opts?.line ?? 0;
+		this.column = opts?.column ?? 0;
 		this.loadChar();
 	}
 
@@ -29,10 +32,6 @@ export class CharStream {
 	public get char(): string {
 		if (this.eof) {
 			throw new Error('end of stream');
-		}
-		if (this._char == null) {
-			// EOFではない時にnullだったらinitされていない
-			throw new Error('stream is not initialized yet');
 		}
 		return this._char;
 	}
@@ -72,7 +71,7 @@ export class CharStream {
 
 	private loadChar(): void {
 		if (!this.eof) {
-			this._char = this.pages.get(this.pageIndex)![this.address];
+			this._char = this.pages.get(this.pageIndex)![this.address]!;
 		}
 	}
 }

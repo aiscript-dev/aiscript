@@ -22,13 +22,9 @@ export class Scanner implements ITokenStream {
 	constructor(x: string | CharStream) {
 		if (typeof x === 'string') {
 			this.stream = new CharStream(x);
-			this.stream.init();
 		} else {
 			this.stream = x;
 		}
-	}
-
-	public init(): void {
 		this._tokens.push(this.readToken());
 	}
 
@@ -37,9 +33,6 @@ export class Scanner implements ITokenStream {
 	}
 
 	public get token(): Token {
-		if (this._tokens.length === 0) {
-			throw new Error('scanner is not initialized yet');
-		}
 		return this._tokens[0]!;
 	}
 
@@ -48,10 +41,6 @@ export class Scanner implements ITokenStream {
 	}
 
 	public next(): void {
-		if (this._tokens.length === 0) {
-			throw new Error('scanner is not initialized yet');
-		}
-
 		// 現在のトークンがEOFだったら次のトークンに進まない
 		if (this._tokens[0]!.kind === TokenKind.EOF) {
 			return;
@@ -65,10 +54,6 @@ export class Scanner implements ITokenStream {
 	}
 
 	public lookahead(offset: number): Token {
-		if (this._tokens.length === 0) {
-			throw new Error('scanner is not initialized yet');
-		}
-
 		while (this._tokens.length <= offset) {
 			this._tokens.push(this.readToken());
 		}
