@@ -328,7 +328,7 @@ function parseIf(s: ITokenStream): Cst.Node {
 	const cond = parseExpr(s, false);
 	const then = parseBlockOrStatement(s);
 
-	if (s.kind === TokenKind.NewLine) {
+	if (s.kind === TokenKind.NewLine && [TokenKind.ElifKeyword, TokenKind.ElseKeyword].includes(s.lookahead(1).kind)) {
 		s.next();
 	}
 
@@ -337,7 +337,7 @@ function parseIf(s: ITokenStream): Cst.Node {
 		s.next();
 		const elifCond = parseExpr(s, false);
 		const elifThen = parseBlockOrStatement(s);
-		if ((s.kind as TokenKind) === TokenKind.NewLine) {
+		if ((s.kind as TokenKind) === TokenKind.NewLine && [TokenKind.ElifKeyword, TokenKind.ElseKeyword].includes(s.lookahead(1).kind)) {
 			s.next();
 		}
 		elseif.push({ cond: elifCond, then: elifThen });
