@@ -1,18 +1,18 @@
 import { TokenKind } from '../token.js';
 import { AiScriptSyntaxError } from '../../error.js';
+import { NODE } from '../../node.js';
 import { parseStatement } from './statements.js';
-import { NODE } from '../node.js';
 
 import type { ITokenStream } from '../streams/token-stream.js';
-import type * as Cst from '../node.js';
+import type * as Ast from '../../node.js';
 
 /**
  * ```abnf
  * Params = "(" [IDENT *(("," / SPACE) IDENT)] ")"
  * ```
 */
-export function parseParams(s: ITokenStream): { name: string, argType?: Cst.Node }[] {
-	const items: { name: string, argType?: Cst.Node }[] = [];
+export function parseParams(s: ITokenStream): { name: string, argType?: Ast.Node }[] {
+	const items: { name: string, argType?: Ast.Node }[] = [];
 
 	s.nextWith(TokenKind.OpenParen);
 
@@ -49,14 +49,14 @@ export function parseParams(s: ITokenStream): { name: string, argType?: Cst.Node
  * Block = "{" *Statement "}"
  * ```
 */
-export function parseBlock(s: ITokenStream): Cst.Node[] {
+export function parseBlock(s: ITokenStream): Ast.Node[] {
 	s.nextWith(TokenKind.OpenBrace);
 
 	while (s.kind === TokenKind.NewLine) {
 		s.next();
 	}
 
-	const steps: Cst.Node[] = [];
+	const steps: Ast.Node[] = [];
 	while (s.kind !== TokenKind.CloseBrace) {
 		steps.push(parseStatement(s));
 
@@ -75,7 +75,7 @@ export function parseBlock(s: ITokenStream): Cst.Node[] {
 
 //#region Type
 
-export function parseType(s: ITokenStream): Cst.Node {
+export function parseType(s: ITokenStream): Ast.Node {
 	if (s.kind === TokenKind.At) {
 		return parseFnType(s);
 	} else {
@@ -89,13 +89,13 @@ export function parseType(s: ITokenStream): Cst.Node {
  * ParamTypes = [Type *(("," / SPACE) Type)]
  * ```
 */
-function parseFnType(s: ITokenStream): Cst.Node {
+function parseFnType(s: ITokenStream): Ast.Node {
 	const loc = s.token.loc;
 
 	s.nextWith(TokenKind.At);
 	s.nextWith(TokenKind.OpenParen);
 
-	const params: Cst.Node[] = [];
+	const params: Ast.Node[] = [];
 	while (s.kind !== TokenKind.CloseParen) {
 		if (params.length > 0) {
 			if (s.kind === TokenKind.Comma) {
@@ -121,7 +121,7 @@ function parseFnType(s: ITokenStream): Cst.Node {
  * NamedType = IDENT ["<" Type ">"]
  * ```
 */
-function parseNamedType(s: ITokenStream): Cst.Node {
+function parseNamedType(s: ITokenStream): Ast.Node {
 	const loc = s.token.loc;
 
 	s.expect(TokenKind.Identifier);

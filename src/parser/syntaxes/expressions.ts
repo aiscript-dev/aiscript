@@ -1,14 +1,14 @@
 import { AiScriptSyntaxError } from '../../error.js';
-import { CALL_NODE, NODE } from '../node.js';
+import { CALL_NODE, NODE } from '../../node.js';
 import { TokenStream } from '../streams/token-stream.js';
 import { TokenKind } from '../token.js';
 import { parseBlock, parseParams, parseType } from './common.js';
 import { parseBlockOrStatement } from './statements.js';
 
-import type * as Cst from '../node.js';
+import type * as Ast from '../../node.js';
 import type { ITokenStream } from '../streams/token-stream.js';
 
-export function parseExpr(s: ITokenStream, isStatic: boolean): Cst.Node {
+export function parseExpr(s: ITokenStream, isStatic: boolean): Ast.Node {
 	if (isStatic) {
 		return parseAtom(s, true);
 	} else {
@@ -51,7 +51,7 @@ const operators: OpInfo[] = [
 	{ opKind: 'infix', kind: TokenKind.Or2, lbp: 2, rbp: 3 },
 ];
 
-function parsePrefix(s: ITokenStream, minBp: number): Cst.Node {
+function parsePrefix(s: ITokenStream, minBp: number): Ast.Node {
 	const loc = s.token.loc;
 	const op = s.kind;
 	s.next();
@@ -94,7 +94,7 @@ function parsePrefix(s: ITokenStream, minBp: number): Cst.Node {
 	}
 }
 
-function parseInfix(s: ITokenStream, left: Cst.Node, minBp: number): Cst.Node {
+function parseInfix(s: ITokenStream, left: Ast.Node, minBp: number): Ast.Node {
 	const loc = s.token.loc;
 	const op = s.kind;
 	s.next();
@@ -167,7 +167,7 @@ function parseInfix(s: ITokenStream, left: Cst.Node, minBp: number): Cst.Node {
 	}
 }
 
-function parsePostfix(s: ITokenStream, expr: Cst.Node): Cst.Node {
+function parsePostfix(s: ITokenStream, expr: Ast.Node): Ast.Node {
 	const loc = s.token.loc;
 	const op = s.kind;
 
@@ -191,7 +191,7 @@ function parsePostfix(s: ITokenStream, expr: Cst.Node): Cst.Node {
 	}
 }
 
-function parseAtom(s: ITokenStream, isStatic: boolean): Cst.Node {
+function parseAtom(s: ITokenStream, isStatic: boolean): Ast.Node {
 	const loc = s.token.loc;
 
 	switch (s.kind) {
@@ -216,7 +216,7 @@ function parseAtom(s: ITokenStream, isStatic: boolean): Cst.Node {
 			return parseExists(s);
 		}
 		case TokenKind.Template: {
-			const values: (string | Cst.Node)[] = [];
+			const values: (string | Ast.Node)[] = [];
 
 			if (isStatic) break;
 
@@ -289,9 +289,9 @@ function parseAtom(s: ITokenStream, isStatic: boolean): Cst.Node {
 /**
  * Call = "(" [Expr *(("," / SPACE) Expr)] ")"
 */
-function parseCall(s: ITokenStream, target: Cst.Node): Cst.Node {
+function parseCall(s: ITokenStream, target: Ast.Node): Ast.Node {
 	const loc = s.token.loc;
-	const items: Cst.Node[] = [];
+	const items: Ast.Node[] = [];
 
 	s.nextWith(TokenKind.OpenParen);
 
@@ -321,7 +321,7 @@ function parseCall(s: ITokenStream, target: Cst.Node): Cst.Node {
  * If = "if" Expr BlockOrStatement *("elif" Expr BlockOrStatement) ["else" BlockOrStatement]
  * ```
 */
-function parseIf(s: ITokenStream): Cst.Node {
+function parseIf(s: ITokenStream): Ast.Node {
 	const loc = s.token.loc;
 
 	s.nextWith(TokenKind.IfKeyword);
@@ -332,7 +332,7 @@ function parseIf(s: ITokenStream): Cst.Node {
 		s.next();
 	}
 
-	const elseif: { cond: Cst.Node, then: Cst.Node }[] = [];
+	const elseif: { cond: Ast.Node, then: Ast.Node }[] = [];
 	while (s.kind === TokenKind.ElifKeyword) {
 		s.next();
 		const elifCond = parseExpr(s, false);
@@ -357,7 +357,7 @@ function parseIf(s: ITokenStream): Cst.Node {
  * FnExpr = "@" Params [":" Type] Block
  * ```
 */
-function parseFnExpr(s: ITokenStream): Cst.Node {
+function parseFnExpr(s: ITokenStream): Ast.Node {
 	const loc = s.token.loc;
 
 	s.nextWith(TokenKind.At);
@@ -380,7 +380,7 @@ function parseFnExpr(s: ITokenStream): Cst.Node {
  * Match = "match" Expr "{" *("case" Expr "=>" BlockOrStatement) ["default" "=>" BlockOrStatement] "}"
  * ```
 */
-function parseMatch(s: ITokenStream): Cst.Node {
+function parseMatch(s: ITokenStream): Ast.Node {
 	const loc = s.token.loc;
 
 	s.nextWith(TokenKind.MatchKeyword);
@@ -389,7 +389,7 @@ function parseMatch(s: ITokenStream): Cst.Node {
 	s.nextWith(TokenKind.OpenBrace);
 	s.nextWith(TokenKind.NewLine);
 
-	const qs: { q: Cst.Node, a: Cst.Node }[] = [];
+	const qs: { q: Ast.Node, a: Ast.Node }[] = [];
 	while (s.kind !== TokenKind.DefaultKeyword && s.kind !== TokenKind.CloseBrace) {
 		s.nextWith(TokenKind.CaseKeyword);
 		const q = parseExpr(s, false);
@@ -417,7 +417,7 @@ function parseMatch(s: ITokenStream): Cst.Node {
  * Eval = "eval" Block
  * ```
 */
-function parseEval(s: ITokenStream): Cst.Node {
+function parseEval(s: ITokenStream): Ast.Node {
 	const loc = s.token.loc;
 
 	s.nextWith(TokenKind.EvalKeyword);
@@ -430,7 +430,7 @@ function parseEval(s: ITokenStream): Cst.Node {
  * Exists = "exists" Reference
  * ```
 */
-function parseExists(s: ITokenStream): Cst.Node {
+function parseExists(s: ITokenStream): Ast.Node {
 	const loc = s.token.loc;
 
 	s.nextWith(TokenKind.ExistsKeyword);
@@ -443,7 +443,7 @@ function parseExists(s: ITokenStream): Cst.Node {
  * Reference = IDENT *(":" IDENT)
  * ```
 */
-function parseReference(s: ITokenStream): Cst.Node {
+function parseReference(s: ITokenStream): Ast.Node {
 	const loc = s.token.loc;
 
 	const segs: string[] = [];
@@ -467,7 +467,7 @@ function parseReference(s: ITokenStream): Cst.Node {
  * Object = "{" [IDENT ":" Expr *(("," / ";" / SPACE) IDENT ":" Expr) ["," / ";"]] "}"
  * ```
 */
-function parseObject(s: ITokenStream, isStatic: boolean): Cst.Node {
+function parseObject(s: ITokenStream, isStatic: boolean): Ast.Node {
 	const loc = s.token.loc;
 
 	s.nextWith(TokenKind.OpenBrace);
@@ -518,7 +518,7 @@ function parseObject(s: ITokenStream, isStatic: boolean): Cst.Node {
  * Array = "[" [Expr *(("," / SPACE) Expr) [","]] "]"
  * ```
 */
-function parseArray(s: ITokenStream, isStatic: boolean): Cst.Node {
+function parseArray(s: ITokenStream, isStatic: boolean): Ast.Node {
 	const loc = s.token.loc;
 
 	s.nextWith(TokenKind.OpenBracket);
@@ -561,11 +561,11 @@ type InfixInfo = { opKind: 'infix', kind: TokenKind, lbp: number, rbp: number };
 type PostfixInfo = { opKind: 'postfix', kind: TokenKind, bp: number };
 type OpInfo = PrefixInfo | InfixInfo | PostfixInfo;
 
-function parsePratt(s: ITokenStream, minBp: number): Cst.Node {
+function parsePratt(s: ITokenStream, minBp: number): Ast.Node {
 	// pratt parsing
 	// https://matklad.github.io/2020/04/13/simple-but-powerful-pratt-parsing.html
 
-	let left: Cst.Node;
+	let left: Ast.Node;
 
 	const tokenKind = s.kind;
 	const prefix = operators.find((x): x is PrefixInfo => x.opKind === 'prefix' && x.kind === tokenKind);

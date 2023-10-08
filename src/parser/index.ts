@@ -3,10 +3,10 @@ import { parseTopLevel } from './syntaxes/toplevel.js';
 
 import { validateKeyword } from './plugins/validate-keyword.js';
 import { validateType } from './plugins/validate-type.js';
-import type * as Cst from './node.js';
+
 import type * as Ast from '../node.js';
 
-export type ParserPlugin = (nodes: Cst.Node[]) => Cst.Node[];
+export type ParserPlugin = (nodes: Ast.Node[]) => Ast.Node[];
 export type PluginType = 'validate' | 'transform';
 
 export class Parser {
@@ -48,7 +48,7 @@ export class Parser {
 	}
 
 	public parse(input: string): Ast.Node[] {
-		let nodes: Cst.Node[];
+		let nodes: Ast.Node[];
 
 		const scanner = new Scanner(input);
 		nodes = parseTopLevel(scanner);
@@ -63,6 +63,6 @@ export class Parser {
 			nodes = plugin(nodes);
 		}
 
-		return nodes as Ast.Node[];
+		return nodes;
 	}
 }

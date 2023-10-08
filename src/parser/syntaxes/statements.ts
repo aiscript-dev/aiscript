@@ -1,10 +1,10 @@
 import { AiScriptSyntaxError } from '../../error.js';
-import { CALL_NODE, NODE } from '../node.js';
+import { CALL_NODE, NODE } from '../../node.js';
 import { TokenKind } from '../token.js';
 import { parseBlock, parseParams, parseType } from './common.js';
 import { parseExpr } from './expressions.js';
 
-import type * as Cst from '../node.js';
+import type * as Ast from '../../node.js';
 import type { ITokenStream } from '../streams/token-stream.js';
 
 /**
@@ -13,7 +13,7 @@ import type { ITokenStream } from '../streams/token-stream.js';
  *           / Break / Continue / Assign / Expr
  * ```
 */
-export function parseStatement(s: ITokenStream): Cst.Node {
+export function parseStatement(s: ITokenStream): Ast.Node {
 	const loc = s.token.loc;
 
 	switch (s.kind) {
@@ -62,7 +62,7 @@ export function parseStatement(s: ITokenStream): Cst.Node {
 	return expr;
 }
 
-export function parseDefStatement(s: ITokenStream): Cst.Node {
+export function parseDefStatement(s: ITokenStream): Ast.Node {
 	switch (s.kind) {
 		case TokenKind.VarKeyword:
 		case TokenKind.LetKeyword: {
@@ -82,7 +82,7 @@ export function parseDefStatement(s: ITokenStream): Cst.Node {
  * BlockOrStatement = Block / Statement
  * ```
 */
-export function parseBlockOrStatement(s: ITokenStream): Cst.Node {
+export function parseBlockOrStatement(s: ITokenStream): Ast.Node {
 	const loc = s.token.loc;
 
 	if (s.kind === TokenKind.OpenBrace) {
@@ -98,7 +98,7 @@ export function parseBlockOrStatement(s: ITokenStream): Cst.Node {
  * VarDef = ("let" / "var") IDENT [":" Type] "=" Expr
  * ```
 */
-function parseVarDef(s: ITokenStream): Cst.Node {
+function parseVarDef(s: ITokenStream): Ast.Node {
 	const loc = s.token.loc;
 
 	let mut;
@@ -143,7 +143,7 @@ function parseVarDef(s: ITokenStream): Cst.Node {
  * FnDef = "@" IDENT Params [":" Type] Block
  * ```
 */
-function parseFnDef(s: ITokenStream): Cst.Node {
+function parseFnDef(s: ITokenStream): Ast.Node {
 	const loc = s.token.loc;
 
 	s.nextWith(TokenKind.At);
@@ -179,7 +179,7 @@ function parseFnDef(s: ITokenStream): Cst.Node {
  * Out = "<:" Expr
  * ```
 */
-function parseOut(s: ITokenStream): Cst.Node {
+function parseOut(s: ITokenStream): Ast.Node {
 	const loc = s.token.loc;
 
 	s.nextWith(TokenKind.Out);
@@ -193,7 +193,7 @@ function parseOut(s: ITokenStream): Cst.Node {
  *      / "each" "(" "let" IDENT ("," / SPACE) Expr ")" BlockOrStatement
  * ```
 */
-function parseEach(s: ITokenStream): Cst.Node {
+function parseEach(s: ITokenStream): Ast.Node {
 	const loc = s.token.loc;
 	let hasParen = false;
 
@@ -231,7 +231,7 @@ function parseEach(s: ITokenStream): Cst.Node {
 	}, loc);
 }
 
-function parseFor(s: ITokenStream): Cst.Node {
+function parseFor(s: ITokenStream): Ast.Node {
 	const loc = s.token.loc;
 	let hasParen = false;
 
@@ -303,7 +303,7 @@ function parseFor(s: ITokenStream): Cst.Node {
  * Return = "return" Expr
  * ```
 */
-function parseReturn(s: ITokenStream): Cst.Node {
+function parseReturn(s: ITokenStream): Ast.Node {
 	const loc = s.token.loc;
 
 	s.nextWith(TokenKind.ReturnKeyword);
@@ -316,10 +316,10 @@ function parseReturn(s: ITokenStream): Cst.Node {
  * StatementWithAttr = *Attr Statement
  * ```
 */
-function parseStatementWithAttr(s: ITokenStream): Cst.Node {
-	const attrs: Cst.Attribute[] = [];
+function parseStatementWithAttr(s: ITokenStream): Ast.Node {
+	const attrs: Ast.Attribute[] = [];
 	while (s.kind === TokenKind.OpenSharpBracket) {
-		attrs.push(parseAttr(s) as Cst.Attribute);
+		attrs.push(parseAttr(s) as Ast.Attribute);
 		s.nextWith(TokenKind.NewLine);
 	}
 
@@ -342,7 +342,7 @@ function parseStatementWithAttr(s: ITokenStream): Cst.Node {
  * Attr = "#[" IDENT [StaticExpr] "]"
  * ```
 */
-function parseAttr(s: ITokenStream): Cst.Node {
+function parseAttr(s: ITokenStream): Ast.Node {
 	const loc = s.token.loc;
 
 	s.nextWith(TokenKind.OpenSharpBracket);
@@ -368,7 +368,7 @@ function parseAttr(s: ITokenStream): Cst.Node {
  * Loop = "loop" Block
  * ```
 */
-function parseLoop(s: ITokenStream): Cst.Node {
+function parseLoop(s: ITokenStream): Ast.Node {
 	const loc = s.token.loc;
 
 	s.nextWith(TokenKind.LoopKeyword);
@@ -381,7 +381,7 @@ function parseLoop(s: ITokenStream): Cst.Node {
  * Assign = Expr ("=" / "+=" / "-=") Expr
  * ```
 */
-function tryParseAssign(s: ITokenStream, dest: Cst.Node): Cst.Node | undefined {
+function tryParseAssign(s: ITokenStream, dest: Ast.Node): Ast.Node | undefined {
 	const loc = s.token.loc;
 
 	// Assign

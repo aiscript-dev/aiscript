@@ -1,8 +1,8 @@
 import { getTypeBySource } from '../../type.js';
 import { visitNode } from '../visit.js';
-import type * as Cst from '../node.js';
+import type * as Ast from '../../node.js';
 
-function validateNode(node: Cst.Node): Cst.Node {
+function validateNode(node: Ast.Node): Ast.Node {
 	switch (node.type) {
 		case 'def': {
 			if (node.varType != null) {
@@ -26,7 +26,7 @@ function validateNode(node: Cst.Node): Cst.Node {
 	return node;
 }
 
-export function validateType(nodes: Cst.Node[]): Cst.Node[] {
+export function validateType(nodes: Ast.Node[]): Ast.Node[] {
 	for (const node of nodes) {
 		visitNode(node, validateNode);
 	}
