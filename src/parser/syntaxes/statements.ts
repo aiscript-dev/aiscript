@@ -1,5 +1,5 @@
 import { AiScriptSyntaxError } from '../../error.js';
-import { CALL_NODE, NODE } from '../../node.js';
+import { CALL_NODE, NODE } from '../utils.js';
 import { TokenKind } from '../token.js';
 import { parseBlock, parseParams, parseType } from './common.js';
 import { parseExpr } from './expressions.js';

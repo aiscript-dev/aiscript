@@ -1,6 +1,6 @@
 import { TokenKind } from '../token.js';
 import { AiScriptSyntaxError } from '../../error.js';
-import { NODE } from '../../node.js';
+import { NODE } from '../utils.js';
 import { parseStatement } from './statements.js';
 
 import type { ITokenStream } from '../streams/token-stream.js';
