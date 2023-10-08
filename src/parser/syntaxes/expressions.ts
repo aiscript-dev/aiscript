@@ -2,7 +2,7 @@ import { AiScriptSyntaxError } from '../../error.js';
 import { CALL_NODE, NODE } from '../node.js';
 import { TokenStream } from '../streams/token-stream.js';
 import { TokenKind } from '../token.js';
-import { parseBlock, parseParams } from './common.js';
+import { parseBlock, parseParams, parseType } from './common.js';
 import { parseBlockOrStatement } from './statements.js';
 
 import type * as Cst from '../node.js';
@@ -364,11 +364,15 @@ function parseFnExpr(s: ITokenStream): Cst.Node {
 
 	const params = parseParams(s);
 
-	// type
+	let type;
+	if ((s.kind as TokenKind) === TokenKind.Colon) {
+		s.next();
+		type = parseType(s);
+	}
 
 	const body = parseBlock(s);
 
-	return NODE('fn', { args: params, retType: undefined, children: body }, loc);
+	return NODE('fn', { args: params, retType: type, children: body }, loc);
 }
 
 /**

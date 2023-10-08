@@ -1,6 +1,7 @@
 import { TokenKind } from '../token.js';
 import { AiScriptSyntaxError } from '../../error.js';
 import { parseStatement } from './statements.js';
+import { NODE } from '../node.js';
 
 import type { ITokenStream } from '../streams/token-stream.js';
 import type * as Cst from '../node.js';
@@ -10,8 +11,8 @@ import type * as Cst from '../node.js';
  * Params = "(" [IDENT *(("," / SPACE) IDENT)] ")"
  * ```
 */
-export function parseParams(s: ITokenStream): { name: string }[] {
-	const items: { name: string }[] = [];
+export function parseParams(s: ITokenStream): { name: string, argType?: Cst.Node }[] {
+	const items: { name: string, argType?: Cst.Node }[] = [];
 
 	s.nextWith(TokenKind.OpenParen);
 
@@ -26,8 +27,16 @@ export function parseParams(s: ITokenStream): { name: string }[] {
 		}
 
 		s.expect(TokenKind.Identifier);
-		items.push({ name: s.token.value! });
+		const name = s.token.value!;
 		s.next();
+
+		let type;
+		if ((s.kind as TokenKind) === TokenKind.Colon) {
+			s.next();
+			type = parseType(s);
+		}
+
+		items.push({ name, argType: type });
 	}
 
 	s.nextWith(TokenKind.CloseParen);
@@ -67,15 +76,67 @@ export function parseBlock(s: ITokenStream): Cst.Node[] {
 //#region Type
 
 export function parseType(s: ITokenStream): Cst.Node {
-	throw new Error('todo');
+	if (s.kind === TokenKind.At) {
+		return parseFnType(s);
+	} else {
+		return parseNamedType(s);
+	}
 }
 
-export function parseFnType(s: ITokenStream): Cst.Node {
-	throw new Error('todo');
+/**
+ * ```abnf
+ * FnType = "@" "(" ParamTypes ")" "=>" Type
+ * ParamTypes = [Type *(("," / SPACE) Type)]
+ * ```
+*/
+function parseFnType(s: ITokenStream): Cst.Node {
+	const loc = s.token.loc;
+
+	s.nextWith(TokenKind.At);
+	s.nextWith(TokenKind.OpenParen);
+
+	const params: Cst.Node[] = [];
+	while (s.kind !== TokenKind.CloseParen) {
+		if (params.length > 0) {
+			if (s.kind === TokenKind.Comma) {
+				s.next();
+			} else if (!s.token.hasLeftSpacing) {
+				throw new AiScriptSyntaxError('separator expected');
+			}
+		}
+		const type = parseType(s);
+		params.push(type);
+	}
+
+	s.nextWith(TokenKind.CloseParen);
+	s.nextWith(TokenKind.Arrow);
+
+	const resultType = parseType(s);
+
+	return NODE('fnTypeSource', { args: params, result: resultType }, loc);
 }
 
-export function parseNamedType(s: ITokenStream): Cst.Node {
-	throw new Error('todo');
+/**
+ * ```abnf
+ * NamedType = IDENT ["<" Type ">"]
+ * ```
+*/
+function parseNamedType(s: ITokenStream): Cst.Node {
+	const loc = s.token.loc;
+
+	s.expect(TokenKind.Identifier);
+	const name = s.token.value!;
+	s.next();
+
+	// inner type
+	let inner = null;
+	if (s.kind === TokenKind.Lt) {
+		s.next();
+		inner = parseType(s);
+		s.nextWith(TokenKind.Gt);
+	}
+
+	return NODE('namedTypeSource', { name, inner }, loc);
 }
 
 //#endregion Type

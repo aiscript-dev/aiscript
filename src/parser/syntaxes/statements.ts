@@ -121,10 +121,10 @@ function parseVarDef(s: ITokenStream): Cst.Node {
 	const name = s.token.value!;
 	s.next();
 
-	let ty;
+	let type;
 	if ((s.kind as TokenKind) === TokenKind.Colon) {
 		s.next();
-		ty = parseType(s);
+		type = parseType(s);
 	}
 
 	s.nextWith(TokenKind.Eq);
@@ -135,7 +135,7 @@ function parseVarDef(s: ITokenStream): Cst.Node {
 
 	const expr = parseExpr(s, false);
 
-	return NODE('def', { name, varType: ty, expr, mut, attr: [] }, loc);
+	return NODE('def', { name, varType: type, expr, mut, attr: [] }, loc);
 }
 
 /**
@@ -154,7 +154,11 @@ function parseFnDef(s: ITokenStream): Cst.Node {
 
 	const params = parseParams(s);
 
-	// type
+	let type;
+	if ((s.kind as TokenKind) === TokenKind.Colon) {
+		s.next();
+		type = parseType(s);
+	}
 
 	const body = parseBlock(s);
 
@@ -162,7 +166,7 @@ function parseFnDef(s: ITokenStream): Cst.Node {
 		name,
 		expr: NODE('fn', {
 			args: params,
-			retType: undefined, // TODO: type
+			retType: type,
 			children: body,
 		}, loc),
 		mut: false,
