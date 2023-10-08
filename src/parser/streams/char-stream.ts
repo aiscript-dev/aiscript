@@ -25,10 +25,16 @@ export class CharStream {
 		this.moveNext();
 	}
 
+	/**
+	 * ストリームの終わりに達しているかどうかを取得します。
+	*/
 	public get eof(): boolean {
 		return this.endOfPage && this.isLastPage;
 	}
 
+	/**
+	 * カーソル位置にある文字を取得します。
+	*/
 	public get char(): string {
 		if (this.eof) {
 			throw new Error('end of stream');
@@ -36,6 +42,9 @@ export class CharStream {
 		return this._char!;
 	}
 
+	/**
+	 * カーソル位置に対応するソースコード上の行番号と列番号を取得します。
+	*/
 	public getPos(): { line: number, column: number } {
 		return {
 			line: (this.line + 1),
@@ -43,6 +52,9 @@ export class CharStream {
 		};
 	}
 
+	/**
+	 * カーソル位置を次の文字へ進めます。
+	*/
 	public next(): void {
 		if (!this.eof && this._char === '\n') {
 			this.line++;
@@ -54,6 +66,9 @@ export class CharStream {
 		this.moveNext();
 	}
 
+	/**
+	 * カーソル位置を前の文字へ戻します。
+	*/
 	public prev(): void {
 		this.decAddr();
 		this.movePrev();

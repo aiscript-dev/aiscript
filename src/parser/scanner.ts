@@ -28,14 +28,23 @@ export class Scanner implements ITokenStream {
 		this._tokens.push(this.readToken());
 	}
 
+	/**
+	 * カーソル位置にあるトークンを取得します。
+	*/
 	public get token(): Token {
 		return this._tokens[0]!;
 	}
 
+	/**
+	 * カーソル位置にあるトークンの種類を取得します。
+	*/
 	public get kind(): TokenKind {
 		return this.token.kind;
 	}
 
+	/**
+	 * カーソル位置を次のトークンへ進めます。
+	*/
 	public next(): void {
 		// 現在のトークンがEOFだったら次のトークンに進まない
 		if (this._tokens[0]!.kind === TokenKind.EOF) {
@@ -49,6 +58,9 @@ export class Scanner implements ITokenStream {
 		}
 	}
 
+	/**
+	 * トークンの先読みを行います。カーソル位置は移動されません。
+	*/
 	public lookahead(offset: number): Token {
 		while (this._tokens.length <= offset) {
 			this._tokens.push(this.readToken());
@@ -57,12 +69,20 @@ export class Scanner implements ITokenStream {
 		return this._tokens[offset]!;
 	}
 
+	/**
+	 * カーソル位置にあるトークンが指定したトークンの種類と一致するかを確認します。
+	 * 一致しなかった場合には文法エラーを発生させます。
+	*/
 	public expect(kind: TokenKind): void {
 		if (this.kind !== kind) {
 			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[this.kind]}`);
 		}
 	}
 
+	/**
+	 * カーソル位置にあるトークンが指定したトークンの種類と一致することを確認し、
+	 * カーソル位置を次のトークンへ進めます。
+	*/
 	public nextWith(kind: TokenKind): void {
 		this.expect(kind);
 		this.next();
