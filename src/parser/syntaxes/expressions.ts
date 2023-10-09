@@ -450,7 +450,13 @@ function parseReference(s: ITokenStream): Ast.Node {
 	while (true) {
 		if (segs.length > 0) {
 			if (s.kind === TokenKind.Colon) {
+				if (s.token.hasLeftSpacing) {
+					throw new AiScriptSyntaxError('Cannot use spaces in a reference.');
+				}
 				s.next();
+				if (s.token.hasLeftSpacing) {
+					throw new AiScriptSyntaxError('Cannot use spaces in a reference.');
+				}
 			} else {
 				break;
 			}
