@@ -354,7 +354,7 @@ ElseBlock
 // match expression
 
 Match
-	= "match" ![A-Z0-9_:]i _* about:Expr _* "{" _* qs:(q:Expr _* "=>" _* a:BlockOrStatement _* { return { q, a }; })+ x:("*" _* "=>" _* @BlockOrStatement _*)? _* "}"
+= "match" ![A-Z0-9_:]i _* about:Expr _* "{" _* qs:("case" _+ q:Expr _* "=>" _* a:BlockOrStatement _* { return { q, a }; })+ x:("default" _* "=>" _* @BlockOrStatement _*)? _* "}"
 {
 	return createNode('match', {
 		about: about,
