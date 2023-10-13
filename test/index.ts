@@ -299,8 +299,8 @@ describe('Infix expression', () => {
 	test.concurrent('syntax symbols vs infix operators', async () => {
 		const res = await exe(`
 		<: match true {
-			case 1 == 1 => "true"
-			case 1 < 1 => "false"
+			1 == 1 => "true"
+			1 < 1 => "false"
 		}
 		`);
 		eq(res, STR('true'));
@@ -313,8 +313,8 @@ describe('Infix expression', () => {
 	test.concurrent('number + match expression', async () => {
 		const res = await exe(`
 			<: 1 + match 2 == 2 {
-				case true => 3
-				case false => 4
+				true => 3
+				false => 4
 			}
 		`);
 		eq(res, NUM(4));
@@ -324,11 +324,17 @@ describe('Infix expression', () => {
 		eq(await exe('<: eval { 1 } + eval { 1 }'), NUM(2));
 	});
 
-	test.concurrent('allow line break', async () => {
-		eq(await exe(`
+	test.concurrent('disallow line break', async () => {
+		try {
+			await exe(`
 			<: 1 +
 			1 + 1
-		`), NUM(3));
+			`);
+		} catch (e) {
+			assert.ok(true);
+			return;
+		}
+		assert.fail();
 	});
 
 	test.concurrent('escaped line break', async () => {
@@ -1488,9 +1494,9 @@ describe('match', () => {
 	test.concurrent('Basic', async () => {
 		const res = await exe(`
 		<: match 2 {
-			case 1 => "a"
-			case 2 => "b"
-			case 3 => "c"
+			1 => "a"
+			2 => "b"
+			3 => "c"
 		}
 		`);
 		eq(res, STR('b'));
@@ -1499,9 +1505,9 @@ describe('match', () => {
 	test.concurrent('When default not provided, returns null', async () => {
 		const res = await exe(`
 		<: match 42 {
-			case 1 => "a"
-			case 2 => "b"
-			case 3 => "c"
+			1 => "a"
+			2 => "b"
+			3 => "c"
 		}
 		`);
 		eq(res, NULL);
@@ -1510,10 +1516,10 @@ describe('match', () => {
 	test.concurrent('With default', async () => {
 		const res = await exe(`
 		<: match 42 {
-			case 1 => "a"
-			case 2 => "b"
-			case 3 => "c"
-			default => "d"
+			1 => "a"
+			2 => "b"
+			3 => "c"
+			* => "d"
 		}
 		`);
 		eq(res, STR('d'));
@@ -1522,13 +1528,13 @@ describe('match', () => {
 	test.concurrent('With block', async () => {
 		const res = await exe(`
 		<: match 2 {
-			case 1 => 1
-			case 2 => {
+			1 => 1
+			2 => {
 				let a = 1
 				let b = 2
 				(a + b)
 			}
-			case 3 => 3
+			3 => 3
 		}
 		`);
 		eq(res, NUM(3));
@@ -1538,7 +1544,7 @@ describe('match', () => {
 		const res = await exe(`
 		@f(x) {
 			match x {
-				case 1 => {
+				1 => {
 					return "ai"
 				}
 			}

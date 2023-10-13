@@ -12,8 +12,6 @@ const reservedWord = [
 	'break',
 	'continue',
 	'match',
-	'case',
-	'default',
 	'if',
 	'elif',
 	'else',
