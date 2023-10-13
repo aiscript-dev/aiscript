@@ -4,10 +4,7 @@
 >- 関数`Str:from_codepoint` `Str#codepoint_at`を追加
 
 # 0.17.0
-- 演算子の前後で改行できるように
 - `package.json`を修正
-## Breaking changes
-- `match`の構文が変更されました。各行の先頭に`case`または`default`が必要になります。
 
 # 0.16.0
 - **ネームスペースのトップレベルに`var`は定義できなくなりました。(`let`は可能)**
