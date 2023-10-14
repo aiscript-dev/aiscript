@@ -40,7 +40,11 @@ Core:range(0,2).push(4) //[0,1,2,4]
 
 ### @(_v_: str).replace( _old_: str, _new_: str): str
 
-### @(_v_: str).index_of(_search_: str): num
+### @(_v_: str).index_of(_search_: str, _fromIndex_?: num): num
+文字列中から_search_を探し、その添字を返します。  
+_fromIndex_が指定されていれば、その位置から検索を開始します。  
+_fromIndex_が負値の時は末尾からの位置（文字列の長さ+_fromIndex_）が使用されます。  
+該当が無ければ-1を返します。
 
 ### @(_v_: str).trim(): str
 
