@@ -109,7 +109,13 @@ if _initial_ is given, _func_ is initially called with arguments (_initial_, _v_
 Otherwise, (_v_\[0], _v_\[1], 1).  
 
 ### @(_v_: arr).find(_func_: @(_item_: value, _index_: num) { bool }): value
-Find elements in the array such that _func_ returns true.  
+Finds elements in the array such that _func_ returns true.  
+
+### @(_v_: arr).index_of(_val_: value, _fromIndex_?: num): num
+Finds a value that equals to _val_, and returns the index.  
+If _fromIndex_ is given, the search starts from there.
+When _fromIndex_ is negative, index from the end(length of the array + _fromIndex_) is used.
+When not found, returns -1.
 
 ### @(_v_: arr).reverse(): null
 **Modifying**

@@ -77,7 +77,7 @@ Core:range(0,2).push(4) //[0,1,2,4]
 
 ### @(_v_: arr).slice(_begin_: num, _end_: num): arr
 
-### @(_v_: arr).incl(_i_: str | num | bool | null): bool
+### @(_v_: arr).incl(_i_: value): bool
 配列に指定した値が含まれているかどうかを返します。  
 
 ### @(_v_: arr).map(_f_: fn): arr
@@ -87,7 +87,13 @@ Core:range(0,2).push(4) //[0,1,2,4]
 ### @(_v_: arr).reduce(_f_: @(_acm_: value, _item_: value, _index_: num) { value }, _initial_: value): value
 
 ### @(_v_: arr).find(_f_: @(_item_: value, _index_: num) { bool }): value
-配列から要素を探します。  
+配列から検査関数_f_に合格する値を探します。  
+
+### @(_v_: arr).index_of(_val_: value, _fromIndex_?: num): num
+配列から_val_と同じ値を探し、その添字を返します。  
+_fromIndex_が指定されていれば、その位置から検索を開始します。  
+_fromIndex_が負値の時は末尾からの位置（配列の長さ+_fromIndex_）が使用されます。  
+該当が無ければ-1を返します。
 
 ### @(_v_: arr).reverse(): null
 配列を反転させます。  
