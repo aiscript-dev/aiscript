@@ -91,8 +91,8 @@ Combines all elements of the string array and returns them as a single string.
 ### @(_v_: arr).slice(_begin_: num, _end_: num): arr
 Obtains specified portion of the array.  
 
-### @(_v_: arr).incl(_query_: str | num | bool | null): bool
-Checks if there is an element in the array with the value _query_.  
+### @(_v_: arr).incl(_val_: value): bool
+Checks if there is an element in the array with the value _val_.  
 
 ### @(_v_: arr).map(_func_: fn): arr
 Executes _func_ for each element of the array asynchronously.  
