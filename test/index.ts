@@ -2348,10 +2348,19 @@ describe('primitive props', () => {
 
 		test.concurrent('index_of', async () => {
 			const res = await exe(`
-			let str = "hello"
-			<: str.index_of("l")
+			let str = '0123401234'
+			<: [
+				str.index_of('3') == 3,
+				str.index_of('5') == -1,
+				str.index_of('3', 3) == 3,
+				str.index_of('3', 4) == 8,
+				str.index_of('3', -1) == -1,
+				str.index_of('3', -2) == 8,
+				str.index_of('3', -7) == 3,
+				str.index_of('3', 10) == -1,
+			].map(@(v){if (v) '1' else '0'}).join()
 			`);
-			eq(res, NUM(2));
+			eq(res, STR('11111111'));
 		});
 
 		test.concurrent('incl', async () => {

@@ -1,3 +1,4 @@
+// JavaScriptは一部のUnicode文字列を正しく扱えないため標準関数の代わりにstringzの関数を使う
 import { substring, length, indexOf, toArray } from 'stringz';
 import { AiScriptRuntimeError } from '../error.js';
 import { assertArray, assertBoolean, assertFunction, assertNumber, assertString, expectAny, eq } from './util.js';
@@ -30,9 +31,11 @@ const PRIMITIVE_PROPS: {
 			return STR(target.value.split(a.value).join(b.value));
 		}),
 
-		index_of: (target: VStr): VFn => FN_NATIVE(async ([search], _opts) => {
+		index_of: (target: VStr): VFn => FN_NATIVE(async ([search, fromI], _opts) => {
 			assertString(search);
-			return NUM(indexOf(target.value, search.value));
+			if (fromI) assertNumber(fromI);
+			const pos = fromI ? (fromI.value < 0 ? target.value.length + fromI.value : fromI.value) : undefined;
+			return NUM(indexOf(target.value, search.value, pos));
 		}),
 
 		incl: (target: VStr): VFn => FN_NATIVE(async ([search], _opts) => {
