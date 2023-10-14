@@ -1,6 +1,6 @@
 import { substring, length, indexOf, toArray } from 'stringz';
 import { AiScriptRuntimeError } from '../error.js';
-import { assertArray, assertBoolean, assertFunction, assertNumber, assertString, expectAny } from './util.js';
+import { assertArray, assertBoolean, assertFunction, assertNumber, assertString, expectAny, eq } from './util.js';
 import { ARR, FALSE, FN_NATIVE, NULL, NUM, STR, TRUE } from './value.js';
 import type { Value, VArr, VFn, VNum, VStr, VError } from './value.js';
 
@@ -166,17 +166,19 @@ const PRIMITIVE_PROPS: {
 
 		incl: (target: VArr): VFn => FN_NATIVE(async ([val], _opts) => {
 			expectAny(val);
-			if (val.type !== 'str' && val.type !== 'num' && val.type !== 'bool' && val.type !== 'null') return FALSE;
-			const getValue = (v: VArr): (string | number | boolean | symbol | null)[] => {
-				return v.value.map(i => {
-					if (i.type === 'str') return i.value;
-					if (i.type === 'num') return i.value;
-					if (i.type === 'bool') return i.value;
-					if (i.type === 'null') return null;
-					return Symbol();
-				});
-			};
-			return getValue(target).includes(val.type === 'null' ? null : val.value) ? TRUE : FALSE;
+			return target.value.some(item => eq(val, item)) ? TRUE : FALSE;
+		}),
+
+		index_of: (target: VArr): VFn => FN_NATIVE(async ([val, fromI], _opts) => {
+			expectAny(val);
+			if (fromI) {
+				assertNumber(fromI);
+				const offset = target.value.slice(0, fromI.value).length;
+				const result = target.value.slice(fromI.value).findIndex(v => eq(v, val));
+				return NUM(result < 0 ? result : result + offset);
+			} else {
+				return NUM(target.value.findIndex(v => eq(v, val)));
+			}
 		}),
 
 		reverse: (target: VArr): VFn => FN_NATIVE(async (_, _opts) => {
