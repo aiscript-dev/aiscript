@@ -1,3 +1,5 @@
+import type { Loc } from './node.js';
+
 export abstract class AiScriptError extends Error {
 	// name is read by Error.prototype.toString
 	public name = 'AiScript';
@@ -41,6 +43,16 @@ export class AiScriptTypeError extends AiScriptError {
 	public name = 'Type';
 	constructor(message: string, info?: any) {
 		super(message, info);
+	}
+}
+
+/**
+ * Namespace collection errors.
+ */
+export class AiScriptNamespaceError extends AiScriptError {
+	public name = 'Namespace';
+	constructor(message: string, public loc: Loc, info?: any) {
+		super(`${message} (Line ${loc.line}, Column ${loc.column})`, info);
 	}
 }
 

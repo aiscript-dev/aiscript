@@ -28,6 +28,15 @@ class AiScriptIndexOutOfRangeError extends AiScriptRuntimeError {
 }
 
 // @public
+class AiScriptNamespaceError extends AiScriptError {
+    constructor(message: string, loc: Loc, info?: any);
+    // (undocumented)
+    loc: Loc;
+    // (undocumented)
+    name: string;
+}
+
+// @public
 class AiScriptRuntimeError extends AiScriptError {
     constructor(message: string, info?: any);
     // (undocumented)
@@ -219,6 +228,7 @@ declare namespace errors {
         NonAiScriptError,
         AiScriptSyntaxError,
         AiScriptTypeError,
+        AiScriptNamespaceError,
         AiScriptRuntimeError,
         AiScriptIndexOutOfRangeError
     }
@@ -244,7 +254,7 @@ const FALSE: {
 };
 
 // @public (undocumented)
-const FN: (args: VFn['args'], statements: VFn['statements'], scope: VFn['scope']) => VFn;
+const FN: (args: VUserFn['args'], statements: VUserFn['statements'], scope: VUserFn['scope']) => VUserFn;
 
 // @public (undocumented)
 type Fn = NodeBase & {
@@ -258,7 +268,7 @@ type Fn = NodeBase & {
 };
 
 // @public (undocumented)
-const FN_NATIVE: (fn: VFn['native']) => VFn;
+const FN_NATIVE: (fn: VNativeFn['native']) => VNativeFn;
 
 // @public (undocumented)
 type FnTypeSource = NodeBase & {
@@ -591,6 +601,8 @@ declare namespace values {
         VArr,
         VObj,
         VFn,
+        VUserFn,
+        VNativeFn,
         VReturn,
         VBreak,
         VContinue,
@@ -647,18 +659,17 @@ type VError = {
     info?: Value;
 };
 
+// @public (undocumented)
+type VFn = VUserFn | VNativeFn;
+
 // @public
-type VFn = {
-    type: 'fn';
-    args?: string[];
-    statements?: Node_2[];
-    native?: (args: (Value | undefined)[], opts: {
+type VNativeFn = VFnBase & {
+    native: (args: (Value | undefined)[], opts: {
         call: (fn: VFn, args: Value[]) => Promise<Value>;
         topCall: (fn: VFn, args: Value[]) => Promise<Value>;
         registerAbortHandler: (handler: () => void) => void;
         unregisterAbortHandler: (handler: () => void) => void;
     }) => Value | Promise<Value> | void;
-    scope?: Scope;
 };
 
 // @public (undocumented)
@@ -688,6 +699,15 @@ type VReturn = {
 type VStr = {
     type: 'str';
     value: string;
+};
+
+// Warning: (ae-forgotten-export) The symbol "VFnBase" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+type VUserFn = VFnBase & {
+    native?: undefined;
+    statements: Node_2[];
+    scope: Scope;
 };
 
 // (No @packageDocumentation comment for this package)
