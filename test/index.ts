@@ -2788,6 +2788,17 @@ describe('std', () => {
 		});
 	});
 
+	describe('Error', () => {
+		test.concurrent('new', async () => {
+			eq(
+				await exe(`
+				<: Error:new('ai', {chan: 'kawaii'})
+				`),
+				ERROR('ai', OBJ(new Map([['chan', STR('kawaii')]])))
+			);
+		});
+	});
+
 	describe('Json', () => {
 		test.concurrent('stringify: fn', async () => {
 			const res = await exe(`
