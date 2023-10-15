@@ -314,7 +314,7 @@ describe('Infix expression', () => {
 		const res = await exe(`
 			<: 1 + match 2 == 2 {
 				true => 3
-				false  => 4
+				false => 4
 			}
 		`);
 		eq(res, NUM(4));
@@ -2795,6 +2795,17 @@ describe('std', () => {
 			<: "".codepoint_at(0)
 			`);
 			eq(res, NULL);
+		});
+	});
+
+	describe('Error', () => {
+		test.concurrent('new', async () => {
+			eq(
+				await exe(`
+				<: Error:new('ai', {chan: 'kawaii'})
+				`),
+				ERROR('ai', OBJ(new Map([['chan', STR('kawaii')]])))
+			);
 		});
 	});
 

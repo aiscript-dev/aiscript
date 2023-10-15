@@ -523,6 +523,13 @@ export const std: Record<string, Value> = {
 		return OBJ(new Map([...a.value, ...b.value]));
 	}),
 	//#endregion
+	
+	//#region Error
+	'Error:new': FN_NATIVE(([name, info]) => {
+		assertString(name);
+		return ERROR(name.value, info);
+	}),
+	//#endregion
 
 	//#region Async
 	'Async:interval': FN_NATIVE(async ([interval, callback, immediate], opts) => {
