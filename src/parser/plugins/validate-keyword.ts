@@ -1,6 +1,6 @@
 import { AiScriptSyntaxError } from '../../error.js';
 import { visitNode } from '../visit.js';
-import type * as Cst from '../node.js';
+import type * as Ast from '../../node.js';
 
 const reservedWord = [
 	'null',
@@ -46,13 +46,12 @@ function throwReservedWordError(name: string): void {
 	throw new AiScriptSyntaxError(`Reserved word "${name}" cannot be used as variable name.`);
 }
 
-function validateNode(node: Cst.Node): Cst.Node {
+function validateNode(node: Ast.Node): Ast.Node {
 	switch (node.type) {
 		case 'def':
 		case 'attr':
 		case 'ns':
-		case 'identifier':
-		case 'propChain': {
+		case 'identifier': {
 			if (reservedWord.includes(node.name)) {
 				throwReservedWordError(node.name);
 			}
@@ -77,7 +76,7 @@ function validateNode(node: Cst.Node): Cst.Node {
 	return node;
 }
 
-export function validateKeyword(nodes: Cst.Node[]): Cst.Node[] {
+export function validateKeyword(nodes: Ast.Node[]): Ast.Node[] {
 	for (const inner of nodes) {
 		visitNode(inner, validateNode);
 	}

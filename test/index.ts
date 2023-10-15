@@ -16,9 +16,13 @@ const exe = (program: string): Promise<any> => new Promise((ok, err) => {
 		maxStep: 9999,
 	});
 
-	const parser = new Parser();
-	const ast = parser.parse(program);
-	aiscript.exec(ast).catch(err);
+	try {
+		const parser = new Parser();
+		const ast = parser.parse(program);
+		aiscript.exec(ast).catch(err);
+	} catch (e) {
+		err(e);
+	}
 });
 
 const getMeta = (program: string) => {
@@ -299,8 +303,8 @@ describe('Infix expression', () => {
 	test.concurrent('syntax symbols vs infix operators', async () => {
 		const res = await exe(`
 		<: match true {
-			1 == 1 => "true"
-			1 < 1 => "false"
+			case 1 == 1 => "true"
+			case 1 < 1 => "false"
 		}
 		`);
 		eq(res, STR('true'));
@@ -313,8 +317,8 @@ describe('Infix expression', () => {
 	test.concurrent('number + match expression', async () => {
 		const res = await exe(`
 			<: 1 + match 2 == 2 {
-				true => 3
-				false => 4
+				case true => 3
+				case false => 4
 			}
 		`);
 		eq(res, NUM(4));
@@ -467,6 +471,20 @@ describe('Cannot put multiple statements in a line', () => {
 		try {
 			await exe(`
 			let a = 13 + 75 let b = 24 + 146
+			`);
+		} catch (e) {
+			assert.ok(true);
+			return;
+		}
+		assert.fail();
+	});
+
+	test.concurrent('var def in block', async () => {
+		try {
+			await exe(`
+			eval {
+				let a = 42 let b = 11
+			}
 			`);
 		} catch (e) {
 			assert.ok(true);
@@ -1494,9 +1512,9 @@ describe('match', () => {
 	test.concurrent('Basic', async () => {
 		const res = await exe(`
 		<: match 2 {
-			1 => "a"
-			2 => "b"
-			3 => "c"
+			case 1 => "a"
+			case 2 => "b"
+			case 3 => "c"
 		}
 		`);
 		eq(res, STR('b'));
@@ -1505,9 +1523,9 @@ describe('match', () => {
 	test.concurrent('When default not provided, returns null', async () => {
 		const res = await exe(`
 		<: match 42 {
-			1 => "a"
-			2 => "b"
-			3 => "c"
+			case 1 => "a"
+			case 2 => "b"
+			case 3 => "c"
 		}
 		`);
 		eq(res, NULL);
@@ -1516,10 +1534,10 @@ describe('match', () => {
 	test.concurrent('With default', async () => {
 		const res = await exe(`
 		<: match 42 {
-			1 => "a"
-			2 => "b"
-			3 => "c"
-			* => "d"
+			case 1 => "a"
+			case 2 => "b"
+			case 3 => "c"
+			default => "d"
 		}
 		`);
 		eq(res, STR('d'));
@@ -1528,13 +1546,13 @@ describe('match', () => {
 	test.concurrent('With block', async () => {
 		const res = await exe(`
 		<: match 2 {
-			1 => 1
-			2 => {
+			case 1 => 1
+			case 2 => {
 				let a = 1
 				let b = 2
 				(a + b)
 			}
-			3 => 3
+			case 3 => 3
 		}
 		`);
 		eq(res, NUM(3));
@@ -1544,7 +1562,7 @@ describe('match', () => {
 		const res = await exe(`
 		@f(x) {
 			match x {
-				1 => {
+				case 1 => {
 					return "ai"
 				}
 			}
@@ -2266,12 +2284,12 @@ describe('Location', () => {
 		let node: Ast.Node;
 		const parser = new Parser();
 		const nodes = parser.parse(`
-		@f(a) { a }
+			@f(a) { a }
 		`);
 		assert.equal(nodes.length, 1);
 		node = nodes[0];
 		if (!node.loc) assert.fail();
-		assert.deepEqual(node.loc, { start: 3, end: 13 });
+		assert.deepEqual(node.loc, { line: 2, column: 4 });
 	});
 });
 
