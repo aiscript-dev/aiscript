@@ -133,7 +133,7 @@ _codepoint_ は 0 以上、10FFFF<sub>16</sub> 以下である必要がありま
 オブジェクトのコピーを生成します。  
 
 ## :: Error
-### @Error:new(_name_: str, _info_?: value): error
+### @Error:create(_name_: str, _info_?: value): error
 エラー型の値を作成します。
 
 ## :: Async
