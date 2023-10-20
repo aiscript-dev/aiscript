@@ -36,14 +36,18 @@ class AiScriptRuntimeError extends AiScriptError {
 
 // @public
 class AiScriptSyntaxError extends AiScriptError {
-    constructor(message: string, info?: any);
+    constructor(message: string, loc: Loc, info?: any);
+    // (undocumented)
+    loc: Loc;
     // (undocumented)
     name: string;
 }
 
 // @public
 class AiScriptTypeError extends AiScriptError {
-    constructor(message: string, info?: any);
+    constructor(message: string, loc: Loc, info?: any);
+    // (undocumented)
+    loc: Loc;
     // (undocumented)
     name: string;
 }
