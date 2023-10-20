@@ -78,13 +78,13 @@ function validateNode(node: Ast.Node): Ast.Node {
 		}
 		case 'each': {
 			if (reservedWord.includes(node.var)) {
-				throwReservedWordError(node.var);
+				throwReservedWordError(node.var, node.loc);
 			}
 			break;
 		}
 		case 'for': {
 			if (node.var != null && reservedWord.includes(node.var)) {
-				throwReservedWordError(node.var);
+				throwReservedWordError(node.var, node.loc);
 			}
 			break;
 		}
@@ -99,7 +99,7 @@ function validateNode(node: Ast.Node): Ast.Node {
 		case 'obj': {
 			for (const name of node.value.keys()) {
 				if (reservedWord.includes(name)) {
-					throwReservedWordError(name);
+					throwReservedWordError(name, node.loc);
 				}
 			}
 			break;
