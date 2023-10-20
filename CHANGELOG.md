@@ -1,4 +1,6 @@
 [Read translated version (en)](./translations/en/CHANGELOG.md)
+
+- `Obj:merge`で２つのオブジェクトの併合を得られるように
 ## Note
 バージョン0.16.0に記録漏れがありました。
 >- 関数`Str:from_codepoint` `Str#codepoint_at`を追加
