@@ -70,7 +70,7 @@ function parsePrefix(s: ITokenStream, minBp: number): Ast.Node {
 			if (expr.type === 'num') {
 				return NODE('num', { value: expr.value }, loc);
 			} else {
-				throw new AiScriptSyntaxError('currently, sign is only supported for number literal.');
+				throw new AiScriptSyntaxError('currently, sign is only supported for number literal.', loc);
 			}
 			// TODO: 将来的にサポートされる式を拡張
 			// return NODE('plus', { expr }, loc);
@@ -80,7 +80,7 @@ function parsePrefix(s: ITokenStream, minBp: number): Ast.Node {
 			if (expr.type === 'num') {
 				return NODE('num', { value: -1 * expr.value }, loc);
 			} else {
-				throw new AiScriptSyntaxError('currently, sign is only supported for number literal.');
+				throw new AiScriptSyntaxError('currently, sign is only supported for number literal.', loc);
 			}
 			// TODO: 将来的にサポートされる式を拡張
 			// return NODE('minus', { expr }, loc);
@@ -89,7 +89,7 @@ function parsePrefix(s: ITokenStream, minBp: number): Ast.Node {
 			return NODE('not', { expr }, loc);
 		}
 		default: {
-			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[op]}`);
+			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[op]}`, loc);
 		}
 	}
 }
@@ -161,7 +161,7 @@ function parseInfix(s: ITokenStream, left: Ast.Node, minBp: number): Ast.Node {
 				return NODE('or', { left, right }, loc);
 			}
 			default: {
-				throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[op]}`);
+				throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[op]}`, loc);
 			}
 		}
 	}
@@ -186,7 +186,7 @@ function parsePostfix(s: ITokenStream, expr: Ast.Node): Ast.Node {
 			}, loc);
 		}
 		default: {
-			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[op]}`);
+			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[op]}`, loc);
 		}
 	}
 }
@@ -231,13 +231,13 @@ function parseAtom(s: ITokenStream, isStatic: boolean): Ast.Node {
 						const exprStream = new TokenStream(element.children!);
 						const expr = parseExpr(exprStream, false);
 						if (exprStream.kind !== TokenKind.EOF) {
-							throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[exprStream.token.kind]}`);
+							throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[exprStream.token.kind]}`, exprStream.token.loc);
 						}
 						values.push(expr);
 						break;
 					}
 					default: {
-						throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[element.kind]}`);
+						throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[element.kind]}`, element.loc);
 					}
 				}
 			}
@@ -283,7 +283,7 @@ function parseAtom(s: ITokenStream, isStatic: boolean): Ast.Node {
 			return expr;
 		}
 	}
-	throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[s.kind]}`);
+	throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[s.kind]}`, loc);
 }
 
 /**
@@ -301,7 +301,7 @@ function parseCall(s: ITokenStream, target: Ast.Node): Ast.Node {
 			if (s.kind === TokenKind.Comma) {
 				s.next();
 			} else if (!s.token.hasLeftSpacing) {
-				throw new AiScriptSyntaxError('separator expected');
+				throw new AiScriptSyntaxError('separator expected', s.token.loc);
 			}
 		}
 
@@ -451,11 +451,11 @@ function parseReference(s: ITokenStream): Ast.Node {
 		if (segs.length > 0) {
 			if (s.kind === TokenKind.Colon) {
 				if (s.token.hasLeftSpacing) {
-					throw new AiScriptSyntaxError('Cannot use spaces in a reference.');
+					throw new AiScriptSyntaxError('Cannot use spaces in a reference.', s.token.loc);
 				}
 				s.next();
 				if (s.token.hasLeftSpacing) {
-					throw new AiScriptSyntaxError('Cannot use spaces in a reference.');
+					throw new AiScriptSyntaxError('Cannot use spaces in a reference.', s.token.loc);
 				}
 			} else {
 				break;
@@ -505,7 +505,7 @@ function parseObject(s: ITokenStream, isStatic: boolean): Ast.Node {
 			// noop
 		} else {
 			if (!s.token.hasLeftSpacing) {
-				throw new AiScriptSyntaxError('separator expected');
+				throw new AiScriptSyntaxError('separator expected', s.token.loc);
 			}
 		}
 
@@ -546,7 +546,7 @@ function parseArray(s: ITokenStream, isStatic: boolean): Ast.Node {
 			// noop
 		} else {
 			if (!s.token.hasLeftSpacing) {
-				throw new AiScriptSyntaxError('separator expected');
+				throw new AiScriptSyntaxError('separator expected', s.token.loc);
 			}
 		}
 

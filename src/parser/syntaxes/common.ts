@@ -22,7 +22,7 @@ export function parseParams(s: ITokenStream): { name: string, argType?: Ast.Node
 			if (s.kind === TokenKind.Comma) {
 				s.next();
 			} else if (!s.token.hasLeftSpacing) {
-				throw new AiScriptSyntaxError('separator expected');
+				throw new AiScriptSyntaxError('separator expected', s.token.loc);
 			}
 		}
 
@@ -61,7 +61,7 @@ export function parseBlock(s: ITokenStream): Ast.Node[] {
 		steps.push(parseStatement(s));
 
 		if ((s.kind as TokenKind) !== TokenKind.NewLine && (s.kind as TokenKind) !== TokenKind.CloseBrace) {
-			throw new AiScriptSyntaxError('Multiple statements cannot be placed on a single line.');
+			throw new AiScriptSyntaxError('Multiple statements cannot be placed on a single line.', s.token.loc);
 		}
 		while ((s.kind as TokenKind) === TokenKind.NewLine) {
 			s.next();
@@ -101,7 +101,7 @@ function parseFnType(s: ITokenStream): Ast.Node {
 			if (s.kind === TokenKind.Comma) {
 				s.next();
 			} else if (!s.token.hasLeftSpacing) {
-				throw new AiScriptSyntaxError('separator expected');
+				throw new AiScriptSyntaxError('separator expected', s.token.loc);
 			}
 		}
 		const type = parseType(s);

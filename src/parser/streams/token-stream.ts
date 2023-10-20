@@ -101,7 +101,7 @@ export class TokenStream implements ITokenStream {
 	*/
 	public expect(kind: TokenKind): void {
 		if (this.kind !== kind) {
-			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[this.kind]}`);
+			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[this.kind]}`, this.token.loc);
 		}
 	}
 
