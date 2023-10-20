@@ -8,7 +8,7 @@
 
 > **AiScript** is a scripting language that runs on JavaScript. Not altJS.
 
-[Play online ▶](https://syuilo.github.io/aiscript/)
+[Play online ▶](https://aiscript-dev.github.io/aiscript/)
 
 AiScript is a multi-paradigm programming language that runs on JavaScript, not AltJS (1).
 
