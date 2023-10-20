@@ -36,7 +36,7 @@ export function parseTopLevel(s: ITokenStream): Ast.Node[] {
 		}
 
 		if ((s.kind as TokenKind) !== TokenKind.NewLine && (s.kind as TokenKind) !== TokenKind.EOF) {
-			throw new AiScriptSyntaxError('Multiple statements cannot be placed on a single line.');
+			throw new AiScriptSyntaxError('Multiple statements cannot be placed on a single line.', s.token.loc);
 		}
 		while ((s.kind as TokenKind) === TokenKind.NewLine) {
 			s.next();
@@ -82,7 +82,7 @@ export function parseNamespace(s: ITokenStream): Ast.Node {
 		}
 
 		if ((s.kind as TokenKind) !== TokenKind.NewLine && (s.kind as TokenKind) !== TokenKind.CloseBrace) {
-			throw new AiScriptSyntaxError('Multiple statements cannot be placed on a single line.');
+			throw new AiScriptSyntaxError('Multiple statements cannot be placed on a single line.', s.token.loc);
 		}
 		while ((s.kind as TokenKind) === TokenKind.NewLine) {
 			s.next();

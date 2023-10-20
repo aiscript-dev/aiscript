@@ -32,8 +32,8 @@ export class NonAiScriptError extends AiScriptError {
  */
 export class AiScriptSyntaxError extends AiScriptError {
 	public name = 'Syntax';
-	constructor(message: string, info?: any) {
-		super(message, info);
+	constructor(message: string, public loc: Loc, info?: any) {
+		super(`${message} (Line ${loc.line}, Column ${loc.column})`, info);
 	}
 }
 /**
@@ -41,8 +41,8 @@ export class AiScriptSyntaxError extends AiScriptError {
  */ 
 export class AiScriptTypeError extends AiScriptError {
 	public name = 'Type';
-	constructor(message: string, info?: any) {
-		super(message, info);
+	constructor(message: string, public loc: Loc, info?: any) {
+		super(`${message} (Line ${loc.line}, Column ${loc.column})`, info);
 	}
 }
 

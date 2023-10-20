@@ -72,7 +72,7 @@ export function parseDefStatement(s: ITokenStream): Ast.Node {
 			return parseFnDef(s);
 		}
 		default: {
-			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[s.kind]}`);
+			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[s.kind]}`, s.token.loc);
 		}
 	}
 }
@@ -112,7 +112,7 @@ function parseVarDef(s: ITokenStream): Ast.Node {
 			break;
 		}
 		default: {
-			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[s.kind]}`);
+			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[s.kind]}`, s.token.loc);
 		}
 	}
 	s.next();
@@ -213,7 +213,7 @@ function parseEach(s: ITokenStream): Ast.Node {
 	if (s.kind === TokenKind.Comma) {
 		s.next();
 	} else if (!s.token.hasLeftSpacing) {
-		throw new AiScriptSyntaxError('separator expected');
+		throw new AiScriptSyntaxError('separator expected', s.token.loc);
 	}
 
 	const items = parseExpr(s, false);
@@ -263,7 +263,7 @@ function parseFor(s: ITokenStream): Ast.Node {
 		if ((s.kind as TokenKind) === TokenKind.Comma) {
 			s.next();
 		} else if (!s.token.hasLeftSpacing) {
-			throw new AiScriptSyntaxError('separator expected');
+			throw new AiScriptSyntaxError('separator expected', s.token.loc);
 		}
 
 		const to = parseExpr(s, false);
@@ -326,7 +326,7 @@ function parseStatementWithAttr(s: ITokenStream): Ast.Node {
 	const statement = parseStatement(s);
 
 	if (statement.type !== 'def') {
-		throw new AiScriptSyntaxError('invalid attribute.');
+		throw new AiScriptSyntaxError('invalid attribute.', statement.loc);
 	}
 	if (statement.attr != null) {
 		statement.attr.push(...attrs);
