@@ -19,6 +19,8 @@ abstract class AiScriptError extends Error {
     // (undocumented)
     info?: any;
     // (undocumented)
+    loc?: Loc;
+    // (undocumented)
     name: string;
 }
 
