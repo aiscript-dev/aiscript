@@ -244,7 +244,13 @@ export class Interpreter {
 	@autobind
 	private _eval(node: Ast.Node, scope: Scope): Promise<Value> {
 		return this.__eval(node, scope).catch(e => {
-			throw e.loc ? e : (e.loc = node.loc, e.message = `${e.message} (Line ${node.loc.line}, Column ${node.loc.column})`, e);
+			if (e.loc) throw e;
+			else {
+				const e2 = (e instanceof AiScriptError) ? e : new NonAiScriptError(e);
+				e2.loc = node.loc;
+				e2.message = `${e2.message} (Line ${node.loc.line}, Column ${node.loc.column})`;
+				throw e2;
+			}
 		});
 	}
 

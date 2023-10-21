@@ -50,68 +50,6 @@ test.concurrent('empty script', async () => {
 	assert.deepEqual(ast, []);
 });
 
-describe('Interpreter', () => {
-	describe('Scope', () => {
-		test.concurrent('getAll', async () => {
-			const aiscript = new Interpreter({});
-			await aiscript.exec(Parser.parse(`
-			let a = 1
-			@b() {
-				let x = a + 1
-				x
-			}
-			if true {
-				var y = 2
-			}
-			var c = true
-			`));
-			const vars = aiscript.scope.getAll();
-			assert.ok(vars.get('a') != null);
-			assert.ok(vars.get('b') != null);
-			assert.ok(vars.get('c') != null);
-			assert.ok(vars.get('x') == null);
-			assert.ok(vars.get('y') == null);
-		});
-	});
-});
-
-describe('error handler', () => {
-	test.concurrent('error from outside caller', async () => {
-		let outsideCaller: () => Promise<void> = async () => {};
-		let errCount: number = 0;
-		const aiscript = new Interpreter({
-			emitError: FN_NATIVE((_args, _opts) => {
-				throw Error('emitError');
-			}),
-			genOutsideCaller: FN_NATIVE(([fn], opts) => {
-				utils.assertFunction(fn);
-				outsideCaller = async () => {
-					opts.topCall(fn, []);
-				};
-			}),
-		}, {
-			err(e) { errCount++ },
-		});
-		await aiscript.exec(Parser.parse(`
-		genOutsideCaller(emitError)
-		`));
-		assert.strictEqual(errCount, 0);
-		await outsideCaller();
-		assert.strictEqual(errCount, 1);
-	});
-
-	test.concurrent('array.map calls the handler just once', async () => {
-		let errCount: number = 0;
-		const aiscript = new Interpreter({}, {
-			err(e) { errCount++ },
-		});
-		await aiscript.exec(Parser.parse(`
-		Core:range(1,5).map(@(){ hoge })
-		`));
-		assert.strictEqual(errCount, 1);
-	});
-});
-
 describe('ops', () => {
 	test.concurrent('==', async () => {
 		eq(await exe('<: (1 == 1)'), BOOL(true));

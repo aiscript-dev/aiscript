@@ -4,6 +4,7 @@ export abstract class AiScriptError extends Error {
 	// name is read by Error.prototype.toString
 	public name = 'AiScript';
 	public info?: any;
+	public loc?: Loc;
 
 	constructor(message: string, info?: any) {
 		super(message);
