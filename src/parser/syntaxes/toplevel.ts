@@ -35,11 +35,21 @@ export function parseTopLevel(s: ITokenStream): Ast.Node[] {
 			}
 		}
 
-		if ((s.kind as TokenKind) !== TokenKind.NewLine && (s.kind as TokenKind) !== TokenKind.EOF) {
-			throw new AiScriptSyntaxError('Multiple statements cannot be placed on a single line.', s.token.loc);
-		}
-		while ((s.kind as TokenKind) === TokenKind.NewLine) {
-			s.next();
+		// terminator
+		switch (s.kind as TokenKind) {
+			case TokenKind.NewLine:
+			case TokenKind.SemiColon: {
+				while ([TokenKind.NewLine, TokenKind.SemiColon].includes(s.kind)) {
+					s.next();
+				}
+				break;
+			}
+			case TokenKind.EOF: {
+				break;
+			}
+			default: {
+				throw new AiScriptSyntaxError('Multiple statements cannot be placed on a single line.', s.token.loc);
+			}
 		}
 	}
 
@@ -81,11 +91,21 @@ export function parseNamespace(s: ITokenStream): Ast.Node {
 			}
 		}
 
-		if ((s.kind as TokenKind) !== TokenKind.NewLine && (s.kind as TokenKind) !== TokenKind.CloseBrace) {
-			throw new AiScriptSyntaxError('Multiple statements cannot be placed on a single line.', s.token.loc);
-		}
-		while ((s.kind as TokenKind) === TokenKind.NewLine) {
-			s.next();
+		// terminator
+		switch (s.kind as TokenKind) {
+			case TokenKind.NewLine:
+			case TokenKind.SemiColon: {
+				while ([TokenKind.NewLine, TokenKind.SemiColon].includes(s.kind)) {
+					s.next();
+				}
+				break;
+			}
+			case TokenKind.CloseBrace: {
+				break;
+			}
+			default: {
+				throw new AiScriptSyntaxError('Multiple statements cannot be placed on a single line.', s.token.loc);
+			}
 		}
 	}
 	s.nextWith(TokenKind.CloseBrace);

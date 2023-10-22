@@ -494,6 +494,96 @@ describe('Cannot put multiple statements in a line', () => {
 	});
 });
 
+describe('terminators', () => {
+	describe('top-level', () => {
+		test.concurrent('newline', async () => {
+			const res = await exe(`
+			:: A {
+				let x = 1
+			}
+			:: B {
+				let x = 2
+			}
+			<: A:x
+			`);
+			eq(res, NUM(1));
+		});
+
+		test.concurrent('semi colon', async () => {
+			const res = await exe(`
+			::A{let x = 1};::B{let x = 2}
+			<: A:x
+			`);
+			eq(res, NUM(1));
+		});
+
+		test.concurrent('semi colon of the tail', async () => {
+			const res = await exe(`
+			::A{let x = 1};
+			<: A:x
+			`);
+			eq(res, NUM(1));
+		});
+	});
+
+	describe('block', () => {
+		test.concurrent('newline', async () => {
+			const res = await exe(`
+			eval {
+				let x = 1
+				let y = 2
+				<: x + y
+			}
+			`);
+			eq(res, NUM(3));
+		});
+
+		test.concurrent('semi colon', async () => {
+			const res = await exe(`
+			eval{let x=1;let y=2;<:x+y}
+			`);
+			eq(res, NUM(3));
+		});
+
+		test.concurrent('semi colon of the tail', async () => {
+			const res = await exe(`
+			eval{let x=1;<:x;}
+			`);
+			eq(res, NUM(1));
+		});
+	});
+
+
+	describe('namespace', () => {
+		test.concurrent('newline', async () => {
+			const res = await exe(`
+			:: A {
+				let x = 1
+				let y = 2
+			}
+			<: A:x + A:y
+			`);
+			eq(res, NUM(3));
+		});
+
+		test.concurrent('semi colon', async () => {
+			const res = await exe(`
+			::A{let x=1;let y=2}
+			<: A:x + A:y
+			`);
+			eq(res, NUM(3));
+		});
+
+		test.concurrent('semi colon of the tail', async () => {
+			const res = await exe(`
+			::A{let x=1;}
+			<: A:x
+			`);
+			eq(res, NUM(1));
+		});
+	});
+});
+
 test.concurrent('empty function', async () => {
 	const res = await exe(`
 	@hoge() { }
