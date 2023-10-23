@@ -212,7 +212,7 @@ function parseEach(s: ITokenStream): Ast.Node {
 
 	if (s.kind === TokenKind.Comma) {
 		s.next();
-	} else if (!s.token.hasLeftSpacing) {
+	} else {
 		throw new AiScriptSyntaxError('separator expected', s.token.loc);
 	}
 
@@ -262,7 +262,7 @@ function parseFor(s: ITokenStream): Ast.Node {
 
 		if ((s.kind as TokenKind) === TokenKind.Comma) {
 			s.next();
-		} else if (!s.token.hasLeftSpacing) {
+		} else {
 			throw new AiScriptSyntaxError('separator expected', s.token.loc);
 		}
 

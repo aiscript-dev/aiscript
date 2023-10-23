@@ -287,7 +287,7 @@ function parseAtom(s: ITokenStream, isStatic: boolean): Ast.Node {
 }
 
 /**
- * Call = "(" [Expr *(("," / SPACE) Expr)] ")"
+ * Call = "(" [Expr *(SEP Expr) [SEP]] ")"
 */
 function parseCall(s: ITokenStream, target: Ast.Node): Ast.Node {
 	const loc = s.token.loc;
@@ -295,17 +295,33 @@ function parseCall(s: ITokenStream, target: Ast.Node): Ast.Node {
 
 	s.nextWith(TokenKind.OpenParen);
 
+	if (s.kind === TokenKind.NewLine) {
+		s.next();
+	}
+
 	while (s.kind !== TokenKind.CloseParen) {
+		items.push(parseExpr(s, false));
+
 		// separator
-		if (items.length > 0) {
-			if (s.kind === TokenKind.Comma) {
+		switch (s.kind as TokenKind) {
+			case TokenKind.NewLine: {
 				s.next();
-			} else if (!s.token.hasLeftSpacing) {
+				break;
+			}
+			case TokenKind.Comma: {
+				s.next();
+				if (s.kind === TokenKind.NewLine) {
+					s.next();
+				}
+				break;
+			}
+			case TokenKind.CloseParen: {
+				break;
+			}
+			default: {
 				throw new AiScriptSyntaxError('separator expected', s.token.loc);
 			}
 		}
-
-		items.push(parseExpr(s, false));
 	}
 
 	s.nextWith(TokenKind.CloseParen);
@@ -377,7 +393,8 @@ function parseFnExpr(s: ITokenStream): Ast.Node {
 
 /**
  * ```abnf
- * Match = "match" Expr "{" *("case" Expr "=>" BlockOrStatement) ["default" "=>" BlockOrStatement] "}"
+ * Match = "match" Expr "{" [MatchCases] ["default" "=>" BlockOrStatement [SEP]] "}"
+ * MatchCases = "case" Expr "=>" BlockOrStatement *(SEP "case" Expr "=>" BlockOrStatement) [SEP]
  * ```
 */
 function parseMatch(s: ITokenStream): Ast.Node {
@@ -387,7 +404,10 @@ function parseMatch(s: ITokenStream): Ast.Node {
 	const about = parseExpr(s, false);
 
 	s.nextWith(TokenKind.OpenBrace);
-	s.nextWith(TokenKind.NewLine);
+
+	if (s.kind === TokenKind.NewLine) {
+		s.next();
+	}
 
 	const qs: { q: Ast.Node, a: Ast.Node }[] = [];
 	while (s.kind !== TokenKind.DefaultKeyword && s.kind !== TokenKind.CloseBrace) {
@@ -395,8 +415,29 @@ function parseMatch(s: ITokenStream): Ast.Node {
 		const q = parseExpr(s, false);
 		s.nextWith(TokenKind.Arrow);
 		const a = parseBlockOrStatement(s);
-		s.nextWith(TokenKind.NewLine);
 		qs.push({ q, a });
+
+		// separator
+		switch (s.kind as TokenKind) {
+			case TokenKind.NewLine: {
+				s.next();
+				break;
+			}
+			case TokenKind.Comma: {
+				s.next();
+				if (s.kind === TokenKind.NewLine) {
+					s.next();
+				}
+				break;
+			}
+			case TokenKind.DefaultKeyword:
+			case TokenKind.CloseBrace: {
+				break;
+			}
+			default: {
+				throw new AiScriptSyntaxError('separator expected', s.token.loc);
+			}
+		}
 	}
 
 	let x;
@@ -404,7 +445,27 @@ function parseMatch(s: ITokenStream): Ast.Node {
 		s.next();
 		s.nextWith(TokenKind.Arrow);
 		x = parseBlockOrStatement(s);
-		s.nextWith(TokenKind.NewLine);
+
+		// separator
+		switch (s.kind as TokenKind) {
+			case TokenKind.NewLine: {
+				s.next();
+				break;
+			}
+			case TokenKind.Comma: {
+				s.next();
+				if ((s.kind as TokenKind) === TokenKind.NewLine) {
+					s.next();
+				}
+				break;
+			}
+			case TokenKind.CloseBrace: {
+				break;
+			}
+			default: {
+				throw new AiScriptSyntaxError('separator expected', s.token.loc);
+			}
+		}
 	}
 
 	s.nextWith(TokenKind.CloseBrace);
@@ -470,7 +531,7 @@ function parseReference(s: ITokenStream): Ast.Node {
 
 /**
  * ```abnf
- * Object = "{" [IDENT ":" Expr *(("," / ";" / SPACE) IDENT ":" Expr) ["," / ";"]] "}"
+ * Object = "{" [IDENT ":" Expr *(SEP IDENT ":" Expr) [SEP]] "}"
  * ```
 */
 function parseObject(s: ITokenStream, isStatic: boolean): Ast.Node {
@@ -495,22 +556,24 @@ function parseObject(s: ITokenStream, isStatic: boolean): Ast.Node {
 		map.set(k, v);
 
 		// separator
-		if ((s.kind as TokenKind) === TokenKind.CloseBrace) {
-			break;
-		} else if (s.kind === TokenKind.Comma) {
-			s.next();
-		} else if (s.kind === TokenKind.SemiColon) {
-			s.next();
-		} else if (s.kind === TokenKind.NewLine) {
-			// noop
-		} else {
-			if (!s.token.hasLeftSpacing) {
+		switch (s.kind as TokenKind) {
+			case TokenKind.NewLine: {
+				s.next();
+				break;
+			}
+			case TokenKind.Comma: {
+				s.next();
+				if (s.kind === TokenKind.NewLine) {
+					s.next();
+				}
+				break;
+			}
+			case TokenKind.CloseBrace: {
+				break;
+			}
+			default: {
 				throw new AiScriptSyntaxError('separator expected', s.token.loc);
 			}
-		}
-
-		if (s.kind === TokenKind.NewLine) {
-			s.next();
 		}
 	}
 
@@ -521,7 +584,7 @@ function parseObject(s: ITokenStream, isStatic: boolean): Ast.Node {
 
 /**
  * ```abnf
- * Array = "[" [Expr *(("," / SPACE) Expr) [","]] "]"
+ * Array = "[" [Expr *(SEP Expr) [SEP]] "]"
  * ```
 */
 function parseArray(s: ITokenStream, isStatic: boolean): Ast.Node {
@@ -538,20 +601,24 @@ function parseArray(s: ITokenStream, isStatic: boolean): Ast.Node {
 		value.push(parseExpr(s, isStatic));
 
 		// separator
-		if ((s.kind as TokenKind) === TokenKind.CloseBracket) {
-			break;
-		} else if (s.kind === TokenKind.Comma) {
-			s.next();
-		} else if (s.kind === TokenKind.NewLine) {
-			// noop
-		} else {
-			if (!s.token.hasLeftSpacing) {
+		switch (s.kind as TokenKind) {
+			case TokenKind.NewLine: {
+				s.next();
+				break;
+			}
+			case TokenKind.Comma: {
+				s.next();
+				if (s.kind === TokenKind.NewLine) {
+					s.next();
+				}
+				break;
+			}
+			case TokenKind.CloseBracket: {
+				break;
+			}
+			default: {
 				throw new AiScriptSyntaxError('separator expected', s.token.loc);
 			}
-		}
-
-		if (s.kind === TokenKind.NewLine) {
-			s.next();
 		}
 	}
 

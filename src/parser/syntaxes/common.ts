@@ -8,7 +8,7 @@ import type * as Ast from '../../node.js';
 
 /**
  * ```abnf
- * Params = "(" [IDENT *(("," / SPACE) IDENT)] ")"
+ * Params = "(" [IDENT [":" Type] *(SEP IDENT [":" Type])] ")"
  * ```
 */
 export function parseParams(s: ITokenStream): { name: string, argType?: Ast.Node }[] {
@@ -16,16 +16,11 @@ export function parseParams(s: ITokenStream): { name: string, argType?: Ast.Node
 
 	s.nextWith(TokenKind.OpenParen);
 
-	while (s.kind !== TokenKind.CloseParen) {
-		// separator
-		if (items.length > 0) {
-			if (s.kind === TokenKind.Comma) {
-				s.next();
-			} else if (!s.token.hasLeftSpacing) {
-				throw new AiScriptSyntaxError('separator expected', s.token.loc);
-			}
-		}
+	if (s.kind === TokenKind.NewLine) {
+		s.next();
+	}
 
+	while (s.kind !== TokenKind.CloseParen) {
 		s.expect(TokenKind.Identifier);
 		const name = s.token.value!;
 		s.next();
@@ -37,6 +32,27 @@ export function parseParams(s: ITokenStream): { name: string, argType?: Ast.Node
 		}
 
 		items.push({ name, argType: type });
+
+		// separator
+		switch (s.kind as TokenKind) {
+			case TokenKind.NewLine: {
+				s.next();
+				break;
+			}
+			case TokenKind.Comma: {
+				s.next();
+				if (s.kind === TokenKind.NewLine) {
+					s.next();
+				}
+				break;
+			}
+			case TokenKind.CloseParen: {
+				break;
+			}
+			default: {
+				throw new AiScriptSyntaxError('separator expected', s.token.loc);
+			}
+		}
 	}
 
 	s.nextWith(TokenKind.CloseParen);
@@ -96,7 +112,7 @@ export function parseType(s: ITokenStream): Ast.Node {
 /**
  * ```abnf
  * FnType = "@" "(" ParamTypes ")" "=>" Type
- * ParamTypes = [Type *(("," / SPACE) Type)]
+ * ParamTypes = [Type *(SEP Type)]
  * ```
 */
 function parseFnType(s: ITokenStream): Ast.Node {
@@ -108,10 +124,14 @@ function parseFnType(s: ITokenStream): Ast.Node {
 	const params: Ast.Node[] = [];
 	while (s.kind !== TokenKind.CloseParen) {
 		if (params.length > 0) {
-			if (s.kind === TokenKind.Comma) {
-				s.next();
-			} else if (!s.token.hasLeftSpacing) {
-				throw new AiScriptSyntaxError('separator expected', s.token.loc);
+			switch (s.kind as TokenKind) {
+				case TokenKind.Comma: {
+					s.next();
+					break;
+				}
+				default: {
+					throw new AiScriptSyntaxError('separator expected', s.token.loc);
+				}
 			}
 		}
 		const type = parseType(s);
