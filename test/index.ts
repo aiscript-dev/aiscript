@@ -494,7 +494,7 @@ describe('Cannot put multiple statements in a line', () => {
 	});
 });
 
-describe('terminators', () => {
+describe('terminator', () => {
 	describe('top-level', () => {
 		test.concurrent('newline', async () => {
 			const res = await exe(`
@@ -553,7 +553,6 @@ describe('terminators', () => {
 		});
 	});
 
-
 	describe('namespace', () => {
 		test.concurrent('newline', async () => {
 			const res = await exe(`
@@ -580,6 +579,266 @@ describe('terminators', () => {
 			<: A:x
 			`);
 			eq(res, NUM(1));
+		});
+	});
+});
+
+describe('separator', () => {
+	describe('match', () => {
+		test.concurrent('multi line', async () => {
+			const res = await exe(`
+			let x = 1
+			<: match x {
+				case 1 => "a"
+				case 2 => "b"
+			}
+			`);
+			eq(res, STR('a'));
+		});
+
+		test.concurrent('multi line with semi colon', async () => {
+			const res = await exe(`
+			let x = 1
+			<: match x {
+				case 1 => "a",
+				case 2 => "b"
+			}
+			`);
+			eq(res, STR('a'));
+		});
+
+		test.concurrent('single line', async () => {
+			const res = await exe(`
+			let x = 1
+			<:match x{case 1=>"a",case 2=>"b"}
+			`);
+			eq(res, STR('a'));
+		});
+
+		test.concurrent('single line with tail semi colon', async () => {
+			const res = await exe(`
+			let x = 1
+			<: match x{case 1=>"a",case 2=>"b",}
+			`);
+			eq(res, STR('a'));
+		});
+
+		test.concurrent('multi line (default)', async () => {
+			const res = await exe(`
+			let x = 3
+			<: match x {
+				case 1 => "a"
+				case 2 => "b"
+				default => "c"
+			}
+			`);
+			eq(res, STR('a'));
+		});
+
+		test.concurrent('multi line with semi colon (default)', async () => {
+			const res = await exe(`
+			let x = 3
+			<: match x {
+				case 1 => "a",
+				case 2 => "b",
+				default => "c"
+			}
+			`);
+			eq(res, STR('a'));
+		});
+
+		test.concurrent('single line (default)', async () => {
+			const res = await exe(`
+			let x = 3
+			<:match x{case 1=>"a",case 2=>"b",default=>"c"}
+			`);
+			eq(res, STR('a'));
+		});
+
+		test.concurrent('single line with tail semi colon (default)', async () => {
+			const res = await exe(`
+			let x = 3
+			<:match x{case 1=>"a",case 2=>"b",default=>"c",}
+			`);
+			eq(res, STR('a'));
+		});
+	});
+
+	describe('call', () => {
+		test.concurrent('multi line', async () => {
+			const res = await exe(`
+			@f(a, b, c) {
+				a * b + c
+			}
+			<: f(
+				2
+				3
+				1
+			)
+			`);
+			eq(res, NUM(7));
+		});
+
+		test.concurrent('multi line with comma', async () => {
+			const res = await exe(`
+			@f(a, b, c) {
+				a * b + c
+			}
+			<: f(
+				2,
+				3,
+				1
+			)
+			`);
+			eq(res, NUM(7));
+		});
+
+		test.concurrent('single line', async () => {
+			const res = await exe(`
+			@f(a, b, c) {
+				a * b + c
+			}
+			<:f(1,2,3)
+			`);
+			eq(res, NUM(7));
+		});
+
+		test.concurrent('single line with tail comma', async () => {
+			const res = await exe(`
+			@f(a, b, c) {
+				a * b + c
+			}
+			<:f(1,2,3,)
+			`);
+			eq(res, NUM(7));
+		});
+	});
+
+	describe('obj', () => {
+		test.concurrent('multi line', async () => {
+			const res = await exe(`
+			let x = {
+				a: 1
+				b: 2
+			}
+			<: x.b
+			`);
+			eq(res, NUM(2));
+		});
+
+		test.concurrent('multi line with comma', async () => {
+			const res = await exe(`
+			let x = {
+				a: 1,
+				b: 2
+			}
+			<: x.b
+			`);
+			eq(res, NUM(2));
+		});
+
+		test.concurrent('single line', async () => {
+			const res = await exe(`
+			let x={a:1,b:2}
+			<: x.b
+			`);
+			eq(res, NUM(2));
+		});
+
+		test.concurrent('single line with tail comma', async () => {
+			const res = await exe(`
+			let x={a:1,b:2,}
+			<: x.b
+			`);
+			eq(res, NUM(2));
+		});
+	});
+
+	describe('arr', () => {
+		test.concurrent('multi line', async () => {
+			const res = await exe(`
+			let x = [
+				1
+				2
+			]
+			<: x[1]
+			`);
+			eq(res, NUM(2));
+		});
+
+		test.concurrent('multi line with comma', async () => {
+			const res = await exe(`
+			let x = [
+				1,
+				2
+			]
+			<: x[1]
+			`);
+			eq(res, NUM(2));
+		});
+
+		test.concurrent('single line', async () => {
+			const res = await exe(`
+			let x=[1,2]
+			<: x[1]
+			`);
+			eq(res, NUM(2));
+		});
+
+		test.concurrent('single line with tail comma', async () => {
+			const res = await exe(`
+			let x=[1,2,]
+			<: x[1]
+			`);
+			eq(res, NUM(2));
+		});
+	});
+
+	describe('function params', () => {
+		test.concurrent('single line', async () => {
+			const res = await exe(`
+			@f(a, b) {
+				a + b
+			}
+			<: f(1, 2)
+			`);
+			eq(res, NUM(3));
+		});
+
+		test.concurrent('single line with tail comma', async () => {
+			const res = await exe(`
+			@f(a, b, ) {
+				a + b
+			}
+			<: f(1, 2)
+			`);
+			eq(res, NUM(3));
+		});
+
+		test.concurrent('multi line', async () => {
+			const res = await exe(`
+			@f(
+				a,
+				b
+			) {
+				a + b
+			}
+			<: f(1, 2)
+			`);
+			eq(res, NUM(3));
+		});
+
+		test.concurrent('multi line with tail comma', async () => {
+			const res = await exe(`
+			@f(
+				a,
+				b,
+			) {
+				a + b
+			}
+			<: f(1, 2)
+			`);
+			eq(res, NUM(3));
 		});
 	});
 });
