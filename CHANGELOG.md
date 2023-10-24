@@ -1,13 +1,12 @@
 [Read translated version (en)](./translations/en/CHANGELOG.md)
 
+# 0.17.0
+- `package.json`を修正
+- `Error:create`関数でエラー型の値を生成できるように
 - `Obj:merge`で２つのオブジェクトの併合を得られるように
 ## Note
 バージョン0.16.0に記録漏れがありました。
 >- 関数`Str:from_codepoint` `Str#codepoint_at`を追加
-
-# 0.17.0
-- `package.json`を修正
-- `Error:create`関数でエラー型の値を生成できるように
 
 # 0.16.0
 - **ネームスペースのトップレベルに`var`は定義できなくなりました。(`let`は可能)**
