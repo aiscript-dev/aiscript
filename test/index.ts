@@ -1151,6 +1151,79 @@ describe("chain", () => {
 		`);
 		eq(res, STR("kawaii"));
 	});
+
+	test.concurrent("property chain with parenthesis", async () => {
+		let ast = Parser.parse(`
+				(a.b).c
+			`);
+		const line = ast[0];
+		if (
+			line.type !== "prop" ||
+			line.target.type !== "prop" ||
+			line.target.target.type !== "identifier"
+		)
+			assert.fail();
+		assert.equal(line.target.target.name, "a");
+		assert.equal(line.target.name, "b");
+		assert.equal(line.name, "c");
+	});
+
+	test.concurrent("index chain with parenthesis", async () => {
+		let ast = Parser.parse(`
+				(a[42]).b
+			`);
+		const line = ast[0];
+		if (
+			line.type !== "prop" ||
+			line.target.type !== "index" ||
+			line.target.target.type !== "identifier" ||
+			line.target.index.type !== "num"
+		)
+			assert.fail();
+		assert.equal(line.target.target.name, "a");
+		assert.equal(line.target.index.value, 42);
+		assert.equal(line.name, "b");
+	});
+
+	test.concurrent("call chain with parenthesis", async () => {
+		let ast = Parser.parse(`
+				(foo(42, 57)).bar
+			`);
+		const line = ast[0];
+		if (
+			line.type !== "prop" ||
+			line.target.type !== "call" ||
+			line.target.target.type !== "identifier" ||
+			line.target.args.length !== 2 ||
+			line.target.args[0].type !== "num" ||
+			line.target.args[1].type !== "num"
+		)
+			assert.fail();
+		assert.equal(line.target.target.name, "foo");
+		assert.equal(line.target.args[0].value, 42);
+		assert.equal(line.target.args[1].value, 57);
+		assert.equal(line.name, "bar");
+	});
+
+	test.concurrent("longer chain with parenthesis", async () => {
+		let ast = Parser.parse(`
+				(a.b.c).d.e
+			`);
+		const line = ast[0];
+		if (
+			line.type !== "prop" ||
+			line.target.type !== "prop" ||
+			line.target.target.type !== "prop" ||
+			line.target.target.target.type !== "prop" ||
+			line.target.target.target.target.type !== "identifier"
+		)
+			assert.fail();
+		assert.equal(line.target.target.target.target.name, "a");
+		assert.equal(line.target.target.target.name, "b");
+		assert.equal(line.target.target.name, "c");
+		assert.equal(line.target.name, "d");
+		assert.equal(line.name, "e");
+	});
 });
 
 describe("Template syntax", () => {
@@ -3156,40 +3229,6 @@ describe("Security", () => {
 			}
 		}
 	);
-});
-
-describe("property access on parenthesized expression", () => {
-	test.concurrent("property chain with parenthesis", async () => {
-		let ast = Parser.parse(`
-				(a.b).c
-			`);
-		const line = ast[0];
-		if (
-			line.type !== "prop" ||
-			line.target.type !== "prop" ||
-			line.target.target.type !== "identifier"
-		)
-			assert.fail();
-		assert.equal(line.target.target.name, "a");
-		assert.equal(line.target.name, "b");
-		assert.equal(line.name, "c");
-	});
-	test.concurrent("index chain with parenthesis", async () => {
-		let ast = Parser.parse(`
-				(a[42]).b
-			`);
-		const line = ast[0];
-		if (
-			line.type !== "prop" ||
-			line.target.type !== "index" ||
-			line.target.target.type !== "identifier" ||
-			line.target.index.type !== "num"
-		)
-			assert.fail();
-		assert.equal(line.target.target.name, "a");
-		assert.equal(line.target.index.value, 42);
-		assert.equal(line.name, "b");
-	});
 });
 
 describe("extra", () => {
