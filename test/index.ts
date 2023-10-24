@@ -632,7 +632,7 @@ describe('separator', () => {
 				default => "c"
 			}
 			`);
-			eq(res, STR('a'));
+			eq(res, STR('c'));
 		});
 
 		test.concurrent('multi line with semi colon (default)', async () => {
@@ -644,7 +644,7 @@ describe('separator', () => {
 				default => "c"
 			}
 			`);
-			eq(res, STR('a'));
+			eq(res, STR('c'));
 		});
 
 		test.concurrent('single line (default)', async () => {
@@ -652,7 +652,7 @@ describe('separator', () => {
 			let x = 3
 			<:match x{case 1=>"a",case 2=>"b",default=>"c"}
 			`);
-			eq(res, STR('a'));
+			eq(res, STR('c'));
 		});
 
 		test.concurrent('single line with tail semi colon (default)', async () => {
@@ -660,7 +660,7 @@ describe('separator', () => {
 			let x = 3
 			<:match x{case 1=>"a",case 2=>"b",default=>"c",}
 			`);
-			eq(res, STR('a'));
+			eq(res, STR('c'));
 		});
 	});
 
@@ -698,7 +698,7 @@ describe('separator', () => {
 			@f(a, b, c) {
 				a * b + c
 			}
-			<:f(1,2,3)
+			<:f(2,3,1)
 			`);
 			eq(res, NUM(7));
 		});
@@ -708,7 +708,7 @@ describe('separator', () => {
 			@f(a, b, c) {
 				a * b + c
 			}
-			<:f(1,2,3,)
+			<:f(2,3,1,)
 			`);
 			eq(res, NUM(7));
 		});
@@ -816,6 +816,19 @@ describe('separator', () => {
 		});
 
 		test.concurrent('multi line', async () => {
+			const res = await exe(`
+			@f(
+				a
+				b
+			) {
+				a + b
+			}
+			<: f(1, 2)
+			`);
+			eq(res, NUM(3));
+		});
+
+		test.concurrent('multi line with comma', async () => {
 			const res = await exe(`
 			@f(
 				a,
