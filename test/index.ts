@@ -17,7 +17,6 @@ import {
 	ERROR,
 	FN_NATIVE,
 } from "../src/interpreter/value";
-import { PropertyAccessChain, PropertyAccessExpression } from "typescript";
 let { AiScriptRuntimeError, AiScriptIndexOutOfRangeError } = errors;
 
 const exe = (program: string): Promise<any> =>
