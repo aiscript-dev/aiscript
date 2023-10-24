@@ -899,8 +899,8 @@ test.concurrent('Closure (counter)', async () => {
 	@create_counter() {
 		var count = 0
 		{
-			get_count: @() { count };
-			count: @() { count = (count + 1) };
+			get_count: @() { count },
+			count: @() { count = (count + 1) },
 		}
 	}
 
@@ -1169,9 +1169,9 @@ describe('Object', () => {
 		let obj = {
 			a: {
 				b: {
-					c: 42;
-				};
-			};
+					c: 42,
+				},
+			},
 		}
 
 		<: obj.a.b.c
@@ -1186,9 +1186,9 @@ describe('Object', () => {
 		let obj = {
 			a: {
 				b: {
-					c: f;
-				};
-			};
+					c: f,
+				},
+			},
 		}
 
 		<: obj.a.b.c()
@@ -1228,7 +1228,7 @@ describe('Object', () => {
 	test.concurrent('string key', async () => {
 		const res = await exe(`
 		let obj = {
-			"藍": 42;
+			"藍": 42,
 		}
 
 		<: obj."藍"
@@ -1239,7 +1239,7 @@ describe('Object', () => {
 	test.concurrent('string key including colon and period', async () => {
 		const res = await exe(`
 		let obj = {
-			":.:": 42;
+			":.:": 42,
 		}
 
 		<: obj.":.:"
@@ -1252,7 +1252,7 @@ describe('Object', () => {
 		let key = "藍"
 
 		let obj = {
-			<key>: 42;
+			<key>: 42,
 		}
 
 		<: obj<key>
@@ -1327,8 +1327,8 @@ describe('chain', () => {
 		const res = await exe(`
 		let obj = {
 			a: {
-				b: [@(name) { name }, @(str) { "chan" }, @() { "kawaii" }];
-			};
+				b: [@(name) { name }, @(str) { "chan" }, @() { "kawaii" }],
+			},
 		}
 
 		<: obj.a.b[0]("ai")
@@ -1340,8 +1340,8 @@ describe('chain', () => {
 		const res = await exe(`
 		let obj = {
 			a: {
-				b: ["ai", "chan", "kawaii"];
-			};
+				b: ["ai", "chan", "kawaii"],
+			},
 		}
 
 		obj.a.b[1] = "taso"
@@ -1359,8 +1359,8 @@ describe('chain', () => {
 		const res = await exe(`
 		let obj = {
 			a: {
-				b: ["ai", "chan", "kawaii"];
-			};
+				b: ["ai", "chan", "kawaii"],
+			},
 		}
 
 		var x = null
@@ -1375,8 +1375,8 @@ describe('chain', () => {
 		const res = await exe(`
 		let arr = [
 			{
-				a: 1;
-				b: 2;
+				a: 1,
+				b: 2,
 			}
 		]
 
@@ -1397,8 +1397,8 @@ describe('chain', () => {
 		const res = await exe(`
 		let obj = {
 			a: {
-				b: [1, 2, 3];
-			};
+				b: [1, 2, 3],
+			},
 		}
 
 		obj.a.b[1] += 1
@@ -1552,16 +1552,6 @@ describe('Function call', () => {
 			(x + y)
 		}
 		<: f(1, 1)
-		`);
-		eq(res, NUM(2));
-	});
-
-	test.concurrent('with args (separated by space)', async () => {
-		const res = await exe(`
-		@f(x y) {
-			(x + y)
-		}
-		<: f(1 1)
 		`);
 		eq(res, NUM(2));
 	});
@@ -1754,7 +1744,7 @@ describe('exists', () => {
 	test.concurrent('Basic', async () => {
 		const res = await exe(`
 		let foo = null
-		<: [(exists foo) (exists bar)]
+		<: [(exists foo), (exists bar)]
 		`);
 		eq(res, ARR([BOOL(true), BOOL(false)]));
 	});
@@ -1951,7 +1941,7 @@ describe('loop', () => {
 
 	test.concurrent('with continue', async () => {
 		const res = await exe(`
-		var a = ["ai" "chan" "kawaii" "yo" "!"]
+		var a = ["ai", "chan", "kawaii", "yo", "!"]
 		var b = []
 		loop {
 			var x = a.shift()
@@ -2073,7 +2063,7 @@ describe('for of', () => {
 	test.concurrent('Break', async () => {
 		const res = await exe(`
 		let msgs = []
-		each let item, ["ai", "chan", "kawaii" "yo"] {
+		each let item, ["ai", "chan", "kawaii", "yo"] {
 			if (item == "kawaii") break
 			msgs.push([item, "!"].join())
 		}
@@ -2268,48 +2258,12 @@ describe('literal', () => {
 		eq(res, OBJ(new Map([['a', NUM(1)], ['b', NUM(2)], ['c', NUM(3)]])));
 	});
 
-	test.concurrent('obj (separated by semicolon)', async () => {
-		const res = await exe(`
-		<: { a: 1; b: 2; c: 3 }
-		`);
-		eq(res, OBJ(new Map([['a', NUM(1)], ['b', NUM(2)], ['c', NUM(3)]])));
-	});
-
-	test.concurrent('obj (separated by semicolon) (with trailing semicolon)', async () => {
-		const res = await exe(`
-		<: { a: 1; b: 2; c: 3; }
-		`);
-		eq(res, OBJ(new Map([['a', NUM(1)], ['b', NUM(2)], ['c', NUM(3)]])));
-	});
-
 	test.concurrent('obj (separated by line break)', async () => {
 		const res = await exe(`
 		<: {
 			a: 1
 			b: 2
 			c: 3
-		}
-		`);
-		eq(res, OBJ(new Map([['a', NUM(1)], ['b', NUM(2)], ['c', NUM(3)]])));
-	});
-
-	test.concurrent('obj (separated by line break and semicolon)', async () => {
-		const res = await exe(`
-		<: {
-			a: 1;
-			b: 2;
-			c: 3
-		}
-		`);
-		eq(res, OBJ(new Map([['a', NUM(1)], ['b', NUM(2)], ['c', NUM(3)]])));
-	});
-
-	test.concurrent('obj (separated by line break and semicolon) (with trailing semicolon)', async () => {
-		const res = await exe(`
-		<: {
-			a: 1;
-			b: 2;
-			c: 3;
 		}
 		`);
 		eq(res, OBJ(new Map([['a', NUM(1)], ['b', NUM(2)], ['c', NUM(3)]])));
@@ -2340,7 +2294,7 @@ describe('type declaration', () => {
 		const res = await exe(`
 		let abc: num = 1
 		var xyz: str = "abc"
-		<: [abc xyz]
+		<: [abc, xyz]
 		`);
 		eq(res, ARR([NUM(1), STR('abc')]));
 	});
@@ -2364,7 +2318,7 @@ describe('type declaration', () => {
 describe('meta', () => {
 	test.concurrent('default meta', async () => {
 		const res = getMeta(`
-		### { a: 1; b: 2; c: 3; }
+		### { a: 1, b: 2, c: 3, }
 		`);
 		eq(res, new Map([
 			[null, {
@@ -2427,7 +2381,7 @@ describe('meta', () => {
 	describe('Array', () => {
 		test.concurrent('valid', async () => {
 			const res = getMeta(`
-			### x [1 2 3]
+			### x [1, 2, 3]
 			`);
 			eq(res, new Map([
 				['x', [1, 2, 3]]
@@ -2437,7 +2391,7 @@ describe('meta', () => {
 		test.concurrent('invalid', async () => {
 			try {
 				getMeta(`
-				### x [1 (2 + 2) 3]
+				### x [1, (2 + 2), 3]
 				`);
 			} catch (e) {
 				assert.ok(true);
@@ -2450,7 +2404,7 @@ describe('meta', () => {
 	describe('Object', () => {
 		test.concurrent('valid', async () => {
 			const res = getMeta(`
-			### x { a: 1; b: 2; c: 3; }
+			### x { a: 1, b: 2, c: 3, }
 			`);
 			eq(res, new Map([
 				['x', {
@@ -2464,7 +2418,7 @@ describe('meta', () => {
 		test.concurrent('invalid', async () => {
 			try {
 				getMeta(`
-				### x { a: 1; b: (2 + 2); c: 3; }
+				### x { a: 1, b: (2 + 2), c: 3, }
 				`);
 			} catch (e) {
 				assert.ok(true);
@@ -2575,7 +2529,7 @@ describe('Attribute', () => {
 		let attr: Ast.Attribute;
 		const parser = new Parser();
 		const nodes = parser.parse(`
-		#[Endpoint { path: "/notes/create"; }]
+		#[Endpoint { path: "/notes/create" }]
 		#[Desc "Create a note."]
 		#[Cat true]
 		@createNote(text) {
@@ -2887,7 +2841,7 @@ describe('primitive props', () => {
 		test.concurrent('reduce with index', async () => {
 			const res = await exe(`
 			let arr = [1, 2, 3, 4]
-			<: arr.reduce(@(accumulator, currentValue, index) { (accumulator + (currentValue * index)) } 0)
+			<: arr.reduce(@(accumulator, currentValue, index) { (accumulator + (currentValue * index)) }, 0)
 			`);
 			eq(res, NUM(20));
 		});
@@ -3095,13 +3049,13 @@ describe('std', () => {
 			const res = await exe(`
 			@test(seed) {
 				let random = Math:gen_rng(seed)
-				return random(0 100)
+				return random(0, 100)
 			}
 			let seed1 = \`{Util:uuid()}\`
 			let seed2 = \`{Date:year()}\`
 			let test1 = if (test(seed1) == test(seed1)) {true} else {false}
 			let test2 = if (test(seed1) == test(seed2)) {true} else {false}
-			<: [test1 test2]
+			<: [test1, test2]
 			`)
 			eq(res, ARR([BOOL(true), BOOL(false)]));
 		});
@@ -3110,7 +3064,7 @@ describe('std', () => {
 	describe('Obj', () => {
 		test.concurrent('keys', async () => {
 			const res = await exe(`
-			let o = { a: 1; b: 2; c: 3; }
+			let o = { a: 1, b: 2, c: 3, }
 
 			<: Obj:keys(o)
 			`);
@@ -3119,7 +3073,7 @@ describe('std', () => {
 
 		test.concurrent('vals', async () => {
 			const res = await exe(`
-			let o = { _nul: null; _num: 24; _str: 'hoge'; _arr: []; _obj: {}; }
+			let o = { _nul: null, _num: 24, _str: 'hoge', _arr: [], _obj: {}, }
 
 			<: Obj:vals(o)
 			`);
@@ -3128,7 +3082,7 @@ describe('std', () => {
 
 		test.concurrent('kvs', async () => {
 			const res = await exe(`
-			let o = { a: 1; b: 2; c: 3; }
+			let o = { a: 1, b: 2, c: 3, }
 
 			<: Obj:kvs(o)
 			`);
