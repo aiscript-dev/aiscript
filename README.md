@@ -8,7 +8,7 @@
 
 > **AiScript** is a lightweight scripting language that runs on JavaScript.
 
-[Play online ▶](https://syuilo.github.io/aiscript/)
+[Play online ▶](https://aiscript-dev.github.io/aiscript/)
 
 [Read translated version (en)](./translations/en/README.md)
 
