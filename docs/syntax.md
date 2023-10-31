@@ -81,6 +81,17 @@ let foo = eval {
 <: inc(42) // 43
 ```
 
+## match
+```
+let x = 1
+let y = match x {
+	1 => "yes"
+	0 => "no"
+	* => "other"
+}
+<: y // "yes"
+```
+
 ## exists
 ```
 let foo = exists bar

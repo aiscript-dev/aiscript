@@ -1,22 +1,22 @@
-const readline = require('readline');
-const chalk = require('chalk');
-const parse = require('./built/parser/index.js').parse;
-const { valToString, nodeToString } = require('./built/interpreter/util.js');
-const AiScript = require('./built/interpreter/index.js').AiScript;
+import * as readline from 'readline/promises';
+import chalk from 'chalk';
+import { Parser, Interpreter, utils } from '@syuilo/aiscript';
+const { valToString } = utils;
 
 const i = readline.createInterface({
 	input: process.stdin,
 	output: process.stdout
 });
 
-console.log('Welcome to AiScript!');
-console.log('https://github.com/syuilo/aiscript\n');
+console.log(
+`Welcome to AiScript!
+https://github.com/syuilo/aiscript
 
-const aiscript = new AiScript({}, {
+Type 'exit' to end this session.`);
+
+const getInterpreter = () => new Interpreter({}, {
 	in(q) {
-		return new Promise(ok => {
-			i.question(q + ': ', ok);
-		});
+		return i.question(q + ': ');
 	},
 	out(value) {
 		if (value.type === 'str') {
@@ -24,6 +24,9 @@ const aiscript = new AiScript({}, {
 		} else {
 			console.log(chalk.magenta(valToString(value)));
 		}
+	},
+	err(e) {
+		console.log(chalk.red(`${e}`));
 	},
 	log(type, params) {
 		switch (type) {
@@ -33,27 +36,20 @@ const aiscript = new AiScript({}, {
 	}
 });
 
-function main() {
-	i.question('> ', async a => {
-		let ast;
-		try {
-			ast = parse(a);
-		} catch(e) {
-			console.log(chalk.red(`Syntax Error!`));
-			main();
-			return;
-		}
+let interpreter;
+async function main(){
+	let a = await i.question('> ');
+	interpreter?.abort();
+	if (a === 'exit') return false;
+	try {
+		let ast = Parser.parse(a);
+		interpreter = getInterpreter();
+		await interpreter.exec(ast);
+	} catch(e) {
+		console.log(chalk.red(`${e}`));
+	}
+	return true;
+};
 
-		try {
-			await aiscript.exec(ast);
-		} catch(e) {
-			console.log(chalk.red(`${e}`));
-			main();
-			return;
-		}
-
-		main();
-	});
-}
-
-main();
+while (await main());
+i.close();
