@@ -1,5 +1,12 @@
 [Read translated version (en)](./translations/en/CHANGELOG.md)
+
+# 0.17.0
+- `package.json`を修正
+- `Error:create`関数でエラー型の値を生成できるように
+- `Obj:merge`で２つのオブジェクトの併合を得られるように
 - `Core:abort`でプログラムを緊急停止できるように
+- Fix: チェイン系（インデックスアクセス`[]`、プロパティアクセス`.`、関数呼び出し`()`）と括弧を組み合わせた時に不正な挙動をするバグを修正
+
 ## Note
 バージョン0.16.0に記録漏れがありました。
 >- 関数`Str:from_codepoint` `Str#codepoint_at`を追加
