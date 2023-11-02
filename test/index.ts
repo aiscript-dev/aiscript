@@ -6,6 +6,7 @@
 import * as assert from 'assert';
 import { Parser, Interpreter, utils, errors, Ast } from '../src';
 import { NUM, STR, NULL, ARR, OBJ, BOOL, TRUE, FALSE, ERROR ,FN_NATIVE } from '../src/interpreter/value';
+import { AiScriptSyntaxError } from '../src/error';
 let { AiScriptRuntimeError, AiScriptIndexOutOfRangeError } = errors;
 
 const exe = (program: string): Promise<any> => new Promise((ok, err) => {
@@ -2918,7 +2919,7 @@ describe('Security', () => {
 			`);
 			assert.fail();
 		} catch (e) {
-			assert.ok(e instanceof AiScriptRuntimeError);
+			assert.ok(e instanceof AiScriptSyntaxError);
 		}
 
 		try {
@@ -2941,13 +2942,6 @@ describe('Security', () => {
 	});
 
 	test.concurrent('Cannot access js native property via object', async () => {
-		const res1 = await exe(`
-		let obj = {}
-
-		<: obj.constructor
-		`);
-		eq(res1, NULL);
-
 		const res2 = await exe(`
 		let obj = {}
 
@@ -2970,7 +2964,7 @@ describe('Security', () => {
 			`);
 			assert.fail();
 		} catch (e) {
-			assert.ok(e instanceof AiScriptRuntimeError);
+			assert.ok(e instanceof AiScriptSyntaxError);
 		}
 
 		try {
