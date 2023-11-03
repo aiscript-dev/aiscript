@@ -1,143 +1,143 @@
 import type * as Ast from '../node.js';
 
-export function visitNode(node: Ast.Node, fn: (node: Ast.Node) => Ast.Node): Ast.Node {
+export function visitNode<T extends Ast.Node>(node: T, fn: (node: Ast.Node) => Ast.Node): T {
 	const result = fn(node);
 
 	// nested nodes
 	switch (result.type) {
 		case 'def': {
-			result.expr = visitNode(result.expr, fn) as Ast.Definition['expr'];
+			result.expr = visitNode(result.expr, fn);
 			break;
 		}
 		case 'return': {
-			result.expr = visitNode(result.expr, fn) as Ast.Return['expr'];
+			result.expr = visitNode(result.expr, fn);
 			break;
 		}
 		case 'each': {
-			result.items = visitNode(result.items, fn) as Ast.Each['items'];
-			result.for = visitNode(result.for, fn) as Ast.Each['for'];
+			result.items = visitNode(result.items, fn);
+			result._for = visitNode(result._for, fn);
 			break;
 		}
 		case 'for': {
 			if (result.from != null) {
-				result.from = visitNode(result.from, fn) as Ast.For['from'];
+				result.from = visitNode(result.from, fn);
 			}
 			if (result.to != null) {
-				result.to = visitNode(result.to, fn) as Ast.For['to'];
+				result.to = visitNode(result.to, fn);
 			}
 			if (result.times != null) {
-				result.times = visitNode(result.times, fn) as Ast.For['times'];
+				result.times = visitNode(result.times, fn);
 			}
-			result.for = visitNode(result.for, fn) as Ast.For['for'];
+			result._for = visitNode(result._for, fn);
 			break;
 		}
 		case 'loop': {
 			for (let i = 0; i < result.statements.length; i++) {
-				result.statements[i] = visitNode(result.statements[i]!, fn) as Ast.Loop['statements'][number];
+				result.statements[i] = visitNode(result.statements[i]!, fn);
 			}
 			break;
 		}
 		case 'addAssign':
 		case 'subAssign':
 		case 'assign': {
-			result.expr = visitNode(result.expr, fn) as Ast.Assign['expr'];
-			result.dest = visitNode(result.dest, fn) as Ast.Assign['dest'];
+			result.expr = visitNode(result.expr, fn);
+			result.dest = visitNode(result.dest, fn);
 			break;
 		}
 		case 'not': {
-			result.expr = visitNode(result.expr, fn) as Ast.Return['expr'];
+			result.expr = visitNode(result.expr, fn);
 			break;
 		}
 		case 'if': {
-			result.cond = visitNode(result.cond, fn) as Ast.If['cond'];
-			result.then = visitNode(result.then, fn) as Ast.If['then'];
+			result.cond = visitNode(result.cond, fn);
+			result.then = visitNode(result.then, fn);
 			for (const prop of result.elseif) {
-				prop.cond = visitNode(prop.cond, fn) as Ast.If['elseif'][number]['cond'];
-				prop.then = visitNode(prop.then, fn) as Ast.If['elseif'][number]['then'];
+				prop.cond = visitNode(prop.cond, fn);
+				prop.then = visitNode(prop.then, fn);
 			}
-			if (result.else != null) {
-				result.else = visitNode(result.else, fn) as Ast.If['else'];
+			if (result._else != null) {
+				result._else = visitNode(result._else, fn);
 			}
 			break;
 		}
 		case 'fn': {
 			for (let i = 0; i < result.children.length; i++) {
-				result.children[i] = visitNode(result.children[i]!, fn) as Ast.Fn['children'][number];
+				result.children[i] = visitNode(result.children[i]!, fn);
 			}
 			break;
 		}
 		case 'match': {
-			result.about = visitNode(result.about, fn) as Ast.Match['about'];
+			result.about = visitNode(result.about, fn);
 			for (const prop of result.qs) {
-				prop.q = visitNode(prop.q, fn) as Ast.Match['qs'][number]['q'];
-				prop.a = visitNode(prop.a, fn) as Ast.Match['qs'][number]['a'];
+				prop.q = visitNode(prop.q, fn);
+				prop.a = visitNode(prop.a, fn);
 			}
-			if (result.default != null) {
-				result.default = visitNode(result.default, fn) as Ast.Match['default'];
+			if (result._default != null) {
+				result._default = visitNode(result._default, fn);
 			}
 			break;
 		}
 		case 'block': {
 			for (let i = 0; i < result.statements.length; i++) {
-				result.statements[i] = visitNode(result.statements[i]!, fn) as Ast.Block['statements'][number];
+				result.statements[i] = visitNode(result.statements[i]!, fn);
 			}
 			break;
 		}
 		case 'exists': {
-			result.identifier = visitNode(result.identifier,fn) as Ast.Exists['identifier'];
+			result.identifier = visitNode(result.identifier, fn);
 			break;
 		}
 		case 'tmpl': {
 			for (let i = 0; i < result.tmpl.length; i++) {
 				const item = result.tmpl[i]!;
 				if (typeof item !== 'string') {
-					result.tmpl[i] = visitNode(item, fn) as Ast.Tmpl['tmpl'][number];
+					result.tmpl[i] = visitNode(item, fn);
 				}
 			}
 			break;
 		}
 		case 'obj': {
 			for (const item of result.value) {
-				result.value.set(item[0], visitNode(item[1], fn) as Ast.Expression);
+				result.value.set(item[0], visitNode(item[1], fn));
 			}
 			break;
 		}
 		case 'arr': {
 			for (let i = 0; i < result.value.length; i++) {
-				result.value[i] = visitNode(result.value[i]!, fn) as Ast.Arr['value'][number];
+				result.value[i] = visitNode(result.value[i]!, fn);
 			}
 			break;
 		}
 		case 'call': {
-			result.target = visitNode(result.target, fn) as Ast.Call['target'];
+			result.target = visitNode(result.target, fn);
 			for (let i = 0; i < result.args.length; i++) {
-				result.args[i] = visitNode(result.args[i]!, fn) as Ast.Call['args'][number];
+				result.args[i] = visitNode(result.args[i]!, fn);
 			}
 			break;
 		}
 		case 'index': {
-			result.target = visitNode(result.target, fn) as Ast.Index['target'];
-			result.index = visitNode(result.index, fn) as Ast.Index['index'];
+			result.target = visitNode(result.target, fn);
+			result.index = visitNode(result.index, fn);
 			break;
 		}
 		case 'prop': {
-			result.target = visitNode(result.target, fn) as Ast.Prop['target'];
+			result.target = visitNode(result.target, fn);
 			break;
 		}
 		case 'ns': {
 			for (let i = 0; i < result.members.length; i++) {
-				result.members[i] = visitNode(result.members[i]!, fn) as (typeof result.members)[number];
+				result.members[i] = visitNode(result.members[i]!, fn);
 			}
 			break;
 		}
 
 		case 'or':
 		case 'and': {
-			result.left = visitNode(result.left, fn) as (Ast.And | Ast.Or)['left'];
-			result.right = visitNode(result.right, fn) as (Ast.And | Ast.Or)['right'];
+			result.left = visitNode(result.left, fn);
+			result.right = visitNode(result.right, fn);
 			break;
 		}
 	}
 
-	return result;
+	return result as T;
 }

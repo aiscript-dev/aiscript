@@ -1,10 +1,9 @@
-import { NODE } from '../utils.js';
 import { TokenKind } from '../token.js';
 import { AiScriptSyntaxError } from '../../error.js';
 import { parseDefStatement, parseStatement } from './statements.js';
 import { parseExpr } from './expressions.js';
+import * as Ast from '../../node.js';
 
-import type * as Ast from '../../node.js';
 import type { ITokenStream } from '../streams/token-stream.js';
 
 /**
@@ -51,7 +50,7 @@ export function parseTopLevel(s: ITokenStream): Ast.Node[] {
  * Namespace = "::" IDENT "{" *(VarDef / FnDef / Namespace) "}"
  * ```
 */
-export function parseNamespace(s: ITokenStream): Ast.Node {
+export function parseNamespace(s: ITokenStream): Ast.Namespace {
 	const loc = s.token.loc;
 
 	s.nextWith(TokenKind.Colon2);
@@ -60,7 +59,7 @@ export function parseNamespace(s: ITokenStream): Ast.Node {
 	const name = s.token.value!;
 	s.next();
 
-	const members: Ast.Node[] = [];
+	const members: (Ast.Namespace | Ast.Definition)[] = [];
 	s.nextWith(TokenKind.OpenBrace);
 
 	while (s.kind === TokenKind.NewLine) {
@@ -90,7 +89,7 @@ export function parseNamespace(s: ITokenStream): Ast.Node {
 	}
 	s.nextWith(TokenKind.CloseBrace);
 
-	return NODE('ns', { name, members }, loc);
+	return new Ast.Namespace(name, members, loc);
 }
 
 /**
@@ -111,5 +110,5 @@ export function parseMeta(s: ITokenStream): Ast.Node {
 
 	const value = parseExpr(s, true);
 
-	return NODE('meta', { name, value }, loc);
+	return new Ast.Meta(name, value, loc);
 }

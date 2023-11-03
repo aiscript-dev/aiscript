@@ -1,10 +1,10 @@
 import { AiScriptSyntaxError } from '../../error.js';
-import { CALL_NODE, NODE } from '../utils.js';
+import { CALL_NODE } from '../utils.js';
 import { TokenKind } from '../token.js';
 import { parseBlock, parseParams, parseType } from './common.js';
 import { parseExpr } from './expressions.js';
+import * as Ast from '../../node.js';
 
-import type * as Ast from '../../node.js';
 import type { ITokenStream } from '../streams/token-stream.js';
 
 /**
@@ -13,7 +13,7 @@ import type { ITokenStream } from '../streams/token-stream.js';
  *           / Break / Continue / Assign / Expr
  * ```
 */
-export function parseStatement(s: ITokenStream): Ast.Node {
+export function parseStatement(s: ITokenStream): Ast.Statement {
 	const loc = s.token.loc;
 
 	switch (s.kind) {
@@ -47,11 +47,11 @@ export function parseStatement(s: ITokenStream): Ast.Node {
 		}
 		case TokenKind.BreakKeyword: {
 			s.next();
-			return NODE('break', {}, loc);
+			return new Ast.Break(loc);
 		}
 		case TokenKind.ContinueKeyword: {
 			s.next();
-			return NODE('continue', {}, loc);
+			return new Ast.Continue(loc);
 		}
 	}
 	const expr = parseExpr(s, false);
@@ -62,7 +62,7 @@ export function parseStatement(s: ITokenStream): Ast.Node {
 	return expr;
 }
 
-export function parseDefStatement(s: ITokenStream): Ast.Node {
+export function parseDefStatement(s: ITokenStream): Ast.Definition {
 	switch (s.kind) {
 		case TokenKind.VarKeyword:
 		case TokenKind.LetKeyword: {
@@ -82,12 +82,12 @@ export function parseDefStatement(s: ITokenStream): Ast.Node {
  * BlockOrStatement = Block / Statement
  * ```
 */
-export function parseBlockOrStatement(s: ITokenStream): Ast.Node {
+export function parseBlockOrStatement(s: ITokenStream): Ast.Block | Ast.Statement {
 	const loc = s.token.loc;
 
 	if (s.kind === TokenKind.OpenBrace) {
 		const statements = parseBlock(s);
-		return NODE('block', { statements }, loc);
+		return new Ast.Block(statements, loc);
 	} else {
 		return parseStatement(s);
 	}
@@ -98,7 +98,7 @@ export function parseBlockOrStatement(s: ITokenStream): Ast.Node {
  * VarDef = ("let" / "var") IDENT [":" Type] "=" Expr
  * ```
 */
-function parseVarDef(s: ITokenStream): Ast.Node {
+function parseVarDef(s: ITokenStream): Ast.Definition {
 	const loc = s.token.loc;
 
 	let mut;
@@ -121,7 +121,7 @@ function parseVarDef(s: ITokenStream): Ast.Node {
 	const name = s.token.value!;
 	s.next();
 
-	let type;
+	let type = null;
 	if ((s.kind as TokenKind) === TokenKind.Colon) {
 		s.next();
 		type = parseType(s);
@@ -135,7 +135,7 @@ function parseVarDef(s: ITokenStream): Ast.Node {
 
 	const expr = parseExpr(s, false);
 
-	return NODE('def', { name, varType: type, expr, mut, attr: [] }, loc);
+	return new Ast.Definition(name, type, expr, mut, [], loc);
 }
 
 /**
@@ -143,18 +143,18 @@ function parseVarDef(s: ITokenStream): Ast.Node {
  * FnDef = "@" IDENT Params [":" Type] Block
  * ```
 */
-function parseFnDef(s: ITokenStream): Ast.Node {
+function parseFnDef(s: ITokenStream): Ast.Definition {
 	const loc = s.token.loc;
 
 	s.nextWith(TokenKind.At);
 
 	s.expect(TokenKind.Identifier);
-	const name = s.token.value;
+	const name = s.token.value!;
 	s.next();
 
 	const params = parseParams(s);
 
-	let type;
+	let type = null;
 	if ((s.kind as TokenKind) === TokenKind.Colon) {
 		s.next();
 		type = parseType(s);
@@ -162,16 +162,9 @@ function parseFnDef(s: ITokenStream): Ast.Node {
 
 	const body = parseBlock(s);
 
-	return NODE('def', {
-		name,
-		expr: NODE('fn', {
-			args: params,
-			retType: type,
-			children: body,
-		}, loc),
-		mut: false,
-		attr: [],
-	}, loc);
+	return new Ast.Definition(
+		name, null, new Ast.Fn(params, type, body, loc), false, [], loc
+	);
 }
 
 /**
@@ -179,7 +172,7 @@ function parseFnDef(s: ITokenStream): Ast.Node {
  * Out = "<:" Expr
  * ```
 */
-function parseOut(s: ITokenStream): Ast.Node {
+function parseOut(s: ITokenStream): Ast.Call {
 	const loc = s.token.loc;
 
 	s.nextWith(TokenKind.Out);
@@ -193,7 +186,7 @@ function parseOut(s: ITokenStream): Ast.Node {
  *      / "each" "(" "let" IDENT ("," / SPACE) Expr ")" BlockOrStatement
  * ```
 */
-function parseEach(s: ITokenStream): Ast.Node {
+function parseEach(s: ITokenStream): Ast.Each {
 	const loc = s.token.loc;
 	let hasParen = false;
 
@@ -224,14 +217,10 @@ function parseEach(s: ITokenStream): Ast.Node {
 
 	const body = parseBlockOrStatement(s);
 
-	return NODE('each', {
-		var: name,
-		items: items,
-		for: body,
-	}, loc);
+	return new Ast.Each(name, items, body, loc);
 }
 
-function parseFor(s: ITokenStream): Ast.Node {
+function parseFor(s: ITokenStream): Ast.For {
 	const loc = s.token.loc;
 	let hasParen = false;
 
@@ -257,7 +246,7 @@ function parseFor(s: ITokenStream): Ast.Node {
 			s.next();
 			_from = parseExpr(s, false);
 		} else {
-			_from = NODE('num', { value: 0 }, identLoc);
+			_from = new Ast.Num(0, identLoc);
 		}
 
 		if ((s.kind as TokenKind) === TokenKind.Comma) {
@@ -274,12 +263,7 @@ function parseFor(s: ITokenStream): Ast.Node {
 
 		const body = parseBlockOrStatement(s);
 
-		return NODE('for', {
-			var: name,
-			from: _from,
-			to,
-			for: body,
-		}, loc);
+		return new Ast.For(name, _from, to, null, body, loc);
 	} else {
 		// times syntax
 
@@ -291,10 +275,7 @@ function parseFor(s: ITokenStream): Ast.Node {
 	
 		const body = parseBlockOrStatement(s);
 
-		return NODE('for', {
-			times,
-			for: body,
-		}, loc);
+		return new Ast.For(null, null, null, times, body, loc);
 	}
 }
 
@@ -303,12 +284,12 @@ function parseFor(s: ITokenStream): Ast.Node {
  * Return = "return" Expr
  * ```
 */
-function parseReturn(s: ITokenStream): Ast.Node {
+function parseReturn(s: ITokenStream): Ast.Return {
 	const loc = s.token.loc;
 
 	s.nextWith(TokenKind.ReturnKeyword);
 	const expr = parseExpr(s, false);
-	return NODE('return', { expr }, loc);
+	return new Ast.Return(expr, loc);
 }
 
 /**
@@ -316,10 +297,10 @@ function parseReturn(s: ITokenStream): Ast.Node {
  * StatementWithAttr = *Attr Statement
  * ```
 */
-function parseStatementWithAttr(s: ITokenStream): Ast.Node {
+function parseStatementWithAttr(s: ITokenStream): Ast.Statement {
 	const attrs: Ast.Attribute[] = [];
 	while (s.kind === TokenKind.OpenSharpBracket) {
-		attrs.push(parseAttr(s) as Ast.Attribute);
+		attrs.push(parseAttr(s));
 		s.nextWith(TokenKind.NewLine);
 	}
 
@@ -342,7 +323,7 @@ function parseStatementWithAttr(s: ITokenStream): Ast.Node {
  * Attr = "#[" IDENT [StaticExpr] "]"
  * ```
 */
-function parseAttr(s: ITokenStream): Ast.Node {
+function parseAttr(s: ITokenStream): Ast.Attribute {
 	const loc = s.token.loc;
 
 	s.nextWith(TokenKind.OpenSharpBracket);
@@ -355,12 +336,12 @@ function parseAttr(s: ITokenStream): Ast.Node {
 	if (s.kind !== TokenKind.CloseBracket) {
 		value = parseExpr(s, true);
 	} else {
-		value = NODE('bool', { value: true }, loc);
+		value = new Ast.Bool(true, loc);
 	}
 
 	s.nextWith(TokenKind.CloseBracket);
 
-	return NODE('attr', { name, value }, loc);
+	return new Ast.Attribute(name, value, loc);
 }
 
 /**
@@ -368,12 +349,12 @@ function parseAttr(s: ITokenStream): Ast.Node {
  * Loop = "loop" Block
  * ```
 */
-function parseLoop(s: ITokenStream): Ast.Node {
+function parseLoop(s: ITokenStream): Ast.Loop {
 	const loc = s.token.loc;
 
 	s.nextWith(TokenKind.LoopKeyword);
 	const statements = parseBlock(s);
-	return NODE('loop', { statements }, loc);
+	return new Ast.Loop(statements, loc);
 }
 
 /**
@@ -381,7 +362,7 @@ function parseLoop(s: ITokenStream): Ast.Node {
  * Assign = Expr ("=" / "+=" / "-=") Expr
  * ```
 */
-function tryParseAssign(s: ITokenStream, dest: Ast.Node): Ast.Node | undefined {
+function tryParseAssign(s: ITokenStream, dest: Ast.Expression): Ast.Statement | undefined {
 	const loc = s.token.loc;
 
 	// Assign
@@ -389,17 +370,17 @@ function tryParseAssign(s: ITokenStream, dest: Ast.Node): Ast.Node | undefined {
 		case TokenKind.Eq: {
 			s.next();
 			const expr = parseExpr(s, false);
-			return NODE('assign', { dest, expr }, loc);
+			return new Ast.Assign(dest, expr, loc);
 		}
 		case TokenKind.PlusEq: {
 			s.next();
 			const expr = parseExpr(s, false);
-			return NODE('addAssign', { dest, expr }, loc);
+			return new Ast.AddAssign(dest, expr, loc);
 		}
 		case TokenKind.MinusEq: {
 			s.next();
 			const expr = parseExpr(s, false);
-			return NODE('subAssign', { dest, expr }, loc);
+			return new Ast.SubAssign(dest, expr, loc);
 		}
 		default: {
 			return;
