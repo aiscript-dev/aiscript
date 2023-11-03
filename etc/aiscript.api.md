@@ -4,14 +4,20 @@
 
 ```ts
 
-// Warning: (ae-forgotten-export) The symbol "NodeBase" needs to be exported by the entry point index.d.ts
-//
 // @public (undocumented)
-type AddAssign = NodeBase & {
-    type: 'addAssign';
+class AddAssign {
+    constructor(dest: Expression, // 代入先
+    expr: Expression, // 式
+    loc: Loc);
+    // (undocumented)
     dest: Expression;
+    // (undocumented)
     expr: Expression;
-};
+    // (undocumented)
+    loc: Loc;
+    // (undocumented)
+    type: "addAssign";
+}
 
 // @public (undocumented)
 abstract class AiScriptError extends Error {
@@ -64,20 +70,32 @@ class AiScriptTypeError extends AiScriptError {
 }
 
 // @public (undocumented)
-type And = NodeBase & {
-    type: 'and';
+class And {
+    constructor(left: Expression, right: Expression, loc: Loc);
+    // (undocumented)
     left: Expression;
+    // (undocumented)
+    loc: Loc;
+    // (undocumented)
     right: Expression;
-};
+    // (undocumented)
+    type: "and";
+}
 
 // @public (undocumented)
 const ARR: (arr: VArr['value']) => VArr;
 
 // @public (undocumented)
-type Arr = NodeBase & {
-    type: 'arr';
+class Arr {
+    constructor(value: Expression[], // アイテム
+    loc: Loc);
+    // (undocumented)
+    loc: Loc;
+    // (undocumented)
+    type: "arr";
+    // (undocumented)
     value: Expression[];
-};
+}
 
 // @public (undocumented)
 function assertArray(val: Value | null | undefined): asserts val is VArr;
@@ -98,11 +116,19 @@ function assertObject(val: Value | null | undefined): asserts val is VObj;
 function assertString(val: Value | null | undefined): asserts val is VStr;
 
 // @public (undocumented)
-type Assign = NodeBase & {
-    type: 'assign';
+class Assign {
+    constructor(dest: Expression, // 代入先
+    expr: Expression, // 式
+    loc: Loc);
+    // (undocumented)
     dest: Expression;
+    // (undocumented)
     expr: Expression;
-};
+    // (undocumented)
+    loc: Loc;
+    // (undocumented)
+    type: "assign";
+}
 
 declare namespace Ast {
     export {
@@ -160,67 +186,127 @@ type Attr_2 = {
 };
 
 // @public (undocumented)
-type Attribute = NodeBase & {
-    type: 'attr';
+class Attribute {
+    constructor(name: string, // 属性名
+    value: Expression, // 値
+    loc: Loc);
+    // (undocumented)
+    loc: Loc;
+    // (undocumented)
     name: string;
+    // (undocumented)
+    type: "attr";
+    // (undocumented)
     value: Expression;
-};
+}
 
 // @public (undocumented)
-type Block = NodeBase & {
-    type: 'block';
+class Block {
+    constructor(statements: (Statement | Expression)[], // 処理
+    loc: Loc);
+    // (undocumented)
+    loc: Loc;
+    // (undocumented)
     statements: (Statement | Expression)[];
-};
+    // (undocumented)
+    type: "block";
+}
 
 // @public (undocumented)
 const BOOL: (bool: VBool['value']) => VBool;
 
 // @public (undocumented)
-type Bool = NodeBase & {
-    type: 'bool';
+class Bool {
+    constructor(value: boolean, // 真理値
+    loc: Loc);
+    // (undocumented)
+    loc: Loc;
+    // (undocumented)
+    type: "bool";
+    // (undocumented)
     value: boolean;
-};
+}
 
 // @public (undocumented)
 const BREAK: () => Value;
 
 // @public (undocumented)
-type Break = NodeBase & {
-    type: 'break';
-};
+class Break {
+    constructor(loc: Loc);
+    // (undocumented)
+    loc: Loc;
+    // (undocumented)
+    type: "break";
+}
 
 // @public (undocumented)
-type Call = NodeBase & {
-    type: 'call';
-    target: Expression;
+class Call {
+    constructor(target: Expression, // 対象
+    args: Expression[], // 引数
+    loc: Loc);
+    // (undocumented)
     args: Expression[];
-};
+    // (undocumented)
+    loc: Loc;
+    // (undocumented)
+    target: Expression;
+    // (undocumented)
+    type: "call";
+}
 
 // @public (undocumented)
 const CONTINUE: () => Value;
 
 // @public (undocumented)
-type Continue = NodeBase & {
-    type: 'continue';
-};
+class Continue {
+    constructor(loc: Loc);
+    // (undocumented)
+    loc: Loc;
+    // (undocumented)
+    type: "continue";
+}
 
 // @public (undocumented)
-type Definition = NodeBase & {
-    type: 'def';
-    name: string;
-    varType?: TypeSource;
-    expr: Expression;
-    mut: boolean;
+class Definition {
+    constructor(name: string, // 変数名
+    varType: TypeSource | null, // 変数の型
+    expr: Expression, // 式
+    mut: boolean, // ミュータブルか否か
+    attr: Attribute[], // 付加された属性
+    loc: Loc);
+    // (undocumented)
     attr: Attribute[];
-};
+    // (undocumented)
+    expr: Expression;
+    // (undocumented)
+    loc: Loc;
+    // (undocumented)
+    mut: boolean;
+    // (undocumented)
+    name: string;
+    // (undocumented)
+    type: "def";
+    // (undocumented)
+    varType: TypeSource | null;
+}
 
 // @public (undocumented)
-type Each = NodeBase & {
-    type: 'each';
-    var: string;
+class Each {
+    constructor(_var: string, // イテレータ変数名
+    items: Expression, // 配列
+    _for: Statement | Expression, // 本体処理
+    loc: Loc);
+    // (undocumented)
+    _for: Statement | Expression;
+    // (undocumented)
     items: Expression;
-    for: Statement | Expression;
-};
+    // (undocumented)
+    loc: Loc;
+    // (undocumented)
+    type: "each";
+    // (undocumented)
+    _var: string;
+}
 
 // @public (undocumented)
 function eq(a: Value, b: Value): boolean;
@@ -242,10 +328,16 @@ declare namespace errors {
 export { errors }
 
 // @public (undocumented)
-type Exists = NodeBase & {
-    type: 'exists';
+class Exists {
+    constructor(identifier: Identifier, // 変数名
+    loc: Loc);
+    // (undocumented)
     identifier: Identifier;
-};
+    // (undocumented)
+    loc: Loc;
+    // (undocumented)
+    type: "exists";
+}
 
 // @public (undocumented)
 function expectAny(val: Value | null | undefined): asserts val is Value;
@@ -263,63 +355,125 @@ const FALSE: {
 const FN: (args: VUserFn['args'], statements: VUserFn['statements'], scope: VUserFn['scope']) => VUserFn;
 
 // @public (undocumented)
-type Fn = NodeBase & {
-    type: 'fn';
+class Fn {
+    constructor(args: {
+        name: string;
+        argType: TypeSource | null;
+    }[], retType: TypeSource | null, // 戻り値の型
+    children: (Statement | Expression)[], // 本体処理
+    loc: Loc);
+    // (undocumented)
     args: {
         name: string;
-        argType?: TypeSource;
+        argType: TypeSource | null;
     }[];
-    retType?: TypeSource;
+    // (undocumented)
     children: (Statement | Expression)[];
-};
+    // (undocumented)
+    loc: Loc;
+    // (undocumented)
+    retType: TypeSource | null;
+    // (undocumented)
+    type: "fn";
+}
 
 // @public (undocumented)
 const FN_NATIVE: (fn: VNativeFn['native']) => VNativeFn;
 
 // @public (undocumented)
-type FnTypeSource = NodeBase & {
-    type: 'fnTypeSource';
+class FnTypeSource {
+    constructor(args: TypeSource[], // 引数の型
+    result: TypeSource, // 戻り値の型
+    loc: Loc);
+    // (undocumented)
     args: TypeSource[];
+    // (undocumented)
+    loc: Loc;
+    // (undocumented)
     result: TypeSource;
-};
+    // (undocumented)
+    type: "fnTypeSource";
+}
 
 // @public (undocumented)
-type For = NodeBase & {
-    type: 'for';
-    var?: string;
-    from?: Expression;
-    to?: Expression;
-    times?: Expression;
-    for: Statement | Expression;
-};
+class For {
+    constructor(_var: string | null, // イテレータ変数名
+    from: Expression | null, // 開始値
+    to: Expression | null, // 終値
+    times: Expression | null, // 回数
+    _for: Statement | Expression, // 本体処理
+    loc: Loc);
+    // (undocumented)
+    _for: Statement | Expression;
+    // (undocumented)
+    from: Expression | null;
+    // (undocumented)
+    loc: Loc;
+    // (undocumented)
+    times: Expression | null;
+    // (undocumented)
+    to: Expression | null;
+    // (undocumented)
+    type: "for";
+    // (undocumented)
+    _var: string | null;
+}
 
 // @public (undocumented)
 function getLangVersion(input: string): string | null;
 
 // @public (undocumented)
-type Identifier = NodeBase & {
-    type: 'identifier';
+class Identifier {
+    constructor(name: string, // 変数名
+    loc: Loc);
+    // (undocumented)
+    loc: Loc;
+    // (undocumented)
     name: string;
-};
+    // (undocumented)
+    type: "identifier";
+}
 
 // @public (undocumented)
-type If = NodeBase & {
-    type: 'if';
-    cond: Expression;
-    then: Statement | Expression;
+class If {
+    constructor(cond: Expression, // 条件式
+    then: Statement | Expression, // then節
     elseif: {
         cond: Expression;
-        then: Statement | Expression;
+        then: Statement;
+    }[], _else: Statement | Expression | null, // else節
+    loc: Loc);
+    // (undocumented)
+    cond: Expression;
+    // (undocumented)
+    _else: Statement | Expression | null;
+    // (undocumented)
+    elseif: {
+        cond: Expression;
+        then: Statement;
     }[];
-    else?: Statement | Expression;
-};
+    // (undocumented)
+    loc: Loc;
+    // (undocumented)
+    then: Statement | Expression;
+    // (undocumented)
+    type: "if";
+}
 
 // @public (undocumented)
-type Index = NodeBase & {
-    type: 'index';
-    target: Expression;
+class Index {
+    constructor(target: Expression, // 対象
+    index: Expression, // インデックス
+    loc: Loc);
+    // (undocumented)
     index: Expression;
-};
+    // (undocumented)
+    loc: Loc;
+    // (undocumented)
+    target: Expression;
+    // (undocumented)
+    type: "index";
+}
 
 // @public (undocumented)
 export class Interpreter {
@@ -382,42 +536,84 @@ type Loc = {
 };
 
 // @public (undocumented)
-type Loop = NodeBase & {
-    type: 'loop';
+class Loop {
+    constructor(statements: (Statement | Expression)[], // 処理
+    loc: Loc);
+    // (undocumented)
+    loc: Loc;
+    // (undocumented)
     statements: (Statement | Expression)[];
-};
+    // (undocumented)
+    type: "loop";
+}
 
 // @public (undocumented)
-type Match = NodeBase & {
-    type: 'match';
+class Match {
+    constructor(about: Expression, // 対象
+    qs: {
+        q: Expression;
+        a: Statement | Expression;
+    }[], _default: Statement | Expression | null, // デフォルト値
+    loc: Loc);
+    // (undocumented)
     about: Expression;
+    // (undocumented)
+    _default: Statement | Expression | null;
+    // (undocumented)
+    loc: Loc;
+    // (undocumented)
     qs: {
         q: Expression;
         a: Statement | Expression;
     }[];
-    default?: Statement | Expression;
-};
+    // (undocumented)
+    type: "match";
+}
 
 // @public (undocumented)
-type Meta = NodeBase & {
-    type: 'meta';
+class Meta {
+    constructor(name: string | null, // 名
+    value: Expression, // 値
+    loc: Loc);
+    // (undocumented)
+    loc: Loc;
+    // (undocumented)
     name: string | null;
+    // (undocumented)
+    type: "meta";
+    // (undocumented)
     value: Expression;
-};
+}
 
 // @public (undocumented)
-type NamedTypeSource = NodeBase & {
-    type: 'namedTypeSource';
+class NamedTypeSource {
+    constructor(name: string, // 型名
+    inner: TypeSource | null, // 内側の型
+    loc: Loc);
+    // (undocumented)
+    inner: TypeSource | null;
+    // (undocumented)
+    loc: Loc;
+    // (undocumented)
     name: string;
-    inner?: TypeSource;
-};
+    // (undocumented)
+    type: "namedTypeSource";
+}
 
 // @public (undocumented)
-type Namespace = NodeBase & {
-    type: 'ns';
-    name: string;
+class Namespace {
+    constructor(name: string, // 空間名
+    members: (Definition | Namespace)[], // メンバー
+    loc: Loc);
+    // (undocumented)
+    loc: Loc;
+    // (undocumented)
     members: (Definition | Namespace)[];
-};
+    // (undocumented)
+    name: string;
+    // (undocumented)
+    type: "ns";
+}
 
 // @public (undocumented)
 type Node_2 = Namespace | Meta | Statement | Expression | TypeSource | Attribute;
@@ -430,10 +626,16 @@ class NonAiScriptError extends AiScriptError {
 }
 
 // @public (undocumented)
-type Not = NodeBase & {
-    type: 'not';
+class Not {
+    constructor(expr: Expression, // 式
+    loc: Loc);
+    // (undocumented)
     expr: Expression;
-};
+    // (undocumented)
+    loc: Loc;
+    // (undocumented)
+    type: "not";
+}
 
 // @public (undocumented)
 const NULL: {
@@ -441,34 +643,56 @@ const NULL: {
 };
 
 // @public (undocumented)
-type Null = NodeBase & {
-    type: 'null';
-};
+class Null {
+    constructor(loc: Loc);
+    // (undocumented)
+    loc: Loc;
+    // (undocumented)
+    type: "null";
+}
 
 // @public (undocumented)
 const NUM: (num: VNum['value']) => VNum;
 
 // @public (undocumented)
-type Num = NodeBase & {
-    type: 'num';
+class Num {
+    constructor(value: number, // 数値
+    loc: Loc);
+    // (undocumented)
+    loc: Loc;
+    // (undocumented)
+    type: "num";
+    // (undocumented)
     value: number;
-};
+}
 
 // @public (undocumented)
 const OBJ: (obj: VObj['value']) => VObj;
 
 // @public (undocumented)
-type Obj = NodeBase & {
-    type: 'obj';
+class Obj {
+    constructor(value: Map<string, Expression>, // プロパティ
+    loc: Loc);
+    // (undocumented)
+    loc: Loc;
+    // (undocumented)
+    type: "obj";
+    // (undocumented)
     value: Map<string, Expression>;
-};
+}
 
 // @public (undocumented)
-type Or = NodeBase & {
-    type: 'or';
+class Or {
+    constructor(left: Expression, right: Expression, loc: Loc);
+    // (undocumented)
     left: Expression;
+    // (undocumented)
+    loc: Loc;
+    // (undocumented)
     right: Expression;
-};
+    // (undocumented)
+    type: "or";
+}
 
 // @public (undocumented)
 export class Parser {
@@ -488,11 +712,19 @@ export type ParserPlugin = (nodes: Ast.Node[]) => Ast.Node[];
 export type PluginType = 'validate' | 'transform';
 
 // @public (undocumented)
-type Prop = NodeBase & {
-    type: 'prop';
-    target: Expression;
+class Prop {
+    constructor(target: Expression, // 対象
+    name: string, // プロパティ名
+    loc: Loc);
+    // (undocumented)
+    loc: Loc;
+    // (undocumented)
     name: string;
-};
+    // (undocumented)
+    target: Expression;
+    // (undocumented)
+    type: "prop";
+}
 
 // @public (undocumented)
 function reprValue(value: Value, literalLike?: boolean, processedObjects?: Set<object>): string;
@@ -501,10 +733,16 @@ function reprValue(value: Value, literalLike?: boolean, processedObjects?: Set<o
 const RETURN: (v: VReturn['value']) => Value;
 
 // @public (undocumented)
-type Return = NodeBase & {
-    type: 'return';
+class Return {
+    constructor(expr: Expression, // 式
+    loc: Loc);
+    // (undocumented)
     expr: Expression;
-};
+    // (undocumented)
+    loc: Loc;
+    // (undocumented)
+    type: "return";
+}
 
 // @public (undocumented)
 export class Scope {
@@ -528,29 +766,49 @@ export class Scope {
 }
 
 // @public (undocumented)
-type Statement = Definition | Return | Each | For | Loop | Break | Continue | Assign | AddAssign | SubAssign;
+type Statement = Definition | Return | Each | For | Loop | Break | Continue | Assign | AddAssign | SubAssign | Expression;
 
 // @public (undocumented)
 const STR: (str: VStr['value']) => VStr;
 
 // @public (undocumented)
-type Str = NodeBase & {
-    type: 'str';
+class Str {
+    constructor(value: string, // 文字列
+    loc: Loc);
+    // (undocumented)
+    loc: Loc;
+    // (undocumented)
+    type: "str";
+    // (undocumented)
     value: string;
-};
+}
 
 // @public (undocumented)
-type SubAssign = NodeBase & {
-    type: 'subAssign';
+class SubAssign {
+    constructor(dest: Expression, // 代入先
+    expr: Expression, // 式
+    loc: Loc);
+    // (undocumented)
     dest: Expression;
+    // (undocumented)
     expr: Expression;
-};
+    // (undocumented)
+    loc: Loc;
+    // (undocumented)
+    type: "subAssign";
+}
 
 // @public (undocumented)
-type Tmpl = NodeBase & {
-    type: 'tmpl';
+class Tmpl {
+    constructor(tmpl: (string | Expression)[], // 処理
+    loc: Loc);
+    // (undocumented)
+    loc: Loc;
+    // (undocumented)
     tmpl: (string | Expression)[];
-};
+    // (undocumented)
+    type: "tmpl";
+}
 
 // @public (undocumented)
 const TRUE: {
