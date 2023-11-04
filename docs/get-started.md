@@ -261,8 +261,8 @@ AiScriptファイルにメタデータを埋め込める機能です。
 ```
 
 ## エラー型
-一部の標準関数は実行失敗時にエラー型の値を返します。
-これによりエラー処理を行うことができます。
+一部の標準関数は実行失敗時にエラー型の値を返します。  
+これによりエラー処理を行うことができます。  
 ```
 @validate(str){
 	let v=Json:parse(str)
@@ -270,3 +270,15 @@ AiScriptファイルにメタデータを埋め込める機能です。
 	else print('successful')
 }
 ```
+
+## エラーメッセージ
+進行不能なエラーが発生するとエラーメッセージが表示されます。  
+```
+let scores=[10, 8, 5, 5]
+let 3rd=scores[2] // unexpected token: NumberLiteral (Line 2, Column 5)
+```
+```
+let arr=[]
+arr[0] // Runtime: Index out of range. Index: 0 max: -1 (Line 2, Column 4)
+```
+行(Line)、列(Column)は1始まりです。
