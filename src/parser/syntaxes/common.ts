@@ -7,7 +7,7 @@ import type { ITokenStream } from '../streams/token-stream.js';
 
 /**
  * ```abnf
- * Params = "(" [IDENT *(("," / SPACE) IDENT)] ")"
+ * Params = "(" [IDENT [":" Type] *(SEP IDENT [":" Type])] ")"
  * ```
 */
 export function parseParams(s: ITokenStream): { name: string, argType: Ast.TypeSource | null }[] {
@@ -15,16 +15,11 @@ export function parseParams(s: ITokenStream): { name: string, argType: Ast.TypeS
 
 	s.nextWith(TokenKind.OpenParen);
 
-	while (s.kind !== TokenKind.CloseParen) {
-		// separator
-		if (items.length > 0) {
-			if (s.kind === TokenKind.Comma) {
-				s.next();
-			} else if (!s.token.hasLeftSpacing) {
-				throw new AiScriptSyntaxError('separator expected', s.token.loc);
-			}
-		}
+	if (s.kind === TokenKind.NewLine) {
+		s.next();
+	}
 
+	while (s.kind !== TokenKind.CloseParen) {
 		s.expect(TokenKind.Identifier);
 		const name = s.token.value!;
 		s.next();
@@ -36,6 +31,27 @@ export function parseParams(s: ITokenStream): { name: string, argType: Ast.TypeS
 		}
 
 		items.push({ name, argType: type });
+
+		// separator
+		switch (s.kind as TokenKind) {
+			case TokenKind.NewLine: {
+				s.next();
+				break;
+			}
+			case TokenKind.Comma: {
+				s.next();
+				if (s.kind === TokenKind.NewLine) {
+					s.next();
+				}
+				break;
+			}
+			case TokenKind.CloseParen: {
+				break;
+			}
+			default: {
+				throw new AiScriptSyntaxError('separator expected', s.token.loc);
+			}
+		}
 	}
 
 	s.nextWith(TokenKind.CloseParen);
@@ -59,11 +75,21 @@ export function parseBlock(s: ITokenStream): Ast.Statement[] {
 	while (s.kind !== TokenKind.CloseBrace) {
 		steps.push(parseStatement(s));
 
-		if ((s.kind as TokenKind) !== TokenKind.NewLine && (s.kind as TokenKind) !== TokenKind.CloseBrace) {
-			throw new AiScriptSyntaxError('Multiple statements cannot be placed on a single line.', s.token.loc);
-		}
-		while ((s.kind as TokenKind) === TokenKind.NewLine) {
-			s.next();
+		// terminator
+		switch (s.kind as TokenKind) {
+			case TokenKind.NewLine:
+			case TokenKind.SemiColon: {
+				while ([TokenKind.NewLine, TokenKind.SemiColon].includes(s.kind)) {
+					s.next();
+				}
+				break;
+			}
+			case TokenKind.CloseBrace: {
+				break;
+			}
+			default: {
+				throw new AiScriptSyntaxError('Multiple statements cannot be placed on a single line.', s.token.loc);
+			}
 		}
 	}
 
@@ -85,7 +111,7 @@ export function parseType(s: ITokenStream): Ast.TypeSource {
 /**
  * ```abnf
  * FnType = "@" "(" ParamTypes ")" "=>" Type
- * ParamTypes = [Type *(("," / SPACE) Type)]
+ * ParamTypes = [Type *(SEP Type)]
  * ```
 */
 function parseFnType(s: ITokenStream): Ast.TypeSource {
@@ -97,10 +123,14 @@ function parseFnType(s: ITokenStream): Ast.TypeSource {
 	const params: Ast.TypeSource[] = [];
 	while (s.kind !== TokenKind.CloseParen) {
 		if (params.length > 0) {
-			if (s.kind === TokenKind.Comma) {
-				s.next();
-			} else if (!s.token.hasLeftSpacing) {
-				throw new AiScriptSyntaxError('separator expected', s.token.loc);
+			switch (s.kind as TokenKind) {
+				case TokenKind.Comma: {
+					s.next();
+					break;
+				}
+				default: {
+					throw new AiScriptSyntaxError('separator expected', s.token.loc);
+				}
 			}
 		}
 		const type = parseType(s);
