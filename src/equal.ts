@@ -11,8 +11,8 @@ function equalWithRefs(a: any, b: any, prevRefsA: any[], prevRefsB: any[]): bool
 		const refsB = [...prevRefsB, b];
 
 		// 循環チェック
-		const indexA = refsA.findIndex(x => x === a);
-		const indexB = refsB.findIndex(x => x === b);
+		const indexA = prevRefsA.findIndex(x => x === a);
+		const indexB = prevRefsB.findIndex(x => x === b);
 		if (indexA != -1 && indexB != -1 && indexA === indexB) {
 			return true;
 		}
@@ -31,10 +31,9 @@ function equalWithRefs(a: any, b: any, prevRefsA: any[], prevRefsB: any[]): bool
 			if (a.size !== b.size) return false;
 			const aEntries = a.entries();
 			const bEntries = b.entries();
-			while (true) {
+			for (let i = 0; i < a.size; i++) {
 				const entryA = aEntries.next();
 				const entryB = bEntries.next();
-				if (entryA.done === false) break;
 				if (!equalWithRefs(entryA.value[0], entryB.value[0], refsA, refsB)) return false;
 				if (!equalWithRefs(entryA.value[1], entryB.value[1], refsA, refsB)) return false;
 			}
@@ -46,10 +45,9 @@ function equalWithRefs(a: any, b: any, prevRefsA: any[], prevRefsB: any[]): bool
 			if (a.size !== b.size) return false;
 			const aValues = a.values();
 			const bValues = b.values();
-			while (true) {
+			for (let i = 0; i < a.size; i++) {
 				const valueA = aValues.next();
 				const valueB = bValues.next();
-				if (valueA.done === false) break;
 				if (!equalWithRefs(valueA.value, valueB.value, refsA, refsB)) return false;
 			}
 			return true;
