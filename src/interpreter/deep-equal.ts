@@ -1,8 +1,8 @@
-export function deepEqual(a: any, b: any): boolean {
+export function deepEqual(a: unknown, b: unknown): boolean {
 	return deepEqualRefs(a, b, [], []);
 }
 
-function deepEqualRefs(a: any, b: any, prevRefsA: any[], prevRefsB: any[]): boolean {
+function deepEqualRefs(a: unknown, b: unknown, prevRefsA: unknown[], prevRefsB: unknown[]): boolean {
 	if (Object.is(a, b)) return true;
 
 	// object
@@ -13,6 +13,7 @@ function deepEqualRefs(a: any, b: any, prevRefsA: any[], prevRefsB: any[]): bool
 		// 循環チェック
 		const indexA = prevRefsA.findIndex(x => x === a);
 		const indexB = prevRefsB.findIndex(x => x === b);
+		// NOTE: indexA,Bの一致を確認しているが、これで良いのか怪しい
 		if (indexA !== -1 && indexB !== -1 && indexA === indexB) {
 			return true;
 		}
@@ -56,7 +57,7 @@ function deepEqualRefs(a: any, b: any, prevRefsA: any[], prevRefsB: any[]): bool
 		// object keys
 		const keys = Object.keys(a);
 		for (const key of keys) {
-			if (!deepEqualRefs(a[key], b[key], refsA, refsB)) return false;
+			if (!deepEqualRefs((a as Record<string, unknown>)[key], (b as Record<string, unknown>)[key], refsA, refsB)) return false;
 		}
 		return true;
 	}
