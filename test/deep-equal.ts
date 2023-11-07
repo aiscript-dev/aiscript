@@ -5,6 +5,7 @@ describe('compare', () => {
 	test('object and object', () => {
 		assert.strictEqual(deepEqual({ a: 1 }, { a: 1 }), true);
 		assert.strictEqual(deepEqual({ a: 1 }, { a: 2 }), false);
+		assert.strictEqual(deepEqual({ a: 1 }, { a: 1, b: 2 }), false);
 	});
 
 	test('number and number', () => {
