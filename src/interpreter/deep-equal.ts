@@ -10,10 +10,10 @@ function deepEqualRefs(a: unknown, b: unknown, refsA: unknown[], refsB: unknown[
 	// Object (a、b共にnullは含まない)
 	if (a !== null && b !== null && typeof a === 'object' && typeof b === 'object') {
 		// 参照の循環をチェック
-		// NOTE: indexA,Bの一致を確認しているが、これで良いのか怪しい
+		// 両方の循環が確認された時点で、その先も一致すると保証できるためtrueで返す
 		const indexA = refsA.findIndex(x => x === a);
 		const indexB = refsB.findIndex(x => x === b);
-		if (indexA !== -1 && indexB !== -1 && indexA === indexB) {
+		if (indexA !== -1 && indexB !== -1) {
 			return true;
 		}
 
