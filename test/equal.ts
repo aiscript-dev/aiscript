@@ -16,6 +16,16 @@ test('object', () => {
 	assert.strictEqual(equal({ a: 1 }, null), false);
 });
 
+test('number', () => {
+	assert.strictEqual(equal(1, 1), true);
+	assert.strictEqual(equal(1, 2), false);
+});
+
+test('array', () => {
+	assert.strictEqual(equal([1], [1]), true);
+	assert.strictEqual(equal([1], [2]), false);
+});
+
 test('recursive', () => {
 	let x: any = { n: null };
 	x.n = x;
