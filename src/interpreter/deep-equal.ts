@@ -58,8 +58,10 @@ function deepEqualRefs(a: unknown, b: unknown, refsA: unknown[], refsB: unknown[
 		}
 
 		// object keys
-		const keys = Object.keys(a);
-		for (const key of keys) {
+		const keysA = Object.keys(a);
+		const keysB = Object.keys(b);
+		if (keysA.length !== keysB.length) return false;
+		for (const key of keysA) {
 			if (!deepEqualRefs((a as Record<string, unknown>)[key], (b as Record<string, unknown>)[key], nextRefsA, nextRefsB)) return false;
 		}
 		return true;
