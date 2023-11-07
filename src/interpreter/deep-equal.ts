@@ -3,10 +3,11 @@ export function deepEqual(a: unknown, b: unknown): boolean {
 }
 
 function deepEqualRefs(a: unknown, b: unknown, refsA: unknown[], refsB: unknown[]): boolean {
-	// NOTE: Object.is()ではNaN同士の比較結果もtrue
+	// プリミティブ値や参照の比較
+	// NOTE: Object.is()はNaN同士の比較でもtrue
 	if (Object.is(a, b)) return true;
 
-	// Object
+	// Object (a、b共にnullは含まない)
 	if (a !== null && b !== null && typeof a === 'object' && typeof b === 'object') {
 		// 参照の循環をチェック
 		// NOTE: indexA,Bの一致を確認しているが、これで良いのか怪しい
