@@ -1,8 +1,8 @@
-export function equal(a: any, b: any): boolean {
-	return equalWithRefs(a, b, [], []);
+export function deepEqual(a: any, b: any): boolean {
+	return deepEqualRefs(a, b, [], []);
 }
 
-function equalWithRefs(a: any, b: any, prevRefsA: any[], prevRefsB: any[]): boolean {
+function deepEqualRefs(a: any, b: any, prevRefsA: any[], prevRefsB: any[]): boolean {
 	if (Object.is(a, b)) return true;
 
 	// object
@@ -13,7 +13,7 @@ function equalWithRefs(a: any, b: any, prevRefsA: any[], prevRefsB: any[]): bool
 		// 循環チェック
 		const indexA = prevRefsA.findIndex(x => x === a);
 		const indexB = prevRefsB.findIndex(x => x === b);
-		if (indexA != -1 && indexB != -1 && indexA === indexB) {
+		if (indexA !== -1 && indexB !== -1 && indexA === indexB) {
 			return true;
 		}
 
@@ -21,7 +21,7 @@ function equalWithRefs(a: any, b: any, prevRefsA: any[], prevRefsB: any[]): bool
 		if (Array.isArray(a) && Array.isArray(b)) {
 			if (a.length !== b.length) return false;
 			for (let i = 0; i < a.length; i++) {
-				if (!equalWithRefs(a[i], b[i], refsA, refsB)) return false;
+				if (!deepEqualRefs(a[i], b[i], refsA, refsB)) return false;
 			}
 			return true;
 		}
@@ -34,8 +34,8 @@ function equalWithRefs(a: any, b: any, prevRefsA: any[], prevRefsB: any[]): bool
 			for (let i = 0; i < a.size; i++) {
 				const entryA = aEntries.next();
 				const entryB = bEntries.next();
-				if (!equalWithRefs(entryA.value[0], entryB.value[0], refsA, refsB)) return false;
-				if (!equalWithRefs(entryA.value[1], entryB.value[1], refsA, refsB)) return false;
+				if (!deepEqualRefs(entryA.value[0], entryB.value[0], refsA, refsB)) return false;
+				if (!deepEqualRefs(entryA.value[1], entryB.value[1], refsA, refsB)) return false;
 			}
 			return true;
 		}
@@ -48,7 +48,7 @@ function equalWithRefs(a: any, b: any, prevRefsA: any[], prevRefsB: any[]): bool
 			for (let i = 0; i < a.size; i++) {
 				const valueA = aValues.next();
 				const valueB = bValues.next();
-				if (!equalWithRefs(valueA.value, valueB.value, refsA, refsB)) return false;
+				if (!deepEqualRefs(valueA.value, valueB.value, refsA, refsB)) return false;
 			}
 			return true;
 		}
@@ -56,7 +56,7 @@ function equalWithRefs(a: any, b: any, prevRefsA: any[], prevRefsB: any[]): bool
 		// object keys
 		const keys = Object.keys(a);
 		for (const key of keys) {
-			if (!equalWithRefs(a[key], b[key], refsA, refsB)) return false;
+			if (!deepEqualRefs(a[key], b[key], refsA, refsB)) return false;
 		}
 		return true;
 	}
