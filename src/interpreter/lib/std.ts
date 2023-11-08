@@ -3,6 +3,7 @@ import { v4 as uuid } from 'uuid';
 import seedrandom from 'seedrandom';
 import { NUM, STR, FN_NATIVE, FALSE, TRUE, ARR, NULL, BOOL, OBJ, ERROR } from '../value.js';
 import { assertNumber, assertString, assertBoolean, valToJs, jsToVal, assertFunction, assertObject, eq, expectAny, assertArray, reprValue } from '../util.js';
+import { AISCRIPT_VERSION } from '../../index.js';
 import { AiScriptRuntimeError } from '../../error.js';
 import type { Value } from '../value.js';
 
@@ -10,7 +11,7 @@ export const std: Record<string, Value> = {
 	'help': STR('SEE: https://github.com/syuilo/aiscript/blob/master/docs/get-started.md'),
 
 	//#region Core
-	'Core:v': STR('0.16.0'), // TODO: package.jsonを参照
+	'Core:v': STR(AISCRIPT_VERSION),
 
 	'Core:ai': STR('kawaii'),
 
