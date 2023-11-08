@@ -3,8 +3,8 @@ import { v4 as uuid } from 'uuid';
 import seedrandom from 'seedrandom';
 import { NUM, STR, FN_NATIVE, FALSE, TRUE, ARR, NULL, BOOL, OBJ, ERROR } from '../value.js';
 import { assertNumber, assertString, assertBoolean, valToJs, jsToVal, assertFunction, assertObject, eq, expectAny, assertArray, reprValue } from '../util.js';
-import { AISCRIPT_VERSION } from '../../index.js';
 import { AiScriptRuntimeError } from '../../error.js';
+import { AISCRIPT_VERSION } from '../../constants.js'
 import type { Value } from '../value.js';
 
 export const std: Record<string, Value> = {
