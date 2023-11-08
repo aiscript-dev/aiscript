@@ -6,10 +6,17 @@
 `//`で始めた行や`/*` `*/`で囲んだ箇所はコメントになり、プログラムの動作に影響を与えません。
 
 ```js
-// this is a comment
+// 単行コメント
 /*
-   this is a comment too
+   複数行コメント
 */
+```
+
+## バージョンアノテーション
+プログラムの一行目に以下の記法を行うことで、想定されたAiScriptのバージョンを明記することができます。  
+このバージョンはホストプログラムによって読み込まれる場合があります。
+```js
+/// @ 0.16.0
 ```
 
 ## 変数・関数宣言
@@ -29,44 +36,56 @@ var answer2 = 57
 var answer // Syntax Error
 // match等の予約語は変数名として使用できない
 let match = 12 // Syntax Error
+// 同名の変数の再宣言は禁止
+var a = 1
+var a = 2 // Runtime Error
+let a = 3 // Runtime Error
 ```
 ### 関数
+関数宣言はイミュータブル変数を関数で初期化するのと同じ動作になっています。
 ```js
 // 最後の式が暗黙にreturnされる
 @add(x, y) {
 	x + y
 }
 <: add(1, 2) // 3
+// 定数をリテラル関数で初期化しても同じ働きになる
+let add2 = @(x, y) {
+	x + y
+}
 // 明示的にreturnを書くこともできる
-@add2(x, y) {
+@add3(x, y) {
 	return x + y
 }
-<: add(1, 2) // 3
 // 引数を複数行で書いてもよい
-@add3(
+@add4(
 	x,
 	y
 ) {
 	x + y
 }
-@add4(x,y){x+y} // ワンライナー
-// 無名関数は式として使用可能
-let add5 = @(x, y) {
-	x + y
-}
+@add5(x,y){x+y} // ワンライナー
 ```
 ```js
 // match等の予約語は関数名として使用できない
-@match(x, y){ // Syntax Error
+@match(x, y) { // Syntax Error
   x == y
 }
 // 最後の引数の後にはコロンを付けられない
 @add(x, y,) { // Syntax Error
 	x + y
 }
+// 変数同様再宣言は不可
+var func = null
+@func() { // Runtime Error
+  'hoge'
+}
 ```
 
 ## if
+キーワード`if`に続く式がtrueに評価されるかfalseに評価されるかで条件分岐を行います。
+`if`の直後に１つ以上の空白またはタブを挟む必要があります。（改行があっても）
+`bool`型ではない値に評価されるとエラーになります。
 ```js
 // 単行
 if answer == 42 print("correct answer")
@@ -99,7 +118,17 @@ for let i, 10 {
 }
 ```
 
-## Block
+## each
+```
+let arr = ['chan', 'kun', 'sama']
+each let v, arr {
+	<: v
+}
+```
+
+## eval
+別名ブロック式。
+`{ }`内の文を順次評価し、最後の文の値を返します。
 ```js
 let foo = eval {
 	let x = 1
@@ -122,10 +151,10 @@ let y = match x {
 ```
 
 ## exists
+与えられた名称の変数または関数が存在すればtrue、しなければfalseを返します。
 ```js
-let foo = exists bar
-let bar = exists foo
-
-<: foo //false
-<: bar //true
+// 変数barは存在しないためfalse
+var foo = exists bar
+// 変数fooが存在するためtrue
+var bar = exists foo
 ```
