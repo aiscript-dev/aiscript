@@ -20,4 +20,4 @@ export { PluginType };
 export { Cst };
 export { errors };
 export { Ast };
-export const AISCRIPT_VERSION = '0.16.0' as const;
+export const AISCRIPT_VERSION = '0.16.0' as const; // TODO: package.jsonを参照
