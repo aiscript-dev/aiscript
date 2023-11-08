@@ -10,7 +10,7 @@ import { Parser, ParserPlugin, PluginType } from './parser/index.js';
 import * as Cst from './parser/node.js';
 import * as errors from './error.js';
 import * as Ast from './node.js';
-import { AISCRIPT_VERSION } from './constants.js'
+import { AISCRIPT_VERSION } from './constants.js';
 export { Interpreter };
 export { Scope };
 export { utils };
