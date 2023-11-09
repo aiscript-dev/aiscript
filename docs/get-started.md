@@ -158,7 +158,7 @@ let foo = eval {
 AiScriptでの条件分岐は、次のように書きます:
 ```
 if (a == b) {
-	<: "a is equal to b"
+	<: "a equals to b"
 }
 ```
 
@@ -166,18 +166,18 @@ if (a == b) {
 then節の後に`else`を書き、さらに式を追加することで条件に一致しなかった場合の処理も行うことが出来ます:
 ```
 if (a == b) {
-	<: "a is equal to b"
+	<: "a equals to b"
 } else {
-	<: "a is not equal to b"
+	<: "a does not equal to b"
 }
 ```
 
 `elif`の後に条件式を書くことで条件判定を複数行うことも出来ます:
 ```
 if (a == b) {
-	<: "a is equal to b"
+	<: "a equals to b"
 } elif (a > b) {
-	<: "a is grater than b"
+	<: "a is greater than b"
 } else {
 	<: "a is less than b"
 }
@@ -186,9 +186,9 @@ if (a == b) {
 これらの条件分岐は式なので、ブロック内で値を返せます:
 ```
 <: if (a == b) {
-	"a is equal to b"
+	"a equals to b"
 } elif (a > b) {
-	"a is grater than b"
+	"a is greater than b"
 } else {
 	"a is less than b"
 }
