@@ -84,8 +84,9 @@ var func = null
 
 ## if
 キーワード`if`に続く式がtrueに評価されるかfalseに評価されるかで条件分岐を行います。  
+式として扱うことができ、最後の文の値を返します。
 `if`の直後に１つ以上の空白またはタブを挟む必要があります。（改行があっても）  
-`bool`型ではない値に評価されるとエラーになります。  
+条件式が`bool`型ではない値に評価されるとエラーになります。  
 ```js
 // 単行
 if answer == 42 print("correct answer")
@@ -93,7 +94,9 @@ if answer == 42 print("correct answer")
 if answer == 42 {
 	<: "correct answer"
 }
-// 式として使用可能（
+// 条件式は()で囲ってもよい
+if ({ a: true }.a) print('ok')
+// 式として使用可能
 <: `{if answer == 42 "collect answer"}`
 // else, elifも使用可能
 let result = if answer == "bebeyo" {
@@ -112,14 +115,22 @@ if(true) return 1// Syntax Error
 ```
 
 ## for
+与えられた回数のループを行います。  
+ifとは異なり、式として利用することはできません。  
 ```js
-for let i, 10 {
+for let i, 5 {
 	<: i
-}
+} // 0 1 2 3 4
+```
+```
+// イテレータ変数はletで宣言される必要がある
+for var i, 5 {
+	<: i
+} // Syntax Error
 ```
 
 ## each
-```
+```js
 let arr = ['chan', 'kun', 'sama']
 each let v, arr {
 	<: v
