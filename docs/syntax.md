@@ -162,16 +162,27 @@ var bar = exists foo
 ## テンプレート構文
 変数や式を埋め込んだ文字列を作成するための構文です。  
 全体を`` ` ` ``で囲い、式を埋め込む場所は`{ }`で囲います。  
+式の値が文字列でない場合は、[Core:to_str](./std.md)と同じ方法で文字列に変換されます。
+```js
+<: `Ai chan is No.{ 2-1 }` // Ai chan is No.1
+// 改行可　一行にしたい場合は{ Str:lf }を使う
+`This statement is { true }.
+Previous statement is { !true }.`
+// \を前置することで`、{、}、をエスケープできる
+`\` \{ \}` // ` { }
 ```
-let ai = "kawaii"
-<: `Hello, {ai} world!`
-// 結果: Hello, kawaii world!
+```js
+// { }の中身が空であってはならない（{ }を文字列として使いたい場合はエスケープすること）
+`Everything is { } here.` // Syntax Error
+// 式の前後で改行をしてはならない（式中で改行するのは可）
+`Oops, something went { // Syntax Error
+	'wrong'
+}!`
 ```
-
 ## メタデータ
 AiScriptファイルにメタデータを埋め込める機能です。  
 メタデータはホストプログラムによって読まれる場合があります。  
-```
+```js
 ### {
 	name: "example"
 	version: 42
