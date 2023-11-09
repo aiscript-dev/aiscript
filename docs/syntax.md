@@ -175,9 +175,9 @@ Previous statement is { !true }.`
 // { }の中身が空であってはならない（{ }を文字列として使いたい場合はエスケープすること）
 `Everything is { } here.` // Syntax Error
 // 式の前後で改行をしてはならない（式中で改行するのは可）
-`Oops, something went { // Syntax Error
+`Oops, something went {
 	'wrong'
-}!`
+}!` // Syntax Error
 ```
 ## メタデータ
 AiScriptファイルにメタデータを埋め込める機能です。  
