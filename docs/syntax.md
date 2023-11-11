@@ -92,9 +92,27 @@ var func = null
 ### for
 与えられた回数のループを行います。  
 ```js
+let repeat = 5
+for repeat print('Wan') // WanWanWanWanWan
+// {}を使うことで複数の文を書ける
+for 2 + 3 {
+	<: 'Nyan'
+} // NyanNyanNyanNyanNyan
+// ()でくくってもよい
+for ({ a: 3 }.a) {
+  <: 'Piyo'
+} // PiyoPiyoPiyo
+```
+#### for-let
+イテレータ変数を宣言し、ループ内で参照することができます。  
+```js
 for let i, 5 {
 	<: i
 } // 0 1 2 3 4
+// 初期値を設定することもできる
+for let i = 3, 5 {
+	<: i
+} // 3 4 5 6 7
 ```
 ```js
 // イテレータ変数はletで宣言される必要がある
@@ -104,11 +122,23 @@ for var i, 5 {
 ```
 
 ### each
+配列の各要素に対しループを行います。  
 ```js
-let arr = ['chan', 'kun', 'sama']
+let arr = ['foo', 'bar', 'baz']
 each let v, arr {
 	<: v
-}
+} // foo bar baz
+```
+
+### loop
+`break`されるまで無制限にループを行います。  
+```
+var i = 5
+loop {
+	<: i
+	i -= 1
+	if i == 0 break
+} // 5 4 3 2 1
 ```
 
 ## グローバル文
@@ -131,7 +161,7 @@ each let v, arr {
 複数の定数・関数に共通した接頭辞をつけることのできる機能です。  
 ミュータブルな変数の存在は許容されていません。  
 未発達な機能であり、今後役割が大きく変更される可能性があります。  
-```
+```js
 :: Ai {
 	let chan = 'kawaii'
 	@kun() {
@@ -185,7 +215,6 @@ let foo = eval {
 	let y = 2
 	x + y
 }
-
 <: foo // 3
 ```
 
