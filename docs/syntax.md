@@ -132,7 +132,7 @@ each let v, arr {
 
 ### loop
 `break`されるまで無制限にループを行います。  
-```
+```js
 var i = 5
 loop {
 	<: i
