@@ -174,6 +174,10 @@ Ai:kun() // kawaii
 
 ## 式
 
+### リテラル
+値をスクリプト中に直接書き込むことができる構文です。  
+詳しくは→[literals.md](./literals.md)  
+
 ### if
 キーワード`if`に続く式がtrueに評価されるかfalseに評価されるかで条件分岐を行います。  
 式として扱うことができ、最後の文の値を返します。
@@ -236,25 +240,4 @@ let y = match x {
 var foo = exists bar
 // 変数fooが存在するためtrue
 var bar = exists foo
-```
-
-### テンプレート構文
-変数や式を埋め込んだ文字列を作成するための構文です。  
-全体を`` ` ` ``で囲い、式を埋め込む場所は`{ }`で囲います。  
-式の値が文字列でない場合は、[Core:to_str](./std.md)と同じ方法で文字列に変換されます。  
-```js
-<: `Ai chan is No.{ 2-1 }` // Ai chan is No.1
-// 改行可　一行にしたい場合は{ Str:lf }を使う
-`This statement is { true }.
-Previous statement is { !true }.`
-// \を前置することで`、{、}、をエスケープできる
-`\` \{ \}` // ` { }
-```
-```js
-// { }の中身が空であってはならない（{ }を文字列として使いたい場合はエスケープすること）
-`Everything is { } here.` // Syntax Error
-// 式の前後で改行をしてはならない（式中で改行するのは可）
-`Oops, something went {
-	'wrong'
-}!` // Syntax Error
 ```
