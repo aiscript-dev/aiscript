@@ -103,6 +103,12 @@ for ({ a: 3 }.a) {
   <: 'Piyo'
 } // PiyoPiyoPiyo
 ```
+```js
+// {の直前に空白必須
+for 5{ // Syntax Error
+	<: 'Mogu'
+}
+```
 #### for-let
 イテレータ変数を宣言し、ループ内で参照することができます。  
 ```js
@@ -129,6 +135,12 @@ each let v, arr {
 	<: v
 } // foo bar baz
 ```
+```js
+// {の直前に空白必須
+each let v, arr{ // Syntax Error
+	<: v
+}
+```
 
 ### loop
 `break`されるまで無制限にループを行います。  
@@ -141,7 +153,7 @@ loop {
 } // 5 4 3 2 1
 ```
 
-## グローバル文
+## グローバル専用文
 他の構文要素の内部に書くことを許容されない特殊な文です。  
 これらの構文要素は実行開始時に巻き上げられるため、プログラム上のどこに書いても最初に読み込まれます。  
 
@@ -153,7 +165,7 @@ loop {
 ### {
 	name: "example"
 	version: 42
-	keywords: ["foo" "bar" "baz"]
+	keywords: ["foo", "bar", "baz"]
 }
 ```
 
@@ -206,8 +218,9 @@ let result = if answer == "bebeyo" {
 <: if false 1 // null
 ```
 ```js
-// ifの直後の空白は必須
-if(true) return 1// Syntax Error
+// 条件式の前後の空白は必須（かっこでくくっていても）
+if(true) return 1 // Syntax Error
+if (true)return 1 // Syntax Error
 ```
 
 ### eval
