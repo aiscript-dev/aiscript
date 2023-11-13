@@ -221,6 +221,10 @@ let result = if answer == "bebeyo" {
 // 条件式の前後の空白は必須（かっこでくくっていても）
 if(true) return 1 // Syntax Error
 if (true)return 1 // Syntax Error
+// elif, elseの直前の空白は必須
+if (false) {
+}elif (true) { // Syntax Error
+}else {} // Syntax Error
 ```
 
 ### eval
