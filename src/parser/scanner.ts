@@ -582,7 +582,6 @@ export class Scanner implements ITokenStream {
 				break;
 			}
 			if (this.stream.char === '\n') {
-				this.stream.next();
 				break;
 			}
 			this.stream.next();
