@@ -22,7 +22,7 @@ print("Hello, world!")
 `"~"`は文字列リテラルです。`"`で囲ったものが文字列になります。
 
 ちなみに、`print( ~ )`には糖衣構文があり、次のようにも書けます:
-```
+```js
 <: "Hello, world!"
 ```
 
@@ -86,13 +86,13 @@ print(message)
 ## 配列
 `[]`の中に式をスペースで区切って列挙します。
 ```
-["ai" "chan" "kawaii"]
+["ai", "chan", "kawaii"]
 ```
 
 配列の要素にアクセスするときは、`[<index>]`と書きます。
 インデックスは0始まりです。
 ```
-let arr = ["ai" "chan" "kawaii"]
+let arr = ["ai", "chan", "kawaii"]
 <: arr[0] // "ai"
 <: arr[2] // "kawaii"
 ```
@@ -216,7 +216,7 @@ for (100) {
 ## 繰り返し(配列)
 `each`を使うと、配列の各アイテムに対し処理を繰り返すことができます:
 ```
-let items = ["a" "b" "c"]
+let items = ["a", "b", "c"]
 each (let item, items) {
 	<: item
 }
@@ -260,7 +260,7 @@ AiScriptファイルにメタデータを埋め込める機能です。
 ### {
 	name: "example"
 	version: 42
-	keywords: ["foo" "bar" "baz"]
+	keywords: ["foo", "bar", "baz"]
 }
 ```
 
