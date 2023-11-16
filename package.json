@@ -33,7 +33,8 @@
 		"lint": "eslint . --ext .js,.jsx,.ts,.tsx",
 		"jest": "jest --coverage --detectOpenHandles",
 		"tsd": "tsd",
-		"test": "npm run jest"
+		"test": "npm run jest",
+		"prepare": "npm run build"
 	},
 	"devDependencies": {
 		"@microsoft/api-extractor": "7.38.3",
