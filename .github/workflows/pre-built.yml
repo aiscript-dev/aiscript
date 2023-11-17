@@ -12,7 +12,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      BRANCH_NAME: built-${ GITHUB_REF##*/ }
 
     steps:
       - name: Checkout
@@ -38,6 +37,7 @@ jobs:
 
       - name: Deploy
         run: |
+          BRANCH_NAME=built-${GITHUB_REF##*/}
           cat .npmignore > .gitignore
           rm -rf .git
           git init -b $BRANCH_NAME
