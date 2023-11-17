@@ -2,6 +2,9 @@
 /src
 /test
 /coverage
+/.github
+/playground
+/temp
 .gitignore
 npm-debug.log
 gulpfile.js
