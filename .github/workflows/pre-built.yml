@@ -1,0 +1,50 @@
+name: Deploy Pre-built branch
+
+on:
+  push:
+    branches:
+      - master
+      - aiscript-next
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      BRANCH_NAME: built-${ GITHUB_REF##*/ }
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4.0.0
+        with:
+          node-version: 20.x
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: npm-${{ hashFiles('package-lock.json') }}
+          restore-keys: npm-
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Deploy
+        run: |
+          cat .npmignore > .gitignore
+          rm -rf .git
+          git init -b $BRANCH_NAME
+          git config user.email "none"
+          git config user.name "bot"
+          git add .
+          git commit -m'update build'
+          git remote add origin $GITHUB_SERVER_URL/$GITHUB_REPOSITORY
+          gh auth setup-git
+          git push -f -u origin $BRANCH_NAME
