@@ -43,8 +43,8 @@ export type VUserFn = VFnBase & {
 };
 export type VFnArg = {
 	name: string;
-	optional?: boolean;
 	type?: Type;
+	default?: Value;
 }
 /**
  * When your AiScript NATIVE function passes VFn.call to other caller(s) whose error thrown outside the scope, use VFn.topCall instead to keep it under AiScript error control system.

@@ -231,10 +231,11 @@ export class Interpreter {
 		} else {
 			const _args = new Map<string, Variable>();
 			for (const i in fn.args) {
-				if (!fn.args[i]!.optional) expectAny(args[i]);
-				_args.set(fn.args[i]!.name, {
+				const argdef = fn.args[i]!;
+				if (!argdef.default) expectAny(args[i]);
+				_args.set(argdef.name, {
 					isMutable: true,
-					value: args[i] ?? NULL,
+					value: args[i] ?? argdef.default!,
 				});
 			}
 			const fnScope = fn.scope!.createChildScope(_args);
@@ -488,13 +489,13 @@ export class Interpreter {
 
 			case 'fn': {
 				return FN(
-					node.args.map(arg => {
+					await Promise.all(node.args.map(async (arg) => {
 						return {
 							name: arg.name,
-							optional: arg.optional,
+							default: arg.default ? await this._eval(arg.default, scope) : undefined,
 							// type: (TODO)
 						};
-					}),
+					})),
 					node.children,
 					scope,
 				);
