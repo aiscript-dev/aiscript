@@ -43,7 +43,7 @@ this is a comment
 ```
 ## 組み込み型
 <table>
-	<tr><th>型名</th><th>識別子</th><th>リテラル例</th></tr>
+	<tr><th>名称</th><th>型名</th><th>リテラル例</th></tr>
 	<tr><td>文字列</td><td><code>str</code></td><td><code>"kawaii"</code></td></tr>
 	<tr><td>数値</td><td><code>num</code></td><td><code>42</code></td></tr>
 	<tr><td>真理値</td><td><code>bool</code></td><td><code>true</code>/<code>false</code></td></tr>
