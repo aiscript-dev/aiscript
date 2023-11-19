@@ -270,6 +270,7 @@ type Fn = NodeBase & {
     type: 'fn';
     args: {
         name: string;
+        optional?: boolean;
         default?: Expression;
         argType?: TypeSource;
     }[];

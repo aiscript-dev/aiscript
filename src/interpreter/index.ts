@@ -492,7 +492,7 @@ export class Interpreter {
 					await Promise.all(node.args.map(async (arg) => {
 						return {
 							name: arg.name,
-							default: arg.default ? await this._eval(arg.default, scope) : undefined,
+							default: arg.default ? await this._eval(arg.default, scope) : arg.optional ? NULL : undefined,
 							// type: (TODO)
 						};
 					})),
