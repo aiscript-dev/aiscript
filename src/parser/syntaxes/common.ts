@@ -26,7 +26,7 @@ export function parseParams(s: ITokenStream): { name: string, argType?: Ast.Node
 		const name = s.token.value!;
 		s.next();
 
-		let optional;
+		let optional = false;
 		if ((s.kind as TokenKind) === TokenKind.Question) {
 			s.next();
 			optional = true;
