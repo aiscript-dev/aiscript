@@ -45,7 +45,7 @@ jobs:
 
       - name: Check Commits
         run: |
-          echo 'LAST_COMMITS='$( git log --since yesterday | wc -c ) >> $GITHUB_ENV
+          echo 'LAST_COMMITS='$( git log --since '24 hours ago' | wc -c ) >> $GITHUB_ENV
 
       - name: Publish
         uses: JS-DevTools/npm-publish@v3
