@@ -32,6 +32,25 @@ Core:range(0,2).push(4) //[0,1,2,4]
 ### @(_v_: str).to_num(): num | null
 文字列が数字であれば、数値に変換します。  
 
+### @(_v_: str).to_arr(): `arr<str>`
+文字列を Unicode コードポイント毎に区切り、配列にしたものを返します。  
+文字列に孤立サロゲートが含まれない場合、孤立サロゲートを返すことはありません。  
+
+### @(_v_: str).to_unicode_codepoint_arr(): `arr<num>`
+文字列を Unicode コードポイント毎に区切り、それぞれ[コードポイント](https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/String/codePointAt)値を取得し配列にしたものを返します。  
+文字列に孤立サロゲートが含まれない場合、孤立サロゲートを返すことはありません。  
+
+### @(_v_: str).to_char_arr(): `arr<str>`
+文字列を UTF-16 コード単位毎に区切り、配列にしたものを返します。  
+文字列にサロゲートペアが含まれる場合、上位と下位それぞれ孤立サロゲートを返します。
+
+### @(_v_: str).to_charcode_arr(): `arr<num>`
+文字列を UTF-16 コード単位毎に区切り、それぞれ[UTF-16 コード単位を表す `0` から `65535` までの整数](https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/String/charCodeAt)を取得し配列にしたものを返します。  
+文字列にサロゲートペアが含まれる場合、上位と下位それぞれ孤立サロゲートを返します。
+
+### @(_v_: str).to_utf8_byte_arr(): `arr<num>`
+文字列を UTF-8 エンコードし、各バイト毎の `0` から `255` までの整数値を取得し配列にしたものを返します。  
+
 ### @(_v_: str).pick(_i_: num): str | null
 文字列中の _i_ 番目の文字を取得します。  
 
@@ -61,9 +80,15 @@ _splitter_ が与えられなければ一文字づつ区切ります。
 文字列中の英字を小文字に変換して返します。
 
 ### @(_v_: str).codepoint_at(_i_: num): num | null
-_i_ 番目の文字の[コードポイント](https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/String/codePointAt)を取得します。  
+_i_ 番目のにある [UTF-16 コード単位を表す `0` から `65535` までの整数](https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/String/charCodeAt)を返します。  
+文字列にサロゲートペアが含まれる場合、位置によって上位または下位の孤立サロゲートを返すことがあります。  
 _i_ 番目の文字が存在しない場合は null が返されます。  
 
+### @(_v_: str).unicode_codepoint_at(_i_: num): num | null
+_i_ 番目の文字の[コードポイント](https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/String/codePointAt)を取得します。  
+インデックスは UTF-16 コード単位に基づきます。  
+文字列にサロゲートペアが含まれ、指定位置が下位のサロゲートである場合、下位の孤立サロゲートを返します。  
+_i_ 番目の文字が存在しない場合は null が返されます。  
 
 ## 配列
 ### #(_v_: arr).len
