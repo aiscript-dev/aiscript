@@ -2499,6 +2499,17 @@ describe('primitive props', () => {
 				ARR([NUM(97), NUM(98), NUM(99), NUM(55399), NUM(56893), NUM(55357), NUM(56393), NUM(55356), NUM(57343), NUM(55357), NUM(56424), NUM(8205), NUM(55357), NUM(56422), NUM(100), NUM(101), NUM(102)])
 			);
 		});
+
+		test.concurrent("to_utf8_byte_arr", async () => {
+			const res = await exe(`
+			let str = "abc𩸽👉🏿👨‍👦def"
+			<: str.to_utf8_byte_arr()
+			`);
+			eq(
+				res,
+				ARR([NUM(97), NUM(98), NUM(99), NUM(240), NUM(169), NUM(184), NUM(189), NUM(240), NUM(159), NUM(145), NUM(137), NUM(240), NUM(159), NUM(143), NUM(191), NUM(240), NUM(159), NUM(145), NUM(168), NUM(226), NUM(128), NUM(141), NUM(240), NUM(159), NUM(145), NUM(166), NUM(100), NUM(101), NUM(102)])
+			);
+		});
 	});
 
 	describe('arr', () => {
