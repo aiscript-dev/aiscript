@@ -2478,6 +2478,17 @@ describe('primitive props', () => {
 			);
 		});
 
+		test.concurrent("to_unicode_codepoint_arr", async () => {
+			const res = await exe(`
+			let str = "𩸽👉🏿👨‍👦"
+			<: str.to_unicode_codepoint_arr()
+			`);
+			eq(
+				res,
+				ARR([NUM(171581), NUM(128073), NUM(127999), NUM(128104), NUM(8205), NUM(128102)])
+			);
+		});
+
 		test.concurrent("to_char_arr", async () => {
 			const res = await exe(`
 			let str = "abc𩸽👉🏿👨‍👦def"
