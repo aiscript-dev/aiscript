@@ -481,9 +481,9 @@ export const std: Record<string, Value> = {
 		})).join(''));
 	}),
 	
-	'Str:from_utf8_bytes': FN_NATIVE(([codePoints]) => {
-		assertArray(codePoints);
-		return STR(textDecoder.decode(Uint8Array.from(codePoints.value.map((a) => {
+	'Str:from_utf8_bytes': FN_NATIVE(([bytes]) => {
+		assertArray(bytes);
+		return STR(textDecoder.decode(Uint8Array.from(bytes.value.map((a) => {
 			assertNumber(a);
 			return a.value;
 		}))));
