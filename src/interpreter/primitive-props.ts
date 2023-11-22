@@ -22,6 +22,10 @@ const PRIMITIVE_PROPS: {
 			return NUM(parsed);
 		}),
 
+		to_arr: (target: VStr): VFn => FN_NATIVE(async (_, _opts) => {
+			return ARR([...target.value].map((s) => STR(s)));
+		}),
+
 		len: (target: VStr): VNum => NUM(length(target.value)),
 
 		replace: (target: VStr): VFn => FN_NATIVE(async ([a, b], _opts) => {
