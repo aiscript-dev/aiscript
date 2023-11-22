@@ -2910,6 +2910,13 @@ describe('std', () => {
 			eq(res, STR('A'));
 		});
 
+		test.concurrent('from_unicode_codepoints', async () => {
+			const res = await exe(`
+			<: Str:from_unicode_codepoints([171581, 128073, 127999, 128104, 8205, 128102])
+			`);
+			eq(res, STR('𩸽👉🏿👨‍👦'));
+		});
+
 		test.concurrent('codepoint_at', async () => {
 			let res = await exe(`
 			<: "aiscript".split().map(@(x, _) { x.codepoint_at(0) })
