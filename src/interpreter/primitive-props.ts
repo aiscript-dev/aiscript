@@ -30,7 +30,7 @@ const PRIMITIVE_PROPS: {
 		to_unicode_codepoint_arr: (target: VStr): VFn => FN_NATIVE(async (_, _opts) => {
 			return ARR([...target.value].map((s) => {
 				const res = s.codePointAt(0);
-				return res ? NUM(res) : NUM(0);
+				return NUM(res ?? s.charCodeAt(0));
 			}));
 		}),
 
@@ -109,9 +109,8 @@ const PRIMITIVE_PROPS: {
 		unicode_codepoint_at: (target: VStr): VFn => FN_NATIVE(([i], _) => {
 			assertNumber(i);
 
-			const res = target.value.codePointAt(i.value);
-
-			return res ? NUM(res) : NULL;
+			const res = target.value.codePointAt(i.value) ?? target.value.charCodeAt(i.value);
+			return Number.isNaN(res) ? NULL : NUM(res);
 		}),
 	},
 
