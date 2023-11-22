@@ -2477,6 +2477,28 @@ describe('primitive props', () => {
 				ARR([STR("𩸽"), STR("👉"), STR("🏿"), STR("👨"), STR("‍"), STR("👦")])
 			);
 		});
+
+		test.concurrent("to_char_arr", async () => {
+			const res = await exe(`
+			let str = "abc𩸽👉🏿👨‍👦def"
+			<: str.to_char_arr()
+			`);
+			eq(
+				res,
+				ARR([97, 98, 99, 55399, 56893, 55357, 56393, 55356, 57343, 55357, 56424, 8205, 55357, 56422, 100, 101, 102].map((s) => STR(String.fromCharCode(s))))
+			);
+		});
+
+		test.concurrent("to_charcode_arr", async () => {
+			const res = await exe(`
+			let str = "abc𩸽👉🏿👨‍👦def"
+			<: str.to_charcode_arr()
+			`);
+			eq(
+				res,
+				ARR([NUM(97), NUM(98), NUM(99), NUM(55399), NUM(56893), NUM(55357), NUM(56393), NUM(55356), NUM(57343), NUM(55357), NUM(56424), NUM(8205), NUM(55357), NUM(56422), NUM(100), NUM(101), NUM(102)])
+			);
+		});
 	});
 
 	describe('arr', () => {
