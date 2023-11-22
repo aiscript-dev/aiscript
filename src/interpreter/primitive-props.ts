@@ -1,5 +1,6 @@
 import { substring, length, indexOf, toArray } from 'stringz';
 import { AiScriptRuntimeError } from '../error.js';
+import { textEncoder } from '../const.js';
 import { assertArray, assertBoolean, assertFunction, assertNumber, assertString, expectAny } from './util.js';
 import { ARR, FALSE, FN_NATIVE, NULL, NUM, STR, TRUE } from './value.js';
 import type { Value, VArr, VFn, VNum, VStr, VError } from './value.js';
@@ -32,6 +33,10 @@ const PRIMITIVE_PROPS: {
 
 		to_charcode_arr: (target: VStr): VFn => FN_NATIVE(async (_, _opts) => {
 			return ARR(target.value.split('').map((s) => NUM(s.charCodeAt(0))));
+		}),
+
+		to_utf8_byte_arr: (target: VStr): VFn => FN_NATIVE(async (_, _opts) => {
+			return ARR(Array.from(textEncoder.encode(target.value)).map((s) => NUM(s)));
 		}),
 
 		len: (target: VStr): VNum => NUM(length(target.value)),
