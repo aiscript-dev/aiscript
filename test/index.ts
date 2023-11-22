@@ -2458,6 +2458,14 @@ describe('primitive props', () => {
 			`);
 			eq(res, STR('el'));
 		});
+
+		test.concurrent("unicode_codepoint_at", async () => {
+			const res = await exe(`
+			let str = "𩸽"
+			<: str.unicode_codepoint_at(0)
+			`);
+			eq(res, NUM(171581));
+		});
 	});
 
 	describe('arr', () => {
