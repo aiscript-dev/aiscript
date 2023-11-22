@@ -5,6 +5,7 @@ import { NUM, STR, FN_NATIVE, FALSE, TRUE, ARR, NULL, BOOL, OBJ, ERROR } from '.
 import { assertNumber, assertString, assertBoolean, valToJs, jsToVal, assertFunction, assertObject, eq, expectAny, assertArray, reprValue } from '../util.js';
 import { AiScriptRuntimeError } from '../../error.js';
 import type { Value } from '../value.js';
+import { textDecoder } from '../../const.js';
 
 export const std: Record<string, Value> = {
 	'help': STR('SEE: https://github.com/syuilo/aiscript/blob/master/docs/get-started.md'),
@@ -478,6 +479,14 @@ export const std: Record<string, Value> = {
 			assertNumber(a);
 			return String.fromCodePoint(a.value);
 		})).join(''));
+	}),
+	
+	'Str:from_utf8_bytes': FN_NATIVE(([codePoints]) => {
+		assertArray(codePoints);
+		return STR(textDecoder.decode(Uint8Array.from(codePoints.value.map((a) => {
+			assertNumber(a);
+			return a.value;
+		}))));
 	}),
 	//#endregion
 
