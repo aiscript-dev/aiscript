@@ -2928,6 +2928,13 @@ describe('std', () => {
 			eq(res, STR('𩸽👉🏿👨‍👦'));
 		});
 
+		test.concurrent('from_utf8_bytes', async () => {
+			const res = await exe(`
+			<: Str:from_utf8_bytes([240, 169, 184, 189, 240, 159, 145, 137, 240, 159, 143, 191, 240, 159, 145, 168, 226, 128, 141, 240, 159, 145, 166])
+			`);
+			eq(res, STR('𩸽👉🏿👨‍👦'));
+		});
+
 		test.concurrent('codepoint_at', async () => {
 			let res = await exe(`
 			<: "aiscript".split().map(@(x, _) { x.codepoint_at(0) })
