@@ -471,6 +471,14 @@ export const std: Record<string, Value> = {
 
 		return STR(String.fromCodePoint(codePoint.value));
 	}),
+
+	'Str:from_unicode_codepoints': FN_NATIVE(([codePoints]) => {
+		assertArray(codePoints);
+		return STR(Array.from(codePoints.value.map((a) => {
+			assertNumber(a);
+			return String.fromCodePoint(a.value);
+		})).join(''));
+	}),
 	//#endregion
 
 	//#region Arr
