@@ -2466,6 +2466,17 @@ describe('primitive props', () => {
 			`);
 			eq(res, NUM(171581));
 		});
+
+		test.concurrent("to_arr", async () => {
+			const res = await exe(`
+			let str = "𩸽👉🏿👨‍👦"
+			<: str.to_arr()
+			`);
+			eq(
+				res,
+				ARR([STR("𩸽"), STR("👉"), STR("🏿"), STR("👨"), STR("‍"), STR("👦")])
+			);
+		});
 	});
 
 	describe('arr', () => {
