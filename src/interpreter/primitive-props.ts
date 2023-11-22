@@ -27,6 +27,13 @@ const PRIMITIVE_PROPS: {
 			return ARR([...target.value].map((s) => STR(s)));
 		}),
 
+		to_unicode_codepoint_arr: (target: VStr): VFn => FN_NATIVE(async (_, _opts) => {
+			return ARR([...target.value].map((s) => {
+				const res = s.codePointAt(0);
+				return res ? NUM(res) : NULL;
+			}));
+		}),
+
 		to_char_arr: (target: VStr): VFn => FN_NATIVE(async (_, _opts) => {
 			return ARR(target.value.split('').map((s) => STR(s)));
 		}),
@@ -104,7 +111,7 @@ const PRIMITIVE_PROPS: {
 
 			const res = target.value.codePointAt(i.value);
 
-			return typeof res !== 'number' ? NULL : NUM(res);
+			return res ? NUM(res) : NULL;
 		}),
 	},
 
