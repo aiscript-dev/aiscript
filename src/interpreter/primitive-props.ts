@@ -26,6 +26,14 @@ const PRIMITIVE_PROPS: {
 			return ARR([...target.value].map((s) => STR(s)));
 		}),
 
+		to_char_arr: (target: VStr): VFn => FN_NATIVE(async (_, _opts) => {
+			return ARR(target.value.split('').map((s) => STR(s)));
+		}),
+
+		to_charcode_arr: (target: VStr): VFn => FN_NATIVE(async (_, _opts) => {
+			return ARR(target.value.split('').map((s) => NUM(s.charCodeAt(0))));
+		}),
+
 		len: (target: VStr): VNum => NUM(length(target.value)),
 
 		replace: (target: VStr): VFn => FN_NATIVE(async ([a, b], _opts) => {
