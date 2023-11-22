@@ -109,7 +109,7 @@ const PRIMITIVE_PROPS: {
 
 				const res = target.value.codePointAt(i.value);
 
-				return typeof res !== "number" ? NULL : NUM(res);
+				return typeof res !== 'number' ? NULL : NUM(res);
 			}),
 	},
 
