@@ -81,6 +81,14 @@ const PRIMITIVE_PROPS: {
 
 			return Number.isNaN(res) ? NULL : NUM(res);
 		}),
+
+		unicode_codepoint_at: (target: VStr): VFn => FN_NATIVE(([i], _) => {
+			assertNumber(i);
+
+			const res = target.value.codePointAt(i.value);
+
+			return typeof res !== 'number' ? NULL : NUM(res);
+		}),
 	},
 
 	arr: {
