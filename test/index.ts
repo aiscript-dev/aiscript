@@ -2474,7 +2474,18 @@ describe('primitive props', () => {
 			`);
 			eq(
 				res,
-				ARR([STR("𩸽"), STR("👉"), STR("🏿"), STR("👨"), STR("‍"), STR("👦")])
+				ARR([STR("𩸽"), STR("👉🏿"), STR("👨‍👦")])
+			);
+		});
+
+		test.concurrent("to_unicode_arr", async () => {
+			const res = await exe(`
+			let str = "𩸽👉🏿👨‍👦"
+			<: str.to_unicode_arr()
+			`);
+			eq(
+				res,
+				ARR([STR("𩸽"), STR("👉"), STR(String.fromCodePoint(0x1F3FF)), STR("👨"), STR("\u200d"), STR("👦")])
 			);
 		});
 

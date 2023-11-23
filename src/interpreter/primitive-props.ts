@@ -24,6 +24,10 @@ const PRIMITIVE_PROPS: {
 		}),
 
 		to_arr: (target: VStr): VFn => FN_NATIVE(async (_, _opts) => {
+			return ARR(toArray(target.value).map(s => STR(s)));
+		}),
+
+		to_unicode_arr: (target: VStr): VFn => FN_NATIVE(async (_, _opts) => {
 			return ARR([...target.value].map((s) => STR(s)));
 		}),
 
