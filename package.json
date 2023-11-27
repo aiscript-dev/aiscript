@@ -26,7 +26,7 @@
 		"ts": "npm run ts-esm && npm run ts-dts",
 		"ts-esm": "tsc --outDir built/esm",
 		"ts-dts": "tsc --outDir built/dts --declaration true --emitDeclarationOnly true --declarationMap true",
-		"build": "npm run peg && npm run ts",
+		"build": "node scripts/gen-pkg-ts.mjs && npm run peg && npm run ts",
 		"build-debug": "npm run peg-debug && tsc",
 		"api": "npx api-extractor run --local --verbose",
 		"api-prod": "npx api-extractor run --verbose",
