@@ -1,8 +1,8 @@
-name: Daily Publication of branch aiscript-next
+name: Publish nightly (next)
 
 on:
   schedule:
-    - cron:  '0 4 * * *'
+    - cron: '50 18 * * *'
   workflow_dispatch:
 
 jobs:

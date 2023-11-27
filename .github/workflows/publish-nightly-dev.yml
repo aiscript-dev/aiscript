@@ -1,8 +1,8 @@
-name: Daily Publication of branch master
+name: Publish nightly (dev)
 
 on:
   schedule:
-    - cron:  '0 4 * * *'
+    - cron: '50 18 * * *'
   workflow_dispatch:
 
 jobs:
