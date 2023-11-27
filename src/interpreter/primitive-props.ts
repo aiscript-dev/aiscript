@@ -102,7 +102,7 @@ const PRIMITIVE_PROPS: {
 			return char ? STR(char) : NULL;
 		}),
 
-		codepoint_at: (target: VStr): VFn => FN_NATIVE(([i], _) => {
+		charcode_at: (target: VStr): VFn => FN_NATIVE(([i], _) => {
 			assertNumber(i);
 
 			const res = target.value.charCodeAt(i.value);
@@ -110,7 +110,7 @@ const PRIMITIVE_PROPS: {
 			return Number.isNaN(res) ? NULL : NUM(res);
 		}),
 
-		unicode_codepoint_at: (target: VStr): VFn => FN_NATIVE(([i], _) => {
+		codepoint_at: (target: VStr): VFn => FN_NATIVE(([i], _) => {
 			assertNumber(i);
 
 			const res = target.value.codePointAt(i.value) ?? target.value.charCodeAt(i.value);
