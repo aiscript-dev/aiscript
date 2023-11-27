@@ -341,6 +341,15 @@ describe('Comment', () => {
 		const res = await exe('<: "//"');
 		eq(res, STR('//'));
 	});
+
+	test.concurrent('line tail', async () => {
+		const res = await exe(`
+		let x = 'a' // comment
+		let y = 'b'
+		<: x
+		`);
+		eq(res, STR('a'));
+	});
 });
 
 test.concurrent('式にコロンがあってもオブジェクトと判定されない', async () => {
