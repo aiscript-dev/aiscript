@@ -193,3 +193,47 @@ export function reprValue(value: Value, literalLike = false, processedObjects = 
 
 	return '?';
 }
+
+function clz64(num: number): number {
+	const q = num / (2 ** 32);
+	const r = num % (2 ** 32);
+	const upper = Math.clz32(q);
+	const lower = Math.clz32(r) + 32;
+	return upper < 32 ? upper : lower;
+}
+
+export function cryptoGen64(array: BigUint64Array): bigint | null {
+	if (array.length < 1) return null;
+	const generated = crypto.getRandomValues(array)[0];
+	if (!generated) {
+		return null;
+	}
+	return generated;
+}
+
+export function signedNumber32ToBigUint32(num: number) : bigint {
+	return BigInt((num & 0x7fffffff) - (num & 0x80000000));	// bitwise operators always treats numbers as 32bit signed integers, but arithmetic operators don't.
+}
+
+export function unbiasedRandomIntegerInRange<G>(min: number, max: number, generator: G, gen64: (generator: G) => bigint | null): number | null {
+	const ceilMin = Math.ceil(min);
+	const floorMax = Math.floor(max);
+	const signedScale = floorMax - ceilMin;
+	if (signedScale === 0) return 0;
+	const scale = Math.abs(signedScale);
+	const scaleSign = Math.sign(signedScale);
+	if (!Number.isSafeInteger(scale) || !Number.isSafeInteger(ceilMin) || !Number.isSafeInteger(floorMax)) {
+		return null;
+	}
+	const bigScale = BigInt(scale);
+	const shift = BigInt(clz64(scale));	// scale is already proven to be a safe integer
+	let result: bigint;
+	do {
+		const generated = gen64(generator);
+		if (!generated) {
+			return null;
+		}
+		result = generated >> shift;
+	} while (result > bigScale);
+	return Number(result) * scaleSign + ceilMin;
+}

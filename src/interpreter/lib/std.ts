@@ -2,7 +2,7 @@
 import { v4 as uuid } from 'uuid';
 import seedrandom from 'seedrandom';
 import { NUM, STR, FN_NATIVE, FALSE, TRUE, ARR, NULL, BOOL, OBJ, ERROR } from '../value.js';
-import { assertNumber, assertString, assertBoolean, valToJs, jsToVal, assertFunction, assertObject, eq, expectAny, assertArray, reprValue } from '../util.js';
+import { assertNumber, assertString, assertBoolean, valToJs, jsToVal, assertFunction, assertObject, eq, expectAny, assertArray, reprValue, unbiasedRandomIntegerInRange, cryptoGen64, signedNumber32ToBigUint32 } from '../util.js';
 import { AiScriptRuntimeError } from '../../error.js';
 import type { Value } from '../value.js';
 
@@ -412,17 +412,41 @@ export const std: Record<string, Value> = {
 		return NUM(Math.random());
 	}),
 
+	'Math:rnd_unbiased': FN_NATIVE(([min, max]) => {
+		assertNumber(min);
+		assertNumber(max);
+		const array = new BigUint64Array(1);
+		const result = unbiasedRandomIntegerInRange(min.value, max.value, array, cryptoGen64);
+		return typeof result === 'number' ? NUM(result) : NULL;
+	}),
+
 	'Math:gen_rng': FN_NATIVE(([seed]) => {
 		expectAny(seed);
 		if (seed.type !== 'num' && seed.type !== 'str') return NULL;
 
 		const rng = seedrandom(seed.value.toString());
-
 		return FN_NATIVE(([min, max]) => {
 			if (min && min.type === 'num' && max && max.type === 'num') {
 				return NUM(Math.floor(rng() * (Math.floor(max.value) - Math.ceil(min.value) + 1) + Math.ceil(min.value)));
 			}
 			return NUM(rng());
+		});
+	}),
+
+	'Math:gen_rng_unbiased': FN_NATIVE(([seed]) => {
+		expectAny(seed);
+		if (seed.type !== 'num' && seed.type !== 'str') return NULL;
+
+		const rng = seedrandom(seed.value.toString());
+		return FN_NATIVE(([min, max]) => {
+			assertNumber(min);
+			assertNumber(max);
+			const result = unbiasedRandomIntegerInRange(min.value, max.value, rng, (rng) => {
+				const upper = signedNumber32ToBigUint32(rng.int32());
+				const lower = signedNumber32ToBigUint32(rng.int32());
+				return BigInt.asUintN(64, (upper << 32n) | lower);
+			});
+			return typeof result === 'number' ? NUM(result) : NULL;
 		});
 	}),
 	//#endregion
