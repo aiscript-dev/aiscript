@@ -84,12 +84,13 @@ _splitter_ が与えられなければ一文字づつ区切ります。
 ### @(_v_: str).lower(): str
 文字列中の英字を小文字に変換して返します。
 
-### @(_v_: str).codepoint_at(_i_: num): num | null
+### @(_v_: str).charcode_at(_i_: num): num | null
 _i_ 番目のにある [UTF-16 コード単位を表す `0` から `65535` までの整数](https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/String/charCodeAt)を返します。  
+インデックスは UTF-16 コード単位に基づきます。  
 文字列にサロゲートペアが含まれる場合、位置によって上位または下位の孤立サロゲートを返すことがあります。  
 _i_ 番目の文字が存在しない場合は null が返されます。  
 
-### @(_v_: str).unicode_codepoint_at(_i_: num): num | null
+### @(_v_: str).codepoint_at(_i_: num): num | null
 _i_ 番目の文字の[コードポイント](https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/String/codePointAt)を取得します。  
 インデックスは UTF-16 コード単位に基づきます。  
 文字列にサロゲートペアが含まれ、指定位置が下位のサロゲートである場合、下位の孤立サロゲートを返します。  

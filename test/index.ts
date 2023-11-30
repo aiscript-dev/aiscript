@@ -2459,10 +2459,10 @@ describe('primitive props', () => {
 			eq(res, STR('el'));
 		});
 
-		test.concurrent("unicode_codepoint_at", async () => {
+		test.concurrent("codepoint_at", async () => {
 			const res = await exe(`
 			let str = "𩸽"
-			<: str.unicode_codepoint_at(0)
+			<: str.codepoint_at(0)
 			`);
 			eq(res, NUM(171581));
 		});
@@ -2946,14 +2946,14 @@ describe('std', () => {
 			eq(res, STR('𩸽👉🏿👨‍👦'));
 		});
 
-		test.concurrent('codepoint_at', async () => {
+		test.concurrent('charcode_at', async () => {
 			let res = await exe(`
-			<: "aiscript".split().map(@(x, _) { x.codepoint_at(0) })
+			<: "aiscript".split().map(@(x, _) { x.charcode_at(0) })
 			`);
 			eq(res, ARR([97, 105, 115, 99, 114, 105, 112, 116].map(x => NUM(x))));
 
 			res = await exe(`
-			<: "".codepoint_at(0)
+			<: "".charcode_at(0)
 			`);
 			eq(res, NULL);
 		});
