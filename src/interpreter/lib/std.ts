@@ -416,13 +416,6 @@ export const std: Record<string, Value> = {
 		return NUM(CryptoGen.instance.generateNumber0To1());
 	}),
 
-	'Math:rnd_unbiased': FN_NATIVE(([min, max]) => {
-		assertNumber(min);
-		assertNumber(max);
-		const res = CryptoGen.instance.generateRandomIntegerInRange(min.value, max.value);
-		return res === null ? NULL : NUM(res);
-	}),
-
 	'Math:gen_rng': FN_NATIVE(([seed]) => {
 		expectAny(seed);
 		if (seed.type !== 'num' && seed.type !== 'str') return NULL;
