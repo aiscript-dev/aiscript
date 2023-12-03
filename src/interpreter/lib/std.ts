@@ -7,6 +7,7 @@ import { AiScriptRuntimeError } from '../../error.js';
 import { textDecoder } from '../../const.js';
 import { CryptoGen } from '../../utils/random/CryptoGen.js';
 import { SeedRandomWrapper } from '../../utils/random/seedrandom.js';
+import { ChaCha20 } from '../../utils/random/chacha20.js';
 import type { Value } from '../value.js';
 
 export const std: Record<string, Value> = {
@@ -439,6 +440,19 @@ export const std: Record<string, Value> = {
 			assertNumber(max);
 			const result = rng.generateRandomIntegerInRange(min.value, max.value);
 			return typeof result === 'number' ? NUM(result) : NULL;
+		});
+	}),
+
+	'Math:gen_rng_chacha20': FN_NATIVE(async ([seed]) => {
+		if (seed && seed.type !== 'num' && seed.type !== 'str') return NULL;
+		await ChaCha20.ready;
+		const rng = new ChaCha20(typeof seed === 'undefined' ? undefined : seed.value);
+		return FN_NATIVE(([min, max]) => {
+			if (min && min.type === 'num' && max && max.type === 'num') {
+				const result = rng.generateRandomIntegerInRange(min.value, max.value);
+				return typeof result === 'number' ? NUM(result) : NULL;
+			}
+			return NUM(rng.generateNumber0To1());
 		});
 	}),
 	//#endregion

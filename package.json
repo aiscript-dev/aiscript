@@ -56,6 +56,8 @@
 		"typescript": "5.3.2"
 	},
 	"dependencies": {
+		"@types/libsodium-wrappers-sumo": "0.7.8",
+		"libsodium-wrappers-sumo": "0.7.13",
 		"seedrandom": "3.0.5",
 		"stringz": "2.1.0",
 		"uuid": "9.0.1"
