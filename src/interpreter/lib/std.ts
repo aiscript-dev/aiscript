@@ -2,8 +2,10 @@
 import { v4 as uuid } from 'uuid';
 import seedrandom from 'seedrandom';
 import { NUM, STR, FN_NATIVE, FALSE, TRUE, ARR, NULL, BOOL, OBJ, ERROR } from '../value.js';
-import { assertNumber, assertString, assertBoolean, valToJs, jsToVal, assertFunction, assertObject, eq, expectAny, assertArray, reprValue, unbiasedRandomIntegerInRange, cryptoGen64, signedNumber32ToBigUint32 } from '../util.js';
+import { assertNumber, assertString, assertBoolean, valToJs, jsToVal, assertFunction, assertObject, eq, expectAny, assertArray, reprValue } from '../util.js';
 import { AiScriptRuntimeError } from '../../error.js';
+import { CryptoGen } from '../../utils/random/CryptoGen.js';
+import { SeedRandomWrapper } from '../../utils/random/seedrandom.js';
 import type { Value } from '../value.js';
 
 export const std: Record<string, Value> = {
@@ -407,17 +409,17 @@ export const std: Record<string, Value> = {
 
 	'Math:rnd': FN_NATIVE(([min, max]) => {
 		if (min && min.type === 'num' && max && max.type === 'num') {
-			return NUM(Math.floor(Math.random() * (Math.floor(max.value) - Math.ceil(min.value) + 1) + Math.ceil(min.value)));
+			const res = CryptoGen.instance.generateRandomIntegerInRange(min.value, max.value);
+			return res === null ? NULL : NUM(res);
 		}
-		return NUM(Math.random());
+		return NUM(CryptoGen.instance.generateNumber0To1());
 	}),
 
 	'Math:rnd_unbiased': FN_NATIVE(([min, max]) => {
 		assertNumber(min);
 		assertNumber(max);
-		const array = new BigUint64Array(1);
-		const result = unbiasedRandomIntegerInRange(min.value, max.value, array, cryptoGen64);
-		return typeof result === 'number' ? NUM(result) : NULL;
+		const res = CryptoGen.instance.generateRandomIntegerInRange(min.value, max.value);
+		return res === null ? NULL : NUM(res);
 	}),
 
 	'Math:gen_rng': FN_NATIVE(([seed]) => {
@@ -437,15 +439,11 @@ export const std: Record<string, Value> = {
 		expectAny(seed);
 		if (seed.type !== 'num' && seed.type !== 'str') return NULL;
 
-		const rng = seedrandom(seed.value.toString());
+		const rng = new SeedRandomWrapper(seed.value);
 		return FN_NATIVE(([min, max]) => {
 			assertNumber(min);
 			assertNumber(max);
-			const result = unbiasedRandomIntegerInRange(min.value, max.value, rng, (rng) => {
-				const upper = signedNumber32ToBigUint32(rng.int32());
-				const lower = signedNumber32ToBigUint32(rng.int32());
-				return BigInt.asUintN(64, (upper << 32n) | lower);
-			});
+			const result = rng.generateRandomIntegerInRange(min.value, max.value);
 			return typeof result === 'number' ? NUM(result) : NULL;
 		});
 	}),
