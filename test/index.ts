@@ -2862,13 +2862,28 @@ describe('std', () => {
 			const res = await exe(`
 			@test(seed) {
 				let random = Math:gen_rng(seed)
-				return random(0 100)
+				return random()
 			}
 			let seed1 = \`{Util:uuid()}\`
 			let seed2 = \`{Date:year()}\`
 			let test1 = if (test(seed1) == test(seed1)) {true} else {false}
 			let test2 = if (test(seed1) == test(seed2)) {true} else {false}
-			<: [test1 test2]
+			<: [test1, test2]
+			`)
+			eq(res, ARR([BOOL(true), BOOL(false)]));
+		});
+
+		test.concurrent('gen_rng_unbiased', async () => {
+			const res = await exe(`
+			@test(seed) {
+				let random = Math:gen_rng_unbiased(seed)
+				return random()
+			}
+			let seed1 = \`{Util:uuid()}\`
+			let seed2 = \`{Date:year()}\`
+			let test1 = if (test(seed1) == test(seed1)) {true} else {false}
+			let test2 = if (test(seed1) == test(seed2)) {true} else {false}
+			<: [test1, test2]
 			`)
 			eq(res, ARR([BOOL(true), BOOL(false)]));
 		});
