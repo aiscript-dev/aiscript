@@ -417,6 +417,13 @@ export const std: Record<string, Value> = {
 		return NUM(CryptoGen.instance.generateNumber0To1());
 	}),
 
+	'Math:rnd_unbiased': FN_NATIVE(([min, max]) => {
+		assertNumber(min);
+		assertNumber(max);
+		const res = CryptoGen.instance.generateRandomIntegerInRange(min.value, max.value);
+		return res === null ? NULL : NUM(res);
+	}),
+
 	'Math:gen_rng': FN_NATIVE(([seed]) => {
 		expectAny(seed);
 		if (seed.type !== 'num' && seed.type !== 'str') return NULL;
@@ -430,20 +437,7 @@ export const std: Record<string, Value> = {
 		});
 	}),
 
-	'Math:gen_rng_unbiased': FN_NATIVE(([seed]) => {
-		expectAny(seed);
-		if (seed.type !== 'num' && seed.type !== 'str') return NULL;
-
-		const rng = new SeedRandomWrapper(seed.value);
-		return FN_NATIVE(([min, max]) => {
-			assertNumber(min);
-			assertNumber(max);
-			const result = rng.generateRandomIntegerInRange(min.value, max.value);
-			return typeof result === 'number' ? NUM(result) : NULL;
-		});
-	}),
-
-	'Math:gen_rng_chacha20': FN_NATIVE(async ([seed]) => {
+	'Math:gen_rng_unbiased': FN_NATIVE(async ([seed]) => {
 		if (seed && seed.type !== 'num' && seed.type !== 'str') return NULL;
 		await ChaCha20.ready;
 		const rng = new ChaCha20(typeof seed === 'undefined' ? undefined : seed.value);
