@@ -5,6 +5,7 @@ import { NUM, STR, FN_NATIVE, FALSE, TRUE, ARR, NULL, BOOL, OBJ, ERROR } from '.
 import { assertNumber, assertString, assertBoolean, valToJs, jsToVal, assertFunction, assertObject, eq, expectAny, assertArray, reprValue } from '../util.js';
 import { AiScriptRuntimeError } from '../../error.js';
 import { AISCRIPT_VERSION } from '../../constants.js';
+import { textDecoder } from '../../const.js';
 import type { Value } from '../value.js';
 
 export const std: Record<string, Value> = {
@@ -471,6 +472,22 @@ export const std: Record<string, Value> = {
 		assertNumber(codePoint);
 
 		return STR(String.fromCodePoint(codePoint.value));
+	}),
+
+	'Str:from_unicode_codepoints': FN_NATIVE(([codePoints]) => {
+		assertArray(codePoints);
+		return STR(Array.from(codePoints.value.map((a) => {
+			assertNumber(a);
+			return String.fromCodePoint(a.value);
+		})).join(''));
+	}),
+	
+	'Str:from_utf8_bytes': FN_NATIVE(([bytes]) => {
+		assertArray(bytes);
+		return STR(textDecoder.decode(Uint8Array.from(bytes.value.map((a) => {
+			assertNumber(a);
+			return a.value;
+		}))));
 	}),
 	//#endregion
 
