@@ -7,6 +7,8 @@
 - Fix: チェイン系（インデックスアクセス`[]`、プロパティアクセス`.`、関数呼び出し`()`）と括弧を組み合わせた時に不正な挙動をするバグを修正
 - 関数`Str#charcode_at` `Str#to_arr` `Str#to_char_arr` `Str#to_charcode_arr` `Str#to_utf8_byte_arr` `Str#to_unicode_codepoint_arr` `Str:from_unicode_codepoints` `Str:from_utf8_bytes`を追加
 - Fix: `Str#codepoint_at`がサロゲートペアに対応していないのを修正
+- Fix: `Math:rnd`が範囲外の値を返す可能性があるのを修正
+- 関数`Math:gen_rng_unbiased`を追加
 ## Note
 バージョン0.16.0に記録漏れがありました。
 >- 関数`Str:from_codepoint` `Str#codepoint_at`を追加
