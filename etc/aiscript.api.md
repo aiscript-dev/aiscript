@@ -271,9 +271,6 @@ type Continue_2 = NodeBase_2 & {
     type: 'continue';
 };
 
-// @public (undocumented)
-function cryptoGen64(array: BigUint64Array): bigint | null;
-
 declare namespace Cst {
     export {
         isStatement_2 as isStatement,
@@ -862,9 +859,6 @@ export class Scope {
 }
 
 // @public (undocumented)
-function signedNumber32ToBigUint32(num: number): bigint;
-
-// @public (undocumented)
 type Statement = Definition | Return | Each | For | Loop | Break | Continue | Assign | AddAssign | SubAssign;
 
 // @public (undocumented)
@@ -925,9 +919,6 @@ type TypeSource = NamedTypeSource | FnTypeSource;
 type TypeSource_2 = NamedTypeSource_2 | FnTypeSource_2;
 
 // @public (undocumented)
-function unbiasedRandomIntegerInRange<G>(min: number, max: number, generator: G, gen64: (generator: G) => bigint | null): number | null;
-
-// @public (undocumented)
 const unWrapRet: (v: Value) => Value;
 
 declare namespace utils {
@@ -950,10 +941,7 @@ declare namespace utils {
         valToJs,
         jsToVal,
         getLangVersion,
-        reprValue,
-        cryptoGen64,
-        signedNumber32ToBigUint32,
-        unbiasedRandomIntegerInRange
+        reprValue
     }
 }
 export { utils }
