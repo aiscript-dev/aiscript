@@ -940,6 +940,32 @@ describe('Array', () => {
 		}
 		assert.fail();
 	});
+
+	test.concurrent('index out of range on assignment', async () => {
+		try {
+			await exe(`
+			var a = []
+	 		a[2] = 'hoge'
+			`);
+		} catch (e) {
+			assert.equal(e instanceof AiScriptIndexOutOfRangeError, true);
+			return;
+		}
+		assert.fail();
+	});
+
+	test.concurrent('non-integer-indexed assignment', async () => {
+		try {
+			await exe(`
+			var a = []
+	 		a[6.21] = 'hoge'
+			`);
+		} catch (e) {
+			assert.equal(e instanceof AiScriptIndexOutOfRangeError, true);
+			return;
+		}
+		assert.fail();
+	});
 });
 
 describe('chain', () => {
@@ -2041,10 +2067,10 @@ describe('type declaration', () => {
 	test.concurrent('fn def', async () => {
 		const res = await exe(`
 		@f(x: arr<num>, y: str, z: @(num) => bool): arr<num> {
-			x[3] = 0
+			x.push(0)
 			y = "abc"
 			var r: bool = z(x[0])
-			x[4] = if r 5 else 10
+			x.push(if r 5 else 10)
 			x
 		}
 

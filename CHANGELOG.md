@@ -7,6 +7,7 @@
 - Fix: チェイン系（インデックスアクセス`[]`、プロパティアクセス`.`、関数呼び出し`()`）と括弧を組み合わせた時に不正な挙動をするバグを修正
 - 関数`Str#charcode_at` `Str#to_arr` `Str#to_char_arr` `Str#to_charcode_arr` `Str#to_utf8_byte_arr` `Str#to_unicode_codepoint_arr` `Str:from_unicode_codepoints` `Str:from_utf8_bytes`を追加
 - Fix: `Str#codepoint_at`がサロゲートペアに対応していないのを修正
+- 配列の範囲外および非整数のインデックスへの代入でエラーを出すように
 - Fix: `Math:rnd`が範囲外の値を返す可能性があるのを修正
 - 関数`Math:gen_rng_unbiased`を追加
 ## Note
