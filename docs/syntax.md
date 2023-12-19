@@ -111,7 +111,7 @@ var b = ''
 <: a // 'hoge'
 <: b // 'fuga'
 // オブジェクトの分割代入
-{ name: a, nature: b } = { name: 'Ai-chan, nature: 'kawaii' }
+{ name: a, nature: b } = { name: 'Ai-chan', nature: 'kawaii' }
 <: a // 'Ai-chan'
 <: b // 'kawaii'
 // 組み合わせ
