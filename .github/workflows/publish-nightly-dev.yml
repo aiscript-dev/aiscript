@@ -1,8 +1,8 @@
-name: Daily Publication of branch aiscript-next
+name: Publish nightly (dev)
 
 on:
   schedule:
-    - cron:  '0 4 * * *'
+    - cron: '50 18 * * *'
   workflow_dispatch:
 
 jobs:
@@ -10,8 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       NPM_SECRET: ${{ secrets.NPM_SECRET }}
-      BRANCH: aiscript-next
-      TAG: next
+      BRANCH: master
+      TAG: dev
 
     steps:
       - name: Checkout
