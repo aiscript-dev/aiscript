@@ -1,6 +1,6 @@
 <template>
 <div id="root">
-	<h1>AiScript (v{{ std['Core:v'].value }}) Playground</h1>
+	<h1>AiScript (v{{ AISCRIPT_VERSION }}) Playground</h1>
 	<div id="grid1">
 		<div id="editor" class="container">
 			<header>Input<div class="actions"><button @click="setCode">FizzBuzz</button></div></header>
@@ -42,7 +42,7 @@
 
 <script setup>
 import { ref, watch } from 'vue';
-import { Interpreter, Parser, utils } from '@syuilo/aiscript';
+import { AISCRIPT_VERSION, Interpreter, Parser, utils } from '@syuilo/aiscript';
 import { std } from '@syuilo/aiscript/interpreter/lib/std';
 
 import { PrismEditor } from 'vue-prism-editor';
