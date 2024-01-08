@@ -3,6 +3,7 @@
 /.vscode
 /coverage
 /temp
+/src/pkg.ts
 /src/parser/parser.js
 /src/parser/parser.mjs
 npm-debug.log
