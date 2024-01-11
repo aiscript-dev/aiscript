@@ -1,8 +1,8 @@
-name: Daily Publication of branch master
+name: Publish nightly (next)
 
 on:
   schedule:
-    - cron:  '0 4 * * *'
+    - cron: '50 18 * * *'
   workflow_dispatch:
 
 jobs:
@@ -10,8 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       NPM_SECRET: ${{ secrets.NPM_SECRET }}
-      BRANCH: master
-      TAG: dev
+      BRANCH: aiscript-next
+      TAG: next
 
     steps:
       - name: Checkout
@@ -20,7 +20,7 @@ jobs:
           ref: ${{ env.BRANCH }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4.0.0
+        uses: actions/setup-node@v4.0.1
         with:
           node-version: 20.x
 
