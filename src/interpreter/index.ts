@@ -3,7 +3,7 @@
  */
 
 import { autobind } from '../utils/mini-autobind.js';
-import { AiScriptError, NonAiScriptError, AiScriptIndexOutOfRangeError, AiScriptRuntimeError } from '../error.js';
+import { AiScriptError, NonAiScriptError, AiScriptNamespaceError, AiScriptIndexOutOfRangeError, AiScriptRuntimeError } from '../error.js';
 import { Scope } from './scope.js';
 import { std } from './lib/std.js';
 import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray, eq, isObject, isArray, expectAny, reprValue } from './util.js';
@@ -83,10 +83,6 @@ export class Interpreter {
 	 * (ii)Otherwise, just throws a error.
 	 *
 	 * @remarks This is the same function as that passed to AiScript NATIVE functions as opts.topCall.
-	 *
-	 * @param fn - the function
-	 * @param args - arguments for the function
-	 * @returns Return value of the function, or ERROR('func_failed') when the (i) condition above is fulfilled.
 	 */
 	@autobind
 	public async execFn(fn: VFn, args: Value[]): Promise<Value> {
@@ -101,10 +97,6 @@ export class Interpreter {
 	 * Almost same as execFn but when error occurs this always throws and never calls callback.
 	 *
 	 * @remarks This is the same function as that passed to AiScript NATIVE functions as opts.call.
-	 *
-	 * @param fn - the function
-	 * @param args - arguments for the function
-	 * @returns Return value of the function.
 	 */
 	@autobind
 	public execFnSimple(fn: VFn, args: Value[]): Promise<Value> {
@@ -198,7 +190,7 @@ export class Interpreter {
 			switch (node.type) {
 				case 'def': {
 					if (node.mut) {
-						throw new Error('Namespaces cannot include mutable variable: ' + node.name);
+						throw new AiScriptNamespaceError('No "var" in namespace declaration: ' + node.name, node.loc);
 					}
 
 					const variable: Variable = {
@@ -216,7 +208,10 @@ export class Interpreter {
 				}
 
 				default: {
-					throw new Error('invalid ns member type: ' + (node as Ast.Node).type);
+					// exhaustiveness check
+					const n: never = node;
+					const nd = n as Ast.Node;
+					throw new AiScriptNamespaceError('invalid ns member type: ' + nd.type, nd.loc);
 				}
 			}
 		}
@@ -247,7 +242,20 @@ export class Interpreter {
 	}
 
 	@autobind
-	private async _eval(node: Ast.Node, scope: Scope): Promise<Value> {
+	private _eval(node: Ast.Node, scope: Scope): Promise<Value> {
+		return this.__eval(node, scope).catch(e => {
+			if (e.loc) throw e;
+			else {
+				const e2 = (e instanceof AiScriptError) ? e : new NonAiScriptError(e);
+				e2.loc = node.loc;
+				e2.message = `${e2.message} (Line ${node.loc.line}, Column ${node.loc.column})`;
+				throw e2;
+			}
+		});
+	}
+
+	@autobind
+	private async __eval(node: Ast.Node, scope: Scope): Promise<Value> {
 		if (this.stop) return NULL;
 		if (this.stepCount % IRQ_RATE === IRQ_AT) await new Promise(resolve => setTimeout(resolve, 5));
 		this.stepCount++;
@@ -612,7 +620,10 @@ export class Interpreter {
 			const i = await this._eval(dest.index, scope);
 			if (isArray(assignee)) {
 				assertNumber(i);
-				assignee.value[i.value] = value; // TODO: 存在チェック
+				if (assignee.value[i.value] === undefined) {
+					throw new AiScriptIndexOutOfRangeError(`Index out of range. index: ${i.value} max: ${assignee.value.length - 1}`);
+				}
+				assignee.value[i.value] = value;
 			} else if (isObject(assignee)) {
 				assertString(i);
 				assignee.value.set(i.value, value);

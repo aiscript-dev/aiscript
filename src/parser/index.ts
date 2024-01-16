@@ -1,15 +1,12 @@
-import { AiScriptSyntaxError } from '../error.js';
-import * as parser from './parser.js';
+import { Scanner } from './scanner.js';
+import { parseTopLevel } from './syntaxes/toplevel.js';
 
 import { validateKeyword } from './plugins/validate-keyword.js';
 import { validateType } from './plugins/validate-type.js';
-import { setAttribute } from './plugins/set-attribute.js';
-import { transformChain } from './plugins/transform-chain.js';
-import { infixToFnCall } from './plugins/infix-to-fncall.js';
-import type * as Cst from './node.js';
+
 import type * as Ast from '../node.js';
 
-export type ParserPlugin = (nodes: Cst.Node[]) => Cst.Node[];
+export type ParserPlugin = (nodes: Ast.Node[]) => Ast.Node[];
 export type PluginType = 'validate' | 'transform';
 
 export class Parser {
@@ -26,9 +23,6 @@ export class Parser {
 				validateType,
 			],
 			transform: [
-				setAttribute,
-				transformChain,
-				infixToFnCall,
 			],
 		};
 	}
@@ -54,24 +48,10 @@ export class Parser {
 	}
 
 	public parse(input: string): Ast.Node[] {
-		let nodes: Cst.Node[];
+		let nodes: Ast.Node[];
 
-		// generate a node tree
-		try {
-			// apply preprocessor
-			const code = parser.parse(input, { startRule: 'Preprocess' });
-			// apply main parser
-			nodes = parser.parse(code, { startRule: 'Main' });
-		} catch (e) {
-			if (e.location) {
-				if (e.expected) {
-					throw new AiScriptSyntaxError(`Parsing error. (Line ${e.location.start.line}:${e.location.start.column})`, e);
-				} else {
-					throw new AiScriptSyntaxError(`${e.message} (Line ${e.location.start.line}:${e.location.start.column})`, e);
-				}
-			}
-			throw e;
-		}
+		const scanner = new Scanner(input);
+		nodes = parseTopLevel(scanner);
 
 		// validate the node tree
 		for (const plugin of this.plugins.validate) {
@@ -83,6 +63,6 @@ export class Parser {
 			nodes = plugin(nodes);
 		}
 
-		return nodes as Ast.Node[];
+		return nodes;
 	}
 }

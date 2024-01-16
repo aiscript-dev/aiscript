@@ -1,10 +1,21 @@
 [Read translated version (en)](./translations/en/CHANGELOG.md)
 
+# Next
+- 新しいAiScriptパーサーを実装
+  - スペースの厳密さが緩和
+  - **Breaking Change** 改行トークンを導入。改行の扱いが今までより厳密になりました。改行することができる部分以外では文法エラーになります。
+- 文字列リテラルやテンプレートで、`\`とそれに続く1文字は全てエスケープシーケンスとして扱われるように
+- 文法エラーやラインタイムエラーの発生位置が表示されるように
+- **Breaking Change** 多くの予約語を追加。これまで変数名等に使えていた名前に影響が出る可能性があります。
+
 # 0.17.0
 - `package.json`を修正
 - `Error:create`関数でエラー型の値を生成できるように
 - `Obj:merge`で２つのオブジェクトの併合を得られるように
 - Fix: チェイン系（インデックスアクセス`[]`、プロパティアクセス`.`、関数呼び出し`()`）と括弧を組み合わせた時に不正な挙動をするバグを修正
+- 関数`Str#charcode_at` `Str#to_arr` `Str#to_char_arr` `Str#to_charcode_arr` `Str#to_utf8_byte_arr` `Str#to_unicode_codepoint_arr` `Str:from_unicode_codepoints` `Str:from_utf8_bytes`を追加
+- Fix: `Str#codepoint_at`がサロゲートペアに対応していないのを修正
+- 配列の範囲外および非整数のインデックスへの代入でエラーを出すように
 ## Note
 バージョン0.16.0に記録漏れがありました。
 >- 関数`Str:from_codepoint` `Str#codepoint_at`を追加
