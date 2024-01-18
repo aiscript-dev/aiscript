@@ -207,7 +207,9 @@ export const std: Record<string, Value> = {
 
 	'Date:parse': FN_NATIVE(([v]) => {
 		assertString(v);
-		return NUM(new Date(v.value).getTime());
+		const res = new Date(v.value).getTime();
+		// NaN doesn't equal to itself
+		return (res === res) ? NUM(res) : ERROR('not_date');
 	}),
 	//#endregion
 

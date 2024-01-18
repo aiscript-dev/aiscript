@@ -88,6 +88,10 @@ _date_ を渡した場合、_date_に対応する秒、
 渡していない場合は現在時刻の秒が返されます。    
 
 ### @Date:parse(_date_: str): num
+日付として解釈可能な文字列から日時を表す数値を生成します。  
+解釈は[JavaScriptのDateコンストラクター](https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/Date/Date)に依存します。  
+引数が日付として解釈可能でない場合、エラー型の値（`name`=`'not_date'`）を返します。  
+
 
 ## :: Math
 数が多いため専用のページになっています。→[std-math.md](std-math.md)
