@@ -267,6 +267,7 @@ type Fn = NodeBase & {
     type: 'fn';
     args: {
         name: string;
+        optional?: boolean;
         argType?: TypeSource;
     }[];
     retType?: TypeSource;
@@ -608,6 +609,7 @@ declare namespace values {
         VObj,
         VFn,
         VUserFn,
+        VFnArg,
         VNativeFn,
         VReturn,
         VBreak,
@@ -668,6 +670,13 @@ type VError = {
 // @public (undocumented)
 type VFn = VUserFn | VNativeFn;
 
+// @public (undocumented)
+type VFnArg = {
+    name: string;
+    optional?: boolean;
+    type?: Type;
+};
+
 // @public
 type VNativeFn = VFnBase & {
     native: (args: (Value | undefined)[], opts: {
@@ -712,9 +721,14 @@ type VStr = {
 // @public (undocumented)
 type VUserFn = VFnBase & {
     native?: undefined;
+    args: VFnArg[];
     statements: Node_2[];
     scope: Scope;
 };
+
+// Warnings were encountered during analysis:
+//
+// src/interpreter/value.ts:47:2 - (ae-forgotten-export) The symbol "Type" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 
