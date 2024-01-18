@@ -230,10 +230,11 @@ export class Interpreter {
 			return result ?? NULL;
 		} else {
 			const _args = new Map<string, Variable>();
-			for (let i = 0; i < (fn.args ?? []).length; i++) {
-				_args.set(fn.args![i]!, {
+			for (const i in fn.args) {
+				if (!fn.args[i]!.optional) expectAny(args[i]);
+				_args.set(fn.args[i]!.name, {
 					isMutable: true,
-					value: args[i]!,
+					value: args[i] ?? NULL,
 				});
 			}
 			const fnScope = fn.scope!.createChildScope(_args);
@@ -486,7 +487,17 @@ export class Interpreter {
 			}
 
 			case 'fn': {
-				return FN(node.args.map(arg => arg.name), node.children, scope);
+				return FN(
+					node.args.map(arg => {
+						return {
+							name: arg.name,
+							optional: arg.optional,
+							// type: (TODO)
+						};
+					}),
+					node.children,
+					scope,
+				);
 			}
 
 			case 'block': {

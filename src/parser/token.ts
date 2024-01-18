@@ -87,6 +87,8 @@ export enum TokenKind {
 	Gt,
 	/** ">=" */
 	GtEq,
+	/** "?" */
+	Question,
 	/** "@" */
 	At,
 	/** "[" */

@@ -175,6 +175,7 @@ export type Fn = NodeBase & {
 	type: 'fn'; // 関数
 	args: {
 		name: string; // 引数名
+		optional?: boolean; // 引数に?がついているか
 		argType?: TypeSource; // 引数の型
 	}[];
 	retType?: TypeSource; // 戻り値の型
