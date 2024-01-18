@@ -117,9 +117,17 @@ a > b ならば -1、a == b ならば 0、a < b ならば 1 を返します。
 arr.sortの比較関数として使用できます。
 
 ### #Str:from_codepoint(codepoint: num): str
-unicodeのコードポイントから文字を生成します。
+Unicodeのコードポイントから文字を生成します。
 
 _codepoint_ は 0 以上、10FFFF<sub>16</sub> 以下である必要があります。
+
+### #Str:from_unicode_codepoints(_codePoints_: `arr<num>`): str
+Unicodeのコードポイント列を表す数値の配列から文字を生成します。  
+_codePoints_の各要素は 0 以上、10FFFF<sub>16</sub> 以下である必要があります。
+
+### #Str:from_utf8_bytes(_bytes_: `arr<num>`): str
+UTF-8のバイト列を表す数値の配列から文字を生成します。  
+_bytes_の各要素は 0 以上、255 以下である必要があります。
 
 ## :: Obj
 ### @Obj:keys(_v_: obj): arr
