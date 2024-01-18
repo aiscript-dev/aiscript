@@ -4,13 +4,15 @@ import seedrandom from 'seedrandom';
 import { NUM, STR, FN_NATIVE, FALSE, TRUE, ARR, NULL, BOOL, OBJ, ERROR } from '../value.js';
 import { assertNumber, assertString, assertBoolean, valToJs, jsToVal, assertFunction, assertObject, eq, expectAny, assertArray, reprValue } from '../util.js';
 import { AiScriptRuntimeError, AiScriptUserError } from '../../error.js';
+import { AISCRIPT_VERSION } from '../../constants.js';
+import { textDecoder } from '../../const.js';
 import type { Value } from '../value.js';
 
 export const std: Record<string, Value> = {
 	'help': STR('SEE: https://github.com/syuilo/aiscript/blob/master/docs/get-started.md'),
 
 	//#region Core
-	'Core:v': STR('0.16.0'), // TODO: package.jsonを参照
+	'Core:v': STR(AISCRIPT_VERSION),
 
 	'Core:ai': STR('kawaii'),
 
@@ -474,6 +476,22 @@ export const std: Record<string, Value> = {
 		assertNumber(codePoint);
 
 		return STR(String.fromCodePoint(codePoint.value));
+	}),
+
+	'Str:from_unicode_codepoints': FN_NATIVE(([codePoints]) => {
+		assertArray(codePoints);
+		return STR(Array.from(codePoints.value.map((a) => {
+			assertNumber(a);
+			return String.fromCodePoint(a.value);
+		})).join(''));
+	}),
+	
+	'Str:from_utf8_bytes': FN_NATIVE(([bytes]) => {
+		assertArray(bytes);
+		return STR(textDecoder.decode(Uint8Array.from(bytes.value.map((a) => {
+			assertNumber(a);
+			return a.value;
+		}))));
 	}),
 	//#endregion
 
