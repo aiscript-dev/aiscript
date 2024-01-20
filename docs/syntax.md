@@ -243,11 +243,14 @@ let foo = eval {
 ```js
 let x = 1
 let y = match x {
-	1 => "yes"
-	0 => "no"
-	* => "other"
+	case 1 => "yes"
+	case 0 => "no"
+	default => "other"
 }
 <: y // "yes"
+
+// ワンライナー
+<:match x{case 1=>"yes",case 0=>"no",default=>"other"} // "yes"
 ```
 
 ### exists
