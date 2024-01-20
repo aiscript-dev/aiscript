@@ -58,6 +58,7 @@ describe('ops', () => {
 		eq(await exe('<: (Core:type == Core:type)'), BOOL(true));
 		eq(await exe('<: (Core:type == Core:gt)'), BOOL(false));
 		eq(await exe('<: (@(){} == @(){})'), BOOL(false));
+		eq(await exe('<: (Core:eq == @(){})'), BOOL(false));
 		eq(await exe(`
 			let f = @(){}
 			<: (f == f)
