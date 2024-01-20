@@ -55,6 +55,14 @@ describe('ops', () => {
 	test.concurrent('==', async () => {
 		eq(await exe('<: (1 == 1)'), BOOL(true));
 		eq(await exe('<: (1 == 2)'), BOOL(false));
+		eq(await exe('<: (Core:type == Core:type)'), BOOL(true));
+		eq(await exe('<: (Core:type == Core:gt)'), BOOL(false));
+		eq(await exe('<: (@(){} == @(){})'), BOOL(false));
+		eq(await exe('<: (Core:eq == @(){})'), BOOL(false));
+		eq(await exe(`
+			let f = @(){}
+			<: (f == f)
+		`), BOOL(true));
 	});
 
 	test.concurrent('!=', async () => {
