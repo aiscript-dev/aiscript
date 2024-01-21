@@ -61,7 +61,9 @@ describe('ops', () => {
 		eq(await exe('<: (Core:eq == @(){})'), BOOL(false));
 		eq(await exe(`
 			let f = @(){}
-			<: (f == f)
+			let g = f
+
+			<: (f == g)
 		`), BOOL(true));
 	});
 
