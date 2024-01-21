@@ -221,7 +221,7 @@ Ai:kun() // kawaii
 	<tr><td><code><</code></td><td><code>Core:lt</code></td><td>小さい</td></tr>
 	<tr><td><code><=</code></td><td><code>Core:lteq</code></td><td>以下</td></tr>
 	<tr><td><code>==</code></td><td><code>Core:eq</code></td><td>等しい</td></tr>
-	<tr><td><code>!=</code></td><td><code>Core:neq</code></td><td>不等</td></tr>
+	<tr><td><code>!=</code></td><td><code>Core:neq</code></td><td>等しくない</td></tr>
 	<tr><td><code>&&</code></td><td><code>Core:and</code></td><td>かつ</td></tr>
 	<tr><td><code>||</code></td><td><code>Core:or</code></td><td>または</td></tr>
 </table>
