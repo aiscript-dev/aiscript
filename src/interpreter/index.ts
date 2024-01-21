@@ -612,7 +612,10 @@ export class Interpreter {
 			const i = await this._eval(dest.index, scope);
 			if (isArray(assignee)) {
 				assertNumber(i);
-				assignee.value[i.value] = value; // TODO: 存在チェック
+				if (assignee.value[i.value] === undefined) {
+					throw new AiScriptIndexOutOfRangeError(`Index out of range. index: ${i.value} max: ${assignee.value.length - 1}`);
+				}
+				assignee.value[i.value] = value;
 			} else if (isObject(assignee)) {
 				assertString(i);
 				assignee.value.set(i.value, value);

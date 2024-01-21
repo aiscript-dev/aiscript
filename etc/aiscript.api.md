@@ -23,6 +23,9 @@ type AddAssign_2 = NodeBase_2 & {
 };
 
 // @public (undocumented)
+export const AISCRIPT_VERSION: "0.17.0";
+
+// @public (undocumented)
 abstract class AiScriptError extends Error {
     constructor(message: string, info?: any);
     // (undocumented)
