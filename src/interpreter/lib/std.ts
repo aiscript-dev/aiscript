@@ -207,6 +207,11 @@ export const std: Record<string, Value> = {
 		return NUM(new Date(v?.value || Date.now()).getSeconds());
 	}),
 
+	'Date:millisecond': FN_NATIVE(([v]) => {
+		if (v) { assertNumber(v); }
+		return NUM(new Date(v?.value || Date.now()).getMilliseconds());
+	}),
+
 	'Date:parse': FN_NATIVE(([v]) => {
 		assertString(v);
 		return NUM(new Date(v.value).getTime());
