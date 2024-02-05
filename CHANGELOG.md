@@ -1,5 +1,7 @@
 [Read translated version (en)](./translations/en/CHANGELOG.md)
 
+- `Date:millisecond`を追加
+
 # 0.17.0
 - `package.json`を修正
 - `Error:create`関数でエラー型の値を生成できるように

@@ -87,6 +87,11 @@ _date_ を渡した場合、_date_に対応する分、
 _date_ を渡した場合、_date_に対応する秒、  
 渡していない場合は現在時刻の秒が返されます。    
 
+### @Date:millisecond(_date_?: num): num
+現在時刻のミリ秒を取得します。  
+_date_ を渡した場合、_date_に対応する秒、  
+渡していない場合は現在時刻のミリ秒が返されます。    
+
 ### @Date:parse(_date_: str): num
 
 ## :: Math
