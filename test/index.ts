@@ -3170,7 +3170,7 @@ describe('std', () => {
 			const res = await exe(`
 			@test(seed) {
 				let random = Math:gen_rng(seed)
-				return random(0, 100)
+				return random()
 			}
 			let seed1 = \`{Util:uuid()}\`
 			let seed2 = \`{Date:year()}\`
