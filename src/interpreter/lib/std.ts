@@ -4,6 +4,7 @@ import seedrandom from 'seedrandom';
 import { NUM, STR, FN_NATIVE, FALSE, TRUE, ARR, NULL, BOOL, OBJ, ERROR } from '../value.js';
 import { assertNumber, assertString, assertBoolean, valToJs, jsToVal, assertFunction, assertObject, eq, expectAny, assertArray, reprValue } from '../util.js';
 import { AiScriptRuntimeError } from '../../error.js';
+import { AISCRIPT_VERSION } from '../../constants.js';
 import { textDecoder } from '../../const.js';
 import { CryptoGen } from '../../utils/random/CryptoGen.js';
 import { SeedRandomWrapper } from '../../utils/random/seedrandom.js';
@@ -14,7 +15,7 @@ export const std: Record<string, Value> = {
 	'help': STR('SEE: https://github.com/syuilo/aiscript/blob/master/docs/get-started.md'),
 
 	//#region Core
-	'Core:v': STR('0.16.0'), // TODO: package.jsonを参照
+	'Core:v': STR(AISCRIPT_VERSION),
 
 	'Core:ai': STR('kawaii'),
 
