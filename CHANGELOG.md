@@ -8,9 +8,13 @@
 - 文法エラーの表示を改善。理由を詳細に表示するように。
 - 複数行のコメントがある時に文法エラーの表示行数がずれる問題を解消しました。
 - 実行時エラーの発生位置が表示されるように。
+- 関数`Math:gen_rng`に第二引数`algorithm`をオプション引数として追加。
+  - アルゴリズムを`chacha20`、`rc4`、`rc4_legacy`から選べるようになりました。
+  - **Breaking Change** `algorithm`を指定しない場合、`chacha20`が選択されます。
 - **Breaking Change** パースの都合によりmatch文の構文を変更。パターンの前に`case`キーワードが必要となり、`*`は`default`に変更。
 - **Breaking Change** 多くの予約語を追加。これまで変数名等に使えていた名前に影響が出る可能性があります。
 - **Breaking Change** 配列及び関数の引数において、空白区切りが使用できなくなりました。`,`または改行が必要です。
+- **Breaking Change** `Math:rnd`が範囲外の値を返す可能性があるのを修正。
 
 # 0.17.0
 - `package.json`を修正
@@ -20,8 +24,7 @@
 - 関数`Str#charcode_at` `Str#to_arr` `Str#to_char_arr` `Str#to_charcode_arr` `Str#to_utf8_byte_arr` `Str#to_unicode_codepoint_arr` `Str:from_unicode_codepoints` `Str:from_utf8_bytes`を追加
 - Fix: `Str#codepoint_at`がサロゲートペアに対応していないのを修正
 - 配列の範囲外および非整数のインデックスへの代入でエラーを出すように
-- Fix: `Math:rnd`が範囲外の値を返す可能性があるのを修正
-- 関数`Math:gen_rng_unbiased`を追加
+
 ## Note
 バージョン0.16.0に記録漏れがありました。
 >- 関数`Str:from_codepoint` `Str#codepoint_at`を追加

@@ -1,14 +1,12 @@
 /* eslint-disable no-empty-pattern */
 import { v4 as uuid } from 'uuid';
-import seedrandom from 'seedrandom';
 import { NUM, STR, FN_NATIVE, FALSE, TRUE, ARR, NULL, BOOL, OBJ, ERROR } from '../value.js';
 import { assertNumber, assertString, assertBoolean, valToJs, jsToVal, assertFunction, assertObject, eq, expectAny, assertArray, reprValue } from '../util.js';
 import { AiScriptRuntimeError } from '../../error.js';
 import { AISCRIPT_VERSION } from '../../constants.js';
 import { textDecoder } from '../../const.js';
 import { CryptoGen } from '../../utils/random/CryptoGen.js';
-import { SeedRandomWrapper } from '../../utils/random/seedrandom.js';
-import { ChaCha20 } from '../../utils/random/chacha20.js';
+import { GenerateChaCha20Random, GenerateLegacyRandom, GenerateRC4Random } from '../../utils/random/genrng.js';
 import type { Value } from '../value.js';
 
 export const std: Record<string, Value> = {
@@ -418,37 +416,18 @@ export const std: Record<string, Value> = {
 		return NUM(CryptoGen.instance.generateNumber0To1());
 	}),
 
-	'Math:rnd_unbiased': FN_NATIVE(([min, max]) => {
-		assertNumber(min);
-		assertNumber(max);
-		const res = CryptoGen.instance.generateRandomIntegerInRange(min.value, max.value);
-		return res === null ? NULL : NUM(res);
-	}),
-
-	'Math:gen_rng': FN_NATIVE(([seed]) => {
+	'Math:gen_rng': FN_NATIVE(async ([seed, algorithm]) => {
 		expectAny(seed);
-		if (seed.type !== 'num' && seed.type !== 'str') return NULL;
-
-		const rng = seedrandom(seed.value.toString());
-		return FN_NATIVE(([min, max]) => {
-			if (min && min.type === 'num' && max && max.type === 'num') {
-				return NUM(Math.floor(rng() * (Math.floor(max.value) - Math.ceil(min.value) + 1) + Math.ceil(min.value)));
-			}
-			return NUM(rng());
-		});
-	}),
-
-	'Math:gen_rng_unbiased': FN_NATIVE(async ([seed]) => {
-		if (seed && seed.type !== 'num' && seed.type !== 'str') return NULL;
-		await ChaCha20.ready;
-		const rng = new ChaCha20(typeof seed === 'undefined' ? undefined : seed.value);
-		return FN_NATIVE(([min, max]) => {
-			if (min && min.type === 'num' && max && max.type === 'num') {
-				const result = rng.generateRandomIntegerInRange(min.value, max.value);
-				return typeof result === 'number' ? NUM(result) : NULL;
-			}
-			return NUM(rng.generateNumber0To1());
-		});
+		const algo = !algorithm || algorithm.type !== 'str' ? STR('chacha20') : algorithm;
+		if (seed.type !== 'num' && seed.type !== 'str' && seed.type !== 'null') return NULL;
+		switch (algo.value) {
+			case 'rc4_legacy':
+				return GenerateLegacyRandom(seed);
+			case 'rc4':
+				return GenerateRC4Random(seed);
+			default:
+				return GenerateChaCha20Random(seed);
+		}
 	}),
 	//#endregion
 
