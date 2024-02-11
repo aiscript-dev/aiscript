@@ -940,6 +940,32 @@ describe('Array', () => {
 		}
 		assert.fail();
 	});
+
+	test.concurrent('index out of range on assignment', async () => {
+		try {
+			await exe(`
+			var a = []
+	 		a[2] = 'hoge'
+			`);
+		} catch (e) {
+			assert.equal(e instanceof AiScriptIndexOutOfRangeError, true);
+			return;
+		}
+		assert.fail();
+	});
+
+	test.concurrent('non-integer-indexed assignment', async () => {
+		try {
+			await exe(`
+			var a = []
+	 		a[6.21] = 'hoge'
+			`);
+		} catch (e) {
+			assert.equal(e instanceof AiScriptIndexOutOfRangeError, true);
+			return;
+		}
+		assert.fail();
+	});
 });
 
 describe('chain', () => {
@@ -1093,6 +1119,79 @@ describe('chain', () => {
 		<: ai[{a: 'chan'}['a']]
 		`);
 		eq(res, STR('kawaii'));
+	});
+
+	test.concurrent('property chain with parenthesis', async () => {
+		let ast = Parser.parse(`
+				(a.b).c
+			`);
+		const line = ast[0];
+		if (
+			line.type !== 'prop' ||
+			line.target.type !== 'prop' ||
+			line.target.target.type !== 'identifier'
+		)
+			assert.fail();
+		assert.equal(line.target.target.name, 'a');
+		assert.equal(line.target.name, 'b');
+		assert.equal(line.name, 'c');
+	});
+
+	test.concurrent('index chain with parenthesis', async () => {
+		let ast = Parser.parse(`
+				(a[42]).b
+			`);
+		const line = ast[0];
+		if (
+			line.type !== 'prop' ||
+			line.target.type !== 'index' ||
+			line.target.target.type !== 'identifier' ||
+			line.target.index.type !== 'num'
+		)
+			assert.fail();
+		assert.equal(line.target.target.name, 'a');
+		assert.equal(line.target.index.value, 42);
+		assert.equal(line.name, 'b');
+	});
+
+	test.concurrent('call chain with parenthesis', async () => {
+		let ast = Parser.parse(`
+				(foo(42, 57)).bar
+			`);
+		const line = ast[0];
+		if (
+			line.type !== 'prop' ||
+			line.target.type !== 'call' ||
+			line.target.target.type !== 'identifier' ||
+			line.target.args.length !== 2 ||
+			line.target.args[0].type !== 'num' ||
+			line.target.args[1].type !== 'num'
+		)
+			assert.fail();
+		assert.equal(line.target.target.name, 'foo');
+		assert.equal(line.target.args[0].value, 42);
+		assert.equal(line.target.args[1].value, 57);
+		assert.equal(line.name, 'bar');
+	});
+
+	test.concurrent('longer chain with parenthesis', async () => {
+		let ast = Parser.parse(`
+				(a.b.c).d.e
+			`);
+		const line = ast[0];
+		if (
+			line.type !== 'prop' ||
+			line.target.type !== 'prop' ||
+			line.target.target.type !== 'prop' ||
+			line.target.target.target.type !== 'prop' ||
+			line.target.target.target.target.type !== 'identifier'
+		)
+			assert.fail();
+		assert.equal(line.target.target.target.target.name, 'a');
+		assert.equal(line.target.target.target.name, 'b');
+		assert.equal(line.target.target.name, 'c');
+		assert.equal(line.target.name, 'd');
+		assert.equal(line.name, 'e');
 	});
 });
 
@@ -1968,10 +2067,10 @@ describe('type declaration', () => {
 	test.concurrent('fn def', async () => {
 		const res = await exe(`
 		@f(x: arr<num>, y: str, z: @(num) => bool): arr<num> {
-			x[3] = 0
+			x.push(0)
 			y = "abc"
 			var r: bool = z(x[0])
-			x[4] = if r 5 else 10
+			x.push(if r 5 else 10)
 			x
 		}
 
@@ -2394,6 +2493,80 @@ describe('primitive props', () => {
 			`);
 			eq(res, STR('el'));
 		});
+
+		test.concurrent("codepoint_at", async () => {
+			const res = await exe(`
+			let str = "𩸽"
+			<: str.codepoint_at(0)
+			`);
+			eq(res, NUM(171581));
+		});
+
+		test.concurrent("to_arr", async () => {
+			const res = await exe(`
+			let str = "𩸽👉🏿👨‍👦"
+			<: str.to_arr()
+			`);
+			eq(
+				res,
+				ARR([STR("𩸽"), STR("👉🏿"), STR("👨‍👦")])
+			);
+		});
+
+		test.concurrent("to_unicode_arr", async () => {
+			const res = await exe(`
+			let str = "𩸽👉🏿👨‍👦"
+			<: str.to_unicode_arr()
+			`);
+			eq(
+				res,
+				ARR([STR("𩸽"), STR("👉"), STR(String.fromCodePoint(0x1F3FF)), STR("👨"), STR("\u200d"), STR("👦")])
+			);
+		});
+
+		test.concurrent("to_unicode_codepoint_arr", async () => {
+			const res = await exe(`
+			let str = "𩸽👉🏿👨‍👦"
+			<: str.to_unicode_codepoint_arr()
+			`);
+			eq(
+				res,
+				ARR([NUM(171581), NUM(128073), NUM(127999), NUM(128104), NUM(8205), NUM(128102)])
+			);
+		});
+
+		test.concurrent("to_char_arr", async () => {
+			const res = await exe(`
+			let str = "abc𩸽👉🏿👨‍👦def"
+			<: str.to_char_arr()
+			`);
+			eq(
+				res,
+				ARR([97, 98, 99, 55399, 56893, 55357, 56393, 55356, 57343, 55357, 56424, 8205, 55357, 56422, 100, 101, 102].map((s) => STR(String.fromCharCode(s))))
+			);
+		});
+
+		test.concurrent("to_charcode_arr", async () => {
+			const res = await exe(`
+			let str = "abc𩸽👉🏿👨‍👦def"
+			<: str.to_charcode_arr()
+			`);
+			eq(
+				res,
+				ARR([NUM(97), NUM(98), NUM(99), NUM(55399), NUM(56893), NUM(55357), NUM(56393), NUM(55356), NUM(57343), NUM(55357), NUM(56424), NUM(8205), NUM(55357), NUM(56422), NUM(100), NUM(101), NUM(102)])
+			);
+		});
+
+		test.concurrent("to_utf8_byte_arr", async () => {
+			const res = await exe(`
+			let str = "abc𩸽👉🏿👨‍👦def"
+			<: str.to_utf8_byte_arr()
+			`);
+			eq(
+				res,
+				ARR([NUM(97), NUM(98), NUM(99), NUM(240), NUM(169), NUM(184), NUM(189), NUM(240), NUM(159), NUM(145), NUM(137), NUM(240), NUM(159), NUM(143), NUM(191), NUM(240), NUM(159), NUM(145), NUM(168), NUM(226), NUM(128), NUM(141), NUM(240), NUM(159), NUM(145), NUM(166), NUM(100), NUM(101), NUM(102)])
+			);
+		});
 	});
 
 	describe('arr', () => {
@@ -2784,6 +2957,16 @@ describe('std', () => {
 				ARR([STR('c'), NUM(3)])
 			]));
 		});
+
+		test.concurrent('merge', async () => {
+			const res = await exe(`
+			let o1 = { a: 1; b: 2; }
+			let o2 = { b: 3; c: 4; }
+
+			<: Obj:merge(o1, o2)
+			`);
+			eq(res, utils.jsToVal({ a: 1, b: 3, c: 4}));
+		});
 	});
 
 	describe('Str', () => {
@@ -2801,24 +2984,38 @@ describe('std', () => {
 			eq(res, STR('A'));
 		});
 
-		test.concurrent('codepoint_at', async () => {
+		test.concurrent('from_unicode_codepoints', async () => {
+			const res = await exe(`
+			<: Str:from_unicode_codepoints([171581, 128073, 127999, 128104, 8205, 128102])
+			`);
+			eq(res, STR('𩸽👉🏿👨‍👦'));
+		});
+
+		test.concurrent('from_utf8_bytes', async () => {
+			const res = await exe(`
+			<: Str:from_utf8_bytes([240, 169, 184, 189, 240, 159, 145, 137, 240, 159, 143, 191, 240, 159, 145, 168, 226, 128, 141, 240, 159, 145, 166])
+			`);
+			eq(res, STR('𩸽👉🏿👨‍👦'));
+		});
+
+		test.concurrent('charcode_at', async () => {
 			let res = await exe(`
-			<: "aiscript".split().map(@(x, _) { x.codepoint_at(0) })
+			<: "aiscript".split().map(@(x, _) { x.charcode_at(0) })
 			`);
 			eq(res, ARR([97, 105, 115, 99, 114, 105, 112, 116].map(x => NUM(x))));
 
 			res = await exe(`
-			<: "".codepoint_at(0)
+			<: "".charcode_at(0)
 			`);
 			eq(res, NULL);
 		});
 	});
 
 	describe('Error', () => {
-		test.concurrent('new', async () => {
+		test.concurrent('create', async () => {
 			eq(
 				await exe(`
-				<: Error:new('ai', {chan: 'kawaii'})
+				<: Error:create('ai', {chan: 'kawaii'})
 				`),
 				ERROR('ai', OBJ(new Map([['chan', STR('kawaii')]])))
 			);

@@ -1,14 +1,20 @@
 [Read translated version (en)](./translations/en/CHANGELOG.md)
-## Note
-バージョン0.16.0に記録漏れがありました。
->- 関数`Str:from_codepoint` `Str#codepoint_at`を追加
 
-# 0.17.0
-- `package.json`を修正
-- `Error:new`関数でエラー型の値を生成できるように
 - `index_of`の配列版を追加
 - `str.index_of` `arr.index_of`共に第２引数fromIndexを受け付けるように
 - `arr.incl`の引数の型制限を廃止
+
+# 0.17.0
+- `package.json`を修正
+- `Error:create`関数でエラー型の値を生成できるように
+- `Obj:merge`で２つのオブジェクトの併合を得られるように
+- Fix: チェイン系（インデックスアクセス`[]`、プロパティアクセス`.`、関数呼び出し`()`）と括弧を組み合わせた時に不正な挙動をするバグを修正
+- 関数`Str#charcode_at` `Str#to_arr` `Str#to_char_arr` `Str#to_charcode_arr` `Str#to_utf8_byte_arr` `Str#to_unicode_codepoint_arr` `Str:from_unicode_codepoints` `Str:from_utf8_bytes`を追加
+- Fix: `Str#codepoint_at`がサロゲートペアに対応していないのを修正
+- 配列の範囲外および非整数のインデックスへの代入でエラーを出すように
+## Note
+バージョン0.16.0に記録漏れがありました。
+>- 関数`Str:from_codepoint` `Str#codepoint_at`を追加
 
 # 0.16.0
 - **ネームスペースのトップレベルに`var`は定義できなくなりました。(`let`は可能)**

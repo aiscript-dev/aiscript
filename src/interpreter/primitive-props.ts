@@ -1,6 +1,7 @@
 // JavaScriptは一部のUnicode文字列を正しく扱えないため標準関数の代わりにstringzの関数を使う
 import { substring, length, indexOf, toArray } from 'stringz';
 import { AiScriptRuntimeError } from '../error.js';
+import { textEncoder } from '../const.js';
 import { assertArray, assertBoolean, assertFunction, assertNumber, assertString, expectAny, eq } from './util.js';
 import { ARR, FALSE, FN_NATIVE, NULL, NUM, STR, TRUE } from './value.js';
 import type { Value, VArr, VFn, VNum, VStr, VError } from './value.js';
@@ -21,6 +22,33 @@ const PRIMITIVE_PROPS: {
 			const parsed = parseInt(target.value, 10);
 			if (isNaN(parsed)) return NULL;
 			return NUM(parsed);
+		}),
+
+		to_arr: (target: VStr): VFn => FN_NATIVE(async (_, _opts) => {
+			return ARR(toArray(target.value).map(s => STR(s)));
+		}),
+
+		to_unicode_arr: (target: VStr): VFn => FN_NATIVE(async (_, _opts) => {
+			return ARR([...target.value].map((s) => STR(s)));
+		}),
+
+		to_unicode_codepoint_arr: (target: VStr): VFn => FN_NATIVE(async (_, _opts) => {
+			return ARR([...target.value].map((s) => {
+				const res = s.codePointAt(0);
+				return NUM(res ?? s.charCodeAt(0));
+			}));
+		}),
+
+		to_char_arr: (target: VStr): VFn => FN_NATIVE(async (_, _opts) => {
+			return ARR(target.value.split('').map((s) => STR(s)));
+		}),
+
+		to_charcode_arr: (target: VStr): VFn => FN_NATIVE(async (_, _opts) => {
+			return ARR(target.value.split('').map((s) => NUM(s.charCodeAt(0))));
+		}),
+
+		to_utf8_byte_arr: (target: VStr): VFn => FN_NATIVE(async (_, _opts) => {
+			return ARR(Array.from(textEncoder.encode(target.value)).map((s) => NUM(s)));
 		}),
 
 		len: (target: VStr): VNum => NUM(length(target.value)),
@@ -77,11 +105,18 @@ const PRIMITIVE_PROPS: {
 			return char ? STR(char) : NULL;
 		}),
 
-		codepoint_at: (target: VStr): VFn => FN_NATIVE(([i], _) => {
+		charcode_at: (target: VStr): VFn => FN_NATIVE(([i], _) => {
 			assertNumber(i);
 
 			const res = target.value.charCodeAt(i.value);
 
+			return Number.isNaN(res) ? NULL : NUM(res);
+		}),
+
+		codepoint_at: (target: VStr): VFn => FN_NATIVE(([i], _) => {
+			assertNumber(i);
+
+			const res = target.value.codePointAt(i.value) ?? target.value.charCodeAt(i.value);
 			return Number.isNaN(res) ? NULL : NUM(res);
 		}),
 	},

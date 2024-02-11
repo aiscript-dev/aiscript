@@ -10,7 +10,7 @@ updates:
     schedule:
       interval: "daily"
     groups:
-      all:
+      gh-actions:
         patterns:
           - "*"
   - package-ecosystem: "npm" # See documentation for possible values
@@ -18,6 +18,6 @@ updates:
     schedule:
       interval: "daily"
     groups:
-      all:
+      npm-deps:
         patterns:
           - "*"
