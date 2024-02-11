@@ -212,6 +212,42 @@ Ai:kun() // kawaii
 値をスクリプト中に直接書き込むことができる構文です。  
 詳しくは→[literals.md](./literals.md)  
 
+### 演算子
+主要な演算を表現します。  
+#### 単項演算子
+式に前置して使用します。論理否定（`!`）、正数符号（`+`）、負数符号（`-`）の三種があります。
+#### 二項演算子
+２つの式の間に置いて使用します。四則演算とその派生（`+`,`-`,`*`,`^`,`/`,`%`)、比較演算（`==`,`!=`,`<`,`<=`,`>`,`>=`）、論理演算（`&&`,`||`）があります。
+#### 演算子の優先度
+例えば`1 + 2 * 3`などは`2 * 3`が先に計算されてから`1 +`が行われます。これは`*`の優先度が`+`より高いことによるものです。優先度の一覧は下の表をご覧下さい。  
+この優先度は`(1 + 2) * 3`のように`(` `)`で括ることで変えることができます。  
+#### 二項演算子の糖衣構文性
+二項演算子は構文解析の過程でそれぞれ対応する組み込み関数に置き換えられます。  
+（単項演算子である`!`にも対応する関数`Core:not`が存在しますが、置き換えは行われていません）  
+何の関数に置き換えられるかは下の表をご覧下さい。  
+### 演算子一覧
+上から順に優先度が高くなっています。（一部優先度が同じものもあります）  
+<table>
+	<tr><th>演算子</th><th>対応する関数</th><th>意味</th></tr>
+	<tr><td><code>^</code></td><td><code>Core:pow</code></td><td>冪算</td></tr>
+	<tr><td><code>+（単項）</code></td><td>なし</td><td>正数</td></tr>
+	<tr><td><code>-（単項）</code></td><td>なし</td><td>負数</td></tr>
+	<tr><td><code>!（単項）</code></td><td>なし</td><td>否定</td></tr>
+	<tr><td><code>*</code></td><td><code>Core:mul</code></td><td>乗算</td></tr>
+	<tr><td><code>/</code></td><td><code>Core:div</code></td><td>除算</td></tr>
+	<tr><td><code>%</code></td><td><code>Core:mod</code></td><td>剰余</td></tr>
+	<tr><td><code>+</code></td><td><code>Core:add</code></td><td>加算</td></tr>
+	<tr><td><code>-</code></td><td><code>Core:sub</code></td><td>減算</td></tr>
+	<tr><td><code>></code></td><td><code>Core:gt</code></td><td>大きい</td></tr>
+	<tr><td><code>>=</code></td><td><code>Core:gteq</code></td><td>以上</td></tr>
+	<tr><td><code><</code></td><td><code>Core:lt</code></td><td>小さい</td></tr>
+	<tr><td><code><=</code></td><td><code>Core:lteq</code></td><td>以下</td></tr>
+	<tr><td><code>==</code></td><td><code>Core:eq</code></td><td>等しい</td></tr>
+	<tr><td><code>!=</code></td><td><code>Core:neq</code></td><td>等しくない</td></tr>
+	<tr><td><code>&&</code></td><td><code>Core:and</code></td><td>かつ</td></tr>
+	<tr><td><code>||</code></td><td><code>Core:or</code></td><td>または</td></tr>
+</table>
+
 ### if
 キーワード`if`に続く式がtrueに評価されるかfalseに評価されるかで条件分岐を行います。  
 式として扱うことができ、最後の文の値を返します。
@@ -265,11 +301,14 @@ let foo = eval {
 ```js
 let x = 1
 let y = match x {
-	1 => "yes"
-	0 => "no"
-	* => "other"
+	case 1 => "yes"
+	case 0 => "no"
+	default => "other"
 }
 <: y // "yes"
+
+// ワンライナー
+<:match x{case 1=>"yes",case 0=>"no",default=>"other"} // "yes"
 ```
 
 ### exists
