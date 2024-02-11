@@ -22,7 +22,7 @@ print("Hello, world!")
 `"~"`は文字列リテラルです。`"`で囲ったものが文字列になります。
 
 ちなみに、`print( ~ )`には糖衣構文があり、次のようにも書けます:
-```
+```js
 <: "Hello, world!"
 ```
 
@@ -86,13 +86,13 @@ print(message)
 ## 配列
 `[]`の中に式をスペースで区切って列挙します。
 ```
-["ai" "chan" "kawaii"]
+["ai", "chan", "kawaii"]
 ```
 
 配列の要素にアクセスするときは、`[<index>]`と書きます。
 インデックスは0始まりです。
 ```
-let arr = ["ai" "chan" "kawaii"]
+let arr = ["ai", "chan", "kawaii"]
 <: arr[0] // "ai"
 <: arr[2] // "kawaii"
 ```
@@ -130,21 +130,7 @@ let obj = {foo: "bar", answer: 42}
 ```
 Core:add(1, 1)
 ```
-
-<table>
-	<tr><th>演算子</th><th>標準関数</th><th>意味</th></tr>
-	<tr><td><code>+</code></td><td><code>Core:add</code></td><td>加算</td></tr>
-	<tr><td><code>-</code></td><td><code>Core:sub</code></td><td>減算</td></tr>
-	<tr><td><code>*</code></td><td><code>Core:mul</code></td><td>乗算</td></tr>
-	<tr><td><code>^</code></td><td><code>Core:pow</code></td><td>冪算</td></tr
-	<tr><td><code>/</code></td><td><code>Core:div</code></td><td>除算</td></tr>
-	<tr><td><code>%</code></td><td><code>Core:mod</code></td><td>剰余</td></tr>
-	<tr><td><code>==</code></td><td><code>Core:eq</code></td><td>等しい</td></tr>
-	<tr><td><code>&&</code></td><td><code>Core:and</code></td><td>かつ</td></tr>
-	<tr><td><code>||</code></td><td><code>Core:or</code></td><td>または</td></tr>
-	<tr><td><code>></code></td><td><code>Core:gt</code></td><td>大きい</td></tr>
-	<tr><td><code><</code></td><td><code>Core:lt</code></td><td>小さい</td></tr>
-</table>
+詳しくは→[syntax.md](/docs/syntax.md#%E6%BC%94%E7%AE%97%E5%AD%90)
 
 ## ブロック式
 ブロック式 `eval { ~ }` を使うと、ブロック内で最後に書かれた式が値として返されます。
@@ -216,7 +202,7 @@ for (100) {
 ## 繰り返し(配列)
 `each`を使うと、配列の各アイテムに対し処理を繰り返すことができます:
 ```
-let items = ["a" "b" "c"]
+let items = ["a", "b", "c"]
 each (let item, items) {
 	<: item
 }
@@ -260,13 +246,13 @@ AiScriptファイルにメタデータを埋め込める機能です。
 ### {
 	name: "example"
 	version: 42
-	keywords: ["foo" "bar" "baz"]
+	keywords: ["foo", "bar", "baz"]
 }
 ```
 
 ## エラー型
-一部の標準関数は実行失敗時にエラー型の値を返します。
-これによりエラー処理を行うことができます。
+一部の標準関数は実行失敗時にエラー型の値を返します。  
+これによりエラー処理を行うことができます。  
 ```
 @validate(str){
 	let v=Json:parse(str)
@@ -274,3 +260,15 @@ AiScriptファイルにメタデータを埋め込める機能です。
 	else print('successful')
 }
 ```
+
+## エラーメッセージ
+進行不能なエラーが発生するとエラーメッセージが表示されます。  
+```
+let scores=[10, 8, 5, 5]
+let 3rd=scores[2] // unexpected token: NumberLiteral (Line 2, Column 5)
+```
+```
+let arr=[]
+arr[0] // Runtime: Index out of range. Index: 0 max: -1 (Line 2, Column 4)
+```
+行(Line)、列(Column)は1始まりです。
