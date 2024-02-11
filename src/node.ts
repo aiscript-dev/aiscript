@@ -9,21 +9,23 @@ export type Loc = {
 
 export type Node = Namespace | Meta | Statement | Expression | TypeSource | Attribute;
 
-type NodeBase = {
-	loc: Loc; // コード位置
-};
+export class Namespace {
+	type = 'ns' as const; // 名前空間
+	constructor(
+		public name: string, // 空間名
+		public members: (Definition | Namespace)[], // メンバー
+		public loc: Loc, // コード位置
+	) { }
+}
 
-export type Namespace = NodeBase & {
-	type: 'ns'; // 名前空間
-	name: string; // 空間名
-	members: (Definition | Namespace)[]; // メンバー
-};
-
-export type Meta = NodeBase & {
-	type: 'meta'; // メタデータ定義
-	name: string | null; // 名
-	value: Expression; // 値
-};
+export class Meta {
+	type = 'meta' as const; // メタデータ定義
+	constructor(
+		public name: string | null, // 名
+		public value: Expression, // 値
+		public loc: Loc, // コード位置
+	) { }
+}
 
 // statement
 
@@ -37,7 +39,8 @@ export type Statement =
 	Continue |
 	Assign |
 	AddAssign |
-	SubAssign;
+	SubAssign |
+	Expression;
 
 const statementTypes = [
 	'def', 'return', 'each', 'for', 'loop', 'break', 'continue', 'assign', 'addAssign', 'subAssign',
@@ -46,72 +49,105 @@ export function isStatement(x: Node): x is Statement {
 	return statementTypes.includes(x.type);
 }
 
-export type Definition = NodeBase & {
-	type: 'def'; // 変数宣言文
-	name: string; // 変数名
-	varType?: TypeSource; // 変数の型
-	expr: Expression; // 式
-	mut: boolean; // ミュータブルか否か
-	attr: Attribute[]; // 付加された属性
-};
+export class Definition {
+	type = 'def' as const; // 変数宣言文
+	constructor(
+		public name: string, // 変数名
+		public varType: TypeSource | null, // 変数の型
+		public expr: Expression, // 式
+		public mut: boolean, // ミュータブルか否か
+		public attr: Attribute[], // 付加された属性
+		public loc: Loc, // コード位置
+	) { }
+}
 
-export type Attribute = NodeBase & {
-	type: 'attr'; // 属性
-	name: string; // 属性名
-	value: Expression; // 値
-};
+export class Attribute {
+	type = 'attr' as const; // 属性
+	constructor(
+		public name: string, // 属性名
+		public value: Expression, // 値
+		public loc: Loc, // コード位置
+	) { }
+}
 
-export type Return = NodeBase & {
-	type: 'return'; // return文
-	expr: Expression; // 式
-};
+export class Return {
+	type = 'return' as const; // return文
+	constructor(
+		public expr: Expression, // 式
+		public loc: Loc, // コード位置
+	) { }
+}
 
-export type Each = NodeBase & {
-	type: 'each'; // each文
-	var: string; // イテレータ変数名
-	items: Expression; // 配列
-	for: Statement | Expression; // 本体処理
-};
+export class Each {
+	type = 'each' as const; // each文
+	constructor(
+		public _var: string, // イテレータ変数名
+		public items: Expression, // 配列
+		public _for: Statement | Expression, // 本体処理
+		public loc: Loc, // コード位置
+	) { }
+}
 
-export type For = NodeBase & {
-	type: 'for'; // for文
-	var?: string; // イテレータ変数名
-	from?: Expression; // 開始値
-	to?: Expression; // 終値
-	times?: Expression; // 回数
-	for: Statement | Expression; // 本体処理
-};
+export class For {
+	type = 'for' as const; // for文
+	constructor(
+		public _var: string | null, // イテレータ変数名
+		public from: Expression | null, // 開始値
+		public to: Expression | null, // 終値
+		public times: Expression | null, // 回数
+		public _for: Statement | Expression, // 本体処理
+		public loc: Loc, // コード位置
+	) { }
+}
 
-export type Loop = NodeBase & {
-	type: 'loop'; // loop文
-	statements: (Statement | Expression)[]; // 処理
-};
+export class Loop {
+	type = 'loop' as const; // loop文
+	constructor(
+		public statements: (Statement | Expression)[], // 処理
+		public loc: Loc, // コード位置
+	) { }
+}
 
-export type Break = NodeBase & {
-	type: 'break'; // break文
-};
+export class Break {
+	type = 'break' as const; // break文
+	constructor(
+		public loc: Loc, // コード位置
+	) { }
+}
 
-export type Continue = NodeBase & {
-	type: 'continue'; // continue文
-};
+export class Continue {
+	type = 'continue' as const; // continue文
+	constructor(
+		public loc: Loc, // コード位置
+	) { }
+}
 
-export type AddAssign = NodeBase & {
-	type: 'addAssign'; // 加算代入文
-	dest: Expression; // 代入先
-	expr: Expression; // 式
-};
+export class AddAssign {
+	type = 'addAssign' as const; // 加算代入文
+	constructor(
+		public dest: Expression, // 代入先
+		public expr: Expression, // 式
+		public loc: Loc, // コード位置
+	) { }
+}
 
-export type SubAssign = NodeBase & {
-	type: 'subAssign'; // 減算代入文
-	dest: Expression; // 代入先
-	expr: Expression; // 式
-};
+export class SubAssign {
+	type = 'subAssign' as const; // 減算代入文
+	constructor(
+		public dest: Expression, // 代入先
+		public expr: Expression, // 式
+		public loc: Loc, // コード位置
+	) { }
+}
 
-export type Assign = NodeBase & {
-	type: 'assign'; // 代入文
-	dest: Expression; // 代入先
-	expr: Expression; // 式
-};
+export class Assign {
+	type = 'assign' as const; // 代入文
+	constructor(
+		public dest: Expression, // 代入先
+		public expr: Expression, // 式
+		public loc: Loc, // コード位置
+	) { }
+}
 
 // expressions
 
@@ -143,133 +179,196 @@ export function isExpression(x: Node): x is Expression {
 	return expressionTypes.includes(x.type);
 }
 
-export type Not = NodeBase & {
-	type: 'not'; // 否定
-	expr: Expression; // 式
-};
-
-export type And = NodeBase & {
-	type: 'and';
-	left: Expression;
-	right: Expression;
+export class Not {
+	type = 'not' as const; // 否定
+	constructor(
+		public expr: Expression, // 式
+		public loc: Loc, // コード位置
+	) { }
 }
 
-export type Or = NodeBase & {
-	type: 'or';
-	left: Expression;
-	right: Expression;
+export class And {
+	type = 'and' as const; // 否定
+	constructor(
+		public left: Expression,
+		public right: Expression,
+		public loc: Loc, // コード位置
+	) { }
 }
 
-export type If = NodeBase & {
-	type: 'if'; // if式
-	cond: Expression; // 条件式
-	then: Statement | Expression; // then節
-	elseif: {
-		cond: Expression; // elifの条件式
-		then: Statement | Expression;// elif節
-	}[];
-	else?: Statement | Expression; // else節
-};
+export class Or {
+	type = 'or' as const; // 否定
+	constructor(
+		public left: Expression,
+		public right: Expression,
+		public loc: Loc, // コード位置
+	) { }
+}
 
-export type Fn = NodeBase & {
-	type: 'fn'; // 関数
-	args: {
-		name: string; // 引数名
-		argType?: TypeSource; // 引数の型
-	}[];
-	retType?: TypeSource; // 戻り値の型
-	children: (Statement | Expression)[]; // 本体処理
-};
+export class If {
+	type = 'if' as const; // if式
+	constructor(
+		public cond: Expression, // 条件式
+		public then: Statement | Expression, // then節
+		public elseif: {
+			cond: Expression, // elifの条件式
+			then: Statement,// elif節
+		}[],
+		public _else: Statement | Expression | null, // else節
+		public loc: Loc, // コード位置
+	) { }
+}
 
-export type Match = NodeBase & {
-	type: 'match'; // パターンマッチ
-	about: Expression; // 対象
-	qs: {
-		q: Expression; // 条件
-		a: Statement | Expression; // 結果
-	}[];
-	default?: Statement | Expression; // デフォルト値
-};
+export class Fn {
+	type = 'fn' as const; // 関数
+	constructor(
+		public args: {
+			name: string, // 引数名
+			argType: TypeSource | null, // 引数の型
+		}[],
+		public retType: TypeSource | null, // 戻り値の型
+		public children: (Statement | Expression)[], // 本体処理
+		public loc: Loc, // コード位置
+	) { }
+}
 
-export type Block = NodeBase & {
-	type: 'block'; // ブロックまたはeval式
-	statements: (Statement | Expression)[]; // 処理
-};
+export class Match {
+	type = 'match' as const; // パターンマッチ
+	constructor(
+		public about: Expression, // 対象
+		public qs: {
+			q: Expression; // 条件
+			a: Statement | Expression; // 結果
+		}[],
+		public _default: Statement | Expression | null, // デフォルト値
+		public loc: Loc, // コード位置
+	) { }
+}
 
-export type Exists = NodeBase & {
-	type: 'exists'; // 変数の存在判定
-	identifier: Identifier; // 変数名
-};
+export class Block {
+	type = 'block' as const; // ブロックまたはeval式
+	constructor(
+		public statements: (Statement | Expression)[], // 処理
+		public loc: Loc, // コード位置
+	) { }
+}
 
-export type Tmpl = NodeBase & {
-	type: 'tmpl'; // テンプレート
-	tmpl: (string | Expression)[]; // 処理
-};
+export class Exists {
+	type = 'exists' as const; // 変数の存在判定
+	constructor(
+		public identifier: Identifier, // 変数名
+		public loc: Loc, // コード位置
+	) { }
+}
 
-export type Str = NodeBase & {
-	type: 'str'; // 文字列リテラル
-	value: string; // 文字列
-};
+export class Tmpl {
+	type = 'tmpl' as const; // テンプレート
+	constructor(
+		public tmpl: (string | Expression)[], // 処理
+		public loc: Loc, // コード位置
+	) { }
+}
 
-export type Num = NodeBase & {
-	type: 'num'; // 数値リテラル
-	value: number; // 数値
-};
+export class Str {
+	type = 'str' as const; // テンプレート
+	constructor(
+		public value: string, // 文字列
+		public loc: Loc, // コード位置
+	) { }
+}
 
-export type Bool = NodeBase & {
-	type: 'bool'; // 真理値リテラル
-	value: boolean; // 真理値
-};
+export class Num {
+	type = 'num' as const; // 数値リテラル
+	constructor(
+		public value: number, // 数値
+		public loc: Loc, // コード位置
+	) { }
+}
 
-export type Null = NodeBase & {
-	type: 'null'; // nullリテラル
-};
+export class Bool {
+	type = 'bool' as const; // 真理値リテラル
+	constructor(
+		public value: boolean, // 真理値
+		public loc: Loc, // コード位置
+	) { }
+}
 
-export type Obj = NodeBase & {
-	type: 'obj'; // オブジェクト
-	value: Map<string, Expression>; // プロパティ
-};
+export class Null {
+	type = 'null' as const; // nullリテラル
+	constructor(
+		public loc: Loc, // コード位置
+	) { }
+}
 
-export type Arr = NodeBase & {
-	type: 'arr'; // 配列
-	value: Expression[]; // アイテム
-};
+export class Obj {
+	type = 'obj' as const; // オブジェクト
+	constructor(
+		public value: Map<string, Expression>, // プロパティ
+		public loc: Loc, // コード位置
+	) { }
+}
 
-export type Identifier = NodeBase & {
-	type: 'identifier'; // 変数などの識別子
-	name: string; // 変数名
-};
+export class Arr {
+	type = 'arr' as const; // 配列
+	constructor(
+		public value: Expression[], // アイテム
+		public loc: Loc, // コード位置
+	) { }
+}
 
-export type Call = NodeBase & {
-	type: 'call'; // 関数呼び出し
-	target: Expression; // 対象
-	args: Expression[]; // 引数
-};
+export class Identifier {
+	type = 'identifier' as const; // 変数などの識別子
+	constructor(
+		public name: string, // 変数名
+		public loc: Loc, // コード位置
+	) { }
+}
 
-export type Index = NodeBase & {
-	type: 'index'; // 配列要素アクセス
-	target: Expression; // 対象
-	index: Expression; // インデックス
-};
+export class Call {
+	type = 'call' as const; // 関数呼び出し
+	constructor(
+		public target: Expression, // 対象
+		public args: Expression[], // 引数
+		public loc: Loc, // コード位置
+	) { }
+}
 
-export type Prop = NodeBase & {
-	type: 'prop'; // プロパティアクセス
-	target: Expression; // 対象
-	name: string; // プロパティ名
-};
+export class Index {
+	type = 'index' as const; // 配列要素アクセス
+	constructor(
+		public target: Expression, // 対象
+		public index: Expression, // インデックス
+		public loc: Loc, // コード位置
+	) { }
+}
+
+export class Prop {
+	type = 'prop' as const; // プロパティアクセス
+	constructor(
+		public target: Expression, // 対象
+		public name: string, // プロパティ名
+		public loc: Loc, // コード位置
+	) { }
+}
 
 // Type source
 
 export type TypeSource = NamedTypeSource | FnTypeSource;
 
-export type NamedTypeSource = NodeBase & {
-	type: 'namedTypeSource'; // 名前付き型
-	name: string; // 型名
-	inner?: TypeSource; // 内側の型
-};
+export class NamedTypeSource {
+	type = 'namedTypeSource' as const; // 名前付き型
+	constructor(
+		public name: string, // 型名
+		public inner: TypeSource | null, // 内側の型
+		public loc: Loc, // コード位置
+	) { }
+}
 
-export type FnTypeSource = NodeBase & {
-	type: 'fnTypeSource'; // 関数の型
-	args: TypeSource[]; // 引数の型
-	result: TypeSource; // 戻り値の型
-};
+export class FnTypeSource {
+	type = 'fnTypeSource' as const; // 関数の型
+	constructor(
+		public args: TypeSource[], // 引数の型
+		public result: TypeSource, // 戻り値の型
+		public loc: Loc, // コード位置
+	) { }
+}

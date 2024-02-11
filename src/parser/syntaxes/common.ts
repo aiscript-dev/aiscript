@@ -1,18 +1,17 @@
 import { TokenKind } from '../token.js';
 import { AiScriptSyntaxError } from '../../error.js';
-import { NODE } from '../utils.js';
 import { parseStatement } from './statements.js';
+import * as Ast from '../../node.js';
 
 import type { ITokenStream } from '../streams/token-stream.js';
-import type * as Ast from '../../node.js';
 
 /**
  * ```abnf
  * Params = "(" [IDENT [":" Type] *(SEP IDENT [":" Type])] ")"
  * ```
 */
-export function parseParams(s: ITokenStream): { name: string, argType?: Ast.Node }[] {
-	const items: { name: string, argType?: Ast.Node }[] = [];
+export function parseParams(s: ITokenStream): { name: string, argType: Ast.TypeSource | null }[] {
+	const items: { name: string, argType: Ast.TypeSource | null }[] = [];
 
 	s.nextWith(TokenKind.OpenParen);
 
@@ -25,7 +24,7 @@ export function parseParams(s: ITokenStream): { name: string, argType?: Ast.Node
 		const name = s.token.value!;
 		s.next();
 
-		let type;
+		let type = null;
 		if ((s.kind as TokenKind) === TokenKind.Colon) {
 			s.next();
 			type = parseType(s);
@@ -65,14 +64,14 @@ export function parseParams(s: ITokenStream): { name: string, argType?: Ast.Node
  * Block = "{" *Statement "}"
  * ```
 */
-export function parseBlock(s: ITokenStream): Ast.Node[] {
+export function parseBlock(s: ITokenStream): Ast.Statement[] {
 	s.nextWith(TokenKind.OpenBrace);
 
 	while (s.kind === TokenKind.NewLine) {
 		s.next();
 	}
 
-	const steps: Ast.Node[] = [];
+	const steps: Ast.Statement[] = [];
 	while (s.kind !== TokenKind.CloseBrace) {
 		steps.push(parseStatement(s));
 
@@ -101,7 +100,7 @@ export function parseBlock(s: ITokenStream): Ast.Node[] {
 
 //#region Type
 
-export function parseType(s: ITokenStream): Ast.Node {
+export function parseType(s: ITokenStream): Ast.TypeSource {
 	if (s.kind === TokenKind.At) {
 		return parseFnType(s);
 	} else {
@@ -115,13 +114,13 @@ export function parseType(s: ITokenStream): Ast.Node {
  * ParamTypes = [Type *(SEP Type)]
  * ```
 */
-function parseFnType(s: ITokenStream): Ast.Node {
+function parseFnType(s: ITokenStream): Ast.TypeSource {
 	const loc = s.token.loc;
 
 	s.nextWith(TokenKind.At);
 	s.nextWith(TokenKind.OpenParen);
 
-	const params: Ast.Node[] = [];
+	const params: Ast.TypeSource[] = [];
 	while (s.kind !== TokenKind.CloseParen) {
 		if (params.length > 0) {
 			switch (s.kind as TokenKind) {
@@ -143,7 +142,7 @@ function parseFnType(s: ITokenStream): Ast.Node {
 
 	const resultType = parseType(s);
 
-	return NODE('fnTypeSource', { args: params, result: resultType }, loc);
+	return new Ast.FnTypeSource(params, resultType, loc);
 }
 
 /**
@@ -151,7 +150,7 @@ function parseFnType(s: ITokenStream): Ast.Node {
  * NamedType = IDENT ["<" Type ">"]
  * ```
 */
-function parseNamedType(s: ITokenStream): Ast.Node {
+function parseNamedType(s: ITokenStream): Ast.TypeSource {
 	const loc = s.token.loc;
 
 	s.expect(TokenKind.Identifier);
@@ -166,7 +165,7 @@ function parseNamedType(s: ITokenStream): Ast.Node {
 		s.nextWith(TokenKind.Gt);
 	}
 
-	return NODE('namedTypeSource', { name, inner }, loc);
+	return new Ast.NamedTypeSource(name, inner, loc);
 }
 
 //#endregion Type

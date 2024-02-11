@@ -285,11 +285,11 @@ export class Interpreter {
 								return this._eval(elseif.then, scope);
 							}
 						}
-						if (node.else) {
-							return this._eval(node.else, scope);
+						if (node._else) {
+							return this._eval(node._else, scope);
 						}
-					} else if (node.else) {
-						return this._eval(node.else, scope);
+					} else if (node._else) {
+						return this._eval(node._else, scope);
 					}
 				}
 				return NULL;
@@ -303,8 +303,8 @@ export class Interpreter {
 						return await this._eval(qa.a, scope);
 					}
 				}
-				if (node.default) {
-					return await this._eval(node.default, scope);
+				if (node._default) {
+					return await this._eval(node._default, scope);
 				}
 				return NULL;
 			}
@@ -327,7 +327,7 @@ export class Interpreter {
 					const times = await this._eval(node.times, scope);
 					assertNumber(times);
 					for (let i = 0; i < times.value; i++) {
-						const v = await this._eval(node.for, scope);
+						const v = await this._eval(node._for, scope);
 						if (v.type === 'break') {
 							break;
 						} else if (v.type === 'return') {
@@ -340,8 +340,8 @@ export class Interpreter {
 					assertNumber(from);
 					assertNumber(to);
 					for (let i = from.value; i < from.value + to.value; i++) {
-						const v = await this._eval(node.for, scope.createChildScope(new Map([
-							[node.var!, {
+						const v = await this._eval(node._for, scope.createChildScope(new Map([
+							[node._var!, {
 								isMutable: false,
 								value: NUM(i),
 							}],
@@ -360,8 +360,8 @@ export class Interpreter {
 				const items = await this._eval(node.items, scope);
 				assertArray(items);
 				for (const item of items.value) {
-					const v = await this._eval(node.for, scope.createChildScope(new Map([
-						[node.var, {
+					const v = await this._eval(node._for, scope.createChildScope(new Map([
+						[node._var, {
 							isMutable: false,
 							value: item,
 						}],

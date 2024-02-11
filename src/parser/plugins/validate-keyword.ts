@@ -77,14 +77,14 @@ function validateNode(node: Ast.Node): Ast.Node {
 			break;
 		}
 		case 'each': {
-			if (reservedWord.includes(node.var)) {
-				throwReservedWordError(node.var, node.loc);
+			if (reservedWord.includes(node._var)) {
+				throwReservedWordError(node._var, node.loc);
 			}
 			break;
 		}
 		case 'for': {
-			if (node.var != null && reservedWord.includes(node.var)) {
-				throwReservedWordError(node.var, node.loc);
+			if (node._var != null && reservedWord.includes(node._var)) {
+				throwReservedWordError(node._var, node.loc);
 			}
 			break;
 		}
