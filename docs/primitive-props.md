@@ -72,8 +72,11 @@ _splitter_ が与えられなければ一文字づつ区切ります。
 ### @(_v_: str).replace(_old_: str, _new_: str): str
 文字列中の _old_ を _new_ に置換したものを返します。  
 
-### @(_v_: str).index_of(_search_: str): num
-文字列中から _search_ を検索し、あれば何文字に存在したかを、なければ-1を返します。
+### @(_v_: str).index_of(_search_: str, _fromIndex_?: num): num
+文字列中から_search_を探し、その添字を返します。  
+_fromIndex_が指定されていれば、その位置から検索を開始します。  
+_fromIndex_が負値の時は末尾からの位置（文字列の長さ+_fromIndex_）が使用されます。  
+該当が無ければ-1を返します。
 
 ### @(_v_: str).trim(): str
 文字列の前後の空白を取り除いたものを返します。
@@ -126,7 +129,7 @@ _i_ 番目の文字が存在しない場合は null が返されます。
 ### @(_v_: arr).slice(_begin_: num, _end_: num): arr
 配列の _begin_ 番目から _end_ 番目の部分を切り出して返します。
 
-### @(_v_: arr).incl(_i_: str | num | bool | null): bool
+### @(_v_: arr).incl(_i_: value): bool
 配列に指定した値が含まれているかどうかを返します。  
 
 ### @(_v_: arr).map(_func_: fn): arr
@@ -145,6 +148,12 @@ _initial_ が指定された場合は初回呼び出しの引数が(_initial_, _
 
 ### @(_v_: arr).find(_func_: @(_item_: value, _index_: num) { bool }): value
 配列から _func_ が true を返すような要素を探し、その値を返します。  
+
+### @(_v_: arr).index_of(_val_: value, _fromIndex_?: num): num
+配列から_val_と同じ値を探し、その添字を返します。  
+_fromIndex_が指定されていれば、その位置から検索を開始します。  
+_fromIndex_が負値の時は末尾からの位置（配列の長さ+_fromIndex_）が使用されます。  
+該当が無ければ-1を返します。
 
 ### @(_v_: arr).reverse(): null
 **【この操作は配列を書き換えます】**  
