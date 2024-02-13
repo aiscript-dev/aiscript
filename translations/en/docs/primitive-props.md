@@ -91,8 +91,8 @@ Combines all elements of the string array and returns them as a single string.
 ### @(_v_: arr).slice(_begin_: num, _end_: num): arr
 Obtains specified portion of the array.  
 
-### @(_v_: arr).incl(_query_: str | num | bool | null): bool
-Checks if there is an element in the array with the value _query_.  
+### @(_v_: arr).incl(_val_: value): bool
+Checks if there is an element in the array with the value _val_.  
 
 ### @(_v_: arr).map(_func_: fn): arr
 Executes _func_ for each element of the array asynchronously.  
@@ -109,7 +109,13 @@ if _initial_ is given, _func_ is initially called with arguments (_initial_, _v_
 Otherwise, (_v_\[0], _v_\[1], 1).  
 
 ### @(_v_: arr).find(_func_: @(_item_: value, _index_: num) { bool }): value
-Find elements in the array such that _func_ returns true.  
+Finds elements in the array such that _func_ returns true.  
+
+### @(_v_: arr).index_of(_val_: value, _fromIndex_?: num): num
+Finds a value that equals to _val_, and returns the index.  
+If _fromIndex_ is given, the search starts from there.
+When _fromIndex_ is negative, index from the end(length of the array + _fromIndex_) is used.
+When not found, returns -1.
 
 ### @(_v_: arr).reverse(): null
 **Modifying**
