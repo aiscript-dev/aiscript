@@ -2826,6 +2826,13 @@ describe('std', () => {
 				<: Core:to_str(arr)
 			`), STR('[ { value: ... } ]'));
 		});
+
+		test.concurrent('abort', async () => {
+			assert.rejects(
+				exe('Core:abort("hoge")'),
+				{ name: '', message: 'hoge' },
+			);
+		});
 	});
 
 	describe('Arr', () => {
