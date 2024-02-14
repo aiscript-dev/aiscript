@@ -4,6 +4,7 @@
 - `index_of`の配列版を追加
 - `str.index_of` `arr.index_of`共に第２引数fromIndexを受け付けるように
 - `arr.incl`の引数の型制限を廃止
+- `Date:millisecond`を追加
 
 # 0.17.0
 - `package.json`を修正
