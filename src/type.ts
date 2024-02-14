@@ -1,28 +1,32 @@
-import { AiScriptSyntaxError } from './error.js';
+import { AiScriptTypeError } from './error.js';
 import type * as Ast from './node.js';
 
-// Type (Semantic analyzed)
+// Types (Semantically analyzed)
+
+export type Type = TSimple | TGeneric | TFn;
 
 export type TSimple<N extends string = string> = {
 	type: 'simple';
 	name: N;
 }
 
+export type TGeneric<N extends string = string> = {
+	type: 'generic';
+	name: N;
+	inners: Type[];
+}
+
+export type TFn = {
+	type: 'fn';
+	args: Type[];
+	result: Type;
+};
+
 export function T_SIMPLE<T extends string>(name: T): TSimple<T> {
 	return {
 		type: 'simple',
 		name: name,
 	};
-}
-
-export function isAny(x: Type): x is TSimple<'any'> {
-	return x.type === 'simple' && x.name === 'any';
-}
-
-export type TGeneric<N extends string = string> = {
-	type: 'generic';
-	name: N;
-	inners: Type[];
 }
 
 export function T_GENERIC<N extends string>(name: N, inners: Type[]): TGeneric<N> {
@@ -33,12 +37,6 @@ export function T_GENERIC<N extends string>(name: N, inners: Type[]): TGeneric<N
 	};
 }
 
-export type TFn = {
-	type: 'fn';
-	args: Type[];
-	result: Type;
-};
-
 export function T_FN(args: Type[], result: Type): TFn {
 	return {
 		type: 'fn',
@@ -47,51 +45,51 @@ export function T_FN(args: Type[], result: Type): TFn {
 	};
 }
 
-export type Type = TSimple | TGeneric | TFn;
-
-function assertTSimple(t: Type): asserts t is TSimple { if (t.type !== 'simple') { throw new TypeError('assertTSimple failed.'); } }
-function assertTGeneric(t: Type): asserts t is TGeneric { if (t.type !== 'generic') { throw new TypeError('assertTGeneric failed.'); } }
-function assertTFn(t: Type): asserts t is TFn { if (t.type !== 'fn') { throw new TypeError('assertTFn failed.'); } }
+function isTSimple(x: Type): x is TSimple { return x.type === 'simple'; }
+function isTGeneric(x: Type): x is TGeneric { return x.type === 'generic'; }
+function isTFn(x: Type): x is TFn { return x.type === 'fn'; }
+function isAny(x: Type): x is TSimple<'any'> { return x.type === 'simple' && x.name === 'any'; }
 
 // Utility
 
+/**
+ * Checks value of type b is assignable to type a,
+ * or in other words type a is superset of type b.
+ */
 export function isCompatibleType(a: Type, b: Type): boolean {
-	if (isAny(a) || isAny(b)) return true;
-	if (a.type !== b.type) return false;
+	if (isAny(a)) return true;
+	if (isAny(b)) return false;
 
+	// isTSimple系のif文で分岐すると網羅性チェックができない？
 	switch (a.type) {
-		case 'simple': {
-			assertTSimple(b); // NOTE: TypeGuardが効かない
-			if (a.name !== b.name) return false;
-			break;
-		}
-		case 'generic': {
-			assertTGeneric(b); // NOTE: TypeGuardが効かない
-			// name
-			if (a.name !== b.name) return false;
-			// inners
-			if (a.inners.length !== b.inners.length) return false;
-			for (let i = 0; i < a.inners.length; i++) {
+		case 'simple' :
+			if (!isTSimple(b)) return false;
+			if (!(a.name === b.name)) return false;
+			return true;
+
+		case 'generic' :
+			if (!isTGeneric(b)) return false;
+			if (!(a.name === b.name)) return false;
+			if (!(a.inners.length !== b.inners.length)) return false;
+			for (const i in a.inners) {
 				if (!isCompatibleType(a.inners[i]!, b.inners[i]!)) return false;
 			}
-			break;
-		}
-		case 'fn': {
-			assertTFn(b); // NOTE: TypeGuardが効かない
-			// fn result
+			return true;
+
+		case 'fn' :
+			if (!isTFn(b)) return false;
 			if (!isCompatibleType(a.result, b.result)) return false;
-			// fn args
-			if (a.args.length !== b.args.length) return false;
-			for (let i = 0; i < a.args.length; i++) {
+			if (!(a.args.length !== b.args.length)) return false;
+			for (const i in a.args) {
 				if (!isCompatibleType(a.args[i]!, b.args[i]!)) return false;
 			}
-			break;
-		}
+			return true;
 	}
-
-	return true;
 }
 
+/**
+ * Type to string representation
+ */
 export function getTypeName(type: Type): string {
 	switch (type.type) {
 		case 'simple': {
@@ -151,7 +149,7 @@ export function getTypeBySource(typeSource: Ast.TypeSource): Type {
 				return T_GENERIC(typeSource.name, [innerType]);
 			}
 		}
-		throw new AiScriptSyntaxError(`Unknown type: '${getTypeNameBySource(typeSource)}'`);
+		throw new AiScriptTypeError(`Unknown type: '${getTypeNameBySource(typeSource)}'`);
 	} else {
 		const argTypes = typeSource.args.map(arg => getTypeBySource(arg));
 		return T_FN(argTypes, getTypeBySource(typeSource.result));

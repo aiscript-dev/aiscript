@@ -4,6 +4,7 @@
 
 import { autobind } from '../utils/mini-autobind.js';
 import { AiScriptError, NonAiScriptError, AiScriptIndexOutOfRangeError, AiScriptRuntimeError } from '../error.js';
+import { getTypeBySource } from '../type.js';
 import { Scope } from './scope.js';
 import { std } from './lib/std.js';
 import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray, eq, isObject, isArray, expectAny, reprValue } from './util.js';
@@ -369,19 +370,23 @@ export class Interpreter {
 
 			case 'def': {
 				const value = await this._eval(node.expr, scope);
+				let attrs: Variable['attrs'] = undefined;
 				if (node.attr.length > 0) {
-					const attrs: Value['attr'] = [];
+					attrs = [];
 					for (const nAttr of node.attr) {
 						attrs.push({
 							name: nAttr.name,
 							value: await this._eval(nAttr.value, scope),
 						});
 					}
-					value.attr = attrs;
 				}
+				let type = undefined;
+				if (node.varType) type = getTypeBySource(node.varType);
 				scope.add(node.name, {
 					isMutable: node.mut,
-					value: value,
+					value,
+					type,
+					attrs,
 				});
 				return NULL;
 			}
