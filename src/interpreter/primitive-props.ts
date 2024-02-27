@@ -260,6 +260,12 @@ const PRIMITIVE_PROPS: {
 			target.value = await mergeSort(target.value, comp);
 			return target;
 		}),
+		
+		fill: (target: VArr): VFn => FN_NATIVE(async ([val, st, ed], opts) => {
+			const start = st ?? (assertNumber(st), st.value);
+			const end = ed ?? (assertNumber(ed), ed.value);
+			return VArr.value.fill(val, start, end);
+		}),
 	},
 
 	error: {
