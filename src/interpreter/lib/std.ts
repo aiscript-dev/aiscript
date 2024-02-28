@@ -501,6 +501,10 @@ export const std: Record<string, Value> = {
 	//#endregion
 
 	//#region Arr
+	'Arr:create': FN_NATIVE(([length, element]) => {
+		assertNumber(length);
+		return ARR(Array(length.value).fill(element ?? NULL));
+	}),
 	//#endregion
 
 	//#region Obj
