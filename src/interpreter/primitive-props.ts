@@ -266,6 +266,10 @@ const PRIMITIVE_PROPS: {
 			const end = ed ?? (assertNumber(ed), ed.value);
 			return VArr.value.fill(val, start, end);
 		}),
+
+		repeat: (target: VArr): VFn => FN_NATIVE(async ([times], opts) => {
+			return ARR(Array(times.value).fill(VArr.value).flat();
+		}),
 	},
 
 	error: {
