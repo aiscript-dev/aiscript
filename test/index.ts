@@ -2799,7 +2799,7 @@ describe('primitive props', () => {
 		test.concurrent('fill', async () => {
 			const res = await exe(`
 				var arr1 = [0, 1, 2]
-				let arr2 = arr1.fill(3);
+				let arr2 = arr1.fill(3)
 				let arr3 = [0, 1, 2].fill(3, 1)
 				let arr3 = [0, 1, 2].fill(3, 1, 1)
 				<: [arr1, arr2, arr3, arr4]
@@ -2815,8 +2815,8 @@ describe('primitive props', () => {
 		test.concurrent('repeat', async () => {
 			const res = await exe(`
 				var arr1 = [0, 1, 2]
-				let arr2 = arr1.repeat(3);
-				let arr3 = arr1.repeat(0);
+				let arr2 = arr1.repeat(3)
+				let arr3 = arr1.repeat(0)
 				<: [arr1, arr2, arr3]
 			`);
 			eq(res, ARR([
