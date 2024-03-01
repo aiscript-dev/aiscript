@@ -273,7 +273,7 @@ const PRIMITIVE_PROPS: {
 			try {
 				return ARR(Array(times.value).fill(target.value).flat());
 			} catch (e) {
-				if (times.value < 0) throw new AiScriptRuntimeError('arr.repeat expected positive number, got negative');
+				if (times.value < 0) throw new AiScriptRuntimeError('arr.repeat expected non-negative number, got negative');
 				if (!Number.isInteger(times.value)) throw new AiScriptRuntimeError('arr.repeat expected integer, got non-integer');
 				throw e;
 			}
