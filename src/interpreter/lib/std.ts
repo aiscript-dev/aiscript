@@ -506,9 +506,8 @@ export const std: Record<string, Value> = {
 		try {
 			return ARR(Array(length.value).fill(element ?? NULL));
 		} catch (e) {
-			if (length.value < 0) throw new AiScriptRuntimeError('Arr:create expected positive number, got negative');
-			if (Number.isNaN(length.value)) throw new AiScriptRuntimeError('Arr:create expected number, got NaN');
-			if (!Number.isFinite(length.value)) throw new AiScriptRuntimeError('Arr:create expected finite number, got infinity');
+			if (length.value < 0) throw new AiScriptRuntimeError('Arr:create expected non-negative number, got negative');
+			if (Number.isInteger(length.value)) throw new AiScriptRuntimeError('Arr:create expected integer, got non-integer');
 			throw e;
 		}
 	}),
