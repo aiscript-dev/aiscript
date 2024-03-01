@@ -265,17 +265,17 @@ const PRIMITIVE_PROPS: {
 			const value = val ?? NULL;
 			const start = st && (assertNumber(st), st.value);
 			const end = ed && (assertNumber(ed), ed.value);
-			return VArr.value.fill(value, start, end);
+			return target.value.fill(value, start, end);
 		}),
 
 		repeat: (target: VArr): VFn => FN_NATIVE(async ([times], opts) => {
 			assertNumber(times);
 			try {
-				return ARR(Array(times.value).fill(VArr.value).flat());
+				return ARR(Array(times.value).fill(target.value).flat());
 			} catch (e) {
-				if (times < 0) throw AiScriptRuntimeError('arr.repeat expected positive number, got negative');
-				if (isNaN(times)) throw AiScriptRuntimeError('arr.repeat expected number, got NaN');
-				if (!isFinite(times)) throw AiScriptRuntimeError('arr.repeat expected finite number, got infinity');
+				if (times.value < 0) throw new AiScriptRuntimeError('arr.repeat expected positive number, got negative');
+				if (Number.isNaN(times.value)) throw new AiScriptRuntimeError('arr.repeat expected number, got NaN');
+				if (!Number.isFinite(times.value)) throw new AiScriptRuntimeError('arr.repeat expected finite number, got infinity');
 				throw e;
 			}
 		}),
