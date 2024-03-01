@@ -2802,12 +2802,14 @@ describe('primitive props', () => {
 				let arr2 = arr1.fill(3)
 				let arr3 = [0, 1, 2].fill(3, 1)
 				let arr4 = [0, 1, 2].fill(3, 1, 2)
-				<: [arr1, arr2, arr3, arr4]
+				let arr5 = [0, 1, 2].fill(3, -2, -1)
+				<: [arr1, arr2, arr3, arr4, arr5]
 			`);
 			eq(res, ARR([
 				ARR([NUM(3), NUM(3), NUM(3)]), //target changed
 				ARR([NUM(3), NUM(3), NUM(3)]),
 				ARR([NUM(0), NUM(3), NUM(3)]),
+				ARR([NUM(0), NUM(3), NUM(2)]),
 				ARR([NUM(0), NUM(3), NUM(2)]),
 			]));
 		});
