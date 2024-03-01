@@ -268,7 +268,15 @@ const PRIMITIVE_PROPS: {
 		}),
 
 		repeat: (target: VArr): VFn => FN_NATIVE(async ([times], opts) => {
-			return ARR(Array(times.value).fill(VArr.value).flat();
+			assertNumber(times);
+			try {
+				return ARR(Array(times.value).fill(VArr.value).flat());
+			} catch (e) {
+				if (times < 0) throw AiScriptRuntimeError('arr.repeat expected positive number, got negative');
+				if (isNaN(times)) throw AiScriptRuntimeError('arr.repeat expected number, got NaN');
+				if (!isFinite(times)) throw AiScriptRuntimeError('arr.repeat expected finite number, got infinity');
+				throw e;
+			}
 		}),
 	},
 
