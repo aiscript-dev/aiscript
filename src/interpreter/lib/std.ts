@@ -503,7 +503,14 @@ export const std: Record<string, Value> = {
 	//#region Arr
 	'Arr:create': FN_NATIVE(([length, element]) => {
 		assertNumber(length);
-		return ARR(Array(length.value).fill(element ?? NULL));
+		try {
+			return ARR(Array(length.value).fill(element ?? NULL));
+		} catch (e) {
+			if (length < 0) throw AiScriptRuntimeError('Arr:create expected positive number, got negative');
+			if (isNaN(length)) throw AiScriptRuntimeError('Arr:create expected number, got NaN');
+			if (!isFinite(length)) throw AiScriptRuntimeError('Arr:create expected finite number, got infinity');
+			throw e;
+		}
 	}),
 	//#endregion
 
