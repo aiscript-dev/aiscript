@@ -274,8 +274,7 @@ const PRIMITIVE_PROPS: {
 				return ARR(Array(times.value).fill(target.value).flat());
 			} catch (e) {
 				if (times.value < 0) throw new AiScriptRuntimeError('arr.repeat expected positive number, got negative');
-				if (Number.isNaN(times.value)) throw new AiScriptRuntimeError('arr.repeat expected number, got NaN');
-				if (!Number.isFinite(times.value)) throw new AiScriptRuntimeError('arr.repeat expected finite number, got infinity');
+				if (!Number.isInteger(times.value)) throw new AiScriptRuntimeError('arr.repeat expected integer, got non-integer');
 				throw e;
 			}
 		}),
