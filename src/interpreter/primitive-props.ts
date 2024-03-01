@@ -262,9 +262,10 @@ const PRIMITIVE_PROPS: {
 		}),
 		
 		fill: (target: VArr): VFn => FN_NATIVE(async ([val, st, ed], opts) => {
-			const start = st ?? (assertNumber(st), st.value);
-			const end = ed ?? (assertNumber(ed), ed.value);
-			return VArr.value.fill(val, start, end);
+			const value = val ?? NULL;
+			const start = st && (assertNumber(st), st.value);
+			const end = ed && (assertNumber(ed), ed.value);
+			return VArr.value.fill(value, start, end);
 		}),
 
 		repeat: (target: VArr): VFn => FN_NATIVE(async ([times], opts) => {
