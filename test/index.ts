@@ -2801,7 +2801,7 @@ describe('primitive props', () => {
 				var arr1 = [0, 1, 2]
 				let arr2 = arr1.fill(3)
 				let arr3 = [0, 1, 2].fill(3, 1)
-				let arr3 = [0, 1, 2].fill(3, 1, 1)
+				let arr4 = [0, 1, 2].fill(3, 1, 1)
 				<: [arr1, arr2, arr3, arr4]
 			`);
 			eq(res, ARR([
