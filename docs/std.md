@@ -132,9 +132,9 @@ UTF-8のバイト列を表す数値の配列から文字を生成します。
 _bytes_の各要素は 0 以上、255 以下である必要があります。
 
 ## :: Arr
-### @Arr:create(_length_: num, _value_?: value): arr
+### @Arr:create(_length_: num, _initial_?: value): arr
 長さが`length`の配列を作成します。  
-配列は _value_ が与えられていれば _value_ 、でなければ`null`で埋められます。  
+配列は _initial_ が与えられていれば _initial_ 、でなければ`null`で埋められます。  
 
 ## :: Obj
 ### @Obj:keys(_v_: obj): arr
