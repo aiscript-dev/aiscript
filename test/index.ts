@@ -2795,6 +2795,42 @@ describe('primitive props', () => {
 			`);
 			eq(res, ARR([OBJ(new Map([['x', NUM(2)]])), OBJ(new Map([['x', NUM(3)]])), OBJ(new Map([['x', NUM(10)]]))]));
 		});
+		
+		test.concurrent('fill', async () => {
+			const res = await exe(`
+				var arr1 = [0, 1, 2]
+				let arr2 = arr1.fill(3)
+				let arr3 = [0, 1, 2].fill(3, 1)
+				let arr4 = [0, 1, 2].fill(3, 1, 2)
+				let arr5 = [0, 1, 2].fill(3, -2, -1)
+				<: [arr1, arr2, arr3, arr4, arr5]
+			`);
+			eq(res, ARR([
+				ARR([NUM(3), NUM(3), NUM(3)]), //target changed
+				ARR([NUM(3), NUM(3), NUM(3)]),
+				ARR([NUM(0), NUM(3), NUM(3)]),
+				ARR([NUM(0), NUM(3), NUM(2)]),
+				ARR([NUM(0), NUM(3), NUM(2)]),
+			]));
+		});
+		
+		test.concurrent('repeat', async () => {
+			const res = await exe(`
+				var arr1 = [0, 1, 2]
+				let arr2 = arr1.repeat(3)
+				let arr3 = arr1.repeat(0)
+				<: [arr1, arr2, arr3]
+			`);
+			eq(res, ARR([
+				ARR([NUM(0), NUM(1), NUM(2)]), // target not changed
+				ARR([
+					NUM(0), NUM(1), NUM(2),
+					NUM(0), NUM(1), NUM(2),
+					NUM(0), NUM(1), NUM(2),
+				]),
+				ARR([]),
+			]));
+		});
 	});
 });
 
@@ -2836,6 +2872,11 @@ describe('std', () => {
 	});
 
 	describe('Arr', () => {
+		test.concurrent('create', async () => {
+			eq(await exe("<: Arr:create(0)"), ARR([]));
+			eq(await exe("<: Arr:create(3)"), ARR([NULL, NULL, NULL]));
+			eq(await exe("<: Arr:create(3, 1)"), ARR([NUM(1), NUM(1), NUM(1)]));\
+		});
 	});
 	
 	describe('Math', () => {

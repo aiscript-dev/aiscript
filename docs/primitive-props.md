@@ -161,6 +161,7 @@ _fromIndex_が負値の時は末尾からの位置（配列の長さ+_fromIndex_
 
 ### @(_v_: arr).copy(): arr
 配列のコピーを生成します。  
+シャローコピーであり、配列やオブジェクトの参照は維持されます。  
 
 ### @(_v_: arr).sort(_comp_: @(_a_: value, _b_: value)): arr
 **【この操作は配列を書き換えます】**  
@@ -171,6 +172,17 @@ _fromIndex_が負値の時は末尾からの位置（配列の長さ+_fromIndex_
 
 数値の並び替えでは`Core:sub`を渡すことで昇順、`@(a,b){b-a}`を渡すことで降順ソートができます。  
 文字列用の比較関数として`Str:lt`（昇順）, `Str:gt`（降順）が用意されています。詳しくは[std.md](std.md#-str)をご覧下さい。  
+
+### @(_v_: arr).fill(_val_?: value, _fromIndex_?: num, _toIndex_?: num): arr
+**【この操作は配列を書き換えます】**  
+配列の _fromIndex_ から _toIndex_ までの範囲の要素を _val_ で置き換えます。  
+_val_ 省略時は`null`で置き換えます。  
+_fromIndex_ および _toIndex_ に関する挙動は`arr.slice`に準拠します。  
+
+### @(_v_: arr).repeat(_times_: num): arr
+配列を _times_ 回繰り返した配列を作成します。  
+`arr.copy`同様シャローコピーであり、配列やオブジェクトの参照は維持されます。  
+_times_ には0以上の整数値を指定します。それ以外ではエラーになります。  
 
 ## エラー型
 ### #(_v_: error).name
