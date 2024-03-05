@@ -260,6 +260,25 @@ const PRIMITIVE_PROPS: {
 			target.value = await mergeSort(target.value, comp);
 			return target;
 		}),
+		
+		fill: (target: VArr): VFn => FN_NATIVE(async ([val, st, ed], opts) => {
+			const value = val ?? NULL;
+			const start = st && (assertNumber(st), st.value);
+			const end = ed && (assertNumber(ed), ed.value);
+			target.value.fill(value, start, end);
+			return target;
+		}),
+
+		repeat: (target: VArr): VFn => FN_NATIVE(async ([times], opts) => {
+			assertNumber(times);
+			try {
+				return ARR(Array(times.value).fill(target.value).flat());
+			} catch (e) {
+				if (times.value < 0) throw new AiScriptRuntimeError('arr.repeat expected non-negative number, got negative');
+				if (!Number.isInteger(times.value)) throw new AiScriptRuntimeError('arr.repeat expected integer, got non-integer');
+				throw e;
+			}
+		}),
 	},
 
 	error: {
