@@ -501,6 +501,16 @@ export const std: Record<string, Value> = {
 	//#endregion
 
 	//#region Arr
+	'Arr:create': FN_NATIVE(([length, initial]) => {
+		assertNumber(length);
+		try {
+			return ARR(Array(length.value).fill(initial ?? NULL));
+		} catch (e) {
+			if (length.value < 0) throw new AiScriptRuntimeError('Arr:create expected non-negative number, got negative');
+			if (!Number.isInteger(length.value)) throw new AiScriptRuntimeError('Arr:create expected integer, got non-integer');
+			throw e;
+		}
+	}),
 	//#endregion
 
 	//#region Obj
