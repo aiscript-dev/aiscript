@@ -12,6 +12,7 @@
 - **Breaking Change** 多くの予約語を追加。これまで変数名等に使えていた名前に影響が出る可能性があります。
 - **Breaking Change** 配列及び関数の引数において、空白区切りが使用できなくなりました。`,`または改行が必要です。
 - **Breaking Change** `+`や`!`などの演算子の優先順位に変更があります。新しい順序は[syntax.md](docs/syntax.md#%E6%BC%94%E7%AE%97%E5%AD%90)を参照して下さい。
+- **Breaking Change** 組み込み関数`Num:to_hex`は組み込みプロパティ`num#to_hex`に移動しました。
 
 # 0.17.0
 - `package.json`を修正
