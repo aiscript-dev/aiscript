@@ -93,9 +93,6 @@ _date_ を渡した場合、_date_に対応する秒、
 数が多いため専用のページになっています。→[std-math.md](std-math.md)
 
 ## :: Num
-### @Num:to_hex(_x_: num): str
-数値から16進数の文字列を生成します。  
-
 ### @Num:from_hex(_hex_: str): num
 16進数の文字列から数値を生成します。  
 
