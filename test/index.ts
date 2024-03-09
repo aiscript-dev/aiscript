@@ -2683,6 +2683,7 @@ describe('primitive props', () => {
 				-10, -16, // -0は仕様外、現在は"0"になる
 				0.5, // TODO 巨大数、無限少数入力時の仕様の定義
 	 			// Math:Infinity, -1*Math:Infinity,
+		 	].map(@(v){v.to_hex()})
 			`);
 			eq(res, ARR([
 				STR('0'), STR('a'), STR('10'),
