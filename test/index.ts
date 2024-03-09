@@ -2677,12 +2677,12 @@ describe('primitive props', () => {
 			eq(res, STR('123'));
 		});
 		test.concurrent('to_hex', async () => {
+			// TODO -0, 巨大数, 無限小数, Infinity等入力時の結果は未定義
 			const res = await exe(`
 			<: [
 	 			0, 10, 16,
-				-10, -16, // -0は仕様外、現在は"0"になる
-				0.5, // TODO 巨大数、無限少数入力時の仕様の定義
-	 			// Math:Infinity, -1*Math:Infinity,
+				-10, -16,
+				0.5,
 		 	].map(@(v){v.to_hex()})
 			`);
 			eq(res, ARR([
