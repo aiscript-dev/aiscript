@@ -2676,6 +2676,20 @@ describe('primitive props', () => {
 			`);
 			eq(res, STR('123'));
 		});
+		test.concurrent('to_hex', async () => {
+			const res = await exe(`
+			<: [
+	 			0, 10, 16,
+				-10, -16, // -0は仕様外、現在は"0"になる
+				0.5, // TODO 巨大数、無限少数入力時の仕様の定義
+	 			// Math:Infinity, -1*Math:Infinity,
+			`);
+			eq(res, ARR([
+				STR('0'), STR('a'), STR('10'),
+				STR('-a'), STR('-10'),
+				STR('0.8'),
+			]));
+		});
 	});
 
 	describe('str', () => {
