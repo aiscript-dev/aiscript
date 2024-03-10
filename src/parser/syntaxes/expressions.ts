@@ -539,7 +539,7 @@ function parseObject(s: ITokenStream, isStatic: boolean): Ast.Node {
 
 	s.nextWith(TokenKind.OpenBrace);
 
-	if (s.getKind() === TokenKind.NewLine) {
+	while (s.getKind() === TokenKind.NewLine) {
 		s.next();
 	}
 
@@ -557,13 +557,10 @@ function parseObject(s: ITokenStream, isStatic: boolean): Ast.Node {
 
 		// separator
 		switch (s.getKind()) {
-			case TokenKind.NewLine: {
-				s.next();
-				break;
-			}
+			case TokenKind.NewLine:
 			case TokenKind.Comma: {
 				s.next();
-				if (s.getKind() === TokenKind.NewLine) {
+				while (s.getKind() === TokenKind.NewLine) {
 					s.next();
 				}
 				break;
@@ -592,7 +589,7 @@ function parseArray(s: ITokenStream, isStatic: boolean): Ast.Node {
 
 	s.nextWith(TokenKind.OpenBracket);
 
-	if (s.getKind() === TokenKind.NewLine) {
+	while (s.getKind() === TokenKind.NewLine) {
 		s.next();
 	}
 
@@ -602,13 +599,10 @@ function parseArray(s: ITokenStream, isStatic: boolean): Ast.Node {
 
 		// separator
 		switch (s.getKind()) {
-			case TokenKind.NewLine: {
-				s.next();
-				break;
-			}
+			case TokenKind.NewLine:
 			case TokenKind.Comma: {
 				s.next();
-				if (s.getKind() === TokenKind.NewLine) {
+				while (s.getKind() === TokenKind.NewLine) {
 					s.next();
 				}
 				break;
