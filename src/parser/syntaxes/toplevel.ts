@@ -36,7 +36,7 @@ export function parseTopLevel(s: ITokenStream): Ast.Node[] {
 		}
 
 		// terminator
-		switch (s.getKind() as TokenKind) {
+		switch (s.getKind()) {
 			case TokenKind.NewLine:
 			case TokenKind.SemiColon: {
 				while ([TokenKind.NewLine, TokenKind.SemiColon].includes(s.getKind())) {
@@ -92,7 +92,7 @@ export function parseNamespace(s: ITokenStream): Ast.Node {
 		}
 
 		// terminator
-		switch (s.getKind() as TokenKind) {
+		switch (s.getKind()) {
 			case TokenKind.NewLine:
 			case TokenKind.SemiColon: {
 				while ([TokenKind.NewLine, TokenKind.SemiColon].includes(s.getKind())) {
