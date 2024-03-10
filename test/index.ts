@@ -674,6 +674,20 @@ describe('separator', () => {
 			eq(res, NUM(2));
 		});
 
+		test.concurrent('multi line, multi newlines', async () => {
+			const res = await exe(`
+			let x = {
+
+				a: 1
+
+				b: 2
+
+			}
+			<: x.b
+			`);
+			eq(res, NUM(2));
+		});
+
 		test.concurrent('multi line with comma', async () => {
 			const res = await exe(`
 			let x = {
@@ -714,11 +728,64 @@ describe('separator', () => {
 			eq(res, NUM(2));
 		});
 
+		test.concurrent('multi line, multi newlines', async () => {
+			const res = await exe(`
+			let x = [
+
+				1
+
+				2
+
+			]
+			<: x[1]
+			`);
+			eq(res, NUM(2));
+		});
+
 		test.concurrent('multi line with comma', async () => {
 			const res = await exe(`
 			let x = [
 				1,
 				2
+			]
+			<: x[1]
+			`);
+			eq(res, NUM(2));
+		});
+
+		test.concurrent('multi line with comma, multi newlines', async () => {
+			const res = await exe(`
+			let x = [
+
+				1,
+
+				2
+
+			]
+			<: x[1]
+			`);
+			eq(res, NUM(2));
+		});
+
+		test.concurrent('multi line with comma and tail comma', async () => {
+			const res = await exe(`
+			let x = [
+				1,
+				2,
+			]
+			<: x[1]
+			`);
+			eq(res, NUM(2));
+		});
+
+		test.concurrent('multi line with comma and tail comma, multi newlines', async () => {
+			const res = await exe(`
+			let x = [
+
+				1,
+
+				2,
+
 			]
 			<: x[1]
 			`);
