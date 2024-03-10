@@ -16,7 +16,7 @@ import type { ITokenStream } from '../streams/token-stream.js';
 export function parseStatement(s: ITokenStream): Ast.Node {
 	const loc = s.token.loc;
 
-	switch (s.kind) {
+	switch (s.getKind()) {
 		case TokenKind.VarKeyword:
 		case TokenKind.LetKeyword: {
 			return parseVarDef(s);
@@ -63,7 +63,7 @@ export function parseStatement(s: ITokenStream): Ast.Node {
 }
 
 export function parseDefStatement(s: ITokenStream): Ast.Node {
-	switch (s.kind) {
+	switch (s.getKind()) {
 		case TokenKind.VarKeyword:
 		case TokenKind.LetKeyword: {
 			return parseVarDef(s);
@@ -72,7 +72,7 @@ export function parseDefStatement(s: ITokenStream): Ast.Node {
 			return parseFnDef(s);
 		}
 		default: {
-			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[s.kind]}`, s.token.loc);
+			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[s.getKind()]}`, s.token.loc);
 		}
 	}
 }
@@ -85,7 +85,7 @@ export function parseDefStatement(s: ITokenStream): Ast.Node {
 export function parseBlockOrStatement(s: ITokenStream): Ast.Node {
 	const loc = s.token.loc;
 
-	if (s.kind === TokenKind.OpenBrace) {
+	if (s.getKind() === TokenKind.OpenBrace) {
 		const statements = parseBlock(s);
 		return NODE('block', { statements }, loc);
 	} else {
@@ -102,7 +102,7 @@ function parseVarDef(s: ITokenStream): Ast.Node {
 	const loc = s.token.loc;
 
 	let mut;
-	switch (s.kind) {
+	switch (s.getKind()) {
 		case TokenKind.LetKeyword: {
 			mut = false;
 			break;
@@ -112,7 +112,7 @@ function parseVarDef(s: ITokenStream): Ast.Node {
 			break;
 		}
 		default: {
-			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[s.kind]}`, s.token.loc);
+			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[s.getKind()]}`, s.token.loc);
 		}
 	}
 	s.next();
@@ -122,14 +122,14 @@ function parseVarDef(s: ITokenStream): Ast.Node {
 	s.next();
 
 	let type;
-	if ((s.kind as TokenKind) === TokenKind.Colon) {
+	if (s.getKind() === TokenKind.Colon) {
 		s.next();
 		type = parseType(s);
 	}
 
 	s.nextWith(TokenKind.Eq);
 
-	if ((s.kind as TokenKind) === TokenKind.NewLine) {
+	if (s.getKind() === TokenKind.NewLine) {
 		s.next();
 	}
 
@@ -155,7 +155,7 @@ function parseFnDef(s: ITokenStream): Ast.Node {
 	const params = parseParams(s);
 
 	let type;
-	if ((s.kind as TokenKind) === TokenKind.Colon) {
+	if (s.getKind() === TokenKind.Colon) {
 		s.next();
 		type = parseType(s);
 	}
@@ -199,7 +199,7 @@ function parseEach(s: ITokenStream): Ast.Node {
 
 	s.nextWith(TokenKind.EachKeyword);
 
-	if (s.kind === TokenKind.OpenParen) {
+	if (s.getKind() === TokenKind.OpenParen) {
 		hasParen = true;
 		s.next();
 	}
@@ -210,7 +210,7 @@ function parseEach(s: ITokenStream): Ast.Node {
 	const name = s.token.value!;
 	s.next();
 
-	if (s.kind === TokenKind.Comma) {
+	if (s.getKind() === TokenKind.Comma) {
 		s.next();
 	} else {
 		throw new AiScriptSyntaxError('separator expected', s.token.loc);
@@ -237,12 +237,12 @@ function parseFor(s: ITokenStream): Ast.Node {
 
 	s.nextWith(TokenKind.ForKeyword);
 
-	if (s.kind === TokenKind.OpenParen) {
+	if (s.getKind() === TokenKind.OpenParen) {
 		hasParen = true;
 		s.next();
 	}
 
-	if (s.kind === TokenKind.LetKeyword) {
+	if (s.getKind() === TokenKind.LetKeyword) {
 		// range syntax
 		s.next();
 
@@ -253,14 +253,14 @@ function parseFor(s: ITokenStream): Ast.Node {
 		s.next();
 
 		let _from;
-		if ((s.kind as TokenKind) === TokenKind.Eq) {
+		if (s.getKind() === TokenKind.Eq) {
 			s.next();
 			_from = parseExpr(s, false);
 		} else {
 			_from = NODE('num', { value: 0 }, identLoc);
 		}
 
-		if ((s.kind as TokenKind) === TokenKind.Comma) {
+		if (s.getKind() === TokenKind.Comma) {
 			s.next();
 		} else {
 			throw new AiScriptSyntaxError('separator expected', s.token.loc);
@@ -318,7 +318,7 @@ function parseReturn(s: ITokenStream): Ast.Node {
 */
 function parseStatementWithAttr(s: ITokenStream): Ast.Node {
 	const attrs: Ast.Attribute[] = [];
-	while (s.kind === TokenKind.OpenSharpBracket) {
+	while (s.getKind() === TokenKind.OpenSharpBracket) {
 		attrs.push(parseAttr(s) as Ast.Attribute);
 		s.nextWith(TokenKind.NewLine);
 	}
@@ -352,7 +352,7 @@ function parseAttr(s: ITokenStream): Ast.Node {
 	s.next();
 
 	let value;
-	if (s.kind !== TokenKind.CloseBracket) {
+	if (s.getKind() !== TokenKind.CloseBracket) {
 		value = parseExpr(s, true);
 	} else {
 		value = NODE('bool', { value: true }, loc);
@@ -385,7 +385,7 @@ function tryParseAssign(s: ITokenStream, dest: Ast.Node): Ast.Node | undefined {
 	const loc = s.token.loc;
 
 	// Assign
-	switch (s.kind) {
+	switch (s.getKind()) {
 		case TokenKind.Eq: {
 			s.next();
 			const expr = parseExpr(s, false);
