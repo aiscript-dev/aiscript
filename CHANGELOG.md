@@ -14,6 +14,14 @@
 - **Breaking Change** `+`や`!`などの演算子の優先順位に変更があります。新しい順序は[syntax.md](docs/syntax.md#%E6%BC%94%E7%AE%97%E5%AD%90)を参照して下さい。
 - **Breaking Change** 組み込み関数`Num:to_hex`は組み込みプロパティ`num#to_hex`に移動しました。
 
+# 未リリース分
+- `Core:abort`でプログラムを緊急停止できるように
+- `index_of`の配列版を追加
+- `str.index_of` `arr.index_of`共に第２引数fromIndexを受け付けるように
+- `arr.incl`の引数の型制限を廃止
+- `Date:millisecond`を追加
+- `arr.fill`, `arr.repeat`, `Arr:create`を追加
+
 # 0.17.0
 - `package.json`を修正
 - `Error:create`関数でエラー型の値を生成できるように

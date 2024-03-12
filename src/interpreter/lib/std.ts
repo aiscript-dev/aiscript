@@ -3,7 +3,7 @@ import { v4 as uuid } from 'uuid';
 import seedrandom from 'seedrandom';
 import { NUM, STR, FN_NATIVE, FALSE, TRUE, ARR, NULL, BOOL, OBJ, ERROR } from '../value.js';
 import { assertNumber, assertString, assertBoolean, valToJs, jsToVal, assertFunction, assertObject, eq, expectAny, assertArray, reprValue } from '../util.js';
-import { AiScriptRuntimeError } from '../../error.js';
+import { AiScriptRuntimeError, AiScriptUserError } from '../../error.js';
 import { AISCRIPT_VERSION } from '../../constants.js';
 import { textDecoder } from '../../const.js';
 import type { Value } from '../value.js';
@@ -138,6 +138,10 @@ export const std: Record<string, Value> = {
 		await new Promise((r) => setTimeout(r, delay.value));
 		return NULL;
 	}),
+	'Core:abort': FN_NATIVE(async ([message]) => {
+		assertString(message);
+		throw new AiScriptUserError(message.value);
+	}),
 	//#endregion
 
 	//#region Util
@@ -205,6 +209,11 @@ export const std: Record<string, Value> = {
 	'Date:second': FN_NATIVE(([v]) => {
 		if (v) { assertNumber(v); }
 		return NUM(new Date(v?.value || Date.now()).getSeconds());
+	}),
+
+	'Date:millisecond': FN_NATIVE(([v]) => {
+		if (v) { assertNumber(v); }
+		return NUM(new Date(v?.value || Date.now()).getMilliseconds());
 	}),
 
 	'Date:parse': FN_NATIVE(([v]) => {
@@ -487,6 +496,16 @@ export const std: Record<string, Value> = {
 	//#endregion
 
 	//#region Arr
+	'Arr:create': FN_NATIVE(([length, initial]) => {
+		assertNumber(length);
+		try {
+			return ARR(Array(length.value).fill(initial ?? NULL));
+		} catch (e) {
+			if (length.value < 0) throw new AiScriptRuntimeError('Arr:create expected non-negative number, got negative');
+			if (!Number.isInteger(length.value)) throw new AiScriptRuntimeError('Arr:create expected integer, got non-integer');
+			throw e;
+		}
+	}),
 	//#endregion
 
 	//#region Obj
