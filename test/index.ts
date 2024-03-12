@@ -2676,6 +2676,21 @@ describe('primitive props', () => {
 			`);
 			eq(res, STR('123'));
 		});
+		test.concurrent('to_hex', async () => {
+			// TODO -0, 巨大数, 無限小数, Infinity等入力時の結果は未定義
+			const res = await exe(`
+			<: [
+	 			0, 10, 16,
+				-10, -16,
+				0.5,
+		 	].map(@(v){v.to_hex()})
+			`);
+			eq(res, ARR([
+				STR('0'), STR('a'), STR('10'),
+				STR('-a'), STR('-10'),
+				STR('0.8'),
+			]));
+		});
 	});
 
 	describe('str', () => {
