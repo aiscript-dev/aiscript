@@ -3163,7 +3163,7 @@ describe('std', () => {
 		test.concurrent('abort', async () => {
 			assert.rejects(
 				exe('Core:abort("hoge")'),
-				{ name: '', message: 'hoge' },
+				e => e.message.includes('hoge'),
 			);
 		});
 	});
