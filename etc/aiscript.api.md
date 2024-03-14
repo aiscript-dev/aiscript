@@ -23,7 +23,7 @@ type AddAssign_2 = NodeBase_2 & {
 };
 
 // @public (undocumented)
-export const AISCRIPT_VERSION: "0.17.0";
+export const AISCRIPT_VERSION: "0.18.0";
 
 // @public (undocumented)
 abstract class AiScriptError extends Error {
@@ -55,6 +55,13 @@ class AiScriptSyntaxError extends AiScriptError {
 
 // @public
 class AiScriptTypeError extends AiScriptError {
+    constructor(message: string, info?: any);
+    // (undocumented)
+    name: string;
+}
+
+// @public
+class AiScriptUserError extends AiScriptRuntimeError {
     constructor(message: string, info?: any);
     // (undocumented)
     name: string;
@@ -379,7 +386,8 @@ declare namespace errors {
         AiScriptSyntaxError,
         AiScriptTypeError,
         AiScriptRuntimeError,
-        AiScriptIndexOutOfRangeError
+        AiScriptIndexOutOfRangeError,
+        AiScriptUserError
     }
 }
 export { errors }

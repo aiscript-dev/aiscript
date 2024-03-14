@@ -2447,10 +2447,19 @@ describe('primitive props', () => {
 
 		test.concurrent('index_of', async () => {
 			const res = await exe(`
-			let str = "hello"
-			<: str.index_of("l")
+			let str = '0123401234'
+			<: [
+				str.index_of('3') == 3,
+				str.index_of('5') == -1,
+				str.index_of('3', 3) == 3,
+				str.index_of('3', 4) == 8,
+				str.index_of('3', -1) == -1,
+				str.index_of('3', -2) == 8,
+				str.index_of('3', -7) == 3,
+				str.index_of('3', 10) == -1,
+			].map(@(v){if (v) '1' else '0'}).join()
 			`);
-			eq(res, NUM(2));
+			eq(res, STR('11111111'));
 		});
 
 		test.concurrent('incl', async () => {
@@ -2709,6 +2718,23 @@ describe('primitive props', () => {
 			eq(res, ARR([TRUE, FALSE]));
 		});
 
+		test.concurrent('index_of', async () => {
+			const res = await exe(`
+			let arr = [0,1,2,3,4,0,1,2,3,4]
+			<: [
+				arr.index_of(3) == 3,
+				arr.index_of(5) == -1,
+				arr.index_of(3, 3) == 3,
+				arr.index_of(3, 4) == 8,
+				arr.index_of(3, -1) == -1,
+				arr.index_of(3, -2) == 8,
+				arr.index_of(3, -7) == 3,
+				arr.index_of(3, 10) == -1,
+			].map(@(v){if (v) '1' else '0'}).join()
+			`);
+			eq(res, STR('11111111'));
+		});
+
 		test.concurrent('reverse', async () => {
 			const res = await exe(`
 			let arr = [1, 2, 3]
@@ -2769,6 +2795,42 @@ describe('primitive props', () => {
 			`);
 			eq(res, ARR([OBJ(new Map([['x', NUM(2)]])), OBJ(new Map([['x', NUM(3)]])), OBJ(new Map([['x', NUM(10)]]))]));
 		});
+		
+		test.concurrent('fill', async () => {
+			const res = await exe(`
+				var arr1 = [0, 1, 2]
+				let arr2 = arr1.fill(3)
+				let arr3 = [0, 1, 2].fill(3, 1)
+				let arr4 = [0, 1, 2].fill(3, 1, 2)
+				let arr5 = [0, 1, 2].fill(3, -2, -1)
+				<: [arr1, arr2, arr3, arr4, arr5]
+			`);
+			eq(res, ARR([
+				ARR([NUM(3), NUM(3), NUM(3)]), //target changed
+				ARR([NUM(3), NUM(3), NUM(3)]),
+				ARR([NUM(0), NUM(3), NUM(3)]),
+				ARR([NUM(0), NUM(3), NUM(2)]),
+				ARR([NUM(0), NUM(3), NUM(2)]),
+			]));
+		});
+		
+		test.concurrent('repeat', async () => {
+			const res = await exe(`
+				var arr1 = [0, 1, 2]
+				let arr2 = arr1.repeat(3)
+				let arr3 = arr1.repeat(0)
+				<: [arr1, arr2, arr3]
+			`);
+			eq(res, ARR([
+				ARR([NUM(0), NUM(1), NUM(2)]), // target not changed
+				ARR([
+					NUM(0), NUM(1), NUM(2),
+					NUM(0), NUM(1), NUM(2),
+					NUM(0), NUM(1), NUM(2),
+				]),
+				ARR([]),
+			]));
+		});
 	});
 });
 
@@ -2800,9 +2862,21 @@ describe('std', () => {
 				<: Core:to_str(arr)
 			`), STR('[ { value: ... } ]'));
 		});
+
+		test.concurrent('abort', async () => {
+			assert.rejects(
+				exe('Core:abort("hoge")'),
+				{ name: '', message: 'hoge' },
+			);
+		});
 	});
 
 	describe('Arr', () => {
+		test.concurrent('create', async () => {
+			eq(await exe("<: Arr:create(0)"), ARR([]));
+			eq(await exe("<: Arr:create(3)"), ARR([NULL, NULL, NULL]));
+			eq(await exe("<: Arr:create(3, 1)"), ARR([NUM(1), NUM(1), NUM(1)]));\
+		});
 	});
 	
 	describe('Math', () => {
