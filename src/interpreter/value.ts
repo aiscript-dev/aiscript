@@ -30,20 +30,26 @@ export type VObj = {
 	value: Map<string, Value>;
 };
 
+export type VFn = VUserFn | VNativeFn;
+type VFnBase = {
+	type: 'fn';
+	args?: string[];
+};
+export type VUserFn = VFnBase & {
+	native?: undefined; // if (vfn.native) で型アサーション出来るように
+	statements: Node[];
+	scope: Scope;
+};
 /**
  * When your AiScript NATIVE function passes VFn.call to other caller(s) whose error thrown outside the scope, use VFn.topCall instead to keep it under AiScript error control system.
  */
-export type VFn = {
-	type: 'fn';
-	args?: string[];
-	statements?: Node[];
-	native?: (args: (Value | undefined)[], opts: {
+export type VNativeFn = VFnBase & {
+	native: (args: (Value | undefined)[], opts: {
 		call: (fn: VFn, args: Value[]) => Promise<Value>;
 		topCall: (fn: VFn, args: Value[]) => Promise<Value>;
 		registerAbortHandler: (handler: () => void) => void;
 		unregisterAbortHandler: (handler: () => void) => void;
 	}) => Value | Promise<Value> | void;
-	scope?: Scope;
 };
 
 export type VReturn = {
@@ -115,14 +121,14 @@ export const ARR = (arr: VArr['value']): VArr => ({
 	value: arr,
 });
 
-export const FN = (args: VFn['args'], statements: VFn['statements'], scope: VFn['scope']): VFn => ({
+export const FN = (args: VUserFn['args'], statements: VUserFn['statements'], scope: VUserFn['scope']): VUserFn => ({
 	type: 'fn' as const,
 	args: args,
 	statements: statements,
 	scope: scope,
 });
 
-export const FN_NATIVE = (fn: VFn['native']): VFn => ({
+export const FN_NATIVE = (fn: VNativeFn['native']): VNativeFn => ({
 	type: 'fn' as const,
 	native: fn,
 });
