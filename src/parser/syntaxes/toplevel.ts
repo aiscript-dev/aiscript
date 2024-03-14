@@ -15,12 +15,12 @@ import type { ITokenStream } from '../streams/token-stream.js';
 export function parseTopLevel(s: ITokenStream): Ast.Node[] {
 	const nodes: Ast.Node[] = [];
 
-	while (s.kind === TokenKind.NewLine) {
+	while (s.getKind() === TokenKind.NewLine) {
 		s.next();
 	}
 
-	while (s.kind !== TokenKind.EOF) {
-		switch (s.kind) {
+	while (s.getKind() !== TokenKind.EOF) {
+		switch (s.getKind()) {
 			case TokenKind.Colon2: {
 				nodes.push(parseNamespace(s));
 				break;
@@ -36,10 +36,10 @@ export function parseTopLevel(s: ITokenStream): Ast.Node[] {
 		}
 
 		// terminator
-		switch (s.kind as TokenKind) {
+		switch (s.getKind()) {
 			case TokenKind.NewLine:
 			case TokenKind.SemiColon: {
-				while ([TokenKind.NewLine, TokenKind.SemiColon].includes(s.kind)) {
+				while ([TokenKind.NewLine, TokenKind.SemiColon].includes(s.getKind())) {
 					s.next();
 				}
 				break;
@@ -73,12 +73,12 @@ export function parseNamespace(s: ITokenStream): Ast.Node {
 	const members: Ast.Node[] = [];
 	s.nextWith(TokenKind.OpenBrace);
 
-	while (s.kind === TokenKind.NewLine) {
+	while (s.getKind() === TokenKind.NewLine) {
 		s.next();
 	}
 
-	while (s.kind !== TokenKind.CloseBrace) {
-		switch (s.kind) {
+	while (s.getKind() !== TokenKind.CloseBrace) {
+		switch (s.getKind()) {
 			case TokenKind.VarKeyword:
 			case TokenKind.LetKeyword:
 			case TokenKind.At: {
@@ -92,10 +92,10 @@ export function parseNamespace(s: ITokenStream): Ast.Node {
 		}
 
 		// terminator
-		switch (s.kind as TokenKind) {
+		switch (s.getKind()) {
 			case TokenKind.NewLine:
 			case TokenKind.SemiColon: {
-				while ([TokenKind.NewLine, TokenKind.SemiColon].includes(s.kind)) {
+				while ([TokenKind.NewLine, TokenKind.SemiColon].includes(s.getKind())) {
 					s.next();
 				}
 				break;
@@ -124,7 +124,7 @@ export function parseMeta(s: ITokenStream): Ast.Node {
 	s.nextWith(TokenKind.Sharp3);
 
 	let name = null;
-	if (s.kind === TokenKind.Identifier) {
+	if (s.getKind() === TokenKind.Identifier) {
 		name = s.token.value!;
 		s.next();
 	}
