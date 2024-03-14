@@ -65,4 +65,12 @@ describe('recursive', () => {
 		y.a.b.a.b.a = y.a.b;
 		assert.strictEqual(deepEqual(x, y), true);
 	});
+
+	test('complex 3', () => {
+		let a: any = [{ a: [] }];
+		let b: any = [{ a: [] }];
+		a[0].a[0] = a;
+		b[0].a[0] = b[0];
+		assert.strictEqual(deepEqual(a, b), false);
+	});
 });
