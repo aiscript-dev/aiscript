@@ -50,7 +50,7 @@ describe('recursive', () => {
 		assert.strictEqual(deepEqual(x, y), true);
 	});
 
-	test('complex', () => {
+	test('object', () => {
 		let x: any = { a: { b: { a: null } } };
 		x.a.b.a = x.a;
 		let y: any = { a: { b: null } };
@@ -58,15 +58,31 @@ describe('recursive', () => {
 		assert.strictEqual(deepEqual(x, y), true);
 	});
 
-	test('complex 2', () => {
+	test('object 2', () => {
+		let x: any = { a: { b: { a: null } } };
+		x.a.b.a = x.a;
+		let y: any = { a: { b: null } };
+		y.a.b = y.a;
+		assert.strictEqual(deepEqual(x, y), false);
+	});
+
+	test('different path of object', () => {
+		let x: any = { a: { b: null } };
+		x.a.b = x;
+		let y: any = { a: { b: { a: { b: { a: null } } } } };
+		y.a.b.a.b.a = y.a.b.a;
+		assert.strictEqual(deepEqual(x, y), true);
+	});
+
+	test('different path of object 2', () => {
 		let x: any = { a: { b: null } };
 		x.a.b = x;
 		let y: any = { a: { b: { a: { b: { a: null } } } } };
 		y.a.b.a.b.a = y.a.b;
-		assert.strictEqual(deepEqual(x, y), true);
+		assert.strictEqual(deepEqual(x, y), false);
 	});
 
-	test('complex 3', () => {
+	test('object and array', () => {
 		let a: any = [{ a: [] }];
 		let b: any = [{ a: [] }];
 		a[0].a[0] = a;
