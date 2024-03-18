@@ -122,6 +122,11 @@ _min_ および _max_ を渡した場合、_min_ <= x, x <= _max_ の整数、
 
 ### @Math:gen_rng(_seed_: num | str): fn
 シードから乱数生成機を生成します。  
+生成された乱数生成器は 0 <= x, x < 1 の 小数を返します。  
+
+### @Math:gen_rng_unbiased(_seed_: num | str): @(_min_: num, _max_: num)
+シードから _min_ <= x, x <= _max_ の整数を一様分布で生成する乱数生成機を生成します。  
+_min_ および _max_ が渡されていない場合はエラーとなります。  
 
 ## その他
 ### @Math:clz32(_x_: num): num
