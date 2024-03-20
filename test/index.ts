@@ -2703,7 +2703,7 @@ describe('primitive props', () => {
 		});
 
 		test.concurrent('find', async () => {
-			await exe(`
+			const res = await exe(`
 			let arr = ["abc", "def", "ghi"]
 			<: arr.find(@(item) { item.incl("e") })
 			`);
