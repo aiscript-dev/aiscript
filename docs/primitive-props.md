@@ -140,11 +140,13 @@ _i_ 番目の文字が存在しない場合は null が返されます。
 配列の要素のうち _func_ が true を返すようなもののみを抜き出して返します。  
 順序は維持されます。  
 
-### @(_v_: arr).reduce(_func_: @(_acm_: value, _item_: value, _index_: num) { value }, _initial_: value): value
+### @(_v_: arr).reduce(_func_: Callback, _initial_: value): value
+`Callback`: @(_acm_: value, _item_: value, _index_: num): value  
 配列の各要素に対し _func_ を順番に呼び出します。  
 各呼び出しでは、前回の結果が第1引数 _acm_ として渡されます。  
 _initial_ が指定された場合は初回呼び出しの引数が(_initial_, _v_\[0], 0)、  
 指定されなかった場合は(_v_\[0], _v_\[1], 1)となります。  
+配列が空配列であり、かつ _initial_ が指定されていない場合はエラーになります。従って基本的には _initial_ を指定しておくことが推奨されています。  
 
 ### @(_v_: arr).find(_func_: @(_item_: value, _index_: num) { bool }): value
 配列から _func_ が true を返すような要素を探し、その値を返します。  
