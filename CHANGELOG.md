@@ -7,6 +7,7 @@
 - `arr.incl`の引数の型制限を廃止
 - `Date:millisecond`を追加
 - `arr.fill`, `arr.repeat`, `Arr:create`を追加
+- `arr.reduce`が空配列に対して初期値なしで呼び出された時、正式にエラーを出すように
 
 # 0.17.0
 - `package.json`を修正
