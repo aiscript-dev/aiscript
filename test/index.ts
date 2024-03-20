@@ -4,6 +4,7 @@
  */
 
 import * as assert from 'assert';
+import { expect, test } from '@jest/globals';
 import { Parser, Interpreter, utils, errors, Ast } from '../src';
 import { NUM, STR, NULL, ARR, OBJ, BOOL, TRUE, FALSE, ERROR ,FN_NATIVE } from '../src/interpreter/value';
 let { AiScriptRuntimeError, AiScriptIndexOutOfRangeError } = errors;
@@ -2694,8 +2695,15 @@ describe('primitive props', () => {
 			eq(res, NUM(20));
 		});
 
+		test.concurrent('reduce of empty array without initial value', async () => {
+			await expect(exe(`
+			let arr = [1, 2, 3, 4]
+			<: [].reduce(@(){})
+			`)).rejects.toThrow('Reduce of empty array without initial value');
+		});
+
 		test.concurrent('find', async () => {
-			const res = await exe(`
+			await exe(`
 			let arr = ["abc", "def", "ghi"]
 			<: arr.find(@(item) { item.incl("e") })
 			`);
