@@ -61,6 +61,11 @@ export function visitNode(node: Ast.Node, fn: (node: Ast.Node) => Ast.Node): Ast
 			break;
 		}
 		case 'fn': {
+			for (const i in result.args) {
+				if (result.args[i]!.default) {
+					result.args[i]!.default = visitNode(result.args[i]!.default!, fn) as Ast.Fn['args'][number]['default'];
+				}
+			}
 			for (let i = 0; i < result.children.length; i++) {
 				result.children[i] = visitNode(result.children[i]!, fn) as Ast.Fn['children'][number];
 			}

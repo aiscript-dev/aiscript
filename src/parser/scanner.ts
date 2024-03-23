@@ -268,6 +268,11 @@ export class Scanner implements ITokenStream {
 					}
 					break;
 				}
+				case '?': {
+					this.stream.next();
+					token = TOKEN(TokenKind.Question, loc, { hasLeftSpacing });
+					break;
+				}
 				case '@': {
 					this.stream.next();
 					token = TOKEN(TokenKind.At, loc, { hasLeftSpacing });

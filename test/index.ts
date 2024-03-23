@@ -1670,6 +1670,39 @@ describe('Function call', () => {
 		eq(res, NUM(2));
 	});
 
+	test.concurrent('optional args', async () => {
+		const res = await exe(`
+		@f(x, y?, z?) {
+			[x, y, z]
+		}
+		<: f(true)
+		`);
+		eq(res, ARR([TRUE, NULL, NULL]));
+	});
+
+	test.concurrent('args with default value', async () => {
+		const res = await exe(`
+		@f(x, y=1, z=2) {
+			[x, y, z]
+		}
+		<: f(5, 3)
+		`);
+		eq(res, ARR([NUM(5), NUM(3), NUM(2)]));
+	});
+
+	test.concurrent('missing arg', async () => {
+		try {
+			await exe(`
+			@func(a){}
+			func()
+			`);
+		} catch (e) {
+			assert.ok(e instanceof AiScriptRuntimeError);
+			return;
+		}
+		assert.fail();
+	});
+
 	test.concurrent('std: throw AiScript error when required arg missing', async () => {
 		try {
 			await exe(`
