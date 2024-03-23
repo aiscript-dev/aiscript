@@ -627,6 +627,16 @@ export class Interpreter {
 			assertObject(assignee);
 
 			assignee.value.set(dest.name, value);
+		} else if (dest.type === 'arr') {
+			assertArray(value);
+			await Promise.all(dest.value.map(
+				(item, index) => this.assign(scope, item, value.value[index] ?? NULL)
+			));
+		} else if (dest.type === 'obj') {
+			assertObject(value);
+			await Promise.all([...dest.value].map(
+				([key, item]) => this.assign(scope, item, value.value.get(key) ?? NULL)
+			));
 		} else {
 			throw new AiScriptRuntimeError('The left-hand side of an assignment expression must be a variable or a property/index access.');
 		}
