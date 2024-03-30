@@ -131,6 +131,10 @@ _codePoints_の各要素は 0 以上、10FFFF<sub>16</sub> 以下である必要
 UTF-8のバイト列を表す数値の配列から文字を生成します。  
 _bytes_の各要素は 0 以上、255 以下である必要があります。
 
+### #Str:encode_uri(v: str): str
+v をURIとしてエンコードした文字列を返します。ただし以下の文字はエンコードされません。  
+`A-Z a-z 0-9 - _ . ! ~ * ' ( ) ; , / ? : @ & = + $ #`
+
 ## :: Arr
 ### @Arr:create(_length_: num, _initial_?: value): arr
 長さが`length`の配列を作成します。  

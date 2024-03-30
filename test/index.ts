@@ -3057,6 +3057,13 @@ describe('std', () => {
 			`);
 			eq(res, NULL);
 		});
+
+		test.concurrent('encode_uri', async () => {
+			const res = await exe(`
+			<: Str:encode_uri("https://example.com/?q=あいちゃん")
+			`);
+			eq(res, STR('https://example.com/?q=%E3%81%82%E3%81%84%E3%81%A1%E3%82%83%E3%82%93'));
+		});
 	});
 
 	describe('Error', () => {
