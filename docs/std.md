@@ -110,40 +110,40 @@ _date_ を渡した場合、_date_に対応するミリ秒、
 型: `str`  
 改行コード(LF)です。  
 
-### #Str:lt(a: str, b: str): num
+### @Str:lt(a: str, b: str): num
 a < b ならば -1、a == b ならば 0、a > b ならば 1 を返します。  
 arr.sortの比較関数として使用できます。
 
-### #Str:gt(a: str, b: str): num
+### @Str:gt(a: str, b: str): num
 a > b ならば -1、a == b ならば 0、a < b ならば 1 を返します。  
 arr.sortの比較関数として使用できます。
 
-### #Str:from_codepoint(codepoint: num): str
+### @Str:from_codepoint(codepoint: num): str
 Unicodeのコードポイントから文字を生成します。
 
 _codepoint_ は 0 以上、10FFFF<sub>16</sub> 以下である必要があります。
 
-### #Str:from_unicode_codepoints(_codePoints_: `arr<num>`): str
+### @Str:from_unicode_codepoints(_codePoints_: `arr<num>`): str
 Unicodeのコードポイント列を表す数値の配列から文字を生成します。  
 _codePoints_の各要素は 0 以上、10FFFF<sub>16</sub> 以下である必要があります。
 
-### #Str:from_utf8_bytes(_bytes_: `arr<num>`): str
+### @Str:from_utf8_bytes(_bytes_: `arr<num>`): str
 UTF-8のバイト列を表す数値の配列から文字を生成します。  
 _bytes_の各要素は 0 以上、255 以下である必要があります。
 
-### #Str:encode_uri(v: str): str
+### @Str:encode_uri(v: str): str
 v をURIとしてエンコードした文字列を返します。ただし以下の文字はエンコードされません。  
 `A-Z a-z 0-9 - _ . ! ~ * ' ( ) ; , / ? : @ & = + $ #`
 
-### #Str:encode_uri_component(v: str): str
+### @Str:encode_uri_component(v: str): str
 v をURIとしてエンコードした文字列を返します。ただし以下の文字はエンコードされません。  
 `A-Z a-z 0-9 - _ . ! ~ * ' ( )`
 
-### #Str:decode_uri(v: str): str
+### @Str:decode_uri(v: str): str
 v をURIとしてエスケープシーケンスをデコードした文字列を返します。  
 ただし`Str:encode_uri`でエンコードされないエスケープシーケンスはデコードされません。
 
-### #Str:decode_uri_component(v: str): str
+### @Str:decode_uri_component(v: str): str
 v をURIとしてエスケープシーケンスをデコードした文字列を返します。  
 
 ## :: Arr
