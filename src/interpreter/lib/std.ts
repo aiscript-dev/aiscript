@@ -502,6 +502,11 @@ export const std: Record<string, Value> = {
 	'Str:encode_uri': FN_NATIVE(([v]) => {
 		assertString(v);
 		return STR(encodeURI(v.value));
+	}),	
+
+	'Str:encode_uri_component': FN_NATIVE(([v]) => {
+		assertString(v);
+		return STR(encodeURIComponent(v.value));
 	}),
 	//#endregion
 
