@@ -3071,6 +3071,13 @@ describe('std', () => {
 			`);
 			eq(res, STR('https%3A%2F%2Fexample.com%2F%3Fq%3D%E3%81%82%E3%81%84%E3%81%A1%E3%82%83%E3%82%93'));
 		});
+
+		test.concurrent('decode_uri', async () => {
+			const res = await exe(`
+			<: Str:decode_uri("https%3A%2F%2Fexample.com%2F%3Fq%3D%E3%81%82%E3%81%84%E3%81%A1%E3%82%83%E3%82%93")
+			`);
+			eq(res, STR('https%3A%2F%2Fexample.com%2F%3Fq%3Dあいちゃん'));
+		});
 	});
 
 	describe('Error', () => {
