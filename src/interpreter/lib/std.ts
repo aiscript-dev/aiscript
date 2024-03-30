@@ -513,6 +513,11 @@ export const std: Record<string, Value> = {
 		assertString(v);
 		return STR(decodeURI(v.value));
 	}),
+	
+	'Str:decode_uri_component': FN_NATIVE(([v]) => {
+		assertString(v);
+		return STR(decodeURIComponent(v.value));
+	}),
 	//#endregion
 
 	//#region Arr

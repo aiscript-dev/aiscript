@@ -143,6 +143,9 @@ v をURIとしてエンコードした文字列を返します。ただし以下
 v をURIとしてエスケープシーケンスをデコードした文字列を返します。  
 ただし`Str:encode_uri`でエンコードされないエスケープシーケンスはデコードされません。
 
+### #Str:decode_uri_component(v: str): str
+v をURIとしてエスケープシーケンスをデコードした文字列を返します。  
+
 ## :: Arr
 ### @Arr:create(_length_: num, _initial_?: value): arr
 長さが`length`の配列を作成します。  
