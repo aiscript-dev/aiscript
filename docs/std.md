@@ -142,7 +142,8 @@ text をURI構成要素としてエンコードした文字列を返します。
 
 ### @Uri:decode_full(encoded_uri: str): str
 encoded_uri をエンコードされたURIとしてデコードした文字列を返します。  
-`Uri:encode_full`でエンコードされないエスケープシーケンスはデコードされません。
+以下の文字に対応するエスケープシーケンスはデコードされません。  
+`; , / ? : @ & = + $ #`
 
 ### @Uri:decode_component(encoded_text: str): str
 encoded_text をエンコードされたURI構成要素としてデコードした文字列を返します。  
