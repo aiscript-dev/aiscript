@@ -498,23 +498,25 @@ export const std: Record<string, Value> = {
 			return a.value;
 		}))));
 	}),
-	
-	'Str:encode_uri': FN_NATIVE(([v]) => {
+	//#endregion
+
+	//#region Uri
+	'Uri:encode_uri': FN_NATIVE(([v]) => {
 		assertString(v);
 		return STR(encodeURI(v.value));
 	}),	
 
-	'Str:encode_uri_component': FN_NATIVE(([v]) => {
+	'Uri:encode_uri_component': FN_NATIVE(([v]) => {
 		assertString(v);
 		return STR(encodeURIComponent(v.value));
 	}),	
 
-	'Str:decode_uri': FN_NATIVE(([v]) => {
+	'Uri:decode_uri': FN_NATIVE(([v]) => {
 		assertString(v);
 		return STR(decodeURI(v.value));
 	}),
 	
-	'Str:decode_uri_component': FN_NATIVE(([v]) => {
+	'Uri:decode_uri_component': FN_NATIVE(([v]) => {
 		assertString(v);
 		return STR(decodeURIComponent(v.value));
 	}),
