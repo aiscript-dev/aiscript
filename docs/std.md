@@ -34,15 +34,17 @@ AiScriptのバージョンです。
 ### @Core:to_str(_v_: value): str
 値を表す文字列を取得します。  
 
-### @Core:sleep(_time_: value): void
+### @Core:sleep(_time_: num): void
 指定時間（ミリ秒）待機します。
-## :: Util
 
+### @Core:abort(_message_: str): never
+プログラムを緊急停止します。
+
+## :: Util
 ### @Util:uuid(): str
 新しいUUIDを生成します。  
 
 ## :: Json
-
 ### @Json:stringify(_v_: value): str
 JSONを生成します。  
 
@@ -53,7 +55,6 @@ JSONをパースします。 引数がJSONとしてパース可能性でない�
 文字列がJSONとしてパース可能であるかの判定を行います。歴史的理由により存在しています 
 
 ## :: Date
-
 ### @Date:now(): num
 現在時刻を取得します。  
 
@@ -87,15 +88,17 @@ _date_ を渡した場合、_date_に対応する分、
 _date_ を渡した場合、_date_に対応する秒、  
 渡していない場合は現在時刻の秒が返されます。    
 
+### @Date:millisecond(_date_?: num): num
+現在時刻のミリ秒を取得します。  
+_date_ を渡した場合、_date_に対応するミリ秒、  
+渡していない場合は現在時刻のミリ秒が返されます。  
+
 ### @Date:parse(_date_: str): num
 
 ## :: Math
 数が多いため専用のページになっています。→[std-math.md](std-math.md)
 
 ## :: Num
-### @Num:to_hex(_x_: num): str
-数値から16進数の文字列を生成します。  
-
 ### @Num:from_hex(_hex_: str): num
 16進数の文字列から数値を生成します。  
 
@@ -124,6 +127,11 @@ _codePoints_の各要素は 0 以上、10FFFF<sub>16</sub> 以下である必要
 ### #Str:from_utf8_bytes(_bytes_: `arr<num>`): str
 UTF-8のバイト列を表す数値の配列から文字を生成します。  
 _bytes_の各要素は 0 以上、255 以下である必要があります。
+
+## :: Arr
+### @Arr:create(_length_: num, _initial_?: value): arr
+長さが`length`の配列を作成します。  
+配列は _initial_ が与えられていれば _initial_ 、でなければ`null`で埋められます。  
 
 ## :: Obj
 ### @Obj:keys(_v_: obj): arr

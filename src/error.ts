@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { Loc } from './node.js';
 
 export abstract class AiScriptError extends Error {
@@ -70,6 +71,15 @@ export class AiScriptRuntimeError extends AiScriptError {
  * RuntimeError for illegal access to arrays.
  */
 export class AiScriptIndexOutOfRangeError extends AiScriptRuntimeError {
+	constructor(message: string, info?: any) {
+		super(message, info);
+	}
+}
+/**
+ * Errors thrown by users.
+ */
+export class AiScriptUserError extends AiScriptRuntimeError {
+	public name = '';
 	constructor(message: string, info?: any) {
 		super(message, info);
 	}
