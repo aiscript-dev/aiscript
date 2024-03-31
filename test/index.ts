@@ -2383,7 +2383,25 @@ describe('Variable declaration', () => {
 
 		assert.ok(err instanceof AiScriptRuntimeError);
 	});
-})
+});
+
+describe('Variable assignment', () => {
+	test.concurrent('simple', async () => {
+		eq(await exe(`
+			var hoge = 25
+			hoge = 7
+			<: hoge
+		`), NUM(7));
+	});
+	test.concurrent('destructuring assignment', async () => {
+		eq(await exe(`
+			var hoge = 'foo'
+			var fuga = { value: 'bar' }
+			[{ value: hoge }, fuga] = [fuga, hoge]
+			<: [hoge, fuga]
+		`), ARR([STR('bar'), STR('foo')]));
+	});
+});
 
 describe('primitive props', () => {
 	describe('num', () => {

@@ -16,6 +16,7 @@
 - 関数`Str#charcode_at` `Str#to_arr` `Str#to_char_arr` `Str#to_charcode_arr` `Str#to_utf8_byte_arr` `Str#to_unicode_codepoint_arr` `Str:from_unicode_codepoints` `Str:from_utf8_bytes`を追加
 - Fix: `Str#codepoint_at`がサロゲートペアに対応していないのを修正
 - 配列の範囲外および非整数のインデックスへの代入でエラーを出すように
+- JavaScriptのように分割代入ができるように（現段階では機能は最小限）
 ## Note
 バージョン0.16.0に記録漏れがありました。
 >- 関数`Str:from_codepoint` `Str#codepoint_at`を追加
