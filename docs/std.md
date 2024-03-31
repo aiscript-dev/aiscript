@@ -132,19 +132,19 @@ UTF-8のバイト列を表す数値の配列から文字を生成します。
 _bytes_の各要素は 0 以上、255 以下である必要があります。
 
 ## :: Uri
-### @Uri:encode_uri(uri: str): str
+### @Uri:encode_full(uri: str): str
 uri をURIとしてエンコードした文字列を返します。以下の文字はエンコードされません。  
 `A-Z a-z 0-9 - _ . ! ~ * ' ( ) ; , / ? : @ & = + $ #`
 
-### @Uri:encode_uri_component(text: str): str
+### @Uri:encode_component(text: str): str
 text をURI構成要素としてエンコードした文字列を返します。以下の文字はエンコードされません。  
 `A-Z a-z 0-9 - _ . ! ~ * ' ( )`
 
-### @Uri:decode_uri(encoded_uri: str): str
+### @Uri:decode_full(encoded_uri: str): str
 encoded_uri をエンコードされたURIとしてデコードした文字列を返します。  
-`Uri:encode_uri`でエンコードされないエスケープシーケンスはデコードされません。
+`Uri:encode_full`でエンコードされないエスケープシーケンスはデコードされません。
 
-### @Uri:decode_uri_component(encoded_text: str): str
+### @Uri:decode_component(encoded_text: str): str
 encoded_text をエンコードされたURI構成要素としてデコードした文字列を返します。  
 
 ## :: Arr

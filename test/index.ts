@@ -3060,30 +3060,30 @@ describe('std', () => {
 	});
 
 	describe('Uri', () => {
-		test.concurrent('encode_uri', async () => {
+		test.concurrent('encode_full', async () => {
 			const res = await exe(`
-			<: Uri:encode_uri("https://example.com/?q=あいちゃん")
+			<: Uri:encode_full("https://example.com/?q=あいちゃん")
 			`);
 			eq(res, STR('https://example.com/?q=%E3%81%82%E3%81%84%E3%81%A1%E3%82%83%E3%82%93'));
 		});
 
-		test.concurrent('encode_uri_component', async () => {
+		test.concurrent('encode_component', async () => {
 			const res = await exe(`
-			<: Uri:encode_uri_component("https://example.com/?q=あいちゃん")
+			<: Uri:encode_component("https://example.com/?q=あいちゃん")
 			`);
 			eq(res, STR('https%3A%2F%2Fexample.com%2F%3Fq%3D%E3%81%82%E3%81%84%E3%81%A1%E3%82%83%E3%82%93'));
 		});
 
-		test.concurrent('decode_uri', async () => {
+		test.concurrent('decode_full', async () => {
 			const res = await exe(`
-			<: Uri:decode_uri("https%3A%2F%2Fexample.com%2F%3Fq%3D%E3%81%82%E3%81%84%E3%81%A1%E3%82%83%E3%82%93")
+			<: Uri:decode_full("https%3A%2F%2Fexample.com%2F%3Fq%3D%E3%81%82%E3%81%84%E3%81%A1%E3%82%83%E3%82%93")
 			`);
 			eq(res, STR('https%3A%2F%2Fexample.com%2F%3Fq%3Dあいちゃん'));
 		});
 
-		test.concurrent('decode_uri_component', async () => {
+		test.concurrent('decode_component', async () => {
 			const res = await exe(`
-			<: Uri:decode_uri_component("https%3A%2F%2Fexample.com%2F%3Fq%3D%E3%81%82%E3%81%84%E3%81%A1%E3%82%83%E3%82%93")
+			<: Uri:decode_component("https%3A%2F%2Fexample.com%2F%3Fq%3D%E3%81%82%E3%81%84%E3%81%A1%E3%82%83%E3%82%93")
 			`);
 			eq(res, STR('https://example.com/?q=あいちゃん'));
 		});

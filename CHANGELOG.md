@@ -7,7 +7,7 @@
 - `arr.incl`の引数の型制限を廃止
 - `Date:millisecond`を追加
 - `arr.fill`, `arr.repeat`, `Arr:create`を追加
-- `Uri:encode_uri`, `Uri:encode_uri_component`, `Uri:decode_uri`, `Uri:decode_uri_component`を追加
+- `Uri:encode_full`, `Uri:encode_component`, `Uri:decode_full`, `Uri:decode_component`を追加
 
 # 0.17.0
 - `package.json`を修正
