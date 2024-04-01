@@ -230,7 +230,7 @@ export class Interpreter {
 			return result ?? NULL;
 		} else {
 			const _args = new Map<string, Variable>();
-			for (const i in fn.args) {
+			for (const i of fn.args.keys()) {
 				const argdef = fn.args[i]!;
 				if (!argdef.default) expectAny(args[i]);
 				_args.set(argdef.name, {
