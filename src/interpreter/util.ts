@@ -87,6 +87,7 @@ export function isArray(val: Value): val is VArr {
 }
 
 export function eq(a: Value, b: Value): boolean {
+	if (a.type === 'fn' && b.type === 'fn') return a.native && b.native ? a.native === b.native : a === b;
 	if (a.type === 'fn' || b.type === 'fn') return false;
 	if (a.type === 'null' && b.type === 'null') return true;
 	if (a.type === 'null' || b.type === 'null') return false;

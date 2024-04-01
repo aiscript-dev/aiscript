@@ -55,6 +55,16 @@ describe('ops', () => {
 	test.concurrent('==', async () => {
 		eq(await exe('<: (1 == 1)'), BOOL(true));
 		eq(await exe('<: (1 == 2)'), BOOL(false));
+		eq(await exe('<: (Core:type == Core:type)'), BOOL(true));
+		eq(await exe('<: (Core:type == Core:gt)'), BOOL(false));
+		eq(await exe('<: (@(){} == @(){})'), BOOL(false));
+		eq(await exe('<: (Core:eq == @(){})'), BOOL(false));
+		eq(await exe(`
+			let f = @(){}
+			let g = f
+
+			<: (f == g)
+		`), BOOL(true));
 	});
 
 	test.concurrent('!=', async () => {
@@ -674,6 +684,20 @@ describe('separator', () => {
 			eq(res, NUM(2));
 		});
 
+		test.concurrent('multi line, multi newlines', async () => {
+			const res = await exe(`
+			let x = {
+
+				a: 1
+
+				b: 2
+
+			}
+			<: x.b
+			`);
+			eq(res, NUM(2));
+		});
+
 		test.concurrent('multi line with comma', async () => {
 			const res = await exe(`
 			let x = {
@@ -714,11 +738,64 @@ describe('separator', () => {
 			eq(res, NUM(2));
 		});
 
+		test.concurrent('multi line, multi newlines', async () => {
+			const res = await exe(`
+			let x = [
+
+				1
+
+				2
+
+			]
+			<: x[1]
+			`);
+			eq(res, NUM(2));
+		});
+
 		test.concurrent('multi line with comma', async () => {
 			const res = await exe(`
 			let x = [
 				1,
 				2
+			]
+			<: x[1]
+			`);
+			eq(res, NUM(2));
+		});
+
+		test.concurrent('multi line with comma, multi newlines', async () => {
+			const res = await exe(`
+			let x = [
+
+				1,
+
+				2
+
+			]
+			<: x[1]
+			`);
+			eq(res, NUM(2));
+		});
+
+		test.concurrent('multi line with comma and tail comma', async () => {
+			const res = await exe(`
+			let x = [
+				1,
+				2,
+			]
+			<: x[1]
+			`);
+			eq(res, NUM(2));
+		});
+
+		test.concurrent('multi line with comma and tail comma, multi newlines', async () => {
+			const res = await exe(`
+			let x = [
+
+				1,
+
+				2,
+
 			]
 			<: x[1]
 			`);
@@ -2709,6 +2786,21 @@ describe('primitive props', () => {
 			`);
 			eq(res, STR('123'));
 		});
+		test.concurrent('to_hex', async () => {
+			// TODO -0, 巨大数, 無限小数, Infinity等入力時の結果は未定義
+			const res = await exe(`
+			<: [
+	 			0, 10, 16,
+				-10, -16,
+				0.5,
+		 	].map(@(v){v.to_hex()})
+			`);
+			eq(res, ARR([
+				STR('0'), STR('a'), STR('10'),
+				STR('-a'), STR('-10'),
+				STR('0.8'),
+			]));
+		});
 	});
 
 	describe('str', () => {
@@ -2762,10 +2854,19 @@ describe('primitive props', () => {
 
 		test.concurrent('index_of', async () => {
 			const res = await exe(`
-			let str = "hello"
-			<: str.index_of("l")
+			let str = '0123401234'
+			<: [
+				str.index_of('3') == 3,
+				str.index_of('5') == -1,
+				str.index_of('3', 3) == 3,
+				str.index_of('3', 4) == 8,
+				str.index_of('3', -1) == -1,
+				str.index_of('3', -2) == 8,
+				str.index_of('3', -7) == 3,
+				str.index_of('3', 10) == -1,
+			].map(@(v){if (v) '1' else '0'}).join()
 			`);
-			eq(res, NUM(2));
+			eq(res, STR('11111111'));
 		});
 
 		test.concurrent('incl', async () => {
@@ -3024,6 +3125,23 @@ describe('primitive props', () => {
 			eq(res, ARR([TRUE, FALSE]));
 		});
 
+		test.concurrent('index_of', async () => {
+			const res = await exe(`
+			let arr = [0,1,2,3,4,0,1,2,3,4]
+			<: [
+				arr.index_of(3) == 3,
+				arr.index_of(5) == -1,
+				arr.index_of(3, 3) == 3,
+				arr.index_of(3, 4) == 8,
+				arr.index_of(3, -1) == -1,
+				arr.index_of(3, -2) == 8,
+				arr.index_of(3, -7) == 3,
+				arr.index_of(3, 10) == -1,
+			].map(@(v){if (v) '1' else '0'}).join()
+			`);
+			eq(res, STR('11111111'));
+		});
+
 		test.concurrent('reverse', async () => {
 			const res = await exe(`
 			let arr = [1, 2, 3]
@@ -3084,6 +3202,42 @@ describe('primitive props', () => {
 			`);
 			eq(res, ARR([OBJ(new Map([['x', NUM(2)]])), OBJ(new Map([['x', NUM(3)]])), OBJ(new Map([['x', NUM(10)]]))]));
 		});
+		
+		test.concurrent('fill', async () => {
+			const res = await exe(`
+				var arr1 = [0, 1, 2]
+				let arr2 = arr1.fill(3)
+				let arr3 = [0, 1, 2].fill(3, 1)
+				let arr4 = [0, 1, 2].fill(3, 1, 2)
+				let arr5 = [0, 1, 2].fill(3, -2, -1)
+				<: [arr1, arr2, arr3, arr4, arr5]
+			`);
+			eq(res, ARR([
+				ARR([NUM(3), NUM(3), NUM(3)]), //target changed
+				ARR([NUM(3), NUM(3), NUM(3)]),
+				ARR([NUM(0), NUM(3), NUM(3)]),
+				ARR([NUM(0), NUM(3), NUM(2)]),
+				ARR([NUM(0), NUM(3), NUM(2)]),
+			]));
+		});
+		
+		test.concurrent('repeat', async () => {
+			const res = await exe(`
+				var arr1 = [0, 1, 2]
+				let arr2 = arr1.repeat(3)
+				let arr3 = arr1.repeat(0)
+				<: [arr1, arr2, arr3]
+			`);
+			eq(res, ARR([
+				ARR([NUM(0), NUM(1), NUM(2)]), // target not changed
+				ARR([
+					NUM(0), NUM(1), NUM(2),
+					NUM(0), NUM(1), NUM(2),
+					NUM(0), NUM(1), NUM(2),
+				]),
+				ARR([]),
+			]));
+		});
 	});
 });
 
@@ -3115,9 +3269,21 @@ describe('std', () => {
 				<: Core:to_str(arr)
 			`), STR('[ { value: ... } ]'));
 		});
+
+		test.concurrent('abort', async () => {
+			assert.rejects(
+				exe('Core:abort("hoge")'),
+				e => e.message.includes('hoge'),
+			);
+		});
 	});
 
 	describe('Arr', () => {
+		test.concurrent('create', async () => {
+			eq(await exe("<: Arr:create(0)"), ARR([]));
+			eq(await exe("<: Arr:create(3)"), ARR([NULL, NULL, NULL]));
+			eq(await exe("<: Arr:create(3, 1)"), ARR([NUM(1), NUM(1), NUM(1)]));\
+		});
 	});
 	
 	describe('Math', () => {

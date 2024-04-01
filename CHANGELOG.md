@@ -12,7 +12,17 @@
 - **Breaking Change** 多くの予約語を追加。これまで変数名等に使えていた名前に影響が出る可能性があります。
 - 省略可能引数と初期値付き引数を追加。引数名に`?`を後置することでその引数は省略可能となります。引数に`=<式>`を後置すると引数に初期値を設定できます。省略可能引数は初期値`null`の引数と同等です。いずれでもない引数が省略されると即時エラーとなります。
 - **Breaking Change** 配列及び関数の引数において、空白区切りが使用できなくなりました。`,`または改行が必要です。
+- **Breaking Change** 関数同士の比較の実装
 - **Breaking Change** `+`や`!`などの演算子の優先順位に変更があります。新しい順序は[syntax.md](docs/syntax.md#%E6%BC%94%E7%AE%97%E5%AD%90)を参照して下さい。
+- **Breaking Change** 組み込み関数`Num:to_hex`は組み込みプロパティ`num#to_hex`に移動しました。
+
+# 未リリース分
+- `Core:abort`でプログラムを緊急停止できるように
+- `index_of`の配列版を追加
+- `str.index_of` `arr.index_of`共に第２引数fromIndexを受け付けるように
+- `arr.incl`の引数の型制限を廃止
+- `Date:millisecond`を追加
+- `arr.fill`, `arr.repeat`, `Arr:create`を追加
 
 # 0.17.0
 - `package.json`を修正

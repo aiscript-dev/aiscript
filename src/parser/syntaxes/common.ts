@@ -17,11 +17,11 @@ export function parseParams(s: ITokenStream): { name: string, argType?: Ast.Node
 
 	s.nextWith(TokenKind.OpenParen);
 
-	if (s.kind === TokenKind.NewLine) {
+	if (s.getKind() === TokenKind.NewLine) {
 		s.next();
 	}
 
-	while (s.kind !== TokenKind.CloseParen) {
+	while (s.getKind() !== TokenKind.CloseParen) {
 		s.expect(TokenKind.Identifier);
 		const name = s.token.value!;
 		s.next();
@@ -37,7 +37,7 @@ export function parseParams(s: ITokenStream): { name: string, argType?: Ast.Node
 			defaultExpr = parseExpr(s, false);
 		}
 		let type;
-		if ((s.kind as TokenKind) === TokenKind.Colon) {
+		if (s.getKind() === TokenKind.Colon) {
 			s.next();
 			type = parseType(s);
 		}
@@ -45,14 +45,14 @@ export function parseParams(s: ITokenStream): { name: string, argType?: Ast.Node
 		items.push({ name, optional, default: defaultExpr, argType: type });
 
 		// separator
-		switch (s.kind as TokenKind) {
+		switch (s.getKind()) {
 			case TokenKind.NewLine: {
 				s.next();
 				break;
 			}
 			case TokenKind.Comma: {
 				s.next();
-				if (s.kind === TokenKind.NewLine) {
+				if (s.getKind() === TokenKind.NewLine) {
 					s.next();
 				}
 				break;
@@ -79,19 +79,19 @@ export function parseParams(s: ITokenStream): { name: string, argType?: Ast.Node
 export function parseBlock(s: ITokenStream): Ast.Node[] {
 	s.nextWith(TokenKind.OpenBrace);
 
-	while (s.kind === TokenKind.NewLine) {
+	while (s.getKind() === TokenKind.NewLine) {
 		s.next();
 	}
 
 	const steps: Ast.Node[] = [];
-	while (s.kind !== TokenKind.CloseBrace) {
+	while (s.getKind() !== TokenKind.CloseBrace) {
 		steps.push(parseStatement(s));
 
 		// terminator
-		switch (s.kind as TokenKind) {
+		switch (s.getKind()) {
 			case TokenKind.NewLine:
 			case TokenKind.SemiColon: {
-				while ([TokenKind.NewLine, TokenKind.SemiColon].includes(s.kind)) {
+				while ([TokenKind.NewLine, TokenKind.SemiColon].includes(s.getKind())) {
 					s.next();
 				}
 				break;
@@ -113,7 +113,7 @@ export function parseBlock(s: ITokenStream): Ast.Node[] {
 //#region Type
 
 export function parseType(s: ITokenStream): Ast.Node {
-	if (s.kind === TokenKind.At) {
+	if (s.getKind() === TokenKind.At) {
 		return parseFnType(s);
 	} else {
 		return parseNamedType(s);
@@ -133,9 +133,9 @@ function parseFnType(s: ITokenStream): Ast.Node {
 	s.nextWith(TokenKind.OpenParen);
 
 	const params: Ast.Node[] = [];
-	while (s.kind !== TokenKind.CloseParen) {
+	while (s.getKind() !== TokenKind.CloseParen) {
 		if (params.length > 0) {
-			switch (s.kind as TokenKind) {
+			switch (s.getKind()) {
 				case TokenKind.Comma: {
 					s.next();
 					break;
@@ -171,7 +171,7 @@ function parseNamedType(s: ITokenStream): Ast.Node {
 
 	// inner type
 	let inner = null;
-	if (s.kind === TokenKind.Lt) {
+	if (s.getKind() === TokenKind.Lt) {
 		s.next();
 		inner = parseType(s);
 		s.nextWith(TokenKind.Gt);
