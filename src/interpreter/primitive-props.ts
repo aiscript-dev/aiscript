@@ -15,6 +15,10 @@ const PRIMITIVE_PROPS: {
 		to_str: (target: VNum): VFn => FN_NATIVE(async (_, _opts) => {
 			return STR(target.value.toString());
 		}),
+
+		to_hex: (target: VNum): VFn => FN_NATIVE(async (_, _opts) => {
+			return STR(target.value.toString(16));
+		}),
 	},
 
 	str: {
