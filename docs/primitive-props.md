@@ -184,7 +184,7 @@ _fromIndex_ および _toIndex_ に関する挙動は`arr.slice`に準拠しま�
 `arr.copy`同様シャローコピーであり、配列やオブジェクトの参照は維持されます。  
 _times_ には0以上の整数値を指定します。それ以外ではエラーになります。  
 
-### @(_v_: arr).splice(_index_: num, _remove_count_: num, _items_: arr\<value>): arr\<value>
+### @(_v_: arr).splice(_index_: num, _remove_count_?: num, _items_?: arr\<value>): arr\<value>
 **【この操作は配列を書き換えます】**  
 配列の _index_ から _remove_count_ 個の要素を取り除き、その位置に _items_ の要素を挿入します。  
 返り値として、取り除いた要素の配列を返します。\
