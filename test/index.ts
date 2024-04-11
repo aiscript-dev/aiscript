@@ -2872,6 +2872,26 @@ describe('primitive props', () => {
 				]),
 			]));
 		});
+		
+		test.concurrent('flat_map', async () => {
+			const res = await exe(`
+				let arr1 = [0, 1, 2]
+				let arr2 = ["a", "b"]
+				let arr3 = arr1.flat_map(@(x){ arr2.map(@(y){ [x, y] }) })
+				<: [arr1, arr3]
+			`);
+			eq(res, ARR([
+				ARR([NUM(0), NUM(1), NUM(2)]), // target not changed
+				ARR([
+					ARR([NUM(0), STR("a")]),
+					ARR([NUM(0), STR("b")]),
+					ARR([NUM(1), STR("a")]),
+					ARR([NUM(1), STR("b")]),
+					ARR([NUM(2), STR("a")]),
+					ARR([NUM(2), STR("b")]),
+				]),
+			]));
+		});
 	});
 });
 

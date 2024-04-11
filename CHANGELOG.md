@@ -8,7 +8,7 @@
 - `Date:millisecond`を追加
 - `arr.fill`, `arr.repeat`, `Arr:create`を追加
 - JavaScriptのように分割代入ができるように（現段階では機能は最小限）
-- `arr.flat`を追加
+- `arr.flat`,`arr.flat_map`を追加
 
 # 0.17.0
 - `package.json`を修正

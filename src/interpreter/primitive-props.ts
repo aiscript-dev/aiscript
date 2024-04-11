@@ -302,6 +302,16 @@ const PRIMITIVE_PROPS: {
 			flat(target.value, depth.value, result);
 			return ARR(result);
 		}),
+
+		flat_map: (target: VArr): VFn => FN_NATIVE(async ([fn], opts) => {
+			assertFunction(fn);
+			const vals = target.value.map(async (item, i) => {
+				const result = await opts.call(fn, [item, NUM(i)]);
+				return isArray(result) ? result.value : result;
+			});
+			const mapped_vals = await Promise.all(vals);
+			return ARR(mapped_vals.flat());
+		}),
 	},
 
 	error: {
