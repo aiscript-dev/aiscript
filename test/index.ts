@@ -2849,6 +2849,29 @@ describe('primitive props', () => {
 				ARR([]),
 			]));
 		});
+		
+		test.concurrent('flat', async () => {
+			const res = await exe(`
+				var arr1 = [0, [1], [2, 3], [4, [5, 6]]]
+				let arr2 = arr1.flat()
+				let arr3 = arr1.flat(2)
+				<: [arr1, arr2, arr3]
+			`);
+			eq(res, ARR([
+				ARR([
+					NUM(0), ARR([NUM(1)]), ARR([NUM(2), NUM(3)]),
+					ARR([NUM(4), ARR([NUM(5), NUM(6)])])
+				]), // target not changed
+				ARR([
+					NUM(0), NUM(1), NUM(2), NUM(3),
+					NUM(4), ARR([NUM(5), NUM(6)]),
+				]),
+				ARR([
+					NUM(0), NUM(1), NUM(2), NUM(3),
+					NUM(4), NUM(5), NUM(6),
+				]),
+			]));
+		});
 	});
 });
 

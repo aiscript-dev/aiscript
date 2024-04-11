@@ -2,7 +2,7 @@
 import { substring, length, indexOf, toArray } from 'stringz';
 import { AiScriptRuntimeError } from '../error.js';
 import { textEncoder } from '../const.js';
-import { assertArray, assertBoolean, assertFunction, assertNumber, assertString, expectAny, eq } from './util.js';
+import { assertArray, assertBoolean, assertFunction, assertNumber, assertString, expectAny, eq, isArray } from './util.js';
 import { ARR, FALSE, FN_NATIVE, NULL, NUM, STR, TRUE } from './value.js';
 import type { Value, VArr, VFn, VNum, VStr, VError } from './value.js';
 
@@ -278,6 +278,29 @@ const PRIMITIVE_PROPS: {
 				if (!Number.isInteger(times.value)) throw new AiScriptRuntimeError('arr.repeat expected integer, got non-integer');
 				throw e;
 			}
+		}),
+
+		flat: (target: VArr): VFn => FN_NATIVE(async ([depth], opts) => {
+			depth = depth ?? NUM(1);
+			assertNumber(depth);
+			if (!Number.isInteger(depth.value)) throw new AiScriptRuntimeError('arr.flat expected integer, got non-integer');
+			if (depth.value < 0) throw new AiScriptRuntimeError('arr.flat expected non-negative number, got negative');
+			const flat = (arr: Value[], depth: number, result: Value[]) => {
+				if (depth === 0) {
+					result.push(...arr);
+					return;
+				}
+				for (const v of arr) {
+					if (isArray(v)) {
+						flat(v.value, depth - 1, result);
+					} else {
+						result.push(v);
+					}
+				}
+			};
+			const result: Value[] = [];
+			flat(target.value, depth.value, result);
+			return ARR(result);
 		}),
 	},
 
