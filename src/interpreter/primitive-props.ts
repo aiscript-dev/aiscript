@@ -279,6 +279,17 @@ const PRIMITIVE_PROPS: {
 				throw e;
 			}
 		}),
+
+		every: (target: VArr): VFn => FN_NATIVE(async ([fn], opts) => {
+			assertFunction(fn);
+			for (let i = 0; i < target.value.length; i++) {
+				const item = target.value[i]!;
+				const res = await opts.call(fn, [item, NUM(i)]);
+				assertBoolean(res);
+				if (!res.value) return FALSE;
+			}
+			return TRUE;
+		}),
 	},
 
 	error: {

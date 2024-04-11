@@ -184,6 +184,9 @@ _fromIndex_ および _toIndex_ に関する挙動は`arr.slice`に準拠しま�
 `arr.copy`同様シャローコピーであり、配列やオブジェクトの参照は維持されます。  
 _times_ には0以上の整数値を指定します。それ以外ではエラーになります。  
 
+### @(_v_: arr).every(_func_: @(_item_: value, _index_: num) { bool }): bool
+配列の全ての要素に対して _func_ が true を返す時のみ true 返します。空配列には常に true を返します。
+
 ## エラー型
 ### #(_v_: error).name
 型: `str`  
