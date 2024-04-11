@@ -187,6 +187,9 @@ _times_ には0以上の整数値を指定します。それ以外ではエラ�
 ### @(_v_: arr).every(_func_: @(_item_: value, _index_: num) { bool }): bool
 配列の全ての要素に対して _func_ が true を返す時のみ true 返します。空配列には常に true を返します。
 
+### @(_v_: arr).some(_func_: @(_item_: value, _index_: num) { bool }): bool
+配列の要素に対して _func_ が true を返す要素が存在する時のみ true 返します。
+
 ## エラー型
 ### #(_v_: error).name
 型: `str`  
