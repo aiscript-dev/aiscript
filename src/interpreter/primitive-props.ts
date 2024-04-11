@@ -281,9 +281,9 @@ const PRIMITIVE_PROPS: {
 		}),
 		
 		splice: (target: VArr): VFn => FN_NATIVE(async ([idx, rc, vs], opts) => {
-			assertNumber(idx)
+			assertNumber(idx);
 			const index = (idx.value < -target.value.length) ? 0
-			            : (idx.value < 0) ? target.value.length + idx.value
+						: (idx.value < 0) ? target.value.length + idx.value
 						: (idx.value >= target.value.length) ? target.value.length
 						: idx.value;
 
