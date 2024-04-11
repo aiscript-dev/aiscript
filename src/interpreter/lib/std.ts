@@ -220,6 +220,32 @@ export const std: Record<string, Value> = {
 		assertString(v);
 		return NUM(new Date(v.value).getTime());
 	}),
+
+	'Date:to_iso_str': FN_NATIVE(([v]) => {
+		if (v) { assertNumber(v); }
+
+		const date = new Date(v?.value || Date.now());
+		const y = date.getFullYear().toString().padStart(4, "0");
+		const mo = (date.getMonth() + 1).toString().padStart(2, "0");
+		const d = date.getDate().toString().padStart(2, "0");
+		const h = date.getHours().toString().padStart(2, "0");
+		const mi = date.getMinutes().toString().padStart(2, "0");
+		const s = date.getSeconds().toString().padStart(2, "0");
+		const ms = date.getMilliseconds().toString().padStart(3, "0");
+
+		const offset = date.getTimezoneOffset();
+		let offset_s;
+		if (offset === 0) {
+			offset_s = "Z";
+		} else {
+			const sign = (offset < 0) ? "+" : "-";
+			const offset_h = Math.floor(Math.abs(offset) / 60).toString().padStart(2, "0");
+			const offset_m = (Math.abs(offset) % 60).toString().padStart(2, "0");
+			offset_s = `${sign}${offset_h}:${offset_m}`;
+		}
+
+		return STR(`${y}-${mo}-${d}T${h}:${mi}:${s}.${ms}${offset_s}`);
+	}),
 	//#endregion
 
 	//#region Math

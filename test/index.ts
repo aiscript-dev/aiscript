@@ -3128,6 +3128,19 @@ describe('std', () => {
 			});
 		});
 	});
+
+	describe('Date', () => {
+		test.concurrent('to_iso_str', async () => {
+			const res = await exe(`
+				let d1 = Date:parse("2024-04-12T01:47:46.021+09:00")
+				let s1 = Date:to_iso_str(d1)
+				let d2 = Date:parse(s1)
+				<: [d1, d2, s1]
+			`);
+			eq(res.value[0], res.value[1]);
+			assert.match(res.value[2].value, /^[0-9]{4,4}-[0-9]{2,2}-[0-9]{2,2}T[0-9]{2,2}:[0-9]{2,2}:[0-9]{2,2}\.[0-9]{3,3}(Z|[-+][0-9]{2,2}:[0-9]{2,2})$/);
+		});
+	});
 });
 
 describe('Unicode', () => {
