@@ -2849,6 +2849,54 @@ describe('primitive props', () => {
 				ARR([]),
 			]));
 		});
+		
+		test.concurrent('splice (full)', async () => {
+			const res = await exe(`
+			    let arr1 = [0, 1, 2, 3]
+				let arr2 = arr1.splice(1, 2, [10])
+				<: [arr1, arr2]
+			`);
+			eq(res, ARR([
+				ARR([NUM(0), NUM(10), NUM(3)]),
+				ARR([NUM(1), NUM(2)]),
+			]));
+		});
+		
+		test.concurrent('splice (negative-index)', async () => {
+			const res = await exe(`
+			    let arr1 = [0, 1, 2, 3]
+				let arr2 = arr1.splice(-1, 0, [10, 20])
+				<: [arr1, arr2]
+			`);
+			eq(res, ARR([
+				ARR([NUM(0), NUM(1), NUM(2), NUM(10), NUM(20), NUM(3)]),
+				ARR([]),
+			]));
+		});
+		
+		test.concurrent('splice (larger-index)', async () => {
+			const res = await exe(`
+			    let arr1 = [0, 1, 2, 3]
+				let arr2 = arr1.splice(4, 100, [10, 20])
+				<: [arr1, arr2]
+			`);
+			eq(res, ARR([
+				ARR([NUM(0), NUM(1), NUM(2), NUM(3), NUM(10), NUM(20)]),
+				ARR([]),
+			]));
+		});
+		
+		test.concurrent('splice (single argument)', async () => {
+			const res = await exe(`
+			    let arr1 = [0, 1, 2, 3]
+				let arr2 = arr1.splice(1)
+				<: [arr1, arr2]
+			`);
+			eq(res, ARR([
+				ARR([NUM(0)]),
+				ARR([NUM(1), NUM(2), NUM(3)]),
+			]));
+		});
 	});
 });
 
