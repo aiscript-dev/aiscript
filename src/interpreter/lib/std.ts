@@ -229,7 +229,7 @@ export const std: Record<string, Value> = {
 		const offset = ofs?.value ?? -date.getTimezoneOffset();
 		let offset_s;
 		if (offset === 0) {
-			offset_s = "Z";
+			offset_s = 'Z';
 		} else {
 			const sign = Math.sign(offset);
 			const offset_hours = Math.floor(Math.abs(offset) / 60);
@@ -252,21 +252,6 @@ export const std: Record<string, Value> = {
 		const ms = date.getUTCMilliseconds().toString().padStart(3, "0");
 
 		return STR(`${y}-${mo}-${d}T${h}:${mi}:${s}.${ms}${offset_s}`);
-	}),
-
-	'Date:to_utc_iso_str': FN_NATIVE(([v]) => {
-		if (v) { assertNumber(v); }
-
-		const date = new Date(v?.value || Date.now());
-		const y = date.getUTCFullYear().toString().padStart(4, "0");
-		const mo = (date.getUTCMonth() + 1).toString().padStart(2, "0");
-		const d = date.getUTCDate().toString().padStart(2, "0");
-		const h = date.getUTCHours().toString().padStart(2, "0");
-		const mi = date.getUTCMinutes().toString().padStart(2, "0");
-		const s = date.getUTCSeconds().toString().padStart(2, "0");
-		const ms = date.getUTCMilliseconds().toString().padStart(3, "0");
-
-		return STR(`${y}-${mo}-${d}T${h}:${mi}:${s}.${ms}Z`);
 	}),
 	//#endregion
 
