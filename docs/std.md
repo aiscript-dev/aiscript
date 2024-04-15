@@ -95,10 +95,11 @@ _date_ を渡した場合、_date_に対応するミリ秒、
 
 ### @Date:parse(_date_: str): num
 
-### @Date:to_iso_str(_date_?: num): str
+### @Date:to_iso_str(_date_?: num, _time_offset_?: num): str
 _date_ を拡張表記のISO形式にした文字列を返します。  
 _date_ を渡していない場合は現在時刻を使用します。  
-タイムゾーンはローカルのものを参照します。  
+_time_offset_ はUTCからの時差（分単位）を指定します。  
+_time_offset_ を渡していない場合はローカルのものを参照します。  
 
 ## :: Math
 数が多いため専用のページになっています。→[std-math.md](std-math.md)

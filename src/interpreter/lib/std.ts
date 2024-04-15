@@ -221,28 +221,37 @@ export const std: Record<string, Value> = {
 		return NUM(new Date(v.value).getTime());
 	}),
 
-	'Date:to_iso_str': FN_NATIVE(([v]) => {
+	'Date:to_iso_str': FN_NATIVE(([v, ofs]) => {
 		if (v) { assertNumber(v); }
+		const date = new Date(v?.value ?? Date.now());
 
-		const date = new Date(v?.value || Date.now());
-		const y = date.getFullYear().toString().padStart(4, "0");
-		const mo = (date.getMonth() + 1).toString().padStart(2, "0");
-		const d = date.getDate().toString().padStart(2, "0");
-		const h = date.getHours().toString().padStart(2, "0");
-		const mi = date.getMinutes().toString().padStart(2, "0");
-		const s = date.getSeconds().toString().padStart(2, "0");
-		const ms = date.getMilliseconds().toString().padStart(3, "0");
-
-		const offset = date.getTimezoneOffset();
+		if (ofs) { assertNumber(ofs); }
+		const offset = ofs?.value ?? -date.getTimezoneOffset();
+		console.log(ofs?.value);
+		console.log(offset);
 		let offset_s;
 		if (offset === 0) {
 			offset_s = "Z";
 		} else {
-			const sign = (offset < 0) ? "+" : "-";
-			const offset_h = Math.floor(Math.abs(offset) / 60).toString().padStart(2, "0");
-			const offset_m = (Math.abs(offset) % 60).toString().padStart(2, "0");
-			offset_s = `${sign}${offset_h}:${offset_m}`;
+			const sign = Math.sign(offset);
+			const offset_hours = Math.floor(Math.abs(offset) / 60);
+			const offset_minutes = Math.abs(offset) % 60;
+			date.setUTCHours(date.getUTCHours() + sign * offset_hours);
+			date.setUTCMinutes(date.getUTCMinutes() + sign * offset_minutes);
+
+			const sign_s = (offset > 0) ? "+" : "-";
+			const offset_hours_s = offset_hours.toString().padStart(2, "0");
+			const offset_minutes_s = offset_minutes.toString().padStart(2, "0");
+			offset_s = `${sign_s}${offset_hours_s}:${offset_minutes_s}`;
 		}
+
+		const y = date.getUTCFullYear().toString().padStart(4, "0");
+		const mo = (date.getUTCMonth() + 1).toString().padStart(2, "0");
+		const d = date.getUTCDate().toString().padStart(2, "0");
+		const h = date.getUTCHours().toString().padStart(2, "0");
+		const mi = date.getUTCMinutes().toString().padStart(2, "0");
+		const s = date.getUTCSeconds().toString().padStart(2, "0");
+		const ms = date.getUTCMilliseconds().toString().padStart(3, "0");
 
 		return STR(`${y}-${mo}-${d}T${h}:${mi}:${s}.${ms}${offset_s}`);
 	}),
