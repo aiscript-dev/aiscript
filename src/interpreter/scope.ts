@@ -100,7 +100,7 @@ export class Scope {
 		const states = this.layerdStates[0]!;
 		if (states.has(name)) {
 			throw new AiScriptRuntimeError(
-				`Variable '${name}' is alerady exists in scope '${this.name}'`,
+				`Variable '${name}' already exists in scope '${this.name}'`,
 				{ scope: this.layerdStates });
 		}
 		states.set(name, variable);
