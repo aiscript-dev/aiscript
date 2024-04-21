@@ -1871,6 +1871,33 @@ describe('namespace', () => {
 		}
 		assert.fail();
 	});
+
+	test.concurrent('nested', async () => {
+		const res = await exe(`
+		<: Foo:Bar:baz()
+
+		:: Foo {
+			:: Bar {
+				@baz() { "ai" }
+			}
+		}
+		`);
+		eq(res, STR('ai'));
+	});
+
+	test.concurrent('nested ref', async () => {
+		const res = await exe(`
+		<: Foo:baz
+
+		:: Foo {
+			let baz = Bar:ai
+			:: Bar {
+				let ai = "kawaii"
+			}
+		}
+		`);
+		eq(res, STR('kawaii'));
+	});
 });
 
 describe('literal', () => {
