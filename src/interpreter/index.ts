@@ -192,7 +192,7 @@ export class Interpreter {
 
 	@autobind
 	private async collectNsMember(ns: Ast.Namespace): Promise<void> {
-		const scope = this.scope.createChildScope();
+		const scope = this.scope.createChildNamespaceScope(ns.name);
 
 		for (const node of ns.members) {
 			switch (node.type) {
@@ -207,7 +207,6 @@ export class Interpreter {
 					};
 					scope.add(node.name, variable);
 
-					this.scope.add(ns.name + ':' + node.name, variable);
 					break;
 				}
 
