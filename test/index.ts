@@ -3185,6 +3185,52 @@ describe('std', () => {
 			});
 		});
 	});
+
+	describe('Date', () => {
+		test.concurrent('to_iso_str', async () => {
+			const res = await exe(`
+				let d1 = Date:parse("2024-04-12T01:47:46.021+09:00")
+				let s1 = Date:to_iso_str(d1)
+				let d2 = Date:parse(s1)
+				<: [d1, d2, s1]
+			`);
+			eq(res.value[0], res.value[1]);
+			assert.match(res.value[2].value, /^[0-9]{4,4}-[0-9]{2,2}-[0-9]{2,2}T[0-9]{2,2}:[0-9]{2,2}:[0-9]{2,2}\.[0-9]{3,3}(Z|[-+][0-9]{2,2}:[0-9]{2,2})$/);
+		});
+
+		test.concurrent('to_iso_str (UTC)', async () => {
+			const res = await exe(`
+				let d1 = Date:parse("2024-04-12T01:47:46.021+09:00")
+				let s1 = Date:to_iso_str(d1, 0)
+				let d2 = Date:parse(s1)
+				<: [d1, d2, s1]
+			`);
+			eq(res.value[0], res.value[1]);
+			eq(res.value[2], STR("2024-04-11T16:47:46.021Z"));
+		});
+
+		test.concurrent('to_iso_str (+09:00)', async () => {
+			const res = await exe(`
+				let d1 = Date:parse("2024-04-12T01:47:46.021+09:00")
+				let s1 = Date:to_iso_str(d1, 9*60)
+				let d2 = Date:parse(s1)
+				<: [d1, d2, s1]
+			`);
+			eq(res.value[0], res.value[1]);
+			eq(res.value[2], STR("2024-04-12T01:47:46.021+09:00"));
+		});
+
+		test.concurrent('to_iso_str (-05:18)', async () => {
+			const res = await exe(`
+				let d1 = Date:parse("2024-04-12T01:47:46.021+09:00")
+				let s1 = Date:to_iso_str(d1, -5*60-18)
+				let d2 = Date:parse(s1)
+				<: [d1, d2, s1]
+			`);
+			eq(res.value[0], res.value[1]);
+			eq(res.value[2], STR("2024-04-11T11:29:46.021-05:18"));
+		});
+	});
 });
 
 describe('Unicode', () => {
