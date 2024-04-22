@@ -1871,6 +1871,33 @@ describe('namespace', () => {
 		}
 		assert.fail();
 	});
+
+	test.concurrent('nested', async () => {
+		const res = await exe(`
+		<: Foo:Bar:baz()
+
+		:: Foo {
+			:: Bar {
+				@baz() { "ai" }
+			}
+		}
+		`);
+		eq(res, STR('ai'));
+	});
+
+	test.concurrent('nested ref', async () => {
+		const res = await exe(`
+		<: Foo:baz
+
+		:: Foo {
+			let baz = Bar:ai
+			:: Bar {
+				let ai = "kawaii"
+			}
+		}
+		`);
+		eq(res, STR('kawaii'));
+	});
 });
 
 describe('literal', () => {
@@ -2847,6 +2874,36 @@ describe('primitive props', () => {
 					NUM(0), NUM(1), NUM(2),
 				]),
 				ARR([]),
+			]));
+		});
+		
+		test.concurrent('every', async () => {
+			const res = await exe(`
+				let arr1 = [0, 1, 2, 3]
+				let res1 = arr1.every(@(v,i){v==0 || i > 0})
+				let res2 = arr1.every(@(v,i){v==0 && i > 0})
+				let res3 = [].every(@(v,i){false})
+				<: [arr1, res1, res2, res3]
+			`);
+			eq(res, ARR([
+				ARR([NUM(0), NUM(1), NUM(2), NUM(3)]), // target not changed
+				TRUE,
+				FALSE,
+				TRUE,
+			]));
+		});
+		
+		test.concurrent('some', async () => {
+			const res = await exe(`
+				let arr1 = [0, 1, 2, 3]
+				let res1 = arr1.some(@(v,i){v%2==0 && i <= 2})
+				let res2 = arr1.some(@(v,i){v%2==0 && i > 2})
+				<: [arr1, res1, res2]
+			`);
+			eq(res, ARR([
+				ARR([NUM(0), NUM(1), NUM(2), NUM(3)]), // target not changed
+				TRUE,
+				FALSE,
 			]));
 		});
 	});
