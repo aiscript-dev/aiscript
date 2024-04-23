@@ -8,6 +8,10 @@
 - `Date:millisecond`を追加
 - `arr.fill`, `arr.repeat`, `Arr:create`を追加
 - JavaScriptのように分割代入ができるように（現段階では機能は最小限）
+- スコープおよび名前が同一である変数が宣言された際のエラーメッセージを修正
+- ネストされた名前空間下の変数を参照できるように
+- `arr.every`, `arr.some`を追加
+- `Date:to_iso_str`を追加
 - `arr.sort`の処理を非同期的にして高速化
 
 # 0.17.0

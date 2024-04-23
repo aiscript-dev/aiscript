@@ -1871,6 +1871,33 @@ describe('namespace', () => {
 		}
 		assert.fail();
 	});
+
+	test.concurrent('nested', async () => {
+		const res = await exe(`
+		<: Foo:Bar:baz()
+
+		:: Foo {
+			:: Bar {
+				@baz() { "ai" }
+			}
+		}
+		`);
+		eq(res, STR('ai'));
+	});
+
+	test.concurrent('nested ref', async () => {
+		const res = await exe(`
+		<: Foo:baz
+
+		:: Foo {
+			let baz = Bar:ai
+			:: Bar {
+				let ai = "kawaii"
+			}
+		}
+		`);
+		eq(res, STR('kawaii'));
+	});
 });
 
 describe('literal', () => {
@@ -2849,6 +2876,36 @@ describe('primitive props', () => {
 				ARR([]),
 			]));
 		});
+		
+		test.concurrent('every', async () => {
+			const res = await exe(`
+				let arr1 = [0, 1, 2, 3]
+				let res1 = arr1.every(@(v,i){v==0 || i > 0})
+				let res2 = arr1.every(@(v,i){v==0 && i > 0})
+				let res3 = [].every(@(v,i){false})
+				<: [arr1, res1, res2, res3]
+			`);
+			eq(res, ARR([
+				ARR([NUM(0), NUM(1), NUM(2), NUM(3)]), // target not changed
+				TRUE,
+				FALSE,
+				TRUE,
+			]));
+		});
+		
+		test.concurrent('some', async () => {
+			const res = await exe(`
+				let arr1 = [0, 1, 2, 3]
+				let res1 = arr1.some(@(v,i){v%2==0 && i <= 2})
+				let res2 = arr1.some(@(v,i){v%2==0 && i > 2})
+				<: [arr1, res1, res2]
+			`);
+			eq(res, ARR([
+				ARR([NUM(0), NUM(1), NUM(2), NUM(3)]), // target not changed
+				TRUE,
+				FALSE,
+			]));
+		});
 	});
 });
 
@@ -3126,6 +3183,52 @@ describe('std', () => {
 				`);
 				eq(res, ARR([FALSE, ERROR('not_json')]));
 			});
+		});
+	});
+
+	describe('Date', () => {
+		test.concurrent('to_iso_str', async () => {
+			const res = await exe(`
+				let d1 = Date:parse("2024-04-12T01:47:46.021+09:00")
+				let s1 = Date:to_iso_str(d1)
+				let d2 = Date:parse(s1)
+				<: [d1, d2, s1]
+			`);
+			eq(res.value[0], res.value[1]);
+			assert.match(res.value[2].value, /^[0-9]{4,4}-[0-9]{2,2}-[0-9]{2,2}T[0-9]{2,2}:[0-9]{2,2}:[0-9]{2,2}\.[0-9]{3,3}(Z|[-+][0-9]{2,2}:[0-9]{2,2})$/);
+		});
+
+		test.concurrent('to_iso_str (UTC)', async () => {
+			const res = await exe(`
+				let d1 = Date:parse("2024-04-12T01:47:46.021+09:00")
+				let s1 = Date:to_iso_str(d1, 0)
+				let d2 = Date:parse(s1)
+				<: [d1, d2, s1]
+			`);
+			eq(res.value[0], res.value[1]);
+			eq(res.value[2], STR("2024-04-11T16:47:46.021Z"));
+		});
+
+		test.concurrent('to_iso_str (+09:00)', async () => {
+			const res = await exe(`
+				let d1 = Date:parse("2024-04-12T01:47:46.021+09:00")
+				let s1 = Date:to_iso_str(d1, 9*60)
+				let d2 = Date:parse(s1)
+				<: [d1, d2, s1]
+			`);
+			eq(res.value[0], res.value[1]);
+			eq(res.value[2], STR("2024-04-12T01:47:46.021+09:00"));
+		});
+
+		test.concurrent('to_iso_str (-05:18)', async () => {
+			const res = await exe(`
+				let d1 = Date:parse("2024-04-12T01:47:46.021+09:00")
+				let s1 = Date:to_iso_str(d1, -5*60-18)
+				let d2 = Date:parse(s1)
+				<: [d1, d2, s1]
+			`);
+			eq(res.value[0], res.value[1]);
+			eq(res.value[2], STR("2024-04-11T11:29:46.021-05:18"));
 		});
 	});
 });
