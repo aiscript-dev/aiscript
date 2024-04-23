@@ -311,6 +311,28 @@ const PRIMITIVE_PROPS: {
 			});
 			const mapped_vals = await Promise.all(vals);
 			return ARR(mapped_vals.flat());
+    }),
+
+		every: (target: VArr): VFn => FN_NATIVE(async ([fn], opts) => {
+			assertFunction(fn);
+			for (let i = 0; i < target.value.length; i++) {
+				const item = target.value[i]!;
+				const res = await opts.call(fn, [item, NUM(i)]);
+				assertBoolean(res);
+				if (!res.value) return FALSE;
+			}
+			return TRUE;
+		}),
+
+		some: (target: VArr): VFn => FN_NATIVE(async ([fn], opts) => {
+			assertFunction(fn);
+			for (let i = 0; i < target.value.length; i++) {
+				const item = target.value[i]!;
+				const res = await opts.call(fn, [item, NUM(i)]);
+				assertBoolean(res);
+				if (res.value) return TRUE;
+			}
+			return FALSE;
 		}),
 	},
 

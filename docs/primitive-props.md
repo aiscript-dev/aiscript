@@ -192,6 +192,12 @@ _depth_ には0以上の整数値を指定します。省略時は1になりま�
 配列の各要素を _func_ の返り値で置き換えた後、1階層平坦化した新しい配列を作成します。  
 _func_ は非同期的に呼び出されます。
 
+### @(_v_: arr).every(_func_: @(_item_: value, _index_: num) { bool }): bool
+配列の全ての要素に対して _func_ が true を返す時のみ true 返します。空配列には常に true を返します。
+
+### @(_v_: arr).some(_func_: @(_item_: value, _index_: num) { bool }): bool
+配列の要素に対して _func_ が true を返す要素が存在する時のみ true 返します。
+
 ## エラー型
 ### #(_v_: error).name
 型: `str`  
