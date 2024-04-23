@@ -193,6 +193,12 @@ _index_ が最後の要素より後の場合は要素を取り除かず、挿入
 _remove_count_ を省略した場合、末尾まで取り除きます。\
 _items_ を省略した場合、何も挿入しません。
 
+### @(_v_: arr).every(_func_: @(_item_: value, _index_: num) { bool }): bool
+配列の全ての要素に対して _func_ が true を返す時のみ true 返します。空配列には常に true を返します。
+
+### @(_v_: arr).some(_func_: @(_item_: value, _index_: num) { bool }): bool
+配列の要素に対して _func_ が true を返す要素が存在する時のみ true 返します。
+
 ## エラー型
 ### #(_v_: error).name
 型: `str`  
