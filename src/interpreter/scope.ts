@@ -11,11 +11,13 @@ export class Scope {
 		log?(type: string, params: Record<string, any>): void;
 		onUpdated?(name: string, value: Value): void;
 	} = {};
+	public nsName?: string;
 
-	constructor(layerdStates: Scope['layerdStates'] = [], parent?: Scope, name?: Scope['name']) {
+	constructor(layerdStates: Scope['layerdStates'] = [], parent?: Scope, name?: Scope['name'], nsName?: string) {
 		this.layerdStates = layerdStates;
 		this.parent = parent;
 		this.name = name || (layerdStates.length === 1 ? '<root>' : '<anonymous>');
+		this.nsName = nsName;
 	}
 
 	@autobind
@@ -40,6 +42,12 @@ export class Scope {
 	public createChildScope(states: Map<string, Variable> = new Map(), name?: Scope['name']): Scope {
 		const layer = [states, ...this.layerdStates];
 		return new Scope(layer, this, name);
+	}
+
+	@autobind
+	public createChildNamespaceScope(nsName: string, states: Map<string, Variable> = new Map(), name?: Scope['name']): Scope {
+		const layer = [states, ...this.layerdStates];
+		return new Scope(layer, this, name, nsName);
 	}
 
 	/**
@@ -90,7 +98,7 @@ export class Scope {
 	}
 
 	/**
-	 * 指定した名前の変数を現在のスコープに追加します
+	 * 指定した名前の変数を現在のスコープに追加します。名前空間である場合は接頭辞を付して親のスコープにも追加します
 	 * @param name - 変数名
 	 * @param val - 初期値
 	 */
@@ -100,11 +108,12 @@ export class Scope {
 		const states = this.layerdStates[0]!;
 		if (states.has(name)) {
 			throw new AiScriptRuntimeError(
-				`Variable '${name}' is alerady exists in scope '${this.name}'`,
+				`Variable '${name}' already exists in scope '${this.name}'`,
 				{ scope: this.layerdStates });
 		}
 		states.set(name, variable);
 		if (this.parent == null) this.onUpdated(name, variable.value);
+		else if (this.nsName != null) this.parent.add(this.nsName + ':' + name, variable);
 	}
 
 	/**
