@@ -2922,10 +2922,10 @@ describe('primitive props', () => {
 			eq(res, ARR([
 				ARR([NUM(0)]),
 				ARR([NUM(1), NUM(2), NUM(3)]),
-      ]));
-    });
+			]));
+		});
 
-    test.concurrent('every', async () => {
+    	test.concurrent('every', async () => {
 			const res = await exe(`
 				let arr1 = [0, 1, 2, 3]
 				let res1 = arr1.every(@(v,i){v==0 || i > 0})

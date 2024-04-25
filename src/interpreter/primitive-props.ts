@@ -294,7 +294,7 @@ const PRIMITIVE_PROPS: {
 
 			const result = target.value.splice(index, remove_count, ...items);
 			return ARR(result);
-    }),
+		}),
 
 		every: (target: VArr): VFn => FN_NATIVE(async ([fn], opts) => {
 			assertFunction(fn);
