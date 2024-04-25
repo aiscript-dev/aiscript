@@ -89,6 +89,46 @@ var func = null
 }
 ```
 
+### 代入
+宣言済みの変数の値を変更します。  
+```js
+var a = 0
+a = 1
+<: a // 1
+```
+```js
+// letで宣言された変数は代入不可
+let a = 0
+a = 1 // Runtime Error
+```
+
+#### 分割代入
+```js
+// 配列の分割代入
+var a = ''
+var b = ''
+[a, b] = ['hoge', 'fuga']
+<: a // 'hoge'
+<: b // 'fuga'
+// オブジェクトの分割代入
+{ name: a, nature: b } = { name: 'Ai-chan', nature: 'kawaii' }
+<: a // 'Ai-chan'
+<: b // 'kawaii'
+// 組み合わせ
+let ai_kun = {
+  name: 'Ai-kun',
+  nature: ['kakkoii', 'kawaii', 'ponkotsu'],
+}
+{ name: a, nature: [b] } = ai_kun
+<: a // 'Ai-kun'
+<: b // 'kakkoii'
+```
+```js
+// 代入値が分割できる型でなければエラー
+[a, b] = 1 // Runtime Error
+{ zero: a, one: b } = ['hoge', 'fuga'] // Runtime Error
+```
+
 ### for
 与えられた回数のループを行います。  
 ```js

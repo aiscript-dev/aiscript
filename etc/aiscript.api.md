@@ -14,7 +14,7 @@ type AddAssign = NodeBase & {
 };
 
 // @public (undocumented)
-export const AISCRIPT_VERSION: "0.17.0";
+export const AISCRIPT_VERSION: "0.18.0";
 
 // @public (undocumented)
 abstract class AiScriptError extends Error {
@@ -62,6 +62,13 @@ class AiScriptTypeError extends AiScriptError {
     constructor(message: string, loc: Loc, info?: any);
     // (undocumented)
     loc: Loc;
+    // (undocumented)
+    name: string;
+}
+
+// @public
+class AiScriptUserError extends AiScriptRuntimeError {
+    constructor(message: string, info?: any);
     // (undocumented)
     name: string;
 }
@@ -239,7 +246,8 @@ declare namespace errors {
         AiScriptTypeError,
         AiScriptNamespaceError,
         AiScriptRuntimeError,
-        AiScriptIndexOutOfRangeError
+        AiScriptIndexOutOfRangeError,
+        AiScriptUserError
     }
 }
 export { errors }
@@ -511,9 +519,11 @@ type Return = NodeBase & {
 
 // @public (undocumented)
 export class Scope {
-    constructor(layerdStates?: Scope['layerdStates'], parent?: Scope, name?: Scope['name']);
+    constructor(layerdStates?: Scope['layerdStates'], parent?: Scope, name?: Scope['name'], nsName?: string);
     add(name: string, variable: Variable): void;
     assign(name: string, val: Value): void;
+    // (undocumented)
+    createChildNamespaceScope(nsName: string, states?: Map<string, Variable>, name?: Scope['name']): Scope;
     // Warning: (ae-forgotten-export) The symbol "Variable" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
@@ -523,6 +533,8 @@ export class Scope {
     getAll(): Map<string, Variable>;
     // (undocumented)
     name: string;
+    // (undocumented)
+    nsName?: string;
     // (undocumented)
     opts: {
         log?(type: string, params: Record<string, any>): void;

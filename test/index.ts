@@ -55,6 +55,16 @@ describe('ops', () => {
 	test.concurrent('==', async () => {
 		eq(await exe('<: (1 == 1)'), BOOL(true));
 		eq(await exe('<: (1 == 2)'), BOOL(false));
+		eq(await exe('<: (Core:type == Core:type)'), BOOL(true));
+		eq(await exe('<: (Core:type == Core:gt)'), BOOL(false));
+		eq(await exe('<: (@(){} == @(){})'), BOOL(false));
+		eq(await exe('<: (Core:eq == @(){})'), BOOL(false));
+		eq(await exe(`
+			let f = @(){}
+			let g = f
+
+			<: (f == g)
+		`), BOOL(true));
 	});
 
 	test.concurrent('!=', async () => {
@@ -674,6 +684,20 @@ describe('separator', () => {
 			eq(res, NUM(2));
 		});
 
+		test.concurrent('multi line, multi newlines', async () => {
+			const res = await exe(`
+			let x = {
+
+				a: 1
+
+				b: 2
+
+			}
+			<: x.b
+			`);
+			eq(res, NUM(2));
+		});
+
 		test.concurrent('multi line with comma', async () => {
 			const res = await exe(`
 			let x = {
@@ -714,11 +738,64 @@ describe('separator', () => {
 			eq(res, NUM(2));
 		});
 
+		test.concurrent('multi line, multi newlines', async () => {
+			const res = await exe(`
+			let x = [
+
+				1
+
+				2
+
+			]
+			<: x[1]
+			`);
+			eq(res, NUM(2));
+		});
+
 		test.concurrent('multi line with comma', async () => {
 			const res = await exe(`
 			let x = [
 				1,
 				2
+			]
+			<: x[1]
+			`);
+			eq(res, NUM(2));
+		});
+
+		test.concurrent('multi line with comma, multi newlines', async () => {
+			const res = await exe(`
+			let x = [
+
+				1,
+
+				2
+
+			]
+			<: x[1]
+			`);
+			eq(res, NUM(2));
+		});
+
+		test.concurrent('multi line with comma and tail comma', async () => {
+			const res = await exe(`
+			let x = [
+				1,
+				2,
+			]
+			<: x[1]
+			`);
+			eq(res, NUM(2));
+		});
+
+		test.concurrent('multi line with comma and tail comma, multi newlines', async () => {
+			const res = await exe(`
+			let x = [
+
+				1,
+
+				2,
+
 			]
 			<: x[1]
 			`);
@@ -2189,6 +2266,33 @@ describe('namespace', () => {
 		}
 		assert.fail();
 	});
+
+	test.concurrent('nested', async () => {
+		const res = await exe(`
+		<: Foo:Bar:baz()
+
+		:: Foo {
+			:: Bar {
+				@baz() { "ai" }
+			}
+		}
+		`);
+		eq(res, STR('ai'));
+	});
+
+	test.concurrent('nested ref', async () => {
+		const res = await exe(`
+		<: Foo:baz
+
+		:: Foo {
+			let baz = Bar:ai
+			:: Bar {
+				let ai = "kawaii"
+			}
+		}
+		`);
+		eq(res, STR('kawaii'));
+	});
 });
 
 describe('literal', () => {
@@ -2665,7 +2769,25 @@ describe('Variable declaration', () => {
 
 		assert.ok(err instanceof AiScriptRuntimeError);
 	});
-})
+});
+
+describe('Variable assignment', () => {
+	test.concurrent('simple', async () => {
+		eq(await exe(`
+			var hoge = 25
+			hoge = 7
+			<: hoge
+		`), NUM(7));
+	});
+	test.concurrent('destructuring assignment', async () => {
+		eq(await exe(`
+			var hoge = 'foo'
+			var fuga = { value: 'bar' }
+			[{ value: hoge }, fuga] = [fuga, hoge]
+			<: [hoge, fuga]
+		`), ARR([STR('bar'), STR('foo')]));
+	});
+});
 
 describe('primitive props', () => {
 	describe('num', () => {
@@ -2675,6 +2797,21 @@ describe('primitive props', () => {
 			<: num.to_str()
 			`);
 			eq(res, STR('123'));
+		});
+		test.concurrent('to_hex', async () => {
+			// TODO -0, 巨大数, 無限小数, Infinity等入力時の結果は未定義
+			const res = await exe(`
+			<: [
+	 			0, 10, 16,
+				-10, -16,
+				0.5,
+		 	].map(@(v){v.to_hex()})
+			`);
+			eq(res, ARR([
+				STR('0'), STR('a'), STR('10'),
+				STR('-a'), STR('-10'),
+				STR('0.8'),
+			]));
 		});
 	});
 
@@ -2729,10 +2866,19 @@ describe('primitive props', () => {
 
 		test.concurrent('index_of', async () => {
 			const res = await exe(`
-			let str = "hello"
-			<: str.index_of("l")
+			let str = '0123401234'
+			<: [
+				str.index_of('3') == 3,
+				str.index_of('5') == -1,
+				str.index_of('3', 3) == 3,
+				str.index_of('3', 4) == 8,
+				str.index_of('3', -1) == -1,
+				str.index_of('3', -2) == 8,
+				str.index_of('3', -7) == 3,
+				str.index_of('3', 10) == -1,
+			].map(@(v){if (v) '1' else '0'}).join()
 			`);
-			eq(res, NUM(2));
+			eq(res, STR('11111111'));
 		});
 
 		test.concurrent('incl', async () => {
@@ -2991,6 +3137,23 @@ describe('primitive props', () => {
 			eq(res, ARR([TRUE, FALSE]));
 		});
 
+		test.concurrent('index_of', async () => {
+			const res = await exe(`
+			let arr = [0,1,2,3,4,0,1,2,3,4]
+			<: [
+				arr.index_of(3) == 3,
+				arr.index_of(5) == -1,
+				arr.index_of(3, 3) == 3,
+				arr.index_of(3, 4) == 8,
+				arr.index_of(3, -1) == -1,
+				arr.index_of(3, -2) == 8,
+				arr.index_of(3, -7) == 3,
+				arr.index_of(3, 10) == -1,
+			].map(@(v){if (v) '1' else '0'}).join()
+			`);
+			eq(res, STR('11111111'));
+		});
+
 		test.concurrent('reverse', async () => {
 			const res = await exe(`
 			let arr = [1, 2, 3]
@@ -3051,6 +3214,72 @@ describe('primitive props', () => {
 			`);
 			eq(res, ARR([OBJ(new Map([['x', NUM(2)]])), OBJ(new Map([['x', NUM(3)]])), OBJ(new Map([['x', NUM(10)]]))]));
 		});
+		
+		test.concurrent('fill', async () => {
+			const res = await exe(`
+				var arr1 = [0, 1, 2]
+				let arr2 = arr1.fill(3)
+				let arr3 = [0, 1, 2].fill(3, 1)
+				let arr4 = [0, 1, 2].fill(3, 1, 2)
+				let arr5 = [0, 1, 2].fill(3, -2, -1)
+				<: [arr1, arr2, arr3, arr4, arr5]
+			`);
+			eq(res, ARR([
+				ARR([NUM(3), NUM(3), NUM(3)]), //target changed
+				ARR([NUM(3), NUM(3), NUM(3)]),
+				ARR([NUM(0), NUM(3), NUM(3)]),
+				ARR([NUM(0), NUM(3), NUM(2)]),
+				ARR([NUM(0), NUM(3), NUM(2)]),
+			]));
+		});
+		
+		test.concurrent('repeat', async () => {
+			const res = await exe(`
+				var arr1 = [0, 1, 2]
+				let arr2 = arr1.repeat(3)
+				let arr3 = arr1.repeat(0)
+				<: [arr1, arr2, arr3]
+			`);
+			eq(res, ARR([
+				ARR([NUM(0), NUM(1), NUM(2)]), // target not changed
+				ARR([
+					NUM(0), NUM(1), NUM(2),
+					NUM(0), NUM(1), NUM(2),
+					NUM(0), NUM(1), NUM(2),
+				]),
+				ARR([]),
+			]));
+		});
+		
+		test.concurrent('every', async () => {
+			const res = await exe(`
+				let arr1 = [0, 1, 2, 3]
+				let res1 = arr1.every(@(v,i){v==0 || i > 0})
+				let res2 = arr1.every(@(v,i){v==0 && i > 0})
+				let res3 = [].every(@(v,i){false})
+				<: [arr1, res1, res2, res3]
+			`);
+			eq(res, ARR([
+				ARR([NUM(0), NUM(1), NUM(2), NUM(3)]), // target not changed
+				TRUE,
+				FALSE,
+				TRUE,
+			]));
+		});
+		
+		test.concurrent('some', async () => {
+			const res = await exe(`
+				let arr1 = [0, 1, 2, 3]
+				let res1 = arr1.some(@(v,i){v%2==0 && i <= 2})
+				let res2 = arr1.some(@(v,i){v%2==0 && i > 2})
+				<: [arr1, res1, res2]
+			`);
+			eq(res, ARR([
+				ARR([NUM(0), NUM(1), NUM(2), NUM(3)]), // target not changed
+				TRUE,
+				FALSE,
+			]));
+		});
 	});
 });
 
@@ -3082,9 +3311,21 @@ describe('std', () => {
 				<: Core:to_str(arr)
 			`), STR('[ { value: ... } ]'));
 		});
+
+		test.concurrent('abort', async () => {
+			assert.rejects(
+				exe('Core:abort("hoge")'),
+				e => e.message.includes('hoge'),
+			);
+		});
 	});
 
 	describe('Arr', () => {
+		test.concurrent('create', async () => {
+			eq(await exe("<: Arr:create(0)"), ARR([]));
+			eq(await exe("<: Arr:create(3)"), ARR([NULL, NULL, NULL]));
+			eq(await exe("<: Arr:create(3, 1)"), ARR([NUM(1), NUM(1), NUM(1)]));\
+		});
 	});
 	
 	describe('Date', () => {
@@ -3334,6 +3575,52 @@ describe('std', () => {
 				`);
 				eq(res, ARR([FALSE, ERROR('not_json')]));
 			});
+		});
+	});
+
+	describe('Date', () => {
+		test.concurrent('to_iso_str', async () => {
+			const res = await exe(`
+				let d1 = Date:parse("2024-04-12T01:47:46.021+09:00")
+				let s1 = Date:to_iso_str(d1)
+				let d2 = Date:parse(s1)
+				<: [d1, d2, s1]
+			`);
+			eq(res.value[0], res.value[1]);
+			assert.match(res.value[2].value, /^[0-9]{4,4}-[0-9]{2,2}-[0-9]{2,2}T[0-9]{2,2}:[0-9]{2,2}:[0-9]{2,2}\.[0-9]{3,3}(Z|[-+][0-9]{2,2}:[0-9]{2,2})$/);
+		});
+
+		test.concurrent('to_iso_str (UTC)', async () => {
+			const res = await exe(`
+				let d1 = Date:parse("2024-04-12T01:47:46.021+09:00")
+				let s1 = Date:to_iso_str(d1, 0)
+				let d2 = Date:parse(s1)
+				<: [d1, d2, s1]
+			`);
+			eq(res.value[0], res.value[1]);
+			eq(res.value[2], STR("2024-04-11T16:47:46.021Z"));
+		});
+
+		test.concurrent('to_iso_str (+09:00)', async () => {
+			const res = await exe(`
+				let d1 = Date:parse("2024-04-12T01:47:46.021+09:00")
+				let s1 = Date:to_iso_str(d1, 9*60)
+				let d2 = Date:parse(s1)
+				<: [d1, d2, s1]
+			`);
+			eq(res.value[0], res.value[1]);
+			eq(res.value[2], STR("2024-04-12T01:47:46.021+09:00"));
+		});
+
+		test.concurrent('to_iso_str (-05:18)', async () => {
+			const res = await exe(`
+				let d1 = Date:parse("2024-04-12T01:47:46.021+09:00")
+				let s1 = Date:to_iso_str(d1, -5*60-18)
+				let d2 = Date:parse(s1)
+				<: [d1, d2, s1]
+			`);
+			eq(res.value[0], res.value[1]);
+			eq(res.value[2], STR("2024-04-11T11:29:46.021-05:18"));
 		});
 	});
 });
