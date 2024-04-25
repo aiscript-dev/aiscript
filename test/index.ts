@@ -1297,12 +1297,15 @@ describe('Function call', () => {
 		assert.fail();
 	});
 
-	test.concurrent('unprovided arg', async () => {
+	test.concurrent('exists on unprovided arg', async () => {
 		const res = await exe(`
 		@f(x) { return exists x }
 		<: f()
 		`);
 		eq(res, FALSE);
+	});
+
+	test.concurrent('accessing unprovided arg', async () => {
 		try {
 			await exe(`
 			@f(x) { return x }
