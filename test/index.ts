@@ -2925,7 +2925,7 @@ describe('primitive props', () => {
 			]));
 		});
 
-    	test.concurrent('every', async () => {
+		test.concurrent('every', async () => {
 			const res = await exe(`
 				let arr1 = [0, 1, 2, 3]
 				let res1 = arr1.every(@(v,i){v==0 || i > 0})
