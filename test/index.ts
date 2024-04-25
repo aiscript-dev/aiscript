@@ -1296,6 +1296,24 @@ describe('Function call', () => {
 		}
 		assert.fail();
 	});
+
+	test.concurrent('unprovided arg', async () => {
+		const res = await exe(`
+		@f(x) { return exists x }
+		<: f()
+		`);
+		eq(res, FALSE);
+		try {
+			await exe(`
+			@f(x) { return x }
+			<: f()
+			`);
+		} catch (e) {
+			assert.ok(e instanceof AiScriptRuntimeError);
+			return;
+		}
+		assert.fail();
+	});
 });
 
 describe('Return', () => {
