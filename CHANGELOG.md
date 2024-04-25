@@ -16,6 +16,8 @@
 - **Breaking Change** 組み込み関数`Num:to_hex`は組み込みプロパティ`num#to_hex`に移動しました。
 
 # 未リリース分
+
+# 0.18.0
 - `Core:abort`でプログラムを緊急停止できるように
 - `index_of`の配列版を追加
 - `str.index_of` `arr.index_of`共に第２引数fromIndexを受け付けるように

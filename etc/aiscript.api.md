@@ -14,7 +14,7 @@ type AddAssign = NodeBase & {
 };
 
 // @public (undocumented)
-export const AISCRIPT_VERSION: "0.18.0";
+export const AISCRIPT_VERSION: "0.19.0";
 
 // @public (undocumented)
 abstract class AiScriptError extends Error {
