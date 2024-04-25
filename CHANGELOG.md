@@ -1,10 +1,28 @@
 [Read translated version (en)](./translations/en/CHANGELOG.md)
 
+# 未リリース分
+
+# 0.18.0
+- `Core:abort`でプログラムを緊急停止できるように
+- `index_of`の配列版を追加
+- `str.index_of` `arr.index_of`共に第２引数fromIndexを受け付けるように
+- `arr.incl`の引数の型制限を廃止
+- `Date:millisecond`を追加
+- `arr.fill`, `arr.repeat`, `Arr:create`を追加
+- JavaScriptのように分割代入ができるように（現段階では機能は最小限）
+- スコープおよび名前が同一である変数が宣言された際のエラーメッセージを修正
+- ネストされた名前空間下の変数を参照できるように
+- `arr.every`, `arr.some`を追加
+- `Date:to_iso_str`を追加
+
 # 0.17.0
 - `package.json`を修正
 - `Error:create`関数でエラー型の値を生成できるように
 - `Obj:merge`で２つのオブジェクトの併合を得られるように
 - Fix: チェイン系（インデックスアクセス`[]`、プロパティアクセス`.`、関数呼び出し`()`）と括弧を組み合わせた時に不正な挙動をするバグを修正
+- 関数`Str#charcode_at` `Str#to_arr` `Str#to_char_arr` `Str#to_charcode_arr` `Str#to_utf8_byte_arr` `Str#to_unicode_codepoint_arr` `Str:from_unicode_codepoints` `Str:from_utf8_bytes`を追加
+- Fix: `Str#codepoint_at`がサロゲートペアに対応していないのを修正
+- 配列の範囲外および非整数のインデックスへの代入でエラーを出すように
 ## Note
 バージョン0.16.0に記録漏れがありました。
 >- 関数`Str:from_codepoint` `Str#codepoint_at`を追加
