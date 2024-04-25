@@ -1,5 +1,7 @@
 [Read translated version (en)](./translations/en/CHANGELOG.md)
 
+# 未リリース分
+
 # 0.18.0
 - `Core:abort`でプログラムを緊急停止できるように
 - `index_of`の配列版を追加
