@@ -847,8 +847,6 @@ export class Scope {
     assign(name: string, val: Value): void;
     // (undocumented)
     createChildNamespaceScope(nsName: string, states?: Map<string, Variable>, name?: Scope['name']): Scope;
-    // Warning: (ae-forgotten-export) The symbol "Variable" needs to be exported by the entry point index.d.ts
-    //
     // (undocumented)
     createChildScope(states?: Map<string, Variable>, name?: Scope['name']): Scope;
     exists(name: string): boolean;
