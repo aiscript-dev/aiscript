@@ -1,6 +1,8 @@
+// JavaScriptは一部のUnicode文字列を正しく扱えないため標準関数の代わりにstringzの関数を使う
 import { substring, length, indexOf, toArray } from 'stringz';
 import { AiScriptRuntimeError } from '../error.js';
-import { assertArray, assertBoolean, assertFunction, assertNumber, assertString, expectAny } from './util.js';
+import { textEncoder } from '../const.js';
+import { assertArray, assertBoolean, assertFunction, assertNumber, assertString, expectAny, eq } from './util.js';
 import { ARR, FALSE, FN_NATIVE, NULL, NUM, STR, TRUE } from './value.js';
 import type { Value, VArr, VFn, VNum, VStr, VError } from './value.js';
 
@@ -22,6 +24,33 @@ const PRIMITIVE_PROPS: {
 			return NUM(parsed);
 		}),
 
+		to_arr: (target: VStr): VFn => FN_NATIVE(async (_, _opts) => {
+			return ARR(toArray(target.value).map(s => STR(s)));
+		}),
+
+		to_unicode_arr: (target: VStr): VFn => FN_NATIVE(async (_, _opts) => {
+			return ARR([...target.value].map((s) => STR(s)));
+		}),
+
+		to_unicode_codepoint_arr: (target: VStr): VFn => FN_NATIVE(async (_, _opts) => {
+			return ARR([...target.value].map((s) => {
+				const res = s.codePointAt(0);
+				return NUM(res ?? s.charCodeAt(0));
+			}));
+		}),
+
+		to_char_arr: (target: VStr): VFn => FN_NATIVE(async (_, _opts) => {
+			return ARR(target.value.split('').map((s) => STR(s)));
+		}),
+
+		to_charcode_arr: (target: VStr): VFn => FN_NATIVE(async (_, _opts) => {
+			return ARR(target.value.split('').map((s) => NUM(s.charCodeAt(0))));
+		}),
+
+		to_utf8_byte_arr: (target: VStr): VFn => FN_NATIVE(async (_, _opts) => {
+			return ARR(Array.from(textEncoder.encode(target.value)).map((s) => NUM(s)));
+		}),
+
 		len: (target: VStr): VNum => NUM(length(target.value)),
 
 		replace: (target: VStr): VFn => FN_NATIVE(async ([a, b], _opts) => {
@@ -30,9 +59,11 @@ const PRIMITIVE_PROPS: {
 			return STR(target.value.split(a.value).join(b.value));
 		}),
 
-		index_of: (target: VStr): VFn => FN_NATIVE(async ([search], _opts) => {
+		index_of: (target: VStr): VFn => FN_NATIVE(async ([search, fromI], _opts) => {
 			assertString(search);
-			return NUM(indexOf(target.value, search.value));
+			if (fromI) assertNumber(fromI);
+			const pos = fromI ? (fromI.value < 0 ? target.value.length + fromI.value : fromI.value) : undefined;
+			return NUM(indexOf(target.value, search.value, pos));
 		}),
 
 		incl: (target: VStr): VFn => FN_NATIVE(async ([search], _opts) => {
@@ -74,11 +105,18 @@ const PRIMITIVE_PROPS: {
 			return char ? STR(char) : NULL;
 		}),
 
-		codepoint_at: (target: VStr): VFn => FN_NATIVE(([i], _) => {
+		charcode_at: (target: VStr): VFn => FN_NATIVE(([i], _) => {
 			assertNumber(i);
 
 			const res = target.value.charCodeAt(i.value);
 
+			return Number.isNaN(res) ? NULL : NUM(res);
+		}),
+
+		codepoint_at: (target: VStr): VFn => FN_NATIVE(([i], _) => {
+			assertNumber(i);
+
+			const res = target.value.codePointAt(i.value) ?? target.value.charCodeAt(i.value);
 			return Number.isNaN(res) ? NULL : NUM(res);
 		}),
 	},
@@ -166,17 +204,19 @@ const PRIMITIVE_PROPS: {
 
 		incl: (target: VArr): VFn => FN_NATIVE(async ([val], _opts) => {
 			expectAny(val);
-			if (val.type !== 'str' && val.type !== 'num' && val.type !== 'bool' && val.type !== 'null') return FALSE;
-			const getValue = (v: VArr): (string | number | boolean | symbol | null)[] => {
-				return v.value.map(i => {
-					if (i.type === 'str') return i.value;
-					if (i.type === 'num') return i.value;
-					if (i.type === 'bool') return i.value;
-					if (i.type === 'null') return null;
-					return Symbol();
-				});
-			};
-			return getValue(target).includes(val.type === 'null' ? null : val.value) ? TRUE : FALSE;
+			return target.value.some(item => eq(val, item)) ? TRUE : FALSE;
+		}),
+
+		index_of: (target: VArr): VFn => FN_NATIVE(async ([val, fromI], _opts) => {
+			expectAny(val);
+			if (fromI) {
+				assertNumber(fromI);
+				const offset = target.value.slice(0, fromI.value).length;
+				const result = target.value.slice(fromI.value).findIndex(v => eq(v, val));
+				return NUM(result < 0 ? result : result + offset);
+			} else {
+				return NUM(target.value.findIndex(v => eq(v, val)));
+			}
 		}),
 
 		reverse: (target: VArr): VFn => FN_NATIVE(async (_, _opts) => {
@@ -219,6 +259,47 @@ const PRIMITIVE_PROPS: {
 			assertArray(target);
 			target.value = await mergeSort(target.value, comp);
 			return target;
+		}),
+		
+		fill: (target: VArr): VFn => FN_NATIVE(async ([val, st, ed], opts) => {
+			const value = val ?? NULL;
+			const start = st && (assertNumber(st), st.value);
+			const end = ed && (assertNumber(ed), ed.value);
+			target.value.fill(value, start, end);
+			return target;
+		}),
+
+		repeat: (target: VArr): VFn => FN_NATIVE(async ([times], opts) => {
+			assertNumber(times);
+			try {
+				return ARR(Array(times.value).fill(target.value).flat());
+			} catch (e) {
+				if (times.value < 0) throw new AiScriptRuntimeError('arr.repeat expected non-negative number, got negative');
+				if (!Number.isInteger(times.value)) throw new AiScriptRuntimeError('arr.repeat expected integer, got non-integer');
+				throw e;
+			}
+		}),
+
+		every: (target: VArr): VFn => FN_NATIVE(async ([fn], opts) => {
+			assertFunction(fn);
+			for (let i = 0; i < target.value.length; i++) {
+				const item = target.value[i]!;
+				const res = await opts.call(fn, [item, NUM(i)]);
+				assertBoolean(res);
+				if (!res.value) return FALSE;
+			}
+			return TRUE;
+		}),
+
+		some: (target: VArr): VFn => FN_NATIVE(async ([fn], opts) => {
+			assertFunction(fn);
+			for (let i = 0; i < target.value.length; i++) {
+				const item = target.value[i]!;
+				const res = await opts.call(fn, [item, NUM(i)]);
+				assertBoolean(res);
+				if (res.value) return TRUE;
+			}
+			return FALSE;
 		}),
 	},
 
