@@ -237,7 +237,7 @@ export class Interpreter {
 		} else {
 			const _args = new Map<string, Variable>();
 			if (fn.args) for (let i = 0; i < fn.args.length; i++) {
-				if (fn.args[i]) _args.set(fn.args[i]!, {
+				if (args[i]) _args.set(fn.args[i]!, {
 					isMutable: true,
 					value: args[i]!,
 				});
