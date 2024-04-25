@@ -1,6 +1,7 @@
 [Read translated version (en)](./translations/en/CHANGELOG.md)
 
 # 未リリース分
+- `arr.flat`,`arr.flat_map`を追加
 
 # 0.18.0
 - `Core:abort`でプログラムを緊急停止できるように
@@ -14,7 +15,6 @@
 - ネストされた名前空間下の変数を参照できるように
 - `arr.every`, `arr.some`を追加
 - `Date:to_iso_str`を追加
-- `arr.flat`,`arr.flat_map`を追加
 
 # 0.17.0
 - `package.json`を修正
