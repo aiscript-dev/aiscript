@@ -23,7 +23,7 @@ type AddAssign_2 = NodeBase_2 & {
 };
 
 // @public (undocumented)
-export const AISCRIPT_VERSION: "0.18.0";
+export const AISCRIPT_VERSION: "0.19.0";
 
 // @public (undocumented)
 abstract class AiScriptError extends Error {
@@ -850,9 +850,11 @@ type Return_2 = NodeBase_2 & {
 
 // @public (undocumented)
 export class Scope {
-    constructor(layerdStates?: Scope['layerdStates'], parent?: Scope, name?: Scope['name']);
+    constructor(layerdStates?: Scope['layerdStates'], parent?: Scope, name?: Scope['name'], nsName?: string);
     add(name: string, variable: Variable): void;
     assign(name: string, val: Value): void;
+    // (undocumented)
+    createChildNamespaceScope(nsName: string, states?: Map<string, Variable>, name?: Scope['name']): Scope;
     // Warning: (ae-forgotten-export) The symbol "Variable" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
@@ -862,6 +864,8 @@ export class Scope {
     getAll(): Map<string, Variable>;
     // (undocumented)
     name: string;
+    // (undocumented)
+    nsName?: string;
     // (undocumented)
     opts: {
         log?(type: string, params: Record<string, any>): void;

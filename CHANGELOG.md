@@ -1,13 +1,20 @@
 [Read translated version (en)](./translations/en/CHANGELOG.md)
 
 # 未リリース分
+- `arr.reduce`が空配列に対して初期値なしで呼び出された時、正式にエラーを出すように
+
+# 0.18.0
 - `Core:abort`でプログラムを緊急停止できるように
 - `index_of`の配列版を追加
 - `str.index_of` `arr.index_of`共に第２引数fromIndexを受け付けるように
 - `arr.incl`の引数の型制限を廃止
 - `Date:millisecond`を追加
 - `arr.fill`, `arr.repeat`, `Arr:create`を追加
-- `arr.reduce`が空配列に対して初期値なしで呼び出された時、正式にエラーを出すように
+- JavaScriptのように分割代入ができるように（現段階では機能は最小限）
+- スコープおよび名前が同一である変数が宣言された際のエラーメッセージを修正
+- ネストされた名前空間下の変数を参照できるように
+- `arr.every`, `arr.some`を追加
+- `Date:to_iso_str`を追加
 
 # 0.17.0
 - `package.json`を修正
