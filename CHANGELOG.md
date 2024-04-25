@@ -1,5 +1,8 @@
 [Read translated version (en)](./translations/en/CHANGELOG.md)
 
+# 未リリース分
+- 関数の省略された引数は`exists`でfalseを返すように
+
 # 0.18.0
 - `Core:abort`でプログラムを緊急停止できるように
 - `index_of`の配列版を追加
