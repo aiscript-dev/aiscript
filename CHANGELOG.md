@@ -1,6 +1,8 @@
 [Read translated version (en)](./translations/en/CHANGELOG.md)
 
 # 未リリース分
+- 関数の省略された引数にNULLを格納するように
+  - 一時的な措置であり、省略可能引数構文の実装と同時に廃止予定です。依存し過ぎないようにしてください
 
 # 0.18.0
 - `Core:abort`でプログラムを緊急停止できるように
