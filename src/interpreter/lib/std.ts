@@ -183,37 +183,37 @@ export const std: Record<string, Value> = {
 
 	'Date:year': FN_NATIVE(([v]) => {
 		if (v) { assertNumber(v); }
-		return NUM(new Date(v?.value || Date.now()).getFullYear());
+		return NUM(new Date(v?.value ?? Date.now()).getFullYear());
 	}),
 
 	'Date:month': FN_NATIVE(([v]) => {
 		if (v) { assertNumber(v); }
-		return NUM(new Date(v?.value || Date.now()).getMonth() + 1);
+		return NUM(new Date(v?.value ?? Date.now()).getMonth() + 1);
 	}),
 
 	'Date:day': FN_NATIVE(([v]) => {
 		if (v) { assertNumber(v); }
-		return NUM(new Date(v?.value || Date.now()).getDate());
+		return NUM(new Date(v?.value ?? Date.now()).getDate());
 	}),
 
 	'Date:hour': FN_NATIVE(([v]) => {
 		if (v) { assertNumber(v); }
-		return NUM(new Date(v?.value || Date.now()).getHours());
+		return NUM(new Date(v?.value ?? Date.now()).getHours());
 	}),
 
 	'Date:minute': FN_NATIVE(([v]) => {
 		if (v) { assertNumber(v); }
-		return NUM(new Date(v?.value || Date.now()).getMinutes());
+		return NUM(new Date(v?.value ?? Date.now()).getMinutes());
 	}),
 
 	'Date:second': FN_NATIVE(([v]) => {
 		if (v) { assertNumber(v); }
-		return NUM(new Date(v?.value || Date.now()).getSeconds());
+		return NUM(new Date(v?.value ?? Date.now()).getSeconds());
 	}),
 
 	'Date:millisecond': FN_NATIVE(([v]) => {
 		if (v) { assertNumber(v); }
-		return NUM(new Date(v?.value || Date.now()).getMilliseconds());
+		return NUM(new Date(v?.value ?? Date.now()).getMilliseconds());
 	}),
 
 	'Date:parse': FN_NATIVE(([v]) => {
