@@ -1,6 +1,7 @@
 [Read translated version (en)](./translations/en/CHANGELOG.md)
 
 # 未リリース分
+- `Date:year`系の関数に0を渡すと現在時刻になる問題を修正
 
 # 0.18.0
 - `Core:abort`でプログラムを緊急停止できるように
