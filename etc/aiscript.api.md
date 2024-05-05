@@ -72,6 +72,7 @@ type And = NodeBase & {
     type: 'and';
     left: Expression;
     right: Expression;
+    operatorLoc: Loc;
 };
 
 // @public (undocumented)
@@ -79,6 +80,10 @@ type And_2 = NodeBase_2 & {
     type: 'and';
     left: Expression_2;
     right: Expression_2;
+    operatorLoc: {
+        start: number;
+        end: number;
+    };
 };
 
 // @public (undocumented)
@@ -782,6 +787,7 @@ type Or = NodeBase & {
     type: 'or';
     left: Expression;
     right: Expression;
+    operatorLoc: Loc;
 };
 
 // @public (undocumented)
@@ -789,6 +795,10 @@ type Or_2 = NodeBase_2 & {
     type: 'or';
     left: Expression_2;
     right: Expression_2;
+    operatorLoc: {
+        start: number;
+        end: number;
+    };
 };
 
 // @public (undocumented)

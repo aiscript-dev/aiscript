@@ -112,6 +112,7 @@ const infoTable: Record<string, Omit<InfixTree['info'], 'opLoc'>> = {
 				left: treeToNode(infix.left),
 				right: treeToNode(infix.right),
 				loc: { start: left.loc!.start, end: right.loc!.end },
+				operatorLoc: infix.info.opLoc,
 			} as Cst.And;
 		},
 		priority: 3,
@@ -125,6 +126,7 @@ const infoTable: Record<string, Omit<InfixTree['info'], 'opLoc'>> = {
 				left: treeToNode(infix.left),
 				right: treeToNode(infix.right),
 				loc: { start: left.loc!.start, end: right.loc!.end },
+				operatorLoc: infix.info.opLoc,
 			} as Cst.Or;
 		},
 		priority: 3,
