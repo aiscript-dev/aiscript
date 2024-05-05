@@ -556,6 +556,10 @@ type Infix = NodeBase_2 & {
     type: 'infix';
     operands: Expression_2[];
     operators: InfixOperator[];
+    operatorLocs: {
+        start: number;
+        end: number;
+    }[];
 };
 
 // @public (undocumented)

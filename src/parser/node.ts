@@ -150,6 +150,10 @@ export type Infix = NodeBase & {
 	type: 'infix';
 	operands: Expression[];
 	operators: InfixOperator[];
+	operatorLocs: {
+		start: number;
+		end: number;
+	}[];
 };
 
 export type Not = NodeBase & {
