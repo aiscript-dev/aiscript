@@ -2399,6 +2399,20 @@ describe('Location', () => {
 		if (!node.loc) assert.fail();
 		assert.deepEqual(node.loc, { start: 3, end: 13 });
 	});
+	test.concurrent('comment', async () => {
+		let node: Ast.Node;
+		const parser = new Parser();
+		const nodes = parser.parse(`
+		/*
+		*/
+		// hoge
+		@f(a) { a }
+		`);
+		assert.equal(nodes.length, 1);
+		node = nodes[0];
+		if (!node.loc) assert.fail();
+		assert.deepEqual(node.loc, { start: 23, end: 33 });
+	});
 });
 
 describe('Variable declaration', () => {
