@@ -76,10 +76,13 @@ function treeToNode(tree: InfixTree | Cst.Node): Cst.Node {
 	if (tree.info.mapFn) {
 		return tree.info.mapFn(tree);
 	} else {
+		const left = treeToNode(tree.left);
+		const right = treeToNode(tree.right);
 		return {
 			type: 'call',
 			target: { type: 'identifier', name: tree.info.func },
-			args: [treeToNode(tree.left), treeToNode(tree.right)],
+			args: [left, right],
+			loc: { start: left.loc!.start,end: right.loc!.end },
 		} as Cst.Call;
 	}
 }
@@ -98,19 +101,29 @@ const infoTable: Record<string, InfixTree['info']> = {
 	'<=': { func: 'Core:lteq', priority: 4 },
 	'>=': { func: 'Core:gteq', priority: 4 },
 	'&&': {
-		mapFn: infix => ({
-			type: 'and',
-			left: treeToNode(infix.left),
-			right: treeToNode(infix.right),
-		}) as Cst.And,
+		mapFn: infix => {
+			const left = treeToNode(infix.left);
+			const right = treeToNode(infix.right);
+			return {
+				type: 'and',
+				left: treeToNode(infix.left),
+				right: treeToNode(infix.right),
+				loc: { start: left.loc!.start, end: right.loc!.end },
+			} as Cst.And;
+		},
 		priority: 3,
 	},
 	'||': {
-		mapFn: infix => ({
-			type: 'or',
-			left: treeToNode(infix.left),
-			right: treeToNode(infix.right),
-		}) as Cst.Or,
+		mapFn: infix => {
+			const left = treeToNode(infix.left);
+			const right = treeToNode(infix.right);
+			return {
+				type: 'or',
+				left: treeToNode(infix.left),
+				right: treeToNode(infix.right),
+				loc: { start: left.loc!.start, end: right.loc!.end },
+			} as Cst.Or;
+		},
 		priority: 3,
 	},
 };
