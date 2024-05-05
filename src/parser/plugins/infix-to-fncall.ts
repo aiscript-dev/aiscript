@@ -2,6 +2,8 @@ import { visitNode } from '../visit.js';
 import { AiScriptSyntaxError } from '../../error.js';
 import type * as Cst from '../node.js';
 
+type Loc = { start: number, end: number };
+
 /**
  * 中置演算子式を表す木
  * 1 + 3 ならば次のようなイメージ
@@ -15,6 +17,7 @@ type InfixTree = {
 	left: InfixTree | Cst.Node;
 	right: InfixTree | Cst.Node;
 	info: {
+		opLoc: Loc;
 		priority: number; // 優先度（高いほど優先して計算される値）
 	} & ({
 		func: string; // 対応する関数名
@@ -80,14 +83,14 @@ function treeToNode(tree: InfixTree | Cst.Node): Cst.Node {
 		const right = treeToNode(tree.right);
 		return {
 			type: 'call',
-			target: { type: 'identifier', name: tree.info.func },
+			target: { type: 'identifier', name: tree.info.func, loc: tree.info.opLoc },
 			args: [left, right],
 			loc: { start: left.loc!.start,end: right.loc!.end },
 		} as Cst.Call;
 	}
 }
 
-const infoTable: Record<string, InfixTree['info']> = {
+const infoTable: Record<string, Omit<InfixTree['info'], 'opLoc'>> = {
 	'*': { func: 'Core:mul', priority: 7 },
 	'^': { func: 'Core:pow', priority: 7 },
 	'/': { func: 'Core:div', priority: 7 },
@@ -132,12 +135,12 @@ const infoTable: Record<string, InfixTree['info']> = {
  * NInfix を関数呼び出し形式に変換する
  */
 function transform(node: Cst.Infix): Cst.Node {
-	const infos = node.operators.map(op => {
+	const infos = node.operators.map((op, i) => {
 		const info = infoTable[op];
 		if (info == null) {
 			throw new AiScriptSyntaxError(`No such operator: ${op}.`);
 		}
-		return info;
+		return { ...info, opLoc: node.operatorLocs[i] } as InfixTree['info'];
 	});
 	let currTree = INFIX_TREE(node.operands[0]!, node.operands[1]!, infos[0]!);
 	for (let i = 0; i < infos.length - 1; i++) {
