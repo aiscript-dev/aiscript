@@ -28,9 +28,8 @@ PreprocessPart
 	/ .
 
 Comment
-	= "//" (!EOL .)* { return ''; }
-	/ "/*" (!"*/" .)* "*/" { return ''; }
-
+	= "//" (!EOL .)* { return ' '.repeat(text().length); }
+	/ "/*" (!"*/" .)* "*/" { return text().replace(/[^\n]/g, ' '); }
 
 //
 // main parser
