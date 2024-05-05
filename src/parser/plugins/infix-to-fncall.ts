@@ -109,8 +109,8 @@ const infoTable: Record<string, Omit<InfixTree['info'], 'opLoc'>> = {
 			const right = treeToNode(infix.right);
 			return {
 				type: 'and',
-				left: treeToNode(infix.left),
-				right: treeToNode(infix.right),
+				left,
+				right,
 				loc: { start: left.loc!.start, end: right.loc!.end },
 				operatorLoc: infix.info.opLoc,
 			} as Cst.And;
@@ -123,8 +123,8 @@ const infoTable: Record<string, Omit<InfixTree['info'], 'opLoc'>> = {
 			const right = treeToNode(infix.right);
 			return {
 				type: 'or',
-				left: treeToNode(infix.left),
-				right: treeToNode(infix.right),
+				left,
+				right,
 				loc: { start: left.loc!.start, end: right.loc!.end },
 				operatorLoc: infix.info.opLoc,
 			} as Cst.Or;
