@@ -6,6 +6,8 @@
  * この処理結果がプラグインによって処理されるとASTノードとなります。
 */
 
+import type { Loc } from '../node.js';
+
 export type Node = Namespace | Meta | Statement | Expression | ChainMember | TypeSource;
 
 export type Statement =
@@ -59,10 +61,7 @@ export function isExpression(x: Node): x is Expression {
 
 type NodeBase = {
 	__AST_NODE: never; // phantom type
-	loc?: {
-		start: number;
-		end: number;
-	};
+	loc?: Loc;
 };
 
 export type Namespace = NodeBase & {
@@ -150,10 +149,7 @@ export type Infix = NodeBase & {
 	type: 'infix';
 	operands: Expression[];
 	operators: InfixOperator[];
-	operatorLocs: {
-		start: number;
-		end: number;
-	}[];
+	operatorLocs: Loc[];
 };
 
 export type Not = NodeBase & {
@@ -165,20 +161,14 @@ export type And = NodeBase & {
 	type: 'and';
 	left: Expression;
 	right: Expression;
-	operatorLoc: {
-		start: number;
-		end: number;
-	};
+	operatorLoc: Loc;
 }
 
 export type Or = NodeBase & {
 	type: 'or';
 	left: Expression;
 	right: Expression;
-	operatorLoc: {
-		start: number;
-		end: number;
-	};
+	operatorLoc: Loc;
 }
 
 export type If = NodeBase & {

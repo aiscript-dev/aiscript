@@ -1,8 +1,7 @@
 import { visitNode } from '../visit.js';
 import { AiScriptSyntaxError } from '../../error.js';
 import type * as Cst from '../node.js';
-
-type Loc = { start: number, end: number };
+import type { Loc } from '../../node.js';
 
 /**
  * 中置演算子式を表す木
