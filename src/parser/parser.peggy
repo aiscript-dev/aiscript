@@ -282,7 +282,8 @@ Infix
 {
 	return createNode('infix', {
 		operands: [head, ...tail.map(i => i.term)],
-		operators: tail.map(i => i.op)
+		operators: tail.map(i => i.op.value),
+		operatorLocs: tail.map(i => i.op.loc),
 	});
 }
 
@@ -292,7 +293,13 @@ InfixSp
 
 Op
 	= ("||" / "&&" / "==" / "!=" / "<=" / ">=" / "<" / ">" / "+" / "-" / "*" / "^" / "/" / "%")
-{ return text(); }
+{
+	const loc = location();
+	return {
+		value: text(),
+		loc: { start: loc.start.offset, end: loc.end.offset - 1 },
+	};
+}
 
 Not
 	= "!" expr:Expr
