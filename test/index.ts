@@ -2642,6 +2642,22 @@ describe('primitive props', () => {
 				STR("abc"), STR("abc"), STR("abc"), STR("abc"), STR("0abc"), STR("01abc"),
 			]));
 		});
+
+		test.concurrent("pad_end", async () => {
+			const res = await exe(`
+			let str = "abc"
+			<: [
+				str.pad_end(0), str.pad_end(1), str.pad_end(2), str.pad_end(3), str.pad_end(4), str.pad_end(5),
+				str.pad_end(0, "0"), str.pad_end(1, "0"), str.pad_end(2, "0"), str.pad_end(3, "0"), str.pad_end(4, "0"), str.pad_end(5, "0"),
+				str.pad_end(0, "01"), str.pad_end(1, "01"), str.pad_end(2, "01"), str.pad_end(3, "01"), str.pad_end(4, "01"), str.pad_end(5, "01"),
+			]
+			`);
+			eq(res, ARR([
+				STR("abc"), STR("abc"), STR("abc"), STR("abc"), STR("abc "), STR("abc  "),
+				STR("abc"), STR("abc"), STR("abc"), STR("abc"), STR("abc0"), STR("abc00"),
+				STR("abc"), STR("abc"), STR("abc"), STR("abc"), STR("abc0"), STR("abc01"),
+			]));
+		});
 	});
 
 	describe('arr', () => {
