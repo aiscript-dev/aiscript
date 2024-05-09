@@ -2931,7 +2931,8 @@ describe('primitive props', () => {
 				res.push(arr1.insert(-1, 40)) // [30, 0, 1, 20, 2, 40, 10]
 				res.push(arr1.insert(-4, 50)) // [30, 0, 1, 50, 20, 2, 40, 10]
 				res.push(arr1.insert(100, 60)) // [30, 0, 1, 50, 20, 2, 40, 10, 60]
-				<: [null,null,null,null,null,null,arr1]
+				res.push(arr1)
+				<: res
 			`);
 			eq(res, ARR([
 				NULL, NULL, NULL, NULL, NULL, NULL, 
