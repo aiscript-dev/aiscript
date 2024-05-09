@@ -3,7 +3,7 @@
 # 未リリース分
 - `Date:year`系の関数に0を渡すと現在時刻になる問題を修正
 - シンタックスエラーなどの位置情報を修正
-- `str.starts_with`を追加
+- `str.starts_with`,`str.ends_with`を追加
 
 # 0.18.0
 - `Core:abort`でプログラムを緊急停止できるように

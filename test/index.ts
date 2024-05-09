@@ -2668,6 +2668,48 @@ describe('primitive props', () => {
 				TRUE, FALSE,
 			]));
 		});
+
+		test.concurrent('ends_with (no index)', async () => {
+			const res = await exe(`
+			let str = "hello"
+			let empty = ""
+			<: [
+				str.ends_with(""), str.ends_with("hello"),
+				str.ends_with("lo"), str.ends_with("ell"),
+				empty.ends_with(""), empty.ends_with("he"),
+			]
+			`);
+			eq(res, ARR([
+				TRUE, TRUE,
+				TRUE, FALSE,
+				TRUE, FALSE,
+			]));
+		});
+
+		test.concurrent('ends_with (with index)', async () => {
+			const res = await exe(`
+			let str = "hello"
+			let empty = ""
+			<: [
+				str.ends_with("", 3), str.ends_with("lo", 5),
+				str.ends_with("ll", 4), str.ends_with("he", 2),
+				str.ends_with("ll", -1), str.ends_with("he", -3),
+				str.ends_with("he", 5), str.ends_with("lo", 3),
+				str.ends_with("lo", -6), str.ends_with("", -7),
+				str.ends_with("lo", 6), str.ends_with("", 7),
+				empty.ends_with("", 2), empty.ends_with("ll", 2),
+			]
+			`);
+			eq(res, ARR([
+				TRUE, TRUE,
+				TRUE, TRUE,
+				TRUE, TRUE,
+				FALSE, FALSE,
+				FALSE, TRUE,
+				FALSE, TRUE,
+				TRUE, FALSE,
+			]));
+		});
 	});
 
 	describe('arr', () => {

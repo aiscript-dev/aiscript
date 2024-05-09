@@ -134,6 +134,22 @@ const PRIMITIVE_PROPS: {
 			const index = (raw_index >= 0) ? raw_index : target.value.length + raw_index;
 			return target.value.startsWith(prefix.value, index) ? TRUE : FALSE;
 		}),
+
+		ends_with: (target: VStr): VFn => FN_NATIVE(async ([suffix, end_index], _opts) => {
+			assertString(suffix);
+			if (!suffix.value) {
+				return TRUE;
+			}
+
+			if (end_index) assertNumber(end_index);
+			const raw_index = end_index?.value ?? target.value.length;
+			if (raw_index < -target.value.length || raw_index > target.value.length) {
+				return FALSE;
+			}
+			const index = (raw_index >= 0) ? raw_index : target.value.length + raw_index;
+
+			return target.value.endsWith(suffix.value, index) ? TRUE : FALSE;
+		}),
 	},
 
 	arr: {

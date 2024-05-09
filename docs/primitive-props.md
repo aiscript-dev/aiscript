@@ -69,6 +69,13 @@ _start\_index_ が指定されている場合、そのインデックスから�
 _start\_index_ が`v_.len`より大きいか`-v.len`より小さい場合は`false`を返します。\
 _start\_index_ が負の場合は末尾から数えます。
 
+### @(_v_: str).ends_with(_suffix_: str, _end\_index_?: num): bool
+文字列が _suffix_ で終わっていれば`true`、そうでなければ`false`を返します。\
+_suffix_ が空文字列の場合は常に`true`を返します。\
+_end\_index_ が指定されている場合、そのインデックスの直前を末尾とします。\
+_end\_index_ が`v_.len`より大きいか`-v.len`より小さい場合は`false`を返します。\
+_end\_index_ が負の場合は末尾から数えます。
+
 ### @(_v_: str).slice(_begin_: num, _end_: num): str
 文字列の _begin_ 番目から _end_ 番目の直前までの部分を取得します。  
 
