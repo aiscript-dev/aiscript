@@ -301,6 +301,15 @@ const PRIMITIVE_PROPS: {
 			}
 			return FALSE;
 		}),
+
+		insert: (target: VArr): VFn => FN_NATIVE(async ([index, item], opts) => {
+			assertNumber(index);
+			expectAny(item);
+
+			target.value.splice(index.value, 0, item);
+
+			return NULL;
+		}),
 	},
 
 	error: {

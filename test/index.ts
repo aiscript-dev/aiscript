@@ -2920,6 +2920,24 @@ describe('primitive props', () => {
 				FALSE,
 			]));
 		});
+		
+		test.concurrent('insert', async () => {
+			const res = await exe(`
+				let arr1 = [0, 1, 2]
+				let res = []
+				res.push(arr1.insert(3, 10)) // [0, 1, 2, 10]
+				res.push(arr1.insert(2, 20)) // [0, 1, 20, 2, 10]
+				res.push(arr1.insert(0, 30)) // [30, 0, 1, 20, 2, 10]
+				res.push(arr1.insert(-1, 40)) // [30, 0, 1, 20, 2, 40, 10]
+				res.push(arr1.insert(-4, 50)) // [30, 0, 1, 50, 20, 2, 40, 10]
+				res.push(arr1.insert(100, 60)) // [30, 0, 1, 50, 20, 2, 40, 10, 60]
+				<: [null,null,null,null,null,null,arr1]
+			`);
+			eq(res, ARR([
+				NULL, NULL, NULL, NULL, NULL, NULL, 
+				ARR([NUM(30), NUM(0), NUM(1), NUM(50), NUM(20), NUM(2), NUM(40), NUM(10), NUM(60)])
+			]));
+		});
 	});
 });
 
