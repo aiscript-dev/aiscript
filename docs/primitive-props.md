@@ -66,14 +66,14 @@ Core:range(0,2).push(4) //[0,1,2,4]
 文字列が _prefix_ で始まっていれば`true`、そうでなければ`false`を返します。\
 _prefix_ が空文字列の場合は常に`true`を返します。\
 _start\_index_ が指定されている場合、そのインデックスから始めます。\
-_start\_index_ が`v_.len`より大きいか`-v.len`より小さい場合は`false`を返します。\
+_start\_index_ が`v.len`より大きいか`-v.len`より小さい場合は`false`を返します。\
 _start\_index_ が負の場合は末尾から数えます。
 
 ### @(_v_: str).ends_with(_suffix_: str, _end\_index_?: num): bool
 文字列が _suffix_ で終わっていれば`true`、そうでなければ`false`を返します。\
 _suffix_ が空文字列の場合は常に`true`を返します。\
-_end\_index_ が指定されている場合、そのインデックスの直前を末尾とします。\
-_end\_index_ が`v_.len`より大きいか`-v.len`より小さい場合は`false`を返します。\
+_end\_index_ が指定されている場合、そのインデックスの直前を末尾とします。（省略時は`v.len`）\
+_end\_index_ が`v.len`より大きいか`-v.len`より小さい場合は`false`を返します。\
 _end\_index_ が負の場合は末尾から数えます。
 
 ### @(_v_: str).slice(_begin_: num, _end_: num): str
