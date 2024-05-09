@@ -2626,6 +2626,48 @@ describe('primitive props', () => {
 				ARR([NUM(97), NUM(98), NUM(99), NUM(240), NUM(169), NUM(184), NUM(189), NUM(240), NUM(159), NUM(145), NUM(137), NUM(240), NUM(159), NUM(143), NUM(191), NUM(240), NUM(159), NUM(145), NUM(168), NUM(226), NUM(128), NUM(141), NUM(240), NUM(159), NUM(145), NUM(166), NUM(100), NUM(101), NUM(102)])
 			);
 		});
+
+		test.concurrent('starts_with (no index)', async () => {
+			const res = await exe(`
+			let str = "hello"
+			let empty = ""
+			<: [
+				str.starts_with(""), str.starts_with("hello"),
+				str.starts_with("he"), str.starts_with("ell"),
+				empty.starts_with(""), empty.starts_with("he"),
+			]
+			`);
+			eq(res, ARR([
+				TRUE, TRUE,
+				TRUE, FALSE,
+				TRUE, FALSE, 
+			]));
+		});
+
+		test.concurrent('starts_with (with index)', async () => {
+			const res = await exe(`
+			let str = "hello"
+			let empty = ""
+			<: [
+				str.starts_with("", 4), str.starts_with("he", 0),
+				str.starts_with("ll", 2), str.starts_with("lo", 3),
+				str.starts_with("lo", -2), str.starts_with("hel", -5),
+				str.starts_with("he", 2), str.starts_with("loa", 3),
+				str.starts_with("lo", -6), str.starts_with("", -7),
+				str.starts_with("lo", 6), str.starts_with("", 7),
+				empty.starts_with("", 2), empty.starts_with("ll", 2),
+			]
+			`);
+			eq(res, ARR([
+				TRUE, TRUE,
+				TRUE, TRUE,
+				TRUE, TRUE,
+				FALSE, FALSE,
+				FALSE, TRUE,
+				FALSE, TRUE,
+				TRUE, FALSE,
+			]));
+		});
 	});
 
 	describe('arr', () => {

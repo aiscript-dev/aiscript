@@ -119,6 +119,21 @@ const PRIMITIVE_PROPS: {
 			const res = target.value.codePointAt(i.value) ?? target.value.charCodeAt(i.value);
 			return Number.isNaN(res) ? NULL : NUM(res);
 		}),
+
+		starts_with: (target: VStr): VFn => FN_NATIVE(async ([prefix, start_index], _opts) => {
+			assertString(prefix);
+			if (!prefix.value) {
+				return TRUE;
+			}
+
+			if (start_index) assertNumber(start_index);
+			const raw_index = start_index?.value ?? 0;
+			if (raw_index < -target.value.length || raw_index > target.value.length) {
+				return FALSE;
+			}
+			const index = (raw_index >= 0) ? raw_index : target.value.length + raw_index;
+			return target.value.startsWith(prefix.value, index) ? TRUE : FALSE;
+		}),
 	},
 
 	arr: {
