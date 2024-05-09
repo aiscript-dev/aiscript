@@ -2626,6 +2626,22 @@ describe('primitive props', () => {
 				ARR([NUM(97), NUM(98), NUM(99), NUM(240), NUM(169), NUM(184), NUM(189), NUM(240), NUM(159), NUM(145), NUM(137), NUM(240), NUM(159), NUM(143), NUM(191), NUM(240), NUM(159), NUM(145), NUM(168), NUM(226), NUM(128), NUM(141), NUM(240), NUM(159), NUM(145), NUM(166), NUM(100), NUM(101), NUM(102)])
 			);
 		});
+
+		test.concurrent("pad_start", async () => {
+			const res = await exe(`
+			let str = "abc"
+			<: [
+				str.pad_start(0), str.pad_start(1), str.pad_start(2), str.pad_start(3), str.pad_start(4), str.pad_start(5),
+				str.pad_start(0, "0"), str.pad_start(1, "0"), str.pad_start(2, "0"), str.pad_start(3, "0"), str.pad_start(4, "0"), str.pad_start(5, "0"),
+				str.pad_start(0, "01"), str.pad_start(1, "01"), str.pad_start(2, "01"), str.pad_start(3, "01"), str.pad_start(4, "01"), str.pad_start(5, "01"),
+			]
+			`);
+			eq(res, ARR([
+				STR("abc"), STR("abc"), STR("abc"), STR("abc"), STR(" abc"), STR("  abc"),
+				STR("abc"), STR("abc"), STR("abc"), STR("abc"), STR("0abc"), STR("00abc"),
+				STR("abc"), STR("abc"), STR("abc"), STR("abc"), STR("0abc"), STR("01abc"),
+			]));
+		});
 	});
 
 	describe('arr', () => {
