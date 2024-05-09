@@ -2399,6 +2399,20 @@ describe('Location', () => {
 		if (!node.loc) assert.fail();
 		assert.deepEqual(node.loc, { start: 3, end: 13 });
 	});
+	test.concurrent('comment', async () => {
+		let node: Ast.Node;
+		const parser = new Parser();
+		const nodes = parser.parse(`
+		/*
+		*/
+		// hoge
+		@f(a) { a }
+		`);
+		assert.equal(nodes.length, 1);
+		node = nodes[0];
+		if (!node.loc) assert.fail();
+		assert.deepEqual(node.loc, { start: 23, end: 33 });
+	});
 });
 
 describe('Variable declaration', () => {
@@ -3217,6 +3231,55 @@ describe('std', () => {
 	});
 
 	describe('Date', () => {
+		test.concurrent('year', async () => {
+			const res = await exe(`
+				<: [Date:year(0), Date:year(1714946889010)]
+			`);
+			eq(res.value, [NUM(1970), NUM(2024)]);
+		});
+
+		test.concurrent('month', async () => {
+			const res = await exe(`
+				<: [Date:month(0), Date:month(1714946889010)]
+			`);
+			eq(res.value, [NUM(1), NUM(5)]);
+		});
+
+		test.concurrent('day', async () => {
+			const res = await exe(`
+				<: [Date:day(0), Date:day(1714946889010)]
+			`);
+			eq(res.value, [NUM(1), NUM(6)]);
+		});
+
+		test.concurrent('hour', async () => {
+			const res = await exe(`
+				<: [Date:hour(0), Date:hour(1714946889010)]
+			`);
+			eq(res.value, [NUM(0), NUM(7)]);
+		});
+
+		test.concurrent('minute', async () => {
+			const res = await exe(`
+				<: [Date:minute(0), Date:minute(1714946889010)]
+			`);
+			eq(res.value, [NUM(0), NUM(8)]);
+		});
+
+		test.concurrent('second', async () => {
+			const res = await exe(`
+				<: [Date:second(0), Date:second(1714946889010)]
+			`);
+			eq(res.value, [NUM(0), NUM(9)]);
+		});
+
+		test.concurrent('millisecond', async () => {
+			const res = await exe(`
+				<: [Date:millisecond(0), Date:millisecond(1714946889010)]
+			`);
+			eq(res.value, [NUM(0), NUM(10)]);
+		});
+
 		test.concurrent('to_iso_str', async () => {
 			const res = await exe(`
 				let d1 = Date:parse("2024-04-12T01:47:46.021+09:00")
