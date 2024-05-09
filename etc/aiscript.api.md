@@ -72,6 +72,7 @@ type And = NodeBase & {
     type: 'and';
     left: Expression;
     right: Expression;
+    operatorLoc: Loc;
 };
 
 // @public (undocumented)
@@ -79,6 +80,7 @@ type And_2 = NodeBase_2 & {
     type: 'and';
     left: Expression_2;
     right: Expression_2;
+    operatorLoc: Loc;
 };
 
 // @public (undocumented)
@@ -556,6 +558,7 @@ type Infix = NodeBase_2 & {
     type: 'infix';
     operands: Expression_2[];
     operators: InfixOperator[];
+    operatorLocs: Loc[];
 };
 
 // @public (undocumented)
@@ -706,7 +709,7 @@ type Namespace_2 = NodeBase_2 & {
 // @public (undocumented)
 type Node_2 = Namespace | Meta | Statement | Expression | TypeSource;
 
-// @public
+// @public (undocumented)
 type Node_3 = Namespace_2 | Meta_2 | Statement_2 | Expression_2 | ChainMember | TypeSource_2;
 
 // @public
@@ -778,6 +781,7 @@ type Or = NodeBase & {
     type: 'or';
     left: Expression;
     right: Expression;
+    operatorLoc: Loc;
 };
 
 // @public (undocumented)
@@ -785,6 +789,7 @@ type Or_2 = NodeBase_2 & {
     type: 'or';
     left: Expression_2;
     right: Expression_2;
+    operatorLoc: Loc;
 };
 
 // @public (undocumented)
