@@ -16,12 +16,19 @@
 - **Breaking Change** 組み込み関数`Num:to_hex`は組み込みプロパティ`num#to_hex`に移動しました。
 
 # 未リリース分
+
+# 0.18.0
 - `Core:abort`でプログラムを緊急停止できるように
 - `index_of`の配列版を追加
 - `str.index_of` `arr.index_of`共に第２引数fromIndexを受け付けるように
 - `arr.incl`の引数の型制限を廃止
 - `Date:millisecond`を追加
 - `arr.fill`, `arr.repeat`, `Arr:create`を追加
+- JavaScriptのように分割代入ができるように（現段階では機能は最小限）
+- スコープおよび名前が同一である変数が宣言された際のエラーメッセージを修正
+- ネストされた名前空間下の変数を参照できるように
+- `arr.every`, `arr.some`を追加
+- `Date:to_iso_str`を追加
 
 # 0.17.0
 - `package.json`を修正

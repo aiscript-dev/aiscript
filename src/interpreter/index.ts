@@ -167,11 +167,11 @@ export class Interpreter {
 	}
 
 	@autobind
-	private async collectNs(script: Ast.Node[]): Promise<void> {
+	private async collectNs(script: Ast.Node[], scope = this.scope): Promise<void> {
 		for (const node of script) {
 			switch (node.type) {
 				case 'ns': {
-					await this.collectNsMember(node);
+					await this.collectNsMember(node, scope);
 					break;
 				}
 
@@ -183,8 +183,10 @@ export class Interpreter {
 	}
 
 	@autobind
-	private async collectNsMember(ns: Ast.Namespace): Promise<void> {
-		const scope = this.scope.createChildScope();
+	private async collectNsMember(ns: Ast.Namespace, scope = this.scope): Promise<void> {
+		const nsScope = scope.createChildNamespaceScope(ns.name);
+
+		await this.collectNs(ns.members, nsScope);
 
 		for (const node of ns.members) {
 			switch (node.type) {
@@ -195,16 +197,15 @@ export class Interpreter {
 
 					const variable: Variable = {
 						isMutable: node.mut,
-						value: await this._eval(node.expr, scope),
+						value: await this._eval(node.expr, nsScope),
 					};
-					scope.add(node.name, variable);
+					nsScope.add(node.name, variable);
 
-					this.scope.add(ns.name + ':' + node.name, variable);
 					break;
 				}
 
 				case 'ns': {
-					break; // TODO
+					break; // nop
 				}
 
 				default: {
