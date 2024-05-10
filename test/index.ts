@@ -3214,6 +3214,23 @@ describe('primitive props', () => {
 			`);
 			eq(res, ARR([OBJ(new Map([['x', NUM(2)]])), OBJ(new Map([['x', NUM(3)]])), OBJ(new Map([['x', NUM(10)]]))]));
 		});
+
+		test.concurrent('sort (stable)', async () => {
+			const res = await exe(`
+				var arr = [[2, 0], [10, 1], [3, 2], [3, 3], [2, 4]]
+				let comp = @(a, b) { a[0] - b[0] }
+
+				arr.sort(comp)
+				<: arr
+			`);
+			eq(res, ARR([
+				ARR([NUM(2), NUM(0)]),
+				ARR([NUM(2), NUM(4)]),
+				ARR([NUM(3), NUM(2)]),
+				ARR([NUM(3), NUM(3)]),
+				ARR([NUM(10), NUM(1)]),
+			]));
+		});
 		
 		test.concurrent('fill', async () => {
 			const res = await exe(`

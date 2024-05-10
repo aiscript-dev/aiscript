@@ -248,7 +248,7 @@ const PRIMITIVE_PROPS: {
 					const r = right[rightIndex]!;
 					const compValue = await opts.call(comp, [l, r]);
 					assertNumber(compValue);
-					if (compValue.value < 0) {
+					if (compValue.value <= 0) {
 						result.push(left[leftIndex]!);
 						leftIndex++;
 					} else {
