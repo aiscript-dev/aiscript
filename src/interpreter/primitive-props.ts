@@ -197,6 +197,7 @@ const PRIMITIVE_PROPS: {
 		reduce: (target: VArr): VFn => FN_NATIVE(async ([fn, initialValue], opts) => {
 			assertFunction(fn);
 			const withInitialValue = initialValue != null;
+			if (!withInitialValue && (target.value.length === 0)) throw new AiScriptRuntimeError('Reduce of empty array without initial value');
 			let accumulator = withInitialValue ? initialValue : target.value[0]!;
 			for (let i = withInitialValue ? 0 : 1; i < target.value.length; i++) {
 				const item = target.value[i]!;
