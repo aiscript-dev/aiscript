@@ -3,6 +3,7 @@
 # 未リリース分
 - `Date:year`系の関数に0を渡すと現在時刻になる問題を修正
 - シンタックスエラーなどの位置情報を修正
+- `arr.reduce`が空配列に対して初期値なしで呼び出された時、正式にエラーを出すよう
 - `Uri:encode_full`, `Uri:encode_component`, `Uri:decode_full`, `Uri:decode_component`を追加
 
 # 0.18.0
