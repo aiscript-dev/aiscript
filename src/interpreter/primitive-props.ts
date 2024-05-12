@@ -326,6 +326,22 @@ const PRIMITIVE_PROPS: {
 				throw e;
 			}
 		}),
+		
+		splice: (target: VArr): VFn => FN_NATIVE(async ([idx, rc, vs], opts) => {
+			assertNumber(idx);
+			const index = (idx.value < -target.value.length) ? 0
+						: (idx.value < 0) ? target.value.length + idx.value
+						: (idx.value >= target.value.length) ? target.value.length
+						: idx.value;
+
+			const remove_count = (rc != null) ? (assertNumber(rc), rc.value)
+								: target.value.length - index;
+
+			const items = (vs != null) ? (assertArray(vs), vs.value) : [];
+
+			const result = target.value.splice(index, remove_count, ...items);
+			return ARR(result);
+		}),
 
 		flat: (target: VArr): VFn => FN_NATIVE(async ([depth], opts) => {
 			depth = depth ?? NUM(1);

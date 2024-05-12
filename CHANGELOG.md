@@ -10,6 +10,7 @@
 - `arr.flat`,`arr.flat_map`を追加
 - `Uri:encode_full`, `Uri:encode_component`, `Uri:decode_full`, `Uri:decode_component`を追加
 - `str.starts_with`,`str.ends_with`を追加
+- `arr.splice`を追加
 
 # 0.18.0
 - `Core:abort`でプログラムを緊急停止できるように
