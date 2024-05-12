@@ -196,6 +196,14 @@ _fromIndex_ および _toIndex_ に関する挙動は`arr.slice`に準拠しま�
 `arr.copy`同様シャローコピーであり、配列やオブジェクトの参照は維持されます。  
 _times_ には0以上の整数値を指定します。それ以外ではエラーになります。  
 
+### @(_v_: arr).flat(_depth_?: num): arr
+配列に含まれる配列を _depth_ で指定した深さの階層まで結合した新しい配列を作成します。  
+_depth_ には0以上の整数値を指定します。省略時は1になります。  
+
+### @(_v_: arr).flat_map(_func_: @(_item_: value, _index_: num) { value }): arr
+配列の各要素を _func_ の返り値で置き換えた後、1階層平坦化した新しい配列を作成します。  
+_func_ は非同期的に呼び出されます。
+
 ### @(_v_: arr).insert(_index_: num, _item_: value): null
 **【この操作は配列を書き換えます】**  
 配列の _index_ の位置に _item_ を挿入します。\

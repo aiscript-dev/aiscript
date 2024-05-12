@@ -2,7 +2,7 @@
 import { substring, length, indexOf, toArray } from 'stringz';
 import { AiScriptRuntimeError } from '../error.js';
 import { textEncoder } from '../const.js';
-import { assertArray, assertBoolean, assertFunction, assertNumber, assertString, expectAny, eq } from './util.js';
+import { assertArray, assertBoolean, assertFunction, assertNumber, assertString, expectAny, eq, isArray } from './util.js';
 import { ARR, FALSE, FN_NATIVE, NULL, NUM, STR, TRUE } from './value.js';
 import type { Value, VArr, VFn, VNum, VStr, VError } from './value.js';
 
@@ -295,6 +295,39 @@ const PRIMITIVE_PROPS: {
 				throw e;
 			}
 		}),
+
+		flat: (target: VArr): VFn => FN_NATIVE(async ([depth], opts) => {
+			depth = depth ?? NUM(1);
+			assertNumber(depth);
+			if (!Number.isInteger(depth.value)) throw new AiScriptRuntimeError('arr.flat expected integer, got non-integer');
+			if (depth.value < 0) throw new AiScriptRuntimeError('arr.flat expected non-negative number, got negative');
+			const flat = (arr: Value[], depth: number, result: Value[]) => {
+				if (depth === 0) {
+					result.push(...arr);
+					return;
+				}
+				for (const v of arr) {
+					if (isArray(v)) {
+						flat(v.value, depth - 1, result);
+					} else {
+						result.push(v);
+					}
+				}
+			};
+			const result: Value[] = [];
+			flat(target.value, depth.value, result);
+			return ARR(result);
+		}),
+
+		flat_map: (target: VArr): VFn => FN_NATIVE(async ([fn], opts) => {
+			assertFunction(fn);
+			const vals = target.value.map(async (item, i) => {
+				const result = await opts.call(fn, [item, NUM(i)]);
+				return isArray(result) ? result.value : result;
+			});
+			const mapped_vals = await Promise.all(vals);
+			return ARR(mapped_vals.flat());
+    }),
 
 		every: (target: VArr): VFn => FN_NATIVE(async ([fn], opts) => {
 			assertFunction(fn);
