@@ -316,6 +316,23 @@ const PRIMITIVE_PROPS: {
 			}
 			return FALSE;
 		}),
+
+		insert: (target: VArr): VFn => FN_NATIVE(async ([index, item], opts) => {
+			assertNumber(index);
+			expectAny(item);
+
+			target.value.splice(index.value, 0, item);
+
+			return NULL;
+		}),
+
+		remove: (target: VArr): VFn => FN_NATIVE(async ([index], opts) => {
+			assertNumber(index);
+
+			const removed = target.value.splice(index.value, 1);
+
+			return removed[0] ?? NULL;
+		}),
 	},
 
 	error: {

@@ -2960,6 +2960,44 @@ describe('primitive props', () => {
 				FALSE,
 			]));
 		});
+		
+		test.concurrent('insert', async () => {
+			const res = await exe(`
+				let arr1 = [0, 1, 2]
+				let res = []
+				res.push(arr1.insert(3, 10)) // [0, 1, 2, 10]
+				res.push(arr1.insert(2, 20)) // [0, 1, 20, 2, 10]
+				res.push(arr1.insert(0, 30)) // [30, 0, 1, 20, 2, 10]
+				res.push(arr1.insert(-1, 40)) // [30, 0, 1, 20, 2, 40, 10]
+				res.push(arr1.insert(-4, 50)) // [30, 0, 1, 50, 20, 2, 40, 10]
+				res.push(arr1.insert(100, 60)) // [30, 0, 1, 50, 20, 2, 40, 10, 60]
+				res.push(arr1)
+				<: res
+			`);
+			eq(res, ARR([
+				NULL, NULL, NULL, NULL, NULL, NULL, 
+				ARR([NUM(30), NUM(0), NUM(1), NUM(50), NUM(20), NUM(2), NUM(40), NUM(10), NUM(60)])
+			]));
+		});
+		
+		test.concurrent('remove', async () => {
+			const res = await exe(`
+				let arr1 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+				let res = []
+				res.push(arr1.remove(9)) // 9 [0, 1, 2, 3, 4, 5, 6, 7, 8]
+				res.push(arr1.remove(3)) // 3 [0, 1, 2, 4, 5, 6, 7, 8]
+				res.push(arr1.remove(0)) // 0 [1, 2, 4, 5, 6, 7, 8]
+				res.push(arr1.remove(-1)) // 8 [1, 2, 4, 5, 6, 7]
+				res.push(arr1.remove(-5)) // 2 [1, 4, 5, 6, 7]
+				res.push(arr1.remove(100)) // null [1, 4, 5, 6, 7]
+				res.push(arr1)
+				<: res
+			`);
+			eq(res, ARR([
+				NUM(9), NUM(3), NUM(0), NUM(8), NUM(2), NULL, 
+				ARR([NUM(1), NUM(4), NUM(5), NUM(6), NUM(7)])
+			]));
+		});
 	});
 });
 

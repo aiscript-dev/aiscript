@@ -5,6 +5,7 @@
 - シンタックスエラーなどの位置情報を修正
 - `arr.reduce`が空配列に対して初期値なしで呼び出された時、正式にエラーを出すよう
 - `str.pad_start`,`str.pad_end`を追加
+- `arr.insert`,`arr.remove`を追加
 
 # 0.18.0
 - `Core:abort`でプログラムを緊急停止できるように
