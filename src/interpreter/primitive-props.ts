@@ -246,8 +246,9 @@ const PRIMITIVE_PROPS: {
 			const mergeSort = async (arr: Value[], comp: VFn): Promise<Value[]> => {
 				if (arr.length <= 1) return arr;
 				const mid = Math.floor(arr.length / 2);
-				const left = await mergeSort(arr.slice(0, mid), comp);
-				const right = await mergeSort(arr.slice(mid), comp);
+				const left_promise = mergeSort(arr.slice(0, mid), comp);
+				const right_promise = mergeSort(arr.slice(mid), comp);
+				const [left, right] = await Promise.all([left_promise, right_promise]);
 				return merge(left, right, comp);
 			};
 			const merge = async (left: Value[], right: Value[], comp: VFn): Promise<Value[]> => {
