@@ -2,7 +2,7 @@
 import { substring, length, indexOf, toArray } from 'stringz';
 import { AiScriptRuntimeError } from '../error.js';
 import { textEncoder } from '../const.js';
-import { assertArray, assertBoolean, assertFunction, assertNumber, assertString, expectAny, eq } from './util.js';
+import { assertArray, assertBoolean, assertFunction, assertNumber, assertString, expectAny, eq, isArray } from './util.js';
 import { ARR, FALSE, FN_NATIVE, NULL, NUM, STR, TRUE } from './value.js';
 import type { Value, VArr, VFn, VNum, VStr, VError } from './value.js';
 
@@ -150,6 +150,20 @@ const PRIMITIVE_PROPS: {
 
 			return target.value.endsWith(suffix.value, index) ? TRUE : FALSE;
 		}),
+
+		pad_start: (target: VStr): VFn => FN_NATIVE(([width, pad], _) => {
+			assertNumber(width);
+			const s = (pad) ? (assertString(pad), pad.value) : ' ';
+
+			return STR(target.value.padStart(width.value, s));
+		}),
+
+		pad_end: (target: VStr): VFn => FN_NATIVE(([width, pad], _) => {
+			assertNumber(width);
+			const s = (pad) ? (assertString(pad), pad.value) : ' ';
+
+			return STR(target.value.padEnd(width.value, s));
+		}),
 	},
 
 	arr: {
@@ -214,6 +228,7 @@ const PRIMITIVE_PROPS: {
 		reduce: (target: VArr): VFn => FN_NATIVE(async ([fn, initialValue], opts) => {
 			assertFunction(fn);
 			const withInitialValue = initialValue != null;
+			if (!withInitialValue && (target.value.length === 0)) throw new AiScriptRuntimeError('Reduce of empty array without initial value');
 			let accumulator = withInitialValue ? initialValue : target.value[0]!;
 			for (let i = withInitialValue ? 0 : 1; i < target.value.length; i++) {
 				const item = target.value[i]!;
@@ -262,8 +277,9 @@ const PRIMITIVE_PROPS: {
 			const mergeSort = async (arr: Value[], comp: VFn): Promise<Value[]> => {
 				if (arr.length <= 1) return arr;
 				const mid = Math.floor(arr.length / 2);
-				const left = await mergeSort(arr.slice(0, mid), comp);
-				const right = await mergeSort(arr.slice(mid), comp);
+				const left_promise = mergeSort(arr.slice(0, mid), comp);
+				const right_promise = mergeSort(arr.slice(mid), comp);
+				const [left, right] = await Promise.all([left_promise, right_promise]);
 				return merge(left, right, comp);
 			};
 			const merge = async (left: Value[], right: Value[], comp: VFn): Promise<Value[]> => {
@@ -311,6 +327,39 @@ const PRIMITIVE_PROPS: {
 			}
 		}),
 
+		flat: (target: VArr): VFn => FN_NATIVE(async ([depth], opts) => {
+			depth = depth ?? NUM(1);
+			assertNumber(depth);
+			if (!Number.isInteger(depth.value)) throw new AiScriptRuntimeError('arr.flat expected integer, got non-integer');
+			if (depth.value < 0) throw new AiScriptRuntimeError('arr.flat expected non-negative number, got negative');
+			const flat = (arr: Value[], depth: number, result: Value[]) => {
+				if (depth === 0) {
+					result.push(...arr);
+					return;
+				}
+				for (const v of arr) {
+					if (isArray(v)) {
+						flat(v.value, depth - 1, result);
+					} else {
+						result.push(v);
+					}
+				}
+			};
+			const result: Value[] = [];
+			flat(target.value, depth.value, result);
+			return ARR(result);
+		}),
+
+		flat_map: (target: VArr): VFn => FN_NATIVE(async ([fn], opts) => {
+			assertFunction(fn);
+			const vals = target.value.map(async (item, i) => {
+				const result = await opts.call(fn, [item, NUM(i)]);
+				return isArray(result) ? result.value : result;
+			});
+			const mapped_vals = await Promise.all(vals);
+			return ARR(mapped_vals.flat());
+    }),
+
 		every: (target: VArr): VFn => FN_NATIVE(async ([fn], opts) => {
 			assertFunction(fn);
 			for (let i = 0; i < target.value.length; i++) {
@@ -331,6 +380,23 @@ const PRIMITIVE_PROPS: {
 				if (res.value) return TRUE;
 			}
 			return FALSE;
+		}),
+
+		insert: (target: VArr): VFn => FN_NATIVE(async ([index, item], opts) => {
+			assertNumber(index);
+			expectAny(item);
+
+			target.value.splice(index.value, 0, item);
+
+			return NULL;
+		}),
+
+		remove: (target: VArr): VFn => FN_NATIVE(async ([index], opts) => {
+			assertNumber(index);
+
+			const removed = target.value.splice(index.value, 1);
+
+			return removed[0] ?? NULL;
 		}),
 	},
 
