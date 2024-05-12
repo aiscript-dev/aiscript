@@ -119,6 +119,20 @@ const PRIMITIVE_PROPS: {
 			const res = target.value.codePointAt(i.value) ?? target.value.charCodeAt(i.value);
 			return Number.isNaN(res) ? NULL : NUM(res);
 		}),
+
+		pad_start: (target: VStr): VFn => FN_NATIVE(([width, pad], _) => {
+			assertNumber(width);
+			const s = (pad) ? (assertString(pad), pad.value) : ' ';
+
+			return STR(target.value.padStart(width.value, s));
+		}),
+
+		pad_end: (target: VStr): VFn => FN_NATIVE(([width, pad], _) => {
+			assertNumber(width);
+			const s = (pad) ? (assertString(pad), pad.value) : ' ';
+
+			return STR(target.value.padEnd(width.value, s));
+		}),
 	},
 
 	arr: {
@@ -183,6 +197,7 @@ const PRIMITIVE_PROPS: {
 		reduce: (target: VArr): VFn => FN_NATIVE(async ([fn, initialValue], opts) => {
 			assertFunction(fn);
 			const withInitialValue = initialValue != null;
+			if (!withInitialValue && (target.value.length === 0)) throw new AiScriptRuntimeError('Reduce of empty array without initial value');
 			let accumulator = withInitialValue ? initialValue : target.value[0]!;
 			for (let i = withInitialValue ? 0 : 1; i < target.value.length; i++) {
 				const item = target.value[i]!;
@@ -301,6 +316,23 @@ const PRIMITIVE_PROPS: {
 				if (res.value) return TRUE;
 			}
 			return FALSE;
+		}),
+
+		insert: (target: VArr): VFn => FN_NATIVE(async ([index, item], opts) => {
+			assertNumber(index);
+			expectAny(item);
+
+			target.value.splice(index.value, 0, item);
+
+			return NULL;
+		}),
+
+		remove: (target: VArr): VFn => FN_NATIVE(async ([index], opts) => {
+			assertNumber(index);
+
+			const removed = target.value.splice(index.value, 1);
+
+			return removed[0] ?? NULL;
 		}),
 	},
 
