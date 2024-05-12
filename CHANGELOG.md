@@ -7,6 +7,7 @@
 - `str.pad_start`,`str.pad_end`を追加
 - `arr.insert`,`arr.remove`を追加
 - `arr.sort`の処理を非同期的にして高速化
+- `arr.flat`,`arr.flat_map`を追加
 - `Uri:encode_full`, `Uri:encode_component`, `Uri:decode_full`, `Uri:decode_component`を追加
 
 # 0.18.0
