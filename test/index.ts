@@ -4,6 +4,7 @@
  */
 
 import * as assert from 'assert';
+import { expect, test } from '@jest/globals';
 import { Parser, Interpreter, utils, errors, Ast } from '../src';
 import { NUM, STR, NULL, ARR, OBJ, BOOL, TRUE, FALSE, ERROR ,FN_NATIVE } from '../src/interpreter/value';
 let { AiScriptRuntimeError, AiScriptIndexOutOfRangeError } = errors;
@@ -2626,6 +2627,122 @@ describe('primitive props', () => {
 				ARR([NUM(97), NUM(98), NUM(99), NUM(240), NUM(169), NUM(184), NUM(189), NUM(240), NUM(159), NUM(145), NUM(137), NUM(240), NUM(159), NUM(143), NUM(191), NUM(240), NUM(159), NUM(145), NUM(168), NUM(226), NUM(128), NUM(141), NUM(240), NUM(159), NUM(145), NUM(166), NUM(100), NUM(101), NUM(102)])
 			);
 		});
+
+		test.concurrent('starts_with (no index)', async () => {
+			const res = await exe(`
+			let str = "hello"
+			let empty = ""
+			<: [
+				str.starts_with(""), str.starts_with("hello"),
+				str.starts_with("he"), str.starts_with("ell"),
+				empty.starts_with(""), empty.starts_with("he"),
+			]
+			`);
+			eq(res, ARR([
+				TRUE, TRUE,
+				TRUE, FALSE,
+				TRUE, FALSE, 
+			]));
+		});
+
+		test.concurrent('starts_with (with index)', async () => {
+			const res = await exe(`
+			let str = "hello"
+			let empty = ""
+			<: [
+				str.starts_with("", 4), str.starts_with("he", 0),
+				str.starts_with("ll", 2), str.starts_with("lo", 3),
+				str.starts_with("lo", -2), str.starts_with("hel", -5),
+				str.starts_with("he", 2), str.starts_with("loa", 3),
+				str.starts_with("lo", -6), str.starts_with("", -7),
+				str.starts_with("lo", 6), str.starts_with("", 7),
+				empty.starts_with("", 2), empty.starts_with("ll", 2),
+			]
+			`);
+			eq(res, ARR([
+				TRUE, TRUE,
+				TRUE, TRUE,
+				TRUE, TRUE,
+				FALSE, FALSE,
+				FALSE, TRUE,
+				FALSE, TRUE,
+				TRUE, FALSE,
+			]));
+		});
+
+		test.concurrent('ends_with (no index)', async () => {
+			const res = await exe(`
+			let str = "hello"
+			let empty = ""
+			<: [
+				str.ends_with(""), str.ends_with("hello"),
+				str.ends_with("lo"), str.ends_with("ell"),
+				empty.ends_with(""), empty.ends_with("he"),
+			]
+			`);
+			eq(res, ARR([
+				TRUE, TRUE,
+				TRUE, FALSE,
+				TRUE, FALSE,
+			]));
+		});
+
+		test.concurrent('ends_with (with index)', async () => {
+			const res = await exe(`
+			let str = "hello"
+			let empty = ""
+			<: [
+				str.ends_with("", 3), str.ends_with("lo", 5),
+				str.ends_with("ll", 4), str.ends_with("he", 2),
+				str.ends_with("ll", -1), str.ends_with("he", -3),
+				str.ends_with("he", 5), str.ends_with("lo", 3),
+				str.ends_with("lo", -6), str.ends_with("", -7),
+				str.ends_with("lo", 6), str.ends_with("", 7),
+				empty.ends_with("", 2), empty.ends_with("ll", 2),
+			]
+			`);
+			eq(res, ARR([
+				TRUE, TRUE,
+				TRUE, TRUE,
+				TRUE, TRUE,
+				FALSE, FALSE,
+				FALSE, TRUE,
+				FALSE, TRUE,
+				TRUE, FALSE,
+			]));
+		});
+
+    test.concurrent("pad_start", async () => {
+			const res = await exe(`
+			let str = "abc"
+			<: [
+				str.pad_start(0), str.pad_start(1), str.pad_start(2), str.pad_start(3), str.pad_start(4), str.pad_start(5),
+				str.pad_start(0, "0"), str.pad_start(1, "0"), str.pad_start(2, "0"), str.pad_start(3, "0"), str.pad_start(4, "0"), str.pad_start(5, "0"),
+				str.pad_start(0, "01"), str.pad_start(1, "01"), str.pad_start(2, "01"), str.pad_start(3, "01"), str.pad_start(4, "01"), str.pad_start(5, "01"),
+			]
+			`);
+			eq(res, ARR([
+				STR("abc"), STR("abc"), STR("abc"), STR("abc"), STR(" abc"), STR("  abc"),
+				STR("abc"), STR("abc"), STR("abc"), STR("abc"), STR("0abc"), STR("00abc"),
+				STR("abc"), STR("abc"), STR("abc"), STR("abc"), STR("0abc"), STR("01abc"),
+			]));
+		});
+
+		test.concurrent("pad_end", async () => {
+			const res = await exe(`
+			let str = "abc"
+			<: [
+				str.pad_end(0), str.pad_end(1), str.pad_end(2), str.pad_end(3), str.pad_end(4), str.pad_end(5),
+				str.pad_end(0, "0"), str.pad_end(1, "0"), str.pad_end(2, "0"), str.pad_end(3, "0"), str.pad_end(4, "0"), str.pad_end(5, "0"),
+				str.pad_end(0, "01"), str.pad_end(1, "01"), str.pad_end(2, "01"), str.pad_end(3, "01"), str.pad_end(4, "01"), str.pad_end(5, "01"),
+			]
+			`);
+			eq(res, ARR([
+				STR("abc"), STR("abc"), STR("abc"), STR("abc"), STR("abc "), STR("abc  "),
+				STR("abc"), STR("abc"), STR("abc"), STR("abc"), STR("abc0"), STR("abc00"),
+				STR("abc"), STR("abc"), STR("abc"), STR("abc"), STR("abc0"), STR("abc01"),
+			]));
+		});
 	});
 
 	describe('arr', () => {
@@ -2751,6 +2868,13 @@ describe('primitive props', () => {
 			<: arr.reduce(@(accumulator, currentValue, index) { (accumulator + (currentValue * index)) } 0)
 			`);
 			eq(res, NUM(20));
+		});
+
+		test.concurrent('reduce of empty array without initial value', async () => {
+			await expect(exe(`
+			let arr = [1, 2, 3, 4]
+			<: [].reduce(@(){})
+			`)).rejects.toThrow('Reduce of empty array without initial value');
 		});
 
 		test.concurrent('find', async () => {
@@ -2917,7 +3041,7 @@ describe('primitive props', () => {
 		
 		test.concurrent('splice (larger-index)', async () => {
 			const res = await exe(`
-			    let arr1 = [0, 1, 2, 3]
+				let arr1 = [0, 1, 2, 3]
 				let arr2 = arr1.splice(4, 100, [10, 20])
 				<: [arr1, arr2]
 			`);
@@ -2929,7 +3053,7 @@ describe('primitive props', () => {
 		
 		test.concurrent('splice (single argument)', async () => {
 			const res = await exe(`
-			    let arr1 = [0, 1, 2, 3]
+				let arr1 = [0, 1, 2, 3]
 				let arr2 = arr1.splice(1)
 				<: [arr1, arr2]
 			`);
@@ -2938,7 +3062,50 @@ describe('primitive props', () => {
 				ARR([NUM(1), NUM(2), NUM(3)]),
 			]));
 		});
-
+		
+		test.concurrent('flat', async () => {
+			const res = await exe(`
+				var arr1 = [0, [1], [2, 3], [4, [5, 6]]]
+				let arr2 = arr1.flat()
+				let arr3 = arr1.flat(2)
+				<: [arr1, arr2, arr3]
+			`);
+			eq(res, ARR([
+				ARR([
+					NUM(0), ARR([NUM(1)]), ARR([NUM(2), NUM(3)]),
+					ARR([NUM(4), ARR([NUM(5), NUM(6)])])
+				]), // target not changed
+				ARR([
+					NUM(0), NUM(1), NUM(2), NUM(3),
+					NUM(4), ARR([NUM(5), NUM(6)]),
+				]),
+				ARR([
+					NUM(0), NUM(1), NUM(2), NUM(3),
+					NUM(4), NUM(5), NUM(6),
+				]),
+			]));
+		});
+		
+		test.concurrent('flat_map', async () => {
+			const res = await exe(`
+				let arr1 = [0, 1, 2]
+				let arr2 = ["a", "b"]
+				let arr3 = arr1.flat_map(@(x){ arr2.map(@(y){ [x, y] }) })
+				<: [arr1, arr3]
+			`);
+			eq(res, ARR([
+				ARR([NUM(0), NUM(1), NUM(2)]), // target not changed
+				ARR([
+					ARR([NUM(0), STR("a")]),
+					ARR([NUM(0), STR("b")]),
+					ARR([NUM(1), STR("a")]),
+					ARR([NUM(1), STR("b")]),
+					ARR([NUM(2), STR("a")]),
+					ARR([NUM(2), STR("b")]),
+				]),
+      ]));
+    });
+		
 		test.concurrent('every', async () => {
 			const res = await exe(`
 				let arr1 = [0, 1, 2, 3]
@@ -2966,6 +3133,44 @@ describe('primitive props', () => {
 				ARR([NUM(0), NUM(1), NUM(2), NUM(3)]), // target not changed
 				TRUE,
 				FALSE,
+			]));
+		});
+		
+		test.concurrent('insert', async () => {
+			const res = await exe(`
+				let arr1 = [0, 1, 2]
+				let res = []
+				res.push(arr1.insert(3, 10)) // [0, 1, 2, 10]
+				res.push(arr1.insert(2, 20)) // [0, 1, 20, 2, 10]
+				res.push(arr1.insert(0, 30)) // [30, 0, 1, 20, 2, 10]
+				res.push(arr1.insert(-1, 40)) // [30, 0, 1, 20, 2, 40, 10]
+				res.push(arr1.insert(-4, 50)) // [30, 0, 1, 50, 20, 2, 40, 10]
+				res.push(arr1.insert(100, 60)) // [30, 0, 1, 50, 20, 2, 40, 10, 60]
+				res.push(arr1)
+				<: res
+			`);
+			eq(res, ARR([
+				NULL, NULL, NULL, NULL, NULL, NULL, 
+				ARR([NUM(30), NUM(0), NUM(1), NUM(50), NUM(20), NUM(2), NUM(40), NUM(10), NUM(60)])
+			]));
+		});
+		
+		test.concurrent('remove', async () => {
+			const res = await exe(`
+				let arr1 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+				let res = []
+				res.push(arr1.remove(9)) // 9 [0, 1, 2, 3, 4, 5, 6, 7, 8]
+				res.push(arr1.remove(3)) // 3 [0, 1, 2, 4, 5, 6, 7, 8]
+				res.push(arr1.remove(0)) // 0 [1, 2, 4, 5, 6, 7, 8]
+				res.push(arr1.remove(-1)) // 8 [1, 2, 4, 5, 6, 7]
+				res.push(arr1.remove(-5)) // 2 [1, 4, 5, 6, 7]
+				res.push(arr1.remove(100)) // null [1, 4, 5, 6, 7]
+				res.push(arr1)
+				<: res
+			`);
+			eq(res, ARR([
+				NUM(9), NUM(3), NUM(0), NUM(8), NUM(2), NULL, 
+				ARR([NUM(1), NUM(4), NUM(5), NUM(6), NUM(7)])
 			]));
 		});
 	});
@@ -3193,6 +3398,36 @@ describe('std', () => {
 			<: "".charcode_at(0)
 			`);
 			eq(res, NULL);
+		});
+	});
+
+	describe('Uri', () => {
+		test.concurrent('encode_full', async () => {
+			const res = await exe(`
+			<: Uri:encode_full("https://example.com/?q=あいちゃん")
+			`);
+			eq(res, STR('https://example.com/?q=%E3%81%82%E3%81%84%E3%81%A1%E3%82%83%E3%82%93'));
+		});
+
+		test.concurrent('encode_component', async () => {
+			const res = await exe(`
+			<: Uri:encode_component("https://example.com/?q=あいちゃん")
+			`);
+			eq(res, STR('https%3A%2F%2Fexample.com%2F%3Fq%3D%E3%81%82%E3%81%84%E3%81%A1%E3%82%83%E3%82%93'));
+		});
+
+		test.concurrent('decode_full', async () => {
+			const res = await exe(`
+			<: Uri:decode_full("https%3A%2F%2Fexample.com%2F%3Fq%3D%E3%81%82%E3%81%84%E3%81%A1%E3%82%83%E3%82%93")
+			`);
+			eq(res, STR('https%3A%2F%2Fexample.com%2F%3Fq%3Dあいちゃん'));
+		});
+
+		test.concurrent('decode_component', async () => {
+			const res = await exe(`
+			<: Uri:decode_component("https%3A%2F%2Fexample.com%2F%3Fq%3D%E3%81%82%E3%81%84%E3%81%A1%E3%82%83%E3%82%93")
+			`);
+			eq(res, STR('https://example.com/?q=あいちゃん'));
 		});
 	});
 
