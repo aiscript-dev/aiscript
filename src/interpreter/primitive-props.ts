@@ -119,6 +119,20 @@ const PRIMITIVE_PROPS: {
 			const res = target.value.codePointAt(i.value) ?? target.value.charCodeAt(i.value);
 			return Number.isNaN(res) ? NULL : NUM(res);
 		}),
+
+		pad_start: (target: VStr): VFn => FN_NATIVE(([width, pad], _) => {
+			assertNumber(width);
+			const s = (pad) ? (assertString(pad), pad.value) : ' ';
+
+			return STR(target.value.padStart(width.value, s));
+		}),
+
+		pad_end: (target: VStr): VFn => FN_NATIVE(([width, pad], _) => {
+			assertNumber(width);
+			const s = (pad) ? (assertString(pad), pad.value) : ' ';
+
+			return STR(target.value.padEnd(width.value, s));
+		}),
 	},
 
 	arr: {
