@@ -119,6 +119,20 @@ const PRIMITIVE_PROPS: {
 			const res = target.value.codePointAt(i.value) ?? target.value.charCodeAt(i.value);
 			return Number.isNaN(res) ? NULL : NUM(res);
 		}),
+
+		pad_start: (target: VStr): VFn => FN_NATIVE(([width, pad], _) => {
+			assertNumber(width);
+			const s = (pad) ? (assertString(pad), pad.value) : ' ';
+
+			return STR(target.value.padStart(width.value, s));
+		}),
+
+		pad_end: (target: VStr): VFn => FN_NATIVE(([width, pad], _) => {
+			assertNumber(width);
+			const s = (pad) ? (assertString(pad), pad.value) : ' ';
+
+			return STR(target.value.padEnd(width.value, s));
+		}),
 	},
 
 	arr: {
@@ -232,8 +246,9 @@ const PRIMITIVE_PROPS: {
 			const mergeSort = async (arr: Value[], comp: VFn): Promise<Value[]> => {
 				if (arr.length <= 1) return arr;
 				const mid = Math.floor(arr.length / 2);
-				const left = await mergeSort(arr.slice(0, mid), comp);
-				const right = await mergeSort(arr.slice(mid), comp);
+				const left_promise = mergeSort(arr.slice(0, mid), comp);
+				const right_promise = mergeSort(arr.slice(mid), comp);
+				const [left, right] = await Promise.all([left_promise, right_promise]);
 				return merge(left, right, comp);
 			};
 			const merge = async (left: Value[], right: Value[], comp: VFn): Promise<Value[]> => {
@@ -301,6 +316,23 @@ const PRIMITIVE_PROPS: {
 				if (res.value) return TRUE;
 			}
 			return FALSE;
+		}),
+
+		insert: (target: VArr): VFn => FN_NATIVE(async ([index, item], opts) => {
+			assertNumber(index);
+			expectAny(item);
+
+			target.value.splice(index.value, 0, item);
+
+			return NULL;
+		}),
+
+		remove: (target: VArr): VFn => FN_NATIVE(async ([index], opts) => {
+			assertNumber(index);
+
+			const removed = target.value.splice(index.value, 1);
+
+			return removed[0] ?? NULL;
 		}),
 	},
 

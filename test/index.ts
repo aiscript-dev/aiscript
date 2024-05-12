@@ -2627,6 +2627,38 @@ describe('primitive props', () => {
 				ARR([NUM(97), NUM(98), NUM(99), NUM(240), NUM(169), NUM(184), NUM(189), NUM(240), NUM(159), NUM(145), NUM(137), NUM(240), NUM(159), NUM(143), NUM(191), NUM(240), NUM(159), NUM(145), NUM(168), NUM(226), NUM(128), NUM(141), NUM(240), NUM(159), NUM(145), NUM(166), NUM(100), NUM(101), NUM(102)])
 			);
 		});
+
+		test.concurrent("pad_start", async () => {
+			const res = await exe(`
+			let str = "abc"
+			<: [
+				str.pad_start(0), str.pad_start(1), str.pad_start(2), str.pad_start(3), str.pad_start(4), str.pad_start(5),
+				str.pad_start(0, "0"), str.pad_start(1, "0"), str.pad_start(2, "0"), str.pad_start(3, "0"), str.pad_start(4, "0"), str.pad_start(5, "0"),
+				str.pad_start(0, "01"), str.pad_start(1, "01"), str.pad_start(2, "01"), str.pad_start(3, "01"), str.pad_start(4, "01"), str.pad_start(5, "01"),
+			]
+			`);
+			eq(res, ARR([
+				STR("abc"), STR("abc"), STR("abc"), STR("abc"), STR(" abc"), STR("  abc"),
+				STR("abc"), STR("abc"), STR("abc"), STR("abc"), STR("0abc"), STR("00abc"),
+				STR("abc"), STR("abc"), STR("abc"), STR("abc"), STR("0abc"), STR("01abc"),
+			]));
+		});
+
+		test.concurrent("pad_end", async () => {
+			const res = await exe(`
+			let str = "abc"
+			<: [
+				str.pad_end(0), str.pad_end(1), str.pad_end(2), str.pad_end(3), str.pad_end(4), str.pad_end(5),
+				str.pad_end(0, "0"), str.pad_end(1, "0"), str.pad_end(2, "0"), str.pad_end(3, "0"), str.pad_end(4, "0"), str.pad_end(5, "0"),
+				str.pad_end(0, "01"), str.pad_end(1, "01"), str.pad_end(2, "01"), str.pad_end(3, "01"), str.pad_end(4, "01"), str.pad_end(5, "01"),
+			]
+			`);
+			eq(res, ARR([
+				STR("abc"), STR("abc"), STR("abc"), STR("abc"), STR("abc "), STR("abc  "),
+				STR("abc"), STR("abc"), STR("abc"), STR("abc"), STR("abc0"), STR("abc00"),
+				STR("abc"), STR("abc"), STR("abc"), STR("abc"), STR("abc0"), STR("abc01"),
+			]));
+		});
 	});
 
 	describe('arr', () => {
@@ -2926,6 +2958,44 @@ describe('primitive props', () => {
 				ARR([NUM(0), NUM(1), NUM(2), NUM(3)]), // target not changed
 				TRUE,
 				FALSE,
+			]));
+		});
+		
+		test.concurrent('insert', async () => {
+			const res = await exe(`
+				let arr1 = [0, 1, 2]
+				let res = []
+				res.push(arr1.insert(3, 10)) // [0, 1, 2, 10]
+				res.push(arr1.insert(2, 20)) // [0, 1, 20, 2, 10]
+				res.push(arr1.insert(0, 30)) // [30, 0, 1, 20, 2, 10]
+				res.push(arr1.insert(-1, 40)) // [30, 0, 1, 20, 2, 40, 10]
+				res.push(arr1.insert(-4, 50)) // [30, 0, 1, 50, 20, 2, 40, 10]
+				res.push(arr1.insert(100, 60)) // [30, 0, 1, 50, 20, 2, 40, 10, 60]
+				res.push(arr1)
+				<: res
+			`);
+			eq(res, ARR([
+				NULL, NULL, NULL, NULL, NULL, NULL, 
+				ARR([NUM(30), NUM(0), NUM(1), NUM(50), NUM(20), NUM(2), NUM(40), NUM(10), NUM(60)])
+			]));
+		});
+		
+		test.concurrent('remove', async () => {
+			const res = await exe(`
+				let arr1 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+				let res = []
+				res.push(arr1.remove(9)) // 9 [0, 1, 2, 3, 4, 5, 6, 7, 8]
+				res.push(arr1.remove(3)) // 3 [0, 1, 2, 4, 5, 6, 7, 8]
+				res.push(arr1.remove(0)) // 0 [1, 2, 4, 5, 6, 7, 8]
+				res.push(arr1.remove(-1)) // 8 [1, 2, 4, 5, 6, 7]
+				res.push(arr1.remove(-5)) // 2 [1, 4, 5, 6, 7]
+				res.push(arr1.remove(100)) // null [1, 4, 5, 6, 7]
+				res.push(arr1)
+				<: res
+			`);
+			eq(res, ARR([
+				NUM(9), NUM(3), NUM(0), NUM(8), NUM(2), NULL, 
+				ARR([NUM(1), NUM(4), NUM(5), NUM(6), NUM(7)])
 			]));
 		});
 	});
