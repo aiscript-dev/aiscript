@@ -3302,17 +3302,27 @@ describe('std', () => {
 
 		test.concurrent('gen_rng', async () => {
 			const res = await exe(`
-			@test(seed) {
-				let random = Math:gen_rng(seed)
-				return random(0 100)
+			@test(seed1, seed2) {
+				let n = 100
+				let max = 100000
+				let random1 = Math:gen_rng(seed1)
+				let random2 = Math:gen_rng(seed2)
+				var same = 0
+				for n {
+					if random1(1, max) == random2(1, max) {
+						same += 1
+					}
+				}
+				same / n
 			}
 			let seed1 = \`{Util:uuid()}\`
 			let seed2 = \`{Date:year()}\`
-			let test1 = if (test(seed1) == test(seed1)) {true} else {false}
-			let test2 = if (test(seed1) == test(seed2)) {true} else {false}
-			<: [test1 test2]
+			let result = []
+			result.push(test(seed1, seed1) == 1)
+			result.push(test(seed1, seed2) < 0.05)
+			<: result
 			`)
-			eq(res, ARR([BOOL(true), BOOL(false)]));
+			eq(res, ARR([BOOL(true), BOOL(true)]));
 		});
 	});
 
