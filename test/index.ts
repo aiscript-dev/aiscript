@@ -3301,6 +3301,7 @@ describe('std', () => {
 		});
 
 		test.concurrent('gen_rng', async () => {
+			// 2つのシード値から1~maxの乱数をn回生成して一致率を見る
 			const res = await exe(`
 			@test(seed1, seed2) {
 				let n = 100
