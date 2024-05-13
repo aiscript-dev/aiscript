@@ -3306,6 +3306,7 @@ describe('std', () => {
 			@test(seed1, seed2) {
 				let n = 100
 				let max = 100000
+				let threshold = 0.05
 				let random1 = Math:gen_rng(seed1)
 				let random2 = Math:gen_rng(seed2)
 				var same = 0
@@ -3314,14 +3315,16 @@ describe('std', () => {
 						same += 1
 					}
 				}
-				same / n
+				let rate = same / n
+				if seed1 == seed2 { rate == 1 }
+				else { rate < threshold }
 			}
 			let seed1 = \`{Util:uuid()}\`
 			let seed2 = \`{Date:year()}\`
-			let result = []
-			result.push(test(seed1, seed1) == 1)
-			result.push(test(seed1, seed2) < 0.05)
-			<: result
+			<: [
+				test(seed1, seed1)
+				test(seed1, seed2)
+			]
 			`)
 			eq(res, ARR([BOOL(true), BOOL(true)]));
 		});
