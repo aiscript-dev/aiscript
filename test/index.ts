@@ -3173,6 +3173,46 @@ describe('primitive props', () => {
 				ARR([NUM(1), NUM(4), NUM(5), NUM(6), NUM(7)])
 			]));
 		});
+		
+		test.concurrent('at (without default value)', async () => {
+			const res = await exe(`
+				let arr1 = [10, 20, 30]
+				<: [
+					arr1
+					arr1.at(0), arr1.at(1), arr1.at(2)
+					arr1.at(-3), arr1.at(-2), arr1.at(-1)
+					arr1.at(3), arr1.at(4), arr1.at(5)
+					arr1.at(-6), arr1.at(-5), arr1.at(-4)
+				]
+			`);
+			eq(res, ARR([
+				ARR([NUM(10), NUM(20), NUM(30)]),
+				NUM(10), NUM(20), NUM(30),
+				NUM(10), NUM(20), NUM(30),
+				NULL, NULL, NULL,
+				NULL, NULL, NULL,
+			]));
+		});
+		
+		test.concurrent('at (with default value)', async () => {
+			const res = await exe(`
+				let arr1 = [10, 20, 30]
+				<: [
+					arr1
+					arr1.at(0, 100), arr1.at(1, 100), arr1.at(2, 100)
+					arr1.at(-3, 100), arr1.at(-2, 100), arr1.at(-1, 100)
+					arr1.at(3, 100), arr1.at(4, 100), arr1.at(5, 100)
+					arr1.at(-6, 100), arr1.at(-5, 100), arr1.at(-4, 100)
+				]
+			`);
+			eq(res, ARR([
+				ARR([NUM(10), NUM(20), NUM(30)]),
+				NUM(10), NUM(20), NUM(30),
+				NUM(10), NUM(20), NUM(30),
+				NUM(100), NUM(100), NUM(100),
+				NUM(100), NUM(100), NUM(100),
+			]));
+		});
 	});
 });
 
