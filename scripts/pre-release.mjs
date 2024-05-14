@@ -3,32 +3,20 @@ import { env } from 'node:process';
 import semverValid from 'semver/functions/valid.js';
 
 
-function validateEnv(name, validater) {
-	let val = env[name];
-	if (!val) throw new Error(`$${name} required`);
-	if (!validater(val)) throw new Error(`${val} is not valid as $${name}`);
-	return val;
-}
-/*
- * Required Environment Variables
- */
-const e = {
-	newver: validateEnv("NEWVERSION", v => semverValid(v)),
-};
-
-
 const FILES = {
 	chlog: './CHANGELOG.md',
 	chlogs: './unreleased',
 	pkgjson: './package.json',
 };
 const enc = { encoding: env.ENCODING ?? 'utf8' };
+const newver = env.NEWVERSION;
+if (newver && !semverValid(newver)) throw new Error(`Environment variable NEWVERSION is set to "${newver}"; It is not valid`);
 const actions = {};
 
 /*
  * Update package.json's version field
  */
-actions.updatePackageJson = {
+if (newver) actions.updatePackageJson = {
 	async read() {
 		const json = await readFile(FILES.pkgjson, enc);
 		return JSON.stringify(
