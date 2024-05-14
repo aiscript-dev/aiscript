@@ -20,7 +20,7 @@ if (newver) actions.updatePackageJson = {
 	async read() {
 		const json = await readFile(FILES.pkgjson, enc);
 		return JSON.stringify(
-			{ ...JSON.parse(json), version: e.newver },
+			{ ...JSON.parse(json), version: newver },
 			null, '\t'
 		);
 	},
@@ -49,7 +49,7 @@ actions.collectChangeLogs = {
 			];
 		};
 		const [newLog, [logHead, oldLog]] = await Promise.all([ getNewLog(), getOldLog() ]);
-		return `${logHead}# ${e.newver}\n${newLog}\n\n${oldLog}`;
+		return `${logHead}# ${newver}\n${newLog}\n\n${oldLog}`;
 
 	},
 	async write(logs) {
