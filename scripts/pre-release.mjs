@@ -1,26 +1,40 @@
 import { readFile, readdir, writeFile, mkdir, rm } from 'node:fs/promises';
 import { env } from 'node:process';
+import { promisify } from 'node:util';
+import child_process from 'node:child_process';
 import semverValid from 'semver/functions/valid.js';
 
 
+const exec = promisify(child_process.exec);
 const FILES = {
 	chlog: './CHANGELOG.md',
 	chlogs: './unreleased',
 	pkgjson: './package.json',
 };
 const enc = { encoding: env.ENCODING ?? 'utf8' };
-const newver = env.NEWVERSION;
-if (newver && !semverValid(newver)) throw new Error(`Environment variable NEWVERSION is set to "${newver}"; It is not valid`);
+const pkgjson = JSON.parse(await readFile(FILES.pkgjson, enc));
+const newver = (() => {
+	const newverCandidates = [
+		[env.NEWVERSION, 'Environment variable NEWVERSION'],
+		[pkgjson.version, "Package.json's version field"],
+	];
+	for (const [ver, name] of newverCandidates) {
+		if (ver) {
+			if (semverValid(ver)) return ver;
+			else throw new Error(`${name} is set to "${ver}"; it is not valid`);
+		}
+	}
+	throw new Error('No effective version setting detected.');
+})();
 const actions = {};
 
 /*
  * Update package.json's version field
  */
-if (newver) actions.updatePackageJson = {
+actions.updatePackageJson = {
 	async read() {
-		const json = await readFile(FILES.pkgjson, enc);
 		return JSON.stringify(
-			{ ...JSON.parse(json), version: newver },
+			{ ...pkgjson, version: newver },
 			null, '\t'
 		);
 	},
@@ -35,8 +49,21 @@ if (newver) actions.updatePackageJson = {
 actions.collectChangeLogs = {
 	async read() {
 		const getNewLog = async () => {
-			const pathes = await readdir(FILES.chlogs);
-			const logPromises = pathes.map(path => readFile(`${FILES.chlogs}/${path}`, enc));
+			const pathes = (await readdir(FILES.chlogs)).map(path => `${FILES.chlogs}/${path}`);
+			const pathesLastUpdate = await Promise.all(
+				pathes.map(async (path) => {
+					const gittime = Number((await exec(
+						`git log -1 --pretty="format:%ct" "${path}"`
+					)).stdout);
+					if (gittime) return { path, lastUpdate: gittime };
+					else {
+						console.log(`Warning: git timestamp of "${path}" was not detected`);
+						return { path, lastUpdate: Infinity }
+					}
+				})
+			);
+			pathesLastUpdate.sort((a, b) => a.lastUpdate - b.lastUpdate);
+			const logPromises = pathesLastUpdate.map(({ path }) => readFile(path, enc));
 			const logs = await Promise.all(logPromises);
 			return logs.map(v => v.trim()).join('\n');
 		};
