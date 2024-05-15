@@ -239,7 +239,7 @@ export class Interpreter {
 			for (let i = 0; i < (fn.args ?? []).length; i++) {
 				_args.set(fn.args![i]!, {
 					isMutable: true,
-					value: args[i]!,
+					value: args[i] ?? NULL,
 				});
 			}
 			const fnScope = fn.scope!.createChildScope(_args);

@@ -1297,6 +1297,16 @@ describe('Function call', () => {
 		}
 		assert.fail();
 	});
+
+	test.concurrent('omitted args', async () => {
+		const res = await exe(`
+		@f(x, y) {
+			[x, y]
+		}
+		<: f(1)
+		`);
+		eq(res, ARR([NUM(1), NULL]));
+	});
 });
 
 describe('Return', () => {
