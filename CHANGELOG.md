@@ -14,6 +14,7 @@
 - **Breaking Change** 関数同士の比較の実装
 - **Breaking Change** `+`や`!`などの演算子の優先順位に変更があります。新しい順序は[syntax.md](docs/syntax.md#%E6%BC%94%E7%AE%97%E5%AD%90)を参照して下さい。
 - **Breaking Change** 組み込み関数`Num:to_hex`は組み込みプロパティ`num#to_hex`に移動しました。
+- **Breaking Change** `arr.sort`を安定ソートに変更
 
 # 未リリース分
 
