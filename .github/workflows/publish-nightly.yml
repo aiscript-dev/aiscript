@@ -44,7 +44,6 @@ jobs:
         run: |
           CURRENT_VER=$(npm view 'file:.' version)
           TIME_STAMP=$( date +'%Y%m%d' )
-          VERSION_SUFFIX=-$TAG.$TIME_STAMP
           echo 'NEWVERSION='$CURRENT_VER-${{ matrix.tag }}.$TIME_STAMP >> $GITHUB_ENV
 
       - name: Check Commits
