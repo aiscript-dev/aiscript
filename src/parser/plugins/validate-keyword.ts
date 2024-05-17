@@ -19,7 +19,6 @@ const reservedWord = [
 	'constructor',
 	// 'def',
 	'dictionary',
-	'do',
 	'enum',
 	'export',
 	'finally',
