@@ -44,7 +44,6 @@ const reservedWord = [
 	'use',
 	'using',
 	'when',
-	'while',
 	'yield',
 	'import',
 	'is',
