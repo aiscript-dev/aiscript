@@ -1,4 +1,4 @@
-name: Publish nightly (next)
+name: Publish nightly
 
 on:
   schedule:
@@ -8,16 +8,22 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - branch: master
+            tag: dev
+          - branch: aiscript-next
+            tag: next
     env:
       NPM_SECRET: ${{ secrets.NPM_SECRET }}
-      BRANCH: aiscript-next
-      TAG: next
 
     steps:
-      - name: Checkout
+      - name: Checkout ${{ matrix.branch }}
         uses: actions/checkout@v4.1.5
         with:
-          ref: ${{ env.BRANCH }}
+          ref: ${{ matrix.branch }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4.0.2
@@ -34,23 +40,23 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build
-        run: npm run build
-
       - name: Set Version
         run: |
+          CURRENT_VER=$(npm view 'file:.' version)
           TIME_STAMP=$( date +'%Y%m%d' )
-          VERSION_SUFFIX=-$TAG.$TIME_STAMP
-          vim package.json '+/"version"' '+s/:\s*".*\zs\ze"/'$VERSION_SUFFIX/ '+wq'
+          echo 'NEWVERSION='$CURRENT_VER-${{ matrix.tag }}.$TIME_STAMP >> $GITHUB_ENV
 
       - name: Check Commits
         run: |
           echo 'LAST_COMMITS='$( git log --since '24 hours ago' | wc -c ) >> $GITHUB_ENV
+
+      - name: Prepare Publish
+        run: npm run pre-release
 
       - name: Publish
         uses: JS-DevTools/npm-publish@v3
         if: ${{ env.NPM_SECRET != '' && env.LAST_COMMITS != 0 }}
         with:
           token: ${{ env.NPM_SECRET }}
-          tag: ${{ env.TAG }}
+          tag: ${{ matrix.tag }}
           access: public

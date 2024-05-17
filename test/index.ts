@@ -1297,6 +1297,16 @@ describe('Function call', () => {
 		}
 		assert.fail();
 	});
+
+	test.concurrent('omitted args', async () => {
+		const res = await exe(`
+		@f(x, y) {
+			[x, y]
+		}
+		<: f(1)
+		`);
+		eq(res, ARR([NUM(1), NULL]));
+	});
 });
 
 describe('Return', () => {
@@ -3341,18 +3351,32 @@ describe('std', () => {
 		});
 
 		test.concurrent('gen_rng', async () => {
+			// 2つのシード値から1~maxの乱数をn回生成して一致率を見る
 			const res = await exe(`
-			@test(seed) {
-				let random = Math:gen_rng(seed)
-				return random(0 100)
+			@test(seed1, seed2) {
+				let n = 100
+				let max = 100000
+				let threshold = 0.05
+				let random1 = Math:gen_rng(seed1)
+				let random2 = Math:gen_rng(seed2)
+				var same = 0
+				for n {
+					if random1(1, max) == random2(1, max) {
+						same += 1
+					}
+				}
+				let rate = same / n
+				if seed1 == seed2 { rate == 1 }
+				else { rate < threshold }
 			}
 			let seed1 = \`{Util:uuid()}\`
 			let seed2 = \`{Date:year()}\`
-			let test1 = if (test(seed1) == test(seed1)) {true} else {false}
-			let test2 = if (test(seed1) == test(seed2)) {true} else {false}
-			<: [test1 test2]
+			<: [
+				test(seed1, seed1)
+				test(seed1, seed2)
+			]
 			`)
-			eq(res, ARR([BOOL(true), BOOL(false)]));
+			eq(res, ARR([BOOL(true), BOOL(true)]));
 		});
 	});
 
