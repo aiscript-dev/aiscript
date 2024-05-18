@@ -113,26 +113,43 @@ _time_offset_ を渡していない場合はローカルのものを参照しま
 型: `str`  
 改行コード(LF)です。  
 
-### #Str:lt(a: str, b: str): num
+### @Str:lt(a: str, b: str): num
 a < b ならば -1、a == b ならば 0、a > b ならば 1 を返します。  
 arr.sortの比較関数として使用できます。
 
-### #Str:gt(a: str, b: str): num
+### @Str:gt(a: str, b: str): num
 a > b ならば -1、a == b ならば 0、a < b ならば 1 を返します。  
 arr.sortの比較関数として使用できます。
 
-### #Str:from_codepoint(codepoint: num): str
+### @Str:from_codepoint(codepoint: num): str
 Unicodeのコードポイントから文字を生成します。
 
 _codepoint_ は 0 以上、10FFFF<sub>16</sub> 以下である必要があります。
 
-### #Str:from_unicode_codepoints(_codePoints_: `arr<num>`): str
+### @Str:from_unicode_codepoints(_codePoints_: `arr<num>`): str
 Unicodeのコードポイント列を表す数値の配列から文字を生成します。  
 _codePoints_の各要素は 0 以上、10FFFF<sub>16</sub> 以下である必要があります。
 
-### #Str:from_utf8_bytes(_bytes_: `arr<num>`): str
+### @Str:from_utf8_bytes(_bytes_: `arr<num>`): str
 UTF-8のバイト列を表す数値の配列から文字を生成します。  
 _bytes_の各要素は 0 以上、255 以下である必要があります。
+
+## :: Uri
+### @Uri:encode_full(uri: str): str
+uri をURIとしてエンコードした文字列を返します。以下の文字はエンコードされません。  
+`A-Z a-z 0-9 - _ . ! ~ * ' ( ) ; , / ? : @ & = + $ #`
+
+### @Uri:encode_component(text: str): str
+text をURI構成要素としてエンコードした文字列を返します。以下の文字はエンコードされません。  
+`A-Z a-z 0-9 - _ . ! ~ * ' ( )`
+
+### @Uri:decode_full(encoded_uri: str): str
+encoded_uri をエンコードされたURIとしてデコードした文字列を返します。  
+以下の文字に対応するエスケープシーケンスはデコードされません。  
+`; , / ? : @ & = + $ #`
+
+### @Uri:decode_component(encoded_text: str): str
+encoded_text をエンコードされたURI構成要素としてデコードした文字列を返します。  
 
 ## :: Arr
 ### @Arr:create(_length_: num, _initial_?: value): arr
