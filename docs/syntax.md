@@ -182,6 +182,35 @@ each let v, arr{ // Syntax Error
 }
 ```
 
+### while
+
+```js
+var count = 0
+while count < 42 {
+	count += 1
+}
+<: count // 42
+// 条件が最初からfalseの場合
+while false {
+  <: 'hoge'
+} // no output
+```
+
+### do-while
+条件がtrueの間ループを続けます。  
+条件が最初からfalseであってもループは一度実行されます。
+```js
+var count = 0
+do {
+	count += 1
+} while count < 42
+<: count // 42
+// 条件が最初からfalseの場合
+while false {
+  <: 'hoge'
+} // hoge
+```
+
 ### loop
 `break`されるまで無制限にループを行います。  
 ```js
