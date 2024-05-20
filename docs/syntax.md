@@ -183,7 +183,8 @@ each let v, arr{ // Syntax Error
 ```
 
 ### while
-
+条件がtrueの間ループを続けます。  
+条件が最初からfalseの場合はループは実行されません。
 ```js
 var count = 0
 while count < 42 {
