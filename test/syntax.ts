@@ -758,6 +758,50 @@ describe('each', () => {
 	});
 });
 
+describe('while', () => {
+	test.concurrent('Basic', async () => {
+		const res = await exe(`
+		var count = 0
+		while count < 42 {
+			count += 1
+		}
+		<: count
+		`);
+		eq(res, NUM(42));
+	});
+
+	test.concurrent('start false', async () => {
+		const res = await exe(`
+		while false {
+			<: 'hoge'
+		}
+		`);
+		eq(res, NULL);
+	});
+});
+
+describe('do-while', () => {
+	test.concurrent('Basic', async () => {
+		const res = await exe(`
+		var count = 0
+		do {
+			count += 1
+		} while count < 42
+		<: count
+		`);
+		eq(res, NUM(42));
+	});
+
+	test.concurrent('start false', async () => {
+		const res = await exe(`
+		do {
+			<: 'hoge'
+		} while false
+		`);
+		eq(res, STR('hoge'));
+	});
+});
+
 describe('loop', () => {
 	test.concurrent('Basic', async () => {
 		const res = await exe(`
