@@ -9,6 +9,8 @@ const reservedWords = [
 	'false',
 	'each',
 	'for',
+	'do',
+	'while',
 	'loop',
 	'break',
 	'continue',
