@@ -207,9 +207,9 @@ do {
 } while count < 42
 <: count // 42
 // 条件が最初からfalseの場合
-while false {
+do {
   <: 'hoge'
-} // hoge
+} while false // hoge
 ```
 
 ### loop
