@@ -6,7 +6,7 @@
 import * as assert from 'assert';
 import { expect, test } from '@jest/globals';
 import { Parser, Interpreter, utils, errors, Ast } from '../src';
-import { NUM, STR, NULL, ARR, OBJ, BOOL, TRUE, FALSE, ERROR ,FN_NATIVE } from '../src/interpreter/value';
+import { NUM, STR, NULL, ARR, OBJ, BOOL, TRUE, FALSE, ERROR ,FN_NATIVE, Value } from '../src/interpreter/value';
 let { AiScriptRuntimeError, AiScriptIndexOutOfRangeError } = errors;
 
 const exe = (program: string): Promise<any> => new Promise((ok, err) => {
@@ -31,9 +31,11 @@ const getMeta = (program: string) => {
 	return metadata;
 };
 
-const eq = (a, b) => {
+const eq = (a: Value, b: Value) => {
 	assert.deepEqual(a.type, b.type);
-	assert.deepEqual(a.value, b.value);
+	if (a.type !== 'null' && a.type !== 'fn' && b.type !== 'null' && b.type !== 'fn') {
+		assert.deepEqual(a.value, b.value);
+	}
 };
 
 test.concurrent('Hello, world!', async () => {
@@ -905,29 +907,21 @@ describe('Array', () => {
 	});
 
 	test.concurrent('Assign array item to out of range', async () => {
-		try {
-			await exe(`
-					let arr = [1, 2, 3]
+		assert.rejects(exe(`
+			let arr = [1, 2, 3]
 
-					arr[3] = 4
+			arr[3] = 4
 
-					<: null
-				`)
-		} catch (e) {
-			eq(e instanceof AiScriptIndexOutOfRangeError, false);
-		}
+			<: null
+		`), AiScriptIndexOutOfRangeError);
 
-		try {
-			await exe(`
-					let arr = [1, 2, 3]
+		assert.rejects(exe(`
+			let arr = [1, 2, 3]
 
-					arr[9] = 10
+			arr[9] = 10
 
-					<: null
-				`)
-		} catch (e) {
-			eq(e instanceof AiScriptIndexOutOfRangeError, true);
-		}
+			<: null
+		`), AiScriptIndexOutOfRangeError)
 	});
 
 	test.concurrent('index out of range error', async () => {
@@ -2123,14 +2117,14 @@ describe('meta', () => {
 		const res = getMeta(`
 		### { a: 1; b: 2; c: 3; }
 		`);
-		eq(res, new Map([
+		assert.deepEqual(res, new Map([
 			[null, {
 				a: 1,
 				b: 2,
 				c: 3,
 			}]
 		]));
-		eq(res!.get(null), {
+		assert.deepEqual(res!.get(null), {
 			a: 1,
 			b: 2,
 			c: 3,
@@ -2142,7 +2136,7 @@ describe('meta', () => {
 			const res = getMeta(`
 			### x "hoge"
 			`);
-			eq(res, new Map([
+			assert.deepEqual(res, new Map([
 				['x', 'hoge']
 			]));
 		});
@@ -2153,7 +2147,7 @@ describe('meta', () => {
 			const res = getMeta(`
 			### x 42
 			`);
-			eq(res, new Map([
+			assert.deepEqual(res, new Map([
 				['x', 42]
 			]));
 		});
@@ -2164,7 +2158,7 @@ describe('meta', () => {
 			const res = getMeta(`
 			### x true
 			`);
-			eq(res, new Map([
+			assert.deepEqual(res, new Map([
 				['x', true]
 			]));
 		});
@@ -2175,7 +2169,7 @@ describe('meta', () => {
 			const res = getMeta(`
 			### x null
 			`);
-			eq(res, new Map([
+			assert.deepEqual(res, new Map([
 				['x', null]
 			]));
 		});
@@ -2186,7 +2180,7 @@ describe('meta', () => {
 			const res = getMeta(`
 			### x [1 2 3]
 			`);
-			eq(res, new Map([
+			assert.deepEqual(res, new Map([
 				['x', [1, 2, 3]]
 			]));
 		});
@@ -2209,7 +2203,7 @@ describe('meta', () => {
 			const res = getMeta(`
 			### x { a: 1; b: 2; c: 3; }
 			`);
-			eq(res, new Map([
+			assert.deepEqual(res, new Map([
 				['x', {
 					a: 1,
 					b: 2,
@@ -3227,7 +3221,7 @@ describe('std', () => {
 		test.concurrent('create', async () => {
 			eq(await exe("<: Arr:create(0)"), ARR([]));
 			eq(await exe("<: Arr:create(3)"), ARR([NULL, NULL, NULL]));
-			eq(await exe("<: Arr:create(3, 1)"), ARR([NUM(1), NUM(1), NUM(1)]));\
+			eq(await exe("<: Arr:create(3, 1)"), ARR([NUM(1), NUM(1), NUM(1)]));
 		});
 	});
 	
@@ -3512,49 +3506,49 @@ describe('std', () => {
 			const res = await exe(`
 				<: [Date:year(0), Date:year(1714946889010)]
 			`);
-			eq(res.value, [NUM(1970), NUM(2024)]);
+			eq(res, ARR([NUM(1970), NUM(2024)]));
 		});
 
 		test.concurrent('month', async () => {
 			const res = await exe(`
 				<: [Date:month(0), Date:month(1714946889010)]
 			`);
-			eq(res.value, [NUM(1), NUM(5)]);
+			eq(res, ARR([NUM(1), NUM(5)]));
 		});
 
 		test.concurrent('day', async () => {
 			const res = await exe(`
 				<: [Date:day(0), Date:day(1714946889010)]
 			`);
-			eq(res.value, [NUM(1), NUM(6)]);
+			eq(res, ARR([NUM(1), NUM(6)]));
 		});
 
 		test.concurrent('hour', async () => {
 			const res = await exe(`
 				<: [Date:hour(0), Date:hour(1714946889010)]
 			`);
-			eq(res.value, [NUM(0), NUM(7)]);
+			eq(res, ARR([NUM(0), NUM(7)]));
 		});
 
 		test.concurrent('minute', async () => {
 			const res = await exe(`
 				<: [Date:minute(0), Date:minute(1714946889010)]
 			`);
-			eq(res.value, [NUM(0), NUM(8)]);
+			eq(res, ARR([NUM(0), NUM(8)]));
 		});
 
 		test.concurrent('second', async () => {
 			const res = await exe(`
 				<: [Date:second(0), Date:second(1714946889010)]
 			`);
-			eq(res.value, [NUM(0), NUM(9)]);
+			eq(res, ARR([NUM(0), NUM(9)]));
 		});
 
 		test.concurrent('millisecond', async () => {
 			const res = await exe(`
 				<: [Date:millisecond(0), Date:millisecond(1714946889010)]
 			`);
-			eq(res.value, [NUM(0), NUM(10)]);
+			eq(res, ARR([NUM(0), NUM(10)]));
 		});
 
 		test.concurrent('to_iso_str', async () => {
