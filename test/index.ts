@@ -3502,53 +3502,55 @@ describe('std', () => {
 	});
 
 	describe('Date', () => {
+		const example_time = new Date(2024, 1 - 1, 2, 3, 4, 5, 6).getTime();
+		const zero_date = new Date(0);
 		test.concurrent('year', async () => {
 			const res = await exe(`
-				<: [Date:year(0), Date:year(1714946889010)]
+				<: [Date:year(0), Date:year(${example_time})]
 			`);
-			eq(res, ARR([NUM(1970), NUM(2024)]));
+			eq(res, ARR([NUM(zero_date.getFullYear()), NUM(2024)]));
 		});
 
 		test.concurrent('month', async () => {
 			const res = await exe(`
-				<: [Date:month(0), Date:month(1714946889010)]
+				<: [Date:month(0), Date:month(${example_time})]
 			`);
-			eq(res, ARR([NUM(1), NUM(5)]));
+			eq(res, ARR([NUM(zero_date.getMonth() + 1), NUM(1)]));
 		});
 
 		test.concurrent('day', async () => {
 			const res = await exe(`
-				<: [Date:day(0), Date:day(1714946889010)]
+				<: [Date:day(0), Date:day(${example_time})]
 			`);
-			eq(res, ARR([NUM(1), NUM(6)]));
+			eq(res, ARR([NUM(zero_date.getDate()), NUM(2)]));
 		});
 
 		test.concurrent('hour', async () => {
 			const res = await exe(`
-				<: [Date:hour(0), Date:hour(1714946889010)]
+				<: [Date:hour(0), Date:hour(${example_time})]
 			`);
-			eq(res, ARR([NUM(0), NUM(7)]));
+			eq(res, ARR([NUM(zero_date.getHours()), NUM(3)]));
 		});
 
 		test.concurrent('minute', async () => {
 			const res = await exe(`
-				<: [Date:minute(0), Date:minute(1714946889010)]
+				<: [Date:minute(0), Date:minute(${example_time})]
 			`);
-			eq(res, ARR([NUM(0), NUM(8)]));
+			eq(res, ARR([NUM(zero_date.getMinutes()), NUM(4)]));
 		});
 
 		test.concurrent('second', async () => {
 			const res = await exe(`
-				<: [Date:second(0), Date:second(1714946889010)]
+				<: [Date:second(0), Date:second(${example_time})]
 			`);
-			eq(res, ARR([NUM(0), NUM(9)]));
+			eq(res, ARR([NUM(zero_date.getSeconds()), NUM(5)]));
 		});
 
 		test.concurrent('millisecond', async () => {
 			const res = await exe(`
-				<: [Date:millisecond(0), Date:millisecond(1714946889010)]
+				<: [Date:millisecond(0), Date:millisecond(${example_time})]
 			`);
-			eq(res, ARR([NUM(0), NUM(10)]));
+			eq(res, ARR([NUM(zero_date.getMilliseconds()), NUM(6)]));
 		});
 
 		test.concurrent('to_iso_str', async () => {
