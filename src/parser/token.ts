@@ -19,6 +19,8 @@ export enum TokenKind {
 	EachKeyword,
 	ForKeyword,
 	LoopKeyword,
+	DoKeyword,
+	WhileKeyword,
 	BreakKeyword,
 	ContinueKeyword,
 	MatchKeyword,

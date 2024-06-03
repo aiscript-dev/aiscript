@@ -367,6 +367,12 @@ export class Scanner implements ITokenStream {
 			case 'loop': {
 				return TOKEN(TokenKind.LoopKeyword, loc, { hasLeftSpacing });
 			}
+			case 'do': {
+				return TOKEN(TokenKind.DoKeyword, loc, { hasLeftSpacing });
+			}
+			case 'while': {
+				return TOKEN(TokenKind.WhileKeyword, loc, { hasLeftSpacing });
+			}
 			case 'break': {
 				return TOKEN(TokenKind.BreakKeyword, loc, { hasLeftSpacing });
 			}
