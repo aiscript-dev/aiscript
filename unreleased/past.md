@@ -1,0 +1,10 @@
+- `Date:year`系の関数に0を渡すと現在時刻になる問題を修正
+- シンタックスエラーなどの位置情報を修正
+- `arr.reduce`が空配列に対して初期値なしで呼び出された時、正式にエラーを出すよう
+- `str.pad_start`,`str.pad_end`を追加
+- `arr.insert`,`arr.remove`を追加
+- `arr.sort`の処理を非同期的にして高速化
+- `arr.flat`,`arr.flat_map`を追加
+- `Uri:encode_full`, `Uri:encode_component`, `Uri:decode_full`, `Uri:decode_component`を追加
+- `str.starts_with`,`str.ends_with`を追加
+- `arr.splice`を追加

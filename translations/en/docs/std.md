@@ -113,19 +113,19 @@ Generates a numeric value from a hexadecimal string.
 Type: `str`.  
 Newline code (LF).
 
-### #Str:lt(a: str, b: str): num
+### @Str:lt(a: str, b: str): num
 Returns -1 if a < b,  
 0 if a == b,  
 or 1 if a > b.  
 Using this as a comparison function for `arr.sort`, the array is sorted in ascending lexicographic order.  
 
-### #Str:gt(a: str, b: str): num
+### @Str:gt(a: str, b: str): num
 Returns -1 if a > b,  
 0 if a == b,  
 or 1 if a < b.  
 Using this as the comparison function for `arr.sort`, the array is sorted in descending lexicographic order.  
 
-### #Str:from_codepoint(codepoint: num): str
+### @Str:from_codepoint(codepoint: num): str
 Generates character from unicode code point.   
 _codepoint_ must be greater than or equal to 0 and less than or equal to 10FFFFFF<sub>16</sub>.
 Multiple arguments are not supported yet.  
