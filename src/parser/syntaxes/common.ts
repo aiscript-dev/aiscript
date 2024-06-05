@@ -27,12 +27,11 @@ export function parseParams(s: ITokenStream): { name: string, argType?: Ast.Node
 		s.next();
 
 		let optional = false;
+		let defaultExpr;
 		if ((s.getKind() as TokenKind) === TokenKind.Question) {
 			s.next();
 			optional = true;
-		}
-		let defaultExpr;
-		if ((s.getKind() as TokenKind) === TokenKind.Eq) {
+		} else if ((s.getKind() as TokenKind) === TokenKind.Eq) {
 			s.next();
 			defaultExpr = parseExpr(s, false);
 		}

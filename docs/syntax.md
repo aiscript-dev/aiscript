@@ -109,6 +109,8 @@ var func = null
 @func() { // Runtime Error
   'hoge'
 }
+// 省略可能引数構文と初期値構文は併用できない
+@func(a? = 1) {} // Syntax Error
 ```
 
 ### 代入

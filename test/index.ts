@@ -611,6 +611,18 @@ describe('Function call', () => {
 		eq(res, ARR([NUM(5), NUM(3), NUM(2)]));
 	});
 
+	test.concurrent('args must not be both optional and default-valued', async () => {
+		try {
+			Parser.parse(`
+			@func(a? = 1){}
+			`);
+		} catch (e) {
+			assert.ok(e instanceof AiScriptSyntaxError);
+			return;
+		}
+		assert.fail();
+	});
+
 	test.concurrent('missing arg', async () => {
 		try {
 			await exe(`
