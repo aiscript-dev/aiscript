@@ -18,7 +18,7 @@ const reservedWord = [
 	'component',
 	'constructor',
 	// 'def',
-	'dictionary',
+	// 'dictionary',
 	'do',
 	'enum',
 	'export',

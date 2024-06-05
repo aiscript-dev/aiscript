@@ -6,11 +6,12 @@ import { autobind } from '../utils/mini-autobind.js';
 import { AiScriptError, NonAiScriptError, AiScriptNamespaceError, AiScriptIndexOutOfRangeError, AiScriptRuntimeError } from '../error.js';
 import { Scope } from './scope.js';
 import { std } from './lib/std.js';
-import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray, eq, isObject, isArray, expectAny, reprValue } from './util.js';
-import { NULL, RETURN, unWrapRet, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, BREAK, CONTINUE, ERROR } from './value.js';
+import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray, assertValue, eq, isObject, isArray, isValue, expectAny, reprValue } from './util.js';
+import { NULL, RETURN, unWrapRet, FN_NATIVE, BOOL, NUM, STR, ARR, DIC, OBJ, FN, BREAK, CONTINUE, ERROR } from './value.js';
 import { getPrimProp } from './primitive-props.js';
 import { Variable } from './variable.js';
 import type { Value, VFn } from './value.js';
+import { DicNode } from './dic.js';
 import type * as Ast from '../node.js';
 
 const IRQ_RATE = 300;
@@ -110,6 +111,7 @@ export class Interpreter {
 		function nodeToJs(node: Ast.Node): any {
 			switch (node.type) {
 				case 'arr': return node.value.map(item => nodeToJs(item));
+				case 'dic': return new DicNode(node.value.map(([key, val]) => [nodeToJs(key), nodeToJs(val)]));
 				case 'bool': return node.value;
 				case 'null': return null;
 				case 'num': return node.value;
@@ -437,6 +439,13 @@ export class Interpreter {
 
 			case 'arr': return ARR(await Promise.all(node.value.map(item => this._eval(item, scope))));
 
+			case 'dic': return DIC(new DicNode(await Promise.all(
+				node.value.map(async ([key, val]) => await Promise.all([
+					this._eval(key, scope),
+					this._eval(val, scope),
+				]))
+			)));
+
 			case 'obj': {
 				const obj = new Map() as Map<string, Value>;
 				for (const k of node.value.keys()) {
@@ -475,6 +484,8 @@ export class Interpreter {
 					} else {
 						return NULL;
 					}
+				} else if (isValue(target, 'dic')) {
+					return target.value.get(i);
 				} else {
 					throw new AiScriptRuntimeError(`Cannot read prop (${reprValue(i)}) of ${target.type}.`);
 				}
@@ -628,6 +639,8 @@ export class Interpreter {
 			} else if (isObject(assignee)) {
 				assertString(i);
 				assignee.value.set(i.value, value);
+			} else if (isValue(assignee, 'dic')) {
+				assignee.value.set(i, value);
 			} else {
 				throw new AiScriptRuntimeError(`Cannot read prop (${reprValue(i)}) of ${assignee.type}.`);
 			}
@@ -645,6 +658,11 @@ export class Interpreter {
 			assertObject(value);
 			await Promise.all([...dest.value].map(
 				([key, item]) => this.assign(scope, item, value.value.get(key) ?? NULL)
+			));
+		} else if (dest.type === 'dic') {
+			assertValue(value, 'dic');
+			await Promise.all([...dest.value].map(
+				async ([key, item]) => this.assign(scope, item, value.value.get(await this._eval(key, scope)) ?? NULL)
 			));
 		} else {
 			throw new AiScriptRuntimeError('The left-hand side of an assignment expression must be a variable or a property/index access.');

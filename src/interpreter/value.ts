@@ -1,5 +1,6 @@
 import type { Node } from '../node.js';
 import type { Scope } from './scope.js';
+import { DicNode } from './dic.js';
 
 export type VNull = {
 	type: 'null';
@@ -28,6 +29,11 @@ export type VArr = {
 export type VObj = {
 	type: 'obj';
 	value: Map<string, Value>;
+};
+
+export type VDic = {
+	type: 'dic';
+	value: DicNode;
 };
 
 export type VFn = VUserFn | VNativeFn;
@@ -80,7 +86,7 @@ export type Attr = {
 	}[];
 };
 
-export type Value = (VNull | VBool | VNum | VStr | VArr | VObj | VFn | VReturn | VBreak | VContinue | VError) & Attr;
+export type Value = (VNull | VBool | VNum | VStr | VArr | VObj | VDic | VFn | VReturn | VBreak | VContinue | VError) & Attr;
 
 export const NULL = {
 	type: 'null' as const,
@@ -119,6 +125,11 @@ export const OBJ = (obj: VObj['value']): VObj => ({
 export const ARR = (arr: VArr['value']): VArr => ({
 	type: 'arr' as const,
 	value: arr,
+});
+
+export const DIC = (dic: DicNode): VDic => ({
+	type: 'dic' as const,
+	value: dic,
 });
 
 export const FN = (args: VUserFn['args'], statements: VUserFn['statements'], scope: VUserFn['scope']): VUserFn => ({

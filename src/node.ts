@@ -128,6 +128,7 @@ export type Expression =
 	Null |
 	Obj |
 	Arr |
+	Dic |
 	Not |
 	And |
 	Or |
@@ -137,7 +138,7 @@ export type Expression =
 	Prop;
 
 const expressionTypes = [
-	'if', 'fn', 'match', 'block', 'exists', 'tmpl', 'str', 'num', 'bool', 'null', 'obj', 'arr', 'not', 'and', 'or', 'identifier', 'call', 'index', 'prop',
+	'if', 'fn', 'match', 'block', 'exists', 'tmpl', 'str', 'num', 'bool', 'null', 'obj', 'arr', 'dic', 'not', 'and', 'or', 'identifier', 'call', 'index', 'prop',
 ];
 export function isExpression(x: Node): x is Expression {
 	return expressionTypes.includes(x.type);
@@ -233,6 +234,11 @@ export type Obj = NodeBase & {
 export type Arr = NodeBase & {
 	type: 'arr'; // 配列
 	value: Expression[]; // アイテム
+};
+
+export type Dic = NodeBase & {
+	type: 'dic'; // 連想配列
+	value: [Expression, Expression][]; // アイテム
 };
 
 export type Identifier = NodeBase & {
