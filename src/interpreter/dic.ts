@@ -4,9 +4,10 @@
  * を参照して下さい。
  */
 
-import { SeriExpToken, serialize, deserialize } from './serial-expression.js'
-import { Value, VFn, NULL } from './value.js';
-
+import { serialize, deserialize } from './serial-expression.js';
+import { NULL } from './value.js';
+import type { SeriExpToken } from './serial-expression.js';
+import type { Value } from './value.js';
 
 // TODO: 同時書き込みが発生した場合の衝突の解決
 export class DicNode {

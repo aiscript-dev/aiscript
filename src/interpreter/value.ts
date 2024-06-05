@@ -1,6 +1,6 @@
+import type { DicNode } from './dic.js';
 import type { Node } from '../node.js';
 import type { Scope } from './scope.js';
-import { DicNode } from './dic.js';
 
 export type VNull = {
 	type: 'null';

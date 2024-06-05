@@ -109,6 +109,11 @@ function assertObject(val: Value | null | undefined): asserts val is VObj;
 function assertString(val: Value | null | undefined): asserts val is VStr;
 
 // @public (undocumented)
+function assertValue<TLabel extends Value['type']>(val: Value | null | undefined, label: TLabel): asserts val is Value & {
+    type: TLabel;
+};
+
+// @public (undocumented)
 type Assign = NodeBase & {
     type: 'assign';
     dest: Expression;
@@ -151,6 +156,7 @@ declare namespace Ast {
         Null,
         Obj,
         Arr,
+        Dic,
         Identifier,
         Call,
         Index,
@@ -225,6 +231,17 @@ type Definition = NodeBase & {
     attr: Attribute[];
 };
 
+// Warning: (ae-forgotten-export) The symbol "DicNode" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+const DIC: (dic: DicNode) => VDic;
+
+// @public (undocumented)
+type Dic = NodeBase & {
+    type: 'dic';
+    value: [Expression, Expression][];
+};
+
 // @public (undocumented)
 type Each = NodeBase & {
     type: 'each';
@@ -263,7 +280,7 @@ type Exists = NodeBase & {
 function expectAny(val: Value | null | undefined): asserts val is Value;
 
 // @public (undocumented)
-type Expression = If | Fn | Match | Block | Exists | Tmpl | Str | Num | Bool | Null | Obj | Arr | Not | And | Or | Identifier | Call | Index | Prop;
+type Expression = If | Fn | Match | Block | Exists | Tmpl | Str | Num | Bool | Null | Obj | Arr | Dic | Not | And | Or | Identifier | Call | Index | Prop;
 
 // @public (undocumented)
 const FALSE: {
@@ -383,6 +400,11 @@ function isStatement(x: Node_2): x is Statement;
 
 // @public (undocumented)
 function isString(val: Value): val is VStr;
+
+// @public (undocumented)
+function isValue<TLabel extends Value['type']>(val: Value, label: TLabel): val is Value & {
+    type: TLabel;
+};
 
 // @public (undocumented)
 function jsToVal(val: any): Value;
@@ -590,12 +612,14 @@ declare namespace utils {
         assertNumber,
         assertObject,
         assertArray,
+        assertValue,
         isBoolean,
         isFunction,
         isString,
         isNumber,
         isObject,
         isArray,
+        isValue,
         eq,
         valToString,
         valToJs,
@@ -613,7 +637,7 @@ function valToJs(val: Value): any;
 function valToString(val: Value, simple?: boolean): string;
 
 // @public (undocumented)
-type Value = (VNull | VBool | VNum | VStr | VArr | VObj | VFn | VReturn | VBreak | VContinue | VError) & Attr_2;
+type Value = (VNull | VBool | VNum | VStr | VArr | VObj | VDic | VFn | VReturn | VBreak | VContinue | VError) & Attr_2;
 
 declare namespace values {
     export {
@@ -623,6 +647,7 @@ declare namespace values {
         VStr,
         VArr,
         VObj,
+        VDic,
         VFn,
         VUserFn,
         VNativeFn,
@@ -640,6 +665,7 @@ declare namespace values {
         BOOL,
         OBJ,
         ARR,
+        DIC,
         FN,
         FN_NATIVE,
         RETURN,
@@ -673,6 +699,12 @@ type VBreak = {
 type VContinue = {
     type: 'continue';
     value: null;
+};
+
+// @public (undocumented)
+type VDic = {
+    type: 'dic';
+    value: DicNode;
 };
 
 // @public (undocumented)

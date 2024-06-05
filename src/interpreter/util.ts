@@ -1,6 +1,6 @@
 import { AiScriptRuntimeError } from '../error.js';
 import { STR, NUM, ARR, OBJ, NULL, BOOL } from './value.js';
-import type { Value, VStr, VNum, VBool, VFn, VObj, VArr, VDic } from './value.js';
+import type { Value, VStr, VNum, VBool, VFn, VObj, VArr } from './value.js';
 
 export function expectAny(val: Value | null | undefined): asserts val is Value {
 	if (val == null) {

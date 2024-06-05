@@ -10,10 +10,10 @@
 
 // TODO: ループ構造対策
 
-import type { Value, VFn } from './value.js';
+import { mustBeNever } from '../utils/mustbenever.js';
 import { NULL, BOOL, NUM, STR, ARR, OBJ, DIC, ERROR, RETURN, BREAK, CONTINUE } from './value.js';
 import { DicNode } from './dic.js';
-import { isFunction } from './util.js';
+import type { Value, VFn } from './value.js';
 
 export type SeriExpToken = 
 	| null
@@ -59,7 +59,7 @@ export function* serialize(val: Value): Generator<SeriExpToken, void, undefined>
 		case 'error':
 			yield SeriExpSymbols[val.type];
 			yield* serialize(val.info ?? NULL);
-		break;
+			break;
 		case 'arr':
 			yield SeriExpSymbols[val.type];
 			for (const v of val.value) yield* serialize(v);
@@ -82,8 +82,7 @@ export function* serialize(val: Value): Generator<SeriExpToken, void, undefined>
 			yield SeriExpSymbols.end;
 			break;
 		default:
-			const mustBeNever: never = val;
-			throw new Error('unknown type');
+			mustBeNever(val, 'serializing unknown type');
 	}
 }
 
@@ -106,15 +105,15 @@ function deserializeInnerValueOrEnd(iterator: Iterator<SeriExpToken>): Value | t
 	const nextValueOrEnd = () => deserializeInnerValueOrEnd(iterator);
 	const nextString = () => {
 		const token = nextStringOrEnd();
-		if (typeof token !== 'string') throw new Error(`unexpected token of serial expression: end`);
+		if (typeof token !== 'string') throw new Error('unexpected token of serial expression: end');
 		return token;
-	}
+	};
 	const nextStringOrEnd = () => {
 		const { value: token, done } = iterator.next();
 		if (done) throw new Error('unexpected end of serial expression');
 		if (token !== SeriExpSymbols.end || typeof token !== 'string') throw new Error(`unexpected token of serial expression: ${token as string}`);
 		return token;
-	}
+	};
 
 	switch (typeof token) {
 		case 'boolean': return BOOL(token);
@@ -127,9 +126,7 @@ function deserializeInnerValueOrEnd(iterator: Iterator<SeriExpToken>): Value | t
 
 	if (typeof token !== 'symbol') {
 		// 網羅性チェック、何故かVFnが残っている
-		// const mustBeNever: never = token;
-		const mustBeNever: VFn = token;
-		throw new Error(`unknown SeriExpToken type: ${token}`);
+		mustBeNever<VFn>(token, `unknown SeriExpToken type: ${token}`);
 	}
 
 	switch (token) {
@@ -141,8 +138,8 @@ function deserializeInnerValueOrEnd(iterator: Iterator<SeriExpToken>): Value | t
 			nextValue(),
 		);
 		case SeriExpSymbols.arr: {
-			const elems: Value[] = []
-			while(true) {
+			const elems: Value[] = [];
+			while (true) {
 				const valueOrEnd = nextValueOrEnd();
 				if (valueOrEnd === END) return ARR(elems);
 				elems.push(valueOrEnd);
@@ -150,7 +147,7 @@ function deserializeInnerValueOrEnd(iterator: Iterator<SeriExpToken>): Value | t
 		}
 		case SeriExpSymbols.obj: {
 			const elems = new Map<string, Value>();
-			while(true) {
+			while (true) {
 				const key = nextStringOrEnd();
 				if (key === SeriExpSymbols.end) return OBJ(elems);
 				elems.set(key, nextValue());
@@ -158,7 +155,7 @@ function deserializeInnerValueOrEnd(iterator: Iterator<SeriExpToken>): Value | t
 		}
 		case SeriExpSymbols.dic: {
 			const elems = new DicNode();
-			while(true) {
+			while (true) {
 				const key = nextValueOrEnd();
 				if (key === END) return DIC(elems);
 				elems.set(key, nextValue());

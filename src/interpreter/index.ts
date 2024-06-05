@@ -10,8 +10,8 @@ import { assertNumber, assertString, assertFunction, assertBoolean, assertObject
 import { NULL, RETURN, unWrapRet, FN_NATIVE, BOOL, NUM, STR, ARR, DIC, OBJ, FN, BREAK, CONTINUE, ERROR } from './value.js';
 import { getPrimProp } from './primitive-props.js';
 import { Variable } from './variable.js';
-import type { Value, VFn } from './value.js';
 import { DicNode } from './dic.js';
+import type { Value, VFn } from './value.js';
 import type * as Ast from '../node.js';
 
 const IRQ_RATE = 300;
@@ -443,7 +443,7 @@ export class Interpreter {
 				node.value.map(async ([key, val]) => await Promise.all([
 					this._eval(key, scope),
 					this._eval(val, scope),
-				]))
+				])),
 			)));
 
 			case 'obj': {
@@ -652,17 +652,17 @@ export class Interpreter {
 		} else if (dest.type === 'arr') {
 			assertArray(value);
 			await Promise.all(dest.value.map(
-				(item, index) => this.assign(scope, item, value.value[index] ?? NULL)
+				(item, index) => this.assign(scope, item, value.value[index] ?? NULL),
 			));
 		} else if (dest.type === 'obj') {
 			assertObject(value);
 			await Promise.all([...dest.value].map(
-				([key, item]) => this.assign(scope, item, value.value.get(key) ?? NULL)
+				([key, item]) => this.assign(scope, item, value.value.get(key) ?? NULL),
 			));
 		} else if (dest.type === 'dic') {
 			assertValue(value, 'dic');
 			await Promise.all([...dest.value].map(
-				async ([key, item]) => this.assign(scope, item, value.value.get(await this._eval(key, scope)) ?? NULL)
+				async ([key, item]) => this.assign(scope, item, value.value.get(await this._eval(key, scope)) ?? NULL),
 			));
 		} else {
 			throw new AiScriptRuntimeError('The left-hand side of an assignment expression must be a variable or a property/index access.');
