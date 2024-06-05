@@ -45,6 +45,12 @@ export function parseStatement(s: ITokenStream): Ast.Node {
 		case TokenKind.LoopKeyword: {
 			return parseLoop(s);
 		}
+		case TokenKind.DoKeyword: {
+			return parseDoWhile(s);
+		}
+		case TokenKind.WhileKeyword: {
+			return parseWhile(s);
+		}
 		case TokenKind.BreakKeyword: {
 			s.next();
 			return NODE('break', {}, loc);
@@ -374,6 +380,54 @@ function parseLoop(s: ITokenStream): Ast.Node {
 	s.nextWith(TokenKind.LoopKeyword);
 	const statements = parseBlock(s);
 	return NODE('loop', { statements }, loc);
+}
+
+/**
+ * ```abnf
+ * Loop = "do" BlockOrStatement "while" Expr
+ * ```
+*/
+function parseDoWhile(s: ITokenStream): Ast.Node {
+	const doLoc = s.token.loc;
+	s.nextWith(TokenKind.DoKeyword);
+	const body = parseBlockOrStatement(s);
+	const whileLoc = s.token.loc;
+	s.nextWith(TokenKind.WhileKeyword);
+	const cond = parseExpr(s, false);
+
+	return NODE('loop', {
+		statements: [
+			body,
+			NODE('if', {
+				cond: NODE('not', { expr: cond }, whileLoc),
+				then: NODE('break', {}, whileLoc),
+				elseif: [],
+			}, whileLoc),
+		],
+	}, doLoc);
+}
+
+/**
+ * ```abnf
+ * Loop = "while" Expr BlockOrStatement
+ * ```
+*/
+function parseWhile(s: ITokenStream): Ast.Node {
+	const loc = s.token.loc;
+	s.nextWith(TokenKind.WhileKeyword);
+	const cond = parseExpr(s, false);
+	const body = parseBlockOrStatement(s);
+
+	return NODE('loop', {
+		statements: [
+			NODE('if', {
+				cond: NODE('not', { expr: cond }, loc),
+				then: NODE('break', {}, loc),
+				elseif: [],
+			}, loc),
+			body,
+		],
+	}, loc);
 }
 
 /**
