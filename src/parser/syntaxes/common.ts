@@ -2,6 +2,7 @@ import { TokenKind } from '../token.js';
 import { AiScriptSyntaxError } from '../../error.js';
 import { NODE } from '../utils.js';
 import { parseStatement } from './statements.js';
+import { parseExpr } from './expressions.js';
 
 import type { ITokenStream } from '../streams/token-stream.js';
 import type * as Ast from '../../node.js';
@@ -12,7 +13,7 @@ import type * as Ast from '../../node.js';
  * ```
 */
 export function parseParams(s: ITokenStream): { name: string, argType?: Ast.Node }[] {
-	const items: { name: string, argType?: Ast.Node }[] = [];
+	const items: { name: string, optional?: boolean, default?: Ast.Node, argType?: Ast.Node }[] = [];
 
 	s.nextWith(TokenKind.OpenParen);
 
@@ -25,13 +26,22 @@ export function parseParams(s: ITokenStream): { name: string, argType?: Ast.Node
 		const name = s.token.value!;
 		s.next();
 
+		let optional = false;
+		let defaultExpr;
+		if ((s.getKind() as TokenKind) === TokenKind.Question) {
+			s.next();
+			optional = true;
+		} else if ((s.getKind() as TokenKind) === TokenKind.Eq) {
+			s.next();
+			defaultExpr = parseExpr(s, false);
+		}
 		let type;
 		if (s.getKind() === TokenKind.Colon) {
 			s.next();
 			type = parseType(s);
 		}
 
-		items.push({ name, argType: type });
+		items.push({ name, optional, default: defaultExpr, argType: type });
 
 		// separator
 		switch (s.getKind()) {
