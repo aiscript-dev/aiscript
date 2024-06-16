@@ -439,12 +439,12 @@ export class Interpreter {
 
 			case 'arr': return ARR(await Promise.all(node.value.map(item => this._eval(item, scope))));
 
-			case 'dic': return DIC(new DicNode(await Promise.all(
+			case 'dic': return DIC.fromEntries(await Promise.all(
 				node.value.map(async ([key, val]) => await Promise.all([
 					this._eval(key, scope),
 					this._eval(val, scope),
 				])),
-			)));
+			));
 
 			case 'obj': {
 				const obj = new Map() as Map<string, Value>;

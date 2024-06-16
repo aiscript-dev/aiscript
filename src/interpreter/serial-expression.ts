@@ -157,7 +157,7 @@ function deserializeInnerValueOrEnd(iterator: Iterator<SeriExpToken>): Value | t
 			const elems = new DicNode();
 			while (true) {
 				const key = nextValueOrEnd();
-				if (key === END) return DIC(elems);
+				if (key === END) return DIC.fromNode(elems);
 				elems.set(key, nextValue());
 			}
 		}

@@ -1,4 +1,5 @@
-import type { DicNode } from './dic.js';
+import { DicNode } from './dic.js';
+export { DicNode };
 import type { Node } from '../node.js';
 import type { Scope } from './scope.js';
 
@@ -127,10 +128,16 @@ export const ARR = (arr: VArr['value']): VArr => ({
 	value: arr,
 });
 
-export const DIC = (dic: DicNode): VDic => ({
-	type: 'dic' as const,
-	value: dic,
-});
+export const DIC = {
+	fromNode: (dic: DicNode): VDic => ({
+		type: 'dic' as const,
+		value: dic,
+	}),
+	fromEntries: (...dic: ConstructorParameters<typeof DicNode>): VDic => ({
+		type: 'dic' as const,
+		value: new DicNode(...dic),
+	}),
+};
 
 export const FN = (args: VUserFn['args'], statements: VUserFn['statements'], scope: VUserFn['scope']): VUserFn => ({
 	type: 'fn' as const,

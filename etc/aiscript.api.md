@@ -231,16 +231,38 @@ type Definition = NodeBase & {
     attr: Attribute[];
 };
 
-// Warning: (ae-forgotten-export) The symbol "DicNode" needs to be exported by the entry point index.d.ts
-//
 // @public (undocumented)
-const DIC: (dic: DicNode) => VDic;
+const DIC: {
+    fromNode: (dic: DicNode) => VDic;
+    fromEntries: (kvs?: [Value, Value][] | undefined) => VDic;
+};
 
 // @public (undocumented)
 type Dic = NodeBase & {
     type: 'dic';
     value: [Expression, Expression][];
 };
+
+// @public (undocumented)
+class DicNode {
+    constructor(kvs?: [Value, Value][]);
+    // (undocumented)
+    get(key: Value): Value;
+    // Warning: (ae-forgotten-export) The symbol "SeriExpToken" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    getRaw(keyGen: Generator<SeriExpToken, void, undefined>): Value | undefined;
+    // (undocumented)
+    has(key: Value): boolean;
+    // (undocumented)
+    kvs(): Generator<[Value, Value], void, undefined>;
+    // (undocumented)
+    serializedKvs(keyPrefix?: SeriExpToken[]): Generator<[SeriExpToken[], Value], void, undefined>;
+    // (undocumented)
+    set(key: Value, val: Value): void;
+    // (undocumented)
+    setRaw(keyGen: Generator<SeriExpToken, void, undefined>, val: Value): void;
+}
 
 // @public (undocumented)
 type Each = NodeBase & {
@@ -641,6 +663,7 @@ type Value = (VNull | VBool | VNum | VStr | VArr | VObj | VDic | VFn | VReturn |
 
 declare namespace values {
     export {
+        DicNode,
         VNull,
         VBool,
         VNum,
