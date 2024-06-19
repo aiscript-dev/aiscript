@@ -15,6 +15,10 @@ const PRIMITIVE_PROPS: {
 		to_str: (target: VNum): VFn => FN_NATIVE(async (_, _opts) => {
 			return STR(target.value.toString());
 		}),
+
+		to_hex: (target: VNum): VFn => FN_NATIVE(async (_, _opts) => {
+			return STR(target.value.toString(16));
+		}),
 	},
 
 	str: {
@@ -291,7 +295,7 @@ const PRIMITIVE_PROPS: {
 					const r = right[rightIndex]!;
 					const compValue = await opts.call(comp, [l, r]);
 					assertNumber(compValue);
-					if (compValue.value < 0) {
+					if (compValue.value <= 0) {
 						result.push(left[leftIndex]!);
 						leftIndex++;
 					} else {
