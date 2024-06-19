@@ -71,7 +71,29 @@ let add2 = @(x, y) {
 ) {
 	x + y
 }
-@add5(x,y){x+y} // ワンライナー
+// 省略可能引数
+@func1(a, b?) {
+	<: a
+	<: b // 省略されるとnullになる
+}
+func1('hoge') // 'hoge' null
+// 初期値を設定された引数（省略可能引数と組み合わせて使用可能）
+@func2(a, b?, c = 'piyo', d?) {
+	<: a
+	<: b
+	<: c
+	<: d
+}
+func2('hoge', 'fuga') // 'hoge' 'fuga' 'piyo' null
+// 初期値には変数を使用可能（値は宣言時点で固定）
+var v = 'hoge'
+@func3(a = v) {
+	<: a
+}
+v = 'fuga'
+func3() // 'hoge'
+// ワンライナー
+@func4(a,b?,c=1){<:a;<:b;<:c}
 ```
 ```js
 // match等の予約語は関数名として使用できない
@@ -87,6 +109,8 @@ var func = null
 @func() { // Runtime Error
   'hoge'
 }
+// 省略可能引数構文と初期値構文は併用できない
+@func(a? = 1) {} // Syntax Error
 ```
 
 ### 代入

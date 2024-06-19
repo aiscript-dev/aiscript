@@ -1,6 +1,7 @@
 import { DicNode } from './dic.js';
 export { DicNode };
 import type { Node } from '../node.js';
+import type { Type } from '../type.js';
 import type { Scope } from './scope.js';
 
 export type VNull = {
@@ -40,13 +41,18 @@ export type VDic = {
 export type VFn = VUserFn | VNativeFn;
 type VFnBase = {
 	type: 'fn';
-	args?: string[];
 };
 export type VUserFn = VFnBase & {
 	native?: undefined; // if (vfn.native) で型アサーション出来るように
+	args: VFnArg[];
 	statements: Node[];
 	scope: Scope;
 };
+export type VFnArg = {
+	name: string;
+	type?: Type;
+	default?: Value;
+}
 /**
  * When your AiScript NATIVE function passes VFn.call to other caller(s) whose error thrown outside the scope, use VFn.topCall instead to keep it under AiScript error control system.
  */
