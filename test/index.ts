@@ -6,7 +6,7 @@
 import * as assert from 'assert';
 import { expect, test } from '@jest/globals';
 import { Parser, Interpreter, utils, errors, Ast } from '../src';
-import { NUM, STR, NULL, ARR, OBJ, BOOL, TRUE, FALSE, ERROR ,FN_NATIVE } from '../src/interpreter/value';
+import { NUM, STR, NULL, ARR, OBJ, DIC, BOOL, TRUE, FALSE, ERROR, FN_NATIVE } from '../src/interpreter/value';
 import { AiScriptSyntaxError, AiScriptRuntimeError, AiScriptIndexOutOfRangeError } from '../src/error';
 import { exe, eq } from './testutils';
 
@@ -318,6 +318,104 @@ describe('Array', () => {
 			return;
 		}
 		assert.fail();
+	});
+});
+
+describe('Dictionary', () => {
+	describe('simple keys', () => {
+		test.concurrent('basic', () => exe(`
+			let dic1 = dic {
+				[null]: false
+				[true]: 'fuga'
+				[3]: 57
+				['hoge']: null
+			}
+			<: [dic1, dic1[null], dic1[true], dic1[3], dic1['hoge']]
+		`).then(res => eq(res, ARR([
+			DIC.fromEntries([
+				[NULL, FALSE],
+				[TRUE, STR('fuga')],
+				[NUM(3), NUM(57)],
+				[STR('hoge'), NULL],
+			]),
+			FALSE,
+			STR('fuga'),
+			NUM(57),
+			NULL,
+		]))));
+
+		test.concurrent('assignment', () => exe(`
+			var a = dic { [null]: 1 , [true]: true }
+			a[true] = false
+			a[22] = 'bar'
+			<: [a[null], a[true], a[22]]
+		`).then(res => eq(res, ARR([
+			NUM(1), FALSE, STR('bar')
+		]))));
+	});
+	
+	describe('fn keys', () => {
+		test.concurrent('basic', () => exe(`
+			let key1 = @(a) {a}
+			let key2 = Core:add
+			let dic1 = dic {
+				[key1]: 1
+				[Core:add]: 2
+			}
+			<: [dic1[key1], dic1[key2]]
+		`).then(res => eq(res, ARR([NUM(1), NUM(2)]))));
+
+		test.concurrent('same form', () => exe(`
+			let key1 = @() {}
+			let key2 = @() {}
+			let dic1 = dic {
+				[key1]: 1
+				[key2]: 2
+			}
+			<: [dic1[key1], dic1[key2]]
+		`).then(res => eq(res, ARR([NUM(1), NUM(2)]))));
+	});
+
+	describe('structure keys', () => {
+		test.concurrent('basic', () => exe(`
+			let dic1 = dic {
+				[[]]: 1
+				[[1, 2]]: 2
+				[{}]: 3
+				[{a: 1}]: 4
+				[dic {}]: 5
+				[dic {[[]]: null}]: 6
+			}
+			<: [dic1[[]], dic1[[1, 2]], dic1[{}], dic1[{a: 1}], dic1[dic {}], dic1[dic {[[]]: null}]]
+		`).then(res => eq(res, ARR([NUM(1), NUM(2), NUM(3), NUM(4), NUM(5), NUM(6)]))));
+
+		test.concurrent('assignment', () => exe(`
+			var dic1 = dic {
+				[[0, 1]]: 'kept-arr'
+				[[0]]: 'overwritten-arr'
+				[{a: 0, b: 1}]: 'kept-obj'
+				[{a: 0}]: 'overwritten-obj'
+				[dic {[{}]: 'hoge', [{a: 0}]: 'fuga'}]: 'kept-dic'
+				[dic {[{}]: 'hoge'}]: 'overwritten-dic'
+			}
+			dic1[[0]] = 'set-arr'
+			dic1[[0, 1, 2]] = 'added-arr'
+			dic1[{a: 0, b: 1, c: 2}] = 'added-obj'
+			dic1[{a: 0}] = 'set-obj'
+			dic1[dic {[{}]: 'hoge'}] = 'set-dic'
+			dic1[dic {[{}]: 'hoge', [{a: 0}]: 'fuga', [dic {}]: 'piyo'}] = 'added-dic'
+			<: [
+				dic1[[0]], dic1[[0, 1]], dic1[[0, 1, 2]],
+				dic1[{a: 0}], dic1[{a: 0, b: 1}], dic1[{a: 0, b: 1, c: 2}],
+				dic1[dic {[{}]: 'hoge'}],
+				dic1[dic {[{}]: 'hoge', [{a: 0}]: 'fuga'}],
+				dic1[dic {[{}]: 'hoge', [{a: 0}]: 'fuga', [dic {}]: 'piyo'}],
+			]
+		`).then(res => eq(res, ARR([
+			STR('set-arr'), STR('kept-arr'), STR('added-arr'),
+			STR('set-obj'), STR('kept-obj'), STR('added-obj'),
+			STR('set-dic'), STR('kept-dic'), STR('added-dic'),
+		]))));
 	});
 });
 
