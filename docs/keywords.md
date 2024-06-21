@@ -18,7 +18,7 @@ let match=null // エラー
 ## 一覧
 以下の単語が予約語として登録されています。  
 ### 使用中の語
-`null`, `true`, `false`, `each`, `for`, `loop`, `break`, `continue`, `match`, `case`, `default`, `if`, `elif`, `else`, `return`, `eval`, `var`, `let`, `exists`
+`null`, `true`, `false`, `each`, `for`, `loop`, `break`, `continue`, `match`, `case`, `default`, `if`, `elif`, `else`, `return`, `eval`, `var`, `let`, `exists`, `dic`
 
 ### 使用予定の語
-`as`, `async`, `attr`, `attribute`, `await`, `catch`, `class`, `component`, `constructor`, `dictionary`, `do`, `enum`, `export`, `finally`, `fn`, `hash`, `in`, `interface`, `out`, `private`, `public`, `ref`, `static`, `struct`, `table`, `this`, `throw`, `trait`, `try`, `undefined`, `use`, `using`, `when`, `while`, `yield`, `import`, `is`, `meta`, `module`, `namespace`, `new`
+`as`, `async`, `attr`, `attribute`, `await`, `catch`, `class`, `component`, `constructor`, `do`, `enum`, `export`, `finally`, `fn`, `hash`, `in`, `interface`, `out`, `private`, `public`, `ref`, `static`, `struct`, `table`, `this`, `throw`, `trait`, `try`, `undefined`, `use`, `using`, `when`, `while`, `yield`, `import`, `is`, `meta`, `module`, `namespace`, `new`

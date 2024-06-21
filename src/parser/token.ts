@@ -34,6 +34,7 @@ export enum TokenKind {
 	VarKeyword,
 	LetKeyword,
 	ExistsKeyword,
+	DicKeyword,
 
 	/** "!" */
 	Not,
