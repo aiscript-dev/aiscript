@@ -572,6 +572,7 @@ export class Interpreter {
         err?(e: AiScriptError): void;
         log?(type: string, params: Record<string, any>): void;
         maxStep?: number;
+        failToAbort?: boolean;
     });
     // (undocumented)
     abort(): void;

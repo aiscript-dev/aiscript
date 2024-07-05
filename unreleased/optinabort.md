@@ -1,0 +1,1 @@
+- For Hosts: エラーハンドラ使用時、InterpreterのオプションでfailToAbortをtrueにした時のみ全体のabortを行うように
