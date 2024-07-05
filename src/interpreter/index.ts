@@ -157,9 +157,9 @@ export class Interpreter {
 	private handleError(e: unknown): void {
 		if (!this.opts.err) throw e;
 		if (this.opts.failToAbort) {
-			// when failToAbort is true error handler should be called only once
+			// when failToAbort is true, error handler should be called only once
 			if (this.stop) return;
-			else this.abort();
+			this.abort();
 		}
 		if (e instanceof AiScriptError) {
 			this.opts.err(e);
