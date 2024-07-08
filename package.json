@@ -29,7 +29,9 @@
 		"lint": "eslint . --ext .js,.jsx,.ts,.tsx",
 		"jest": "jest --coverage --detectOpenHandles",
 		"tsd": "tsd",
-		"test": "npm run jest"
+		"test": "npm run jest",
+		"pre-release": "node scripts/pre-release.mjs && npm run build",
+		"prepublishOnly": "node scripts/check-release.mjs"
 	},
 	"devDependencies": {
 		"@microsoft/api-extractor": "7.42.3",
@@ -43,6 +45,7 @@
 		"eslint": "8.57.0",
 		"eslint-plugin-import": "2.29.1",
 		"jest": "29.7.0",
+		"semver": "7.6.2",
 		"ts-jest": "29.1.2",
 		"ts-jest-resolver": "2.0.1",
 		"ts-node": "10.9.2",

@@ -231,10 +231,12 @@ export class Interpreter {
 			return result ?? NULL;
 		} else {
 			const _args = new Map<string, Variable>();
-			for (let i = 0; i < (fn.args ?? []).length; i++) {
-				_args.set(fn.args![i]!, {
+			for (const i of fn.args.keys()) {
+				const argdef = fn.args[i]!;
+				if (!argdef.default) expectAny(args[i]);
+				_args.set(argdef.name, {
 					isMutable: true,
-					value: args[i]!,
+					value: args[i] ?? argdef.default!,
 				});
 			}
 			const fnScope = fn.scope!.createChildScope(_args);
@@ -487,7 +489,17 @@ export class Interpreter {
 			}
 
 			case 'fn': {
-				return FN(node.args.map(arg => arg.name), node.children, scope);
+				return FN(
+					await Promise.all(node.args.map(async (arg) => {
+						return {
+							name: arg.name,
+							default: arg.default ? await this._eval(arg.default, scope) : arg.optional ? NULL : undefined,
+							// type: (TODO)
+						};
+					})),
+					node.children,
+					scope,
+				);
 			}
 
 			case 'block': {
