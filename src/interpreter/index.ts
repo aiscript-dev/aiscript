@@ -31,7 +31,7 @@ export class Interpreter {
 			err?(e: AiScriptError): void;
 			log?(type: string, params: Record<string, any>): void;
 			maxStep?: number;
-			failToAbort?: boolean;
+			abortOnError?: boolean;
 		} = {},
 	) {
 		const io = {
@@ -156,8 +156,8 @@ export class Interpreter {
 	@autobind
 	private handleError(e: unknown): void {
 		if (!this.opts.err) throw e;
-		if (this.opts.failToAbort) {
-			// when failToAbort is true, error handler should be called only once
+		if (this.opts.abortOnError) {
+			// when abortOnError is true, error handler should be called only once
 			if (this.stop) return;
 			this.abort();
 		}
