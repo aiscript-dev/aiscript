@@ -31,6 +31,7 @@ export class Interpreter {
 			err?(e: AiScriptError): void;
 			log?(type: string, params: Record<string, any>): void;
 			maxStep?: number;
+			abortOnError?: boolean;
 		} = {},
 	) {
 		const io = {
@@ -153,19 +154,17 @@ export class Interpreter {
 	}
 
 	@autobind
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private handleError(e: any): void {
-		if (this.opts.err) {
-			if (!this.stop) {
-				this.abort();
-				if (e instanceof AiScriptError) {
-					this.opts.err(e);
-				} else {
-					this.opts.err(new NonAiScriptError(e));
-				}
-			}
+	private handleError(e: unknown): void {
+		if (!this.opts.err) throw e;
+		if (this.opts.abortOnError) {
+			// when abortOnError is true, error handler should be called only once
+			if (this.stop) return;
+			this.abort();
+		}
+		if (e instanceof AiScriptError) {
+			this.opts.err(e);
 		} else {
-			throw e;
+			this.opts.err(new NonAiScriptError(e));
 		}
 	}
 
@@ -239,7 +238,7 @@ export class Interpreter {
 			for (let i = 0; i < (fn.args ?? []).length; i++) {
 				_args.set(fn.args![i]!, {
 					isMutable: true,
-					value: args[i]!,
+					value: args[i] ?? NULL,
 				});
 			}
 			const fnScope = fn.scope!.createChildScope(_args);
