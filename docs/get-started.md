@@ -41,9 +41,9 @@ AiScriptのコメントは`//`で始めます。
 this is a comment
 */
 ```
-## 第一級オブジェクト
+## 組み込み型
 <table>
-	<tr><th>種類</th><th>型</th><th>リテラル例</th></tr>
+	<tr><th>名称</th><th>型名</th><th>リテラル例</th></tr>
 	<tr><td>文字列</td><td><code>str</code></td><td><code>"kawaii"</code></td></tr>
 	<tr><td>数値</td><td><code>num</code></td><td><code>42</code></td></tr>
 	<tr><td>真理値</td><td><code>bool</code></td><td><code>true</code>/<code>false</code></td></tr>
@@ -241,10 +241,10 @@ each (let item, items) {
 
 [標準定数・関数一覧](./std.md)
 
-### プリミティブ値
-第一級オブジェクトに`.`をつけて呼び出すことができる値および関数です。
+### 組み込みプロパティ
+オブジェクト以外の値に`.`をつけて呼び出すことができる擬似的なプロパティです。
 
-[プリミティブ値一覧](./primitive-props.md)
+[組み込みプロパティ一覧](./builtin-props.md)
 
 ## テンプレート
 バッククォートを使うと、文字列の中に変数や式を埋め込めます:
