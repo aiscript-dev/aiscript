@@ -257,29 +257,21 @@ describe('Array', () => {
 	});
 
 	test.concurrent('Assign array item to out of range', async () => {
-		try {
-			await exe(`
-					let arr = [1, 2, 3]
+		assert.rejects(exe(`
+			let arr = [1, 2, 3]
 
-					arr[3] = 4
+			arr[3] = 4
 
-					<: null
-				`)
-		} catch (e) {
-			eq(e instanceof AiScriptIndexOutOfRangeError, false);
-		}
+			<: null
+		`), AiScriptIndexOutOfRangeError);
 
-		try {
-			await exe(`
-					let arr = [1, 2, 3]
+		assert.rejects(exe(`
+			let arr = [1, 2, 3]
 
-					arr[9] = 10
+			arr[9] = 10
 
-					<: null
-				`)
-		} catch (e) {
-			eq(e instanceof AiScriptIndexOutOfRangeError, true);
-		}
+			<: null
+		`), AiScriptIndexOutOfRangeError)
 	});
 
 	test.concurrent('index out of range error', async () => {
@@ -1714,6 +1706,46 @@ describe('primitive props', () => {
 				ARR([NUM(1), NUM(4), NUM(5), NUM(6), NUM(7)])
 			]));
 		});
+		
+		test.concurrent('at (without default value)', async () => {
+			const res = await exe(`
+				let arr1 = [10, 20, 30]
+				<: [
+					arr1
+					arr1.at(0), arr1.at(1), arr1.at(2)
+					arr1.at(-3), arr1.at(-2), arr1.at(-1)
+					arr1.at(3), arr1.at(4), arr1.at(5)
+					arr1.at(-6), arr1.at(-5), arr1.at(-4)
+				]
+			`);
+			eq(res, ARR([
+				ARR([NUM(10), NUM(20), NUM(30)]),
+				NUM(10), NUM(20), NUM(30),
+				NUM(10), NUM(20), NUM(30),
+				NULL, NULL, NULL,
+				NULL, NULL, NULL,
+			]));
+		});
+		
+		test.concurrent('at (with default value)', async () => {
+			const res = await exe(`
+				let arr1 = [10, 20, 30]
+				<: [
+					arr1
+					arr1.at(0, 100), arr1.at(1, 100), arr1.at(2, 100)
+					arr1.at(-3, 100), arr1.at(-2, 100), arr1.at(-1, 100)
+					arr1.at(3, 100), arr1.at(4, 100), arr1.at(5, 100)
+					arr1.at(-6, 100), arr1.at(-5, 100), arr1.at(-4, 100)
+				]
+			`);
+			eq(res, ARR([
+				ARR([NUM(10), NUM(20), NUM(30)]),
+				NUM(10), NUM(20), NUM(30),
+				NUM(10), NUM(20), NUM(30),
+				NUM(100), NUM(100), NUM(100),
+				NUM(100), NUM(100), NUM(100),
+			]));
+		});
 	});
 });
 
@@ -1758,7 +1790,7 @@ describe('std', () => {
 		test.concurrent('create', async () => {
 			eq(await exe("<: Arr:create(0)"), ARR([]));
 			eq(await exe("<: Arr:create(3)"), ARR([NULL, NULL, NULL]));
-			eq(await exe("<: Arr:create(3, 1)"), ARR([NUM(1), NUM(1), NUM(1)]));\
+			eq(await exe("<: Arr:create(3, 1)"), ARR([NUM(1), NUM(1), NUM(1)]));
 		});
 	});
 	
@@ -2039,53 +2071,55 @@ describe('std', () => {
 	});
 
 	describe('Date', () => {
+		const example_time = new Date(2024, 1 - 1, 2, 3, 4, 5, 6).getTime();
+		const zero_date = new Date(0);
 		test.concurrent('year', async () => {
 			const res = await exe(`
-				<: [Date:year(0), Date:year(1714946889010)]
+				<: [Date:year(0), Date:year(${example_time})]
 			`);
-			eq(res.value, [NUM(1970), NUM(2024)]);
+			eq(res, ARR([NUM(zero_date.getFullYear()), NUM(2024)]));
 		});
 
 		test.concurrent('month', async () => {
 			const res = await exe(`
-				<: [Date:month(0), Date:month(1714946889010)]
+				<: [Date:month(0), Date:month(${example_time})]
 			`);
-			eq(res.value, [NUM(1), NUM(5)]);
+			eq(res, ARR([NUM(zero_date.getMonth() + 1), NUM(1)]));
 		});
 
 		test.concurrent('day', async () => {
 			const res = await exe(`
-				<: [Date:day(0), Date:day(1714946889010)]
+				<: [Date:day(0), Date:day(${example_time})]
 			`);
-			eq(res.value, [NUM(1), NUM(6)]);
+			eq(res, ARR([NUM(zero_date.getDate()), NUM(2)]));
 		});
 
 		test.concurrent('hour', async () => {
 			const res = await exe(`
-				<: [Date:hour(0), Date:hour(1714946889010)]
+				<: [Date:hour(0), Date:hour(${example_time})]
 			`);
-			eq(res.value, [NUM(0), NUM(7)]);
+			eq(res, ARR([NUM(zero_date.getHours()), NUM(3)]));
 		});
 
 		test.concurrent('minute', async () => {
 			const res = await exe(`
-				<: [Date:minute(0), Date:minute(1714946889010)]
+				<: [Date:minute(0), Date:minute(${example_time})]
 			`);
-			eq(res.value, [NUM(0), NUM(8)]);
+			eq(res, ARR([NUM(zero_date.getMinutes()), NUM(4)]));
 		});
 
 		test.concurrent('second', async () => {
 			const res = await exe(`
-				<: [Date:second(0), Date:second(1714946889010)]
+				<: [Date:second(0), Date:second(${example_time})]
 			`);
-			eq(res.value, [NUM(0), NUM(9)]);
+			eq(res, ARR([NUM(zero_date.getSeconds()), NUM(5)]));
 		});
 
 		test.concurrent('millisecond', async () => {
 			const res = await exe(`
-				<: [Date:millisecond(0), Date:millisecond(1714946889010)]
+				<: [Date:millisecond(0), Date:millisecond(${example_time})]
 			`);
-			eq(res.value, [NUM(0), NUM(10)]);
+			eq(res, ARR([NUM(zero_date.getMilliseconds()), NUM(6)]));
 		});
 
 		test.concurrent('to_iso_str', async () => {

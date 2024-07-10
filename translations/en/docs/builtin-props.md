@@ -1,11 +1,11 @@
-A primitive property is a special value or function for specific type that can be called in the same notation as an object property.
+A built-in property is a special value or function for specific type that can be called in the same notation as an object property.
 ```js
 // example
 'ai kawaii'.len //9
 
 Core:range(0,2).push(4) //[0,1,2,4]
 ```
-Currently, primitive properties for types number, string, array, and error are available.  
+Currently, built-in properties for types number, string, array, and error are available.  
 The object equivalent is implemented as [std function](std.md#-obj) due to confliction of notation.  
 
 ## Format
@@ -67,19 +67,19 @@ type: `num`
 Number of elements in the array.  
 
 ### @(_v_: arr).push(_i_: value): null
-**Modifying**  
+**MODIFIES THE ARRAY**  
 Appends an element to the end of the array.  
 
 ### @(_v_: arr).unshift(i: value): null
-**Modifying**  
+**MODIFIES THE ARRAY***  
 Prepends an element to the beginning of the array.
 
 ### @(_v_: arr).pop(): value
-**Modifying**  
+**MODIFIES THE ARRAY***  
 Extracts the last element of the array.  
 
 ### @(_v_: arr).shift(): value
-**Modifying**  
+**MODIFIES THE ARRAY***  
 Extracts the first element of the array.  
 
 ### @(_a_: arr).concat(_b_: arr): arr
@@ -125,7 +125,7 @@ Reverses the array.
 Generates a copy of the array.  
 
 ### @(_v_: arr).sort(_comp_: @(_a_: value, _b_: value)): arr
-**Modifying**
+**MODIFIES THE ARRAY***
 Sorts the array.  
 _comp_ is the comparison function that returns:
 * negative value if _a_ should precede _b_
