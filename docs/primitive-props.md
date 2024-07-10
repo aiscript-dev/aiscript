@@ -128,6 +128,12 @@ _i_ 番目の文字が存在しない場合は null が返されます。
 型: `num`  
 配列の要素数を取得します。
 
+### @(_v_: arr).at(_index_: num, _otherwise_?: value): value
+配列の _index_ の位置の要素を返します。\
+_index_ が負の場合は末尾から数えます。\
+_index_ が範囲外の場合は、代わりに _otherwise_ を返します。\
+_otherwise_ が省略されている場合は`null`になります。
+
 ### @(_v_: arr).push(_i_: value): null
 **【この操作は配列を書き換えます】**  
 配列の最後に要素を追加します。  

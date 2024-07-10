@@ -414,6 +414,11 @@ const PRIMITIVE_PROPS: {
 
 			return removed[0] ?? NULL;
 		}),
+
+		at: (target: VArr): VFn => FN_NATIVE(async ([index, otherwise], opts) => {
+			assertNumber(index);
+			return target.value.at(index.value) ?? otherwise ?? NULL;
+		}),
 	},
 
 	error: {
