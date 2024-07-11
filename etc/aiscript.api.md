@@ -180,14 +180,6 @@ declare namespace Ast {
 export { Ast }
 
 // @public (undocumented)
-type Attr_2 = {
-    attr?: {
-        name: string;
-        value: Value;
-    }[];
-};
-
-// @public (undocumented)
 type Attribute = NodeBase & {
     type: 'attr';
     name: string;
@@ -861,8 +853,6 @@ export class Scope {
     assign(name: string, val: Value): void;
     // (undocumented)
     createChildNamespaceScope(nsName: string, states?: Map<string, Variable>, name?: Scope['name']): Scope;
-    // Warning: (ae-forgotten-export) The symbol "Variable" needs to be exported by the entry point index.d.ts
-    //
     // (undocumented)
     createChildScope(states?: Map<string, Variable>, name?: Scope['name']): Scope;
     exists(name: string): boolean;
@@ -974,7 +964,7 @@ function valToJs(val: Value): any;
 function valToString(val: Value, simple?: boolean): string;
 
 // @public (undocumented)
-type Value = (VNull | VBool | VNum | VStr | VArr | VObj | VFn | VReturn | VBreak | VContinue | VError) & Attr_2;
+type Value = VNull | VBool | VNum | VStr | VArr | VObj | VFn | VReturn | VBreak | VContinue | VError;
 
 declare namespace values {
     export {
@@ -989,7 +979,6 @@ declare namespace values {
         VBreak,
         VContinue,
         VError,
-        Attr_2 as Attr,
         Value,
         NULL,
         TRUE,
@@ -1009,6 +998,30 @@ declare namespace values {
     }
 }
 export { values }
+
+// @public (undocumented)
+export type Variable = ({
+    isMutable: false;
+    readonly value: Value;
+} | {
+    isMutable: true;
+    value: Value;
+}) & {
+    type?: Type;
+    attrs?: Attr_2[];
+};
+
+// @public (undocumented)
+export const Variable: {
+    mut(value: Value, opts?: {
+        type?: Type;
+        attrs?: Attr_2[];
+    }): Variable;
+    const(value: Value, opts?: {
+        type?: Type;
+        attrs?: Attr_2[];
+    }): Variable;
+};
 
 // @public (undocumented)
 type VArr = {
@@ -1083,6 +1096,11 @@ type VStr = {
     type: 'str';
     value: string;
 };
+
+// Warnings were encountered during analysis:
+//
+// src/interpreter/variable.ts:14:2 - (ae-forgotten-export) The symbol "Type" needs to be exported by the entry point index.d.ts
+// src/interpreter/variable.ts:15:2 - (ae-forgotten-export) The symbol "Attr_2" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

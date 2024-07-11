@@ -67,14 +67,7 @@ export type VError = {
 	info?: Value;
 };
 
-export type Attr = {
-	attr?: {
-		name: string;
-		value: Value;
-	}[];
-};
-
-export type Value = (VNull | VBool | VNum | VStr | VArr | VObj | VFn | VReturn | VBreak | VContinue | VError) & Attr;
+export type Value = VNull | VBool | VNum | VStr | VArr | VObj | VFn | VReturn | VBreak | VContinue | VError;
 
 export const NULL = {
 	type: 'null' as const,
