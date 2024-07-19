@@ -53,7 +53,7 @@ const reservedWord = [
 ];
 
 function throwReservedWordError(name: string, loc: Ast.Loc): void {
-	throw new AiScriptSyntaxError(`Reserved word "${name}" cannot be used as variable name.`, loc);
+	throw new AiScriptSyntaxError(`Reserved word "${name}" cannot be used as variable name.`, loc.start);
 }
 
 function validateNode(node: Ast.Node): Ast.Node {

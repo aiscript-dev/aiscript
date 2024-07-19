@@ -191,7 +191,7 @@ export class Interpreter {
 			switch (node.type) {
 				case 'def': {
 					if (node.mut) {
-						throw new AiScriptNamespaceError('No "var" in namespace declaration: ' + node.name, node.loc);
+						throw new AiScriptNamespaceError('No "var" in namespace declaration: ' + node.name, node.loc.start);
 					}
 
 					const variable: Variable = {
@@ -211,7 +211,7 @@ export class Interpreter {
 					// exhaustiveness check
 					const n: never = node;
 					const nd = n as Ast.Node;
-					throw new AiScriptNamespaceError('invalid ns member type: ' + nd.type, nd.loc);
+					throw new AiScriptNamespaceError('invalid ns member type: ' + nd.type, nd.loc.start);
 				}
 			}
 		}
@@ -246,11 +246,11 @@ export class Interpreter {
 	@autobind
 	private _eval(node: Ast.Node, scope: Scope): Promise<Value> {
 		return this.__eval(node, scope).catch(e => {
-			if (e.loc) throw e;
+			if (e.pos) throw e;
 			else {
 				const e2 = (e instanceof AiScriptError) ? e : new NonAiScriptError(e);
-				e2.loc = node.loc;
-				e2.message = `${e2.message} (Line ${node.loc.line}, Column ${node.loc.column})`;
+				e2.pos = node.loc.start;
+				e2.message = `${e2.message} (Line ${e2.pos.line}, Column ${e2.pos.column})`;
 				throw e2;
 			}
 		});

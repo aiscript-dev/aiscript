@@ -2,9 +2,14 @@
  * ASTノード
 */
 
-export type Loc = {
+export type Pos = {
 	line: number;
 	column: number;
+};
+
+export type Loc = {
+	start: Pos;
+	end: Pos;
 };
 
 export type Node = Namespace | Meta | Statement | Expression | TypeSource | Attribute;

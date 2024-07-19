@@ -126,7 +126,7 @@ export function parseType(s: ITokenStream): Ast.Node {
  * ```
 */
 function parseFnType(s: ITokenStream): Ast.Node {
-	const loc = s.token.loc;
+	const startPos = s.token.loc;
 
 	s.nextWith(TokenKind.At);
 	s.nextWith(TokenKind.OpenParen);
@@ -153,7 +153,7 @@ function parseFnType(s: ITokenStream): Ast.Node {
 
 	const resultType = parseType(s);
 
-	return NODE('fnTypeSource', { args: params, result: resultType }, loc);
+	return NODE('fnTypeSource', { args: params, result: resultType }, startPos, s.token.loc);
 }
 
 /**
@@ -162,7 +162,7 @@ function parseFnType(s: ITokenStream): Ast.Node {
  * ```
 */
 function parseNamedType(s: ITokenStream): Ast.Node {
-	const loc = s.token.loc;
+	const startPos = s.token.loc;
 
 	s.expect(TokenKind.Identifier);
 	const name = s.token.value!;
@@ -176,7 +176,7 @@ function parseNamedType(s: ITokenStream): Ast.Node {
 		s.nextWith(TokenKind.Gt);
 	}
 
-	return NODE('namedTypeSource', { name, inner }, loc);
+	return NODE('namedTypeSource', { name, inner }, startPos, s.token.loc);
 }
 
 //#endregion Type

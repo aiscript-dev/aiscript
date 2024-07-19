@@ -928,7 +928,10 @@ describe('Location', () => {
 		assert.equal(nodes.length, 1);
 		node = nodes[0];
 		if (!node.loc) assert.fail();
-		assert.deepEqual(node.loc, { line: 2, column: 4 });
+		assert.deepEqual(node.loc, {
+			start: { line: 2, column: 4 },
+			end: { line: 2, column: 15 },
+		});
 	});
 	test.concurrent('comment', async () => {
 		let node: Ast.Node;
@@ -942,7 +945,7 @@ describe('Location', () => {
 		assert.equal(nodes.length, 1);
 		node = nodes[0];
 		if (!node.loc) assert.fail();
-		assert.deepEqual(node.loc, { line: 5, column: 3 });
+		assert.deepEqual(node.loc.start, { line: 5, column: 3 });
 	});
 });
 

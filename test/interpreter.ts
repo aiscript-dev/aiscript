@@ -1,6 +1,7 @@
 import * as assert from 'assert';
 import { expect, test } from '@jest/globals';
-import { Parser, Interpreter, values, errors, utils } from '../src';
+import { Parser, Interpreter, values, errors, utils, Ast } from '../src';
+
 let { FN_NATIVE } = values;
 let { AiScriptRuntimeError, AiScriptIndexOutOfRangeError } = errors;
 
@@ -65,13 +66,13 @@ describe('error handler', () => {
 });
 
 describe('error location', () => {
-	const exeAndGetErrLoc = (src: string): Promise<Loc|undefined> => new Promise((ok, ng) => {
+	const exeAndGetErrLoc = (src: string): Promise<Ast.Pos|undefined> => new Promise((ok, ng) => {
 		const aiscript = new Interpreter({
 			emitError: FN_NATIVE((_args, _opts) => {
 				throw Error('emitError');
 			}),
 		}, {
-			err(e) { ok(e.loc) },
+			err(e) { ok(e.pos) },
 		});
 		aiscript.exec(Parser.parse(src)).then(() => ng('error has not occured.'));
 	});
