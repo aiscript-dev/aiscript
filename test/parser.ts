@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import { Scanner } from '../src/parser/scanner';
-import { TOKEN, TokenKind, TokenLocation } from '../src/parser/token';
+import { TOKEN, TokenKind, TokenPosition } from '../src/parser/token';
 import { CharStream } from '../src/parser/streams/char-stream';
 
 describe('CharStream', () => {
@@ -77,8 +77,8 @@ describe('Scanner', () => {
 		const stream = new Scanner(source);
 		return stream;
 	}
-	function next(stream: Scanner, kind: TokenKind, loc: TokenLocation, opts: { hasLeftSpacing?: boolean, value?: string }) {
-		assert.deepStrictEqual(stream.token, TOKEN(kind, loc, opts));
+	function next(stream: Scanner, kind: TokenKind, pos: TokenPosition, opts: { hasLeftSpacing?: boolean, value?: string }) {
+		assert.deepStrictEqual(stream.token, TOKEN(kind, pos, opts));
 		stream.next();
 	}
 

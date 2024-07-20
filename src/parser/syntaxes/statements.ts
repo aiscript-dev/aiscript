@@ -443,24 +443,24 @@ function parseWhile(s: ITokenStream): Ast.Node {
  * ```
 */
 function tryParseAssign(s: ITokenStream, dest: Ast.Node): Ast.Node | undefined {
-	const loc = s.getPos();
+	const startPos = s.getPos();
 
 	// Assign
 	switch (s.getKind()) {
 		case TokenKind.Eq: {
 			s.next();
 			const expr = parseExpr(s, false);
-			return NODE('assign', { dest, expr }, loc, s.getPos());
+			return NODE('assign', { dest, expr }, startPos, s.getPos());
 		}
 		case TokenKind.PlusEq: {
 			s.next();
 			const expr = parseExpr(s, false);
-			return NODE('addAssign', { dest, expr }, loc, s.getPos());
+			return NODE('addAssign', { dest, expr }, startPos, s.getPos());
 		}
 		case TokenKind.MinusEq: {
 			s.next();
 			const expr = parseExpr(s, false);
-			return NODE('subAssign', { dest, expr }, loc, s.getPos());
+			return NODE('subAssign', { dest, expr }, startPos, s.getPos());
 		}
 		default: {
 			return;
