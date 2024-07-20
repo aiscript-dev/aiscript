@@ -947,6 +947,34 @@ describe('Location', () => {
 		if (!node.loc) assert.fail();
 		assert.deepEqual(node.loc.start, { line: 5, column: 3 });
 	});
+	test.concurrent('template', async () => {
+		let node: Ast.Node;
+		const parser = new Parser();
+		const nodes = parser.parse(`
+			\`hoge{1}fuga\`
+		`);
+		assert.equal(nodes.length, 1);
+		node = nodes[0];
+		if (!node.loc || node.type !== "tmpl") assert.fail();
+		assert.deepEqual(node.loc, {
+			start: { line: 2, column: 4 },
+			end: { line: 2, column: 17 },
+		});
+		assert.equal(node.tmpl.length, 3);
+		const [elem1, elem2, elem3] = node.tmpl as Ast.Expression[];
+		assert.deepEqual(elem1.loc, {
+			start: { line: 2, column: 4 },
+			end: { line: 2, column: 10 },
+		});
+		assert.deepEqual(elem2.loc, {
+			start: { line: 2, column: 10 },
+			end: { line: 2, column: 11 },
+		});
+		assert.deepEqual(elem3.loc, {
+			start: { line: 2, column: 11 },
+			end: { line: 2, column: 17 },
+		});
+	});
 });
 
 describe('Unicode', () => {
