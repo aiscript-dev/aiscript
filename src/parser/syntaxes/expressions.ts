@@ -228,7 +228,7 @@ function parseAtom(s: ITokenStream, isStatic: boolean): Ast.Node {
 					case TokenKind.TemplateStringElement: {
 						// トークンの終了位置を取得するために先読み
 						const nextToken = s.token.children![i + 1] ?? s.lookahead(1);
-						values.push(NODE('str', { value: element.value! }, element.loc, nextToken.loc));
+						values.push(NODE('str', { value: element.value! }, element.pos, nextToken.pos));
 						break;
 					}
 					case TokenKind.TemplateExprElement: {
@@ -236,13 +236,13 @@ function parseAtom(s: ITokenStream, isStatic: boolean): Ast.Node {
 						const exprStream = new TokenStream(element.children!);
 						const expr = parseExpr(exprStream, false);
 						if (exprStream.getKind() !== TokenKind.EOF) {
-							throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[exprStream.token.kind]}`, exprStream.token.loc);
+							throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[exprStream.token.kind]}`, exprStream.token.pos);
 						}
 						values.push(expr);
 						break;
 					}
 					default: {
-						throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[element.kind]}`, element.loc);
+						throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[element.kind]}`, element.pos);
 					}
 				}
 			}

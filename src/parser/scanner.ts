@@ -46,7 +46,7 @@ export class Scanner implements ITokenStream {
 	 * カーソル位置にあるトークンの位置情報を取得します。
 	*/
 	public getPos(): TokenLocation {
-		return this.token.loc;
+		return this.token.pos;
 	}
 
 	/**

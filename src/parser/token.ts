@@ -114,7 +114,7 @@ export type TokenLocation = { column: number, line: number };
 export class Token {
 	constructor(
 		public kind: TokenKind,
-		public loc: { column: number, line: number },
+		public pos: TokenLocation,
 		public hasLeftSpacing = false,
 		/** for number literal, string literal */
 		public value?: string,
