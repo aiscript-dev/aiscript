@@ -576,12 +576,14 @@ export class Scanner implements ITokenStream {
 					}
 					// 埋め込み式の終了
 					if ((this.stream.char as string) === '}') {
-						this.stream.next();
 						elements.push(TOKEN(TokenKind.TemplateExprElement, elementLoc, { hasLeftSpacing, children: tokenBuf }));
-						tokenBuf = [];
 						// ここから文字列エレメントになるので位置を更新
 						elementLoc = this.stream.getPos();
+						// TemplateExprElementトークンの終了位置をTokenStreamが取得するためのEOFトークンを追加
+						tokenBuf.push(TOKEN(TokenKind.EOF, elementLoc));
+						tokenBuf = [];
 						state = 'string';
+						this.stream.next();
 						break;
 					}
 					const token = this.readToken();
