@@ -3,7 +3,7 @@ import { CharStream } from './streams/char-stream.js';
 import { TOKEN, TokenKind } from './token.js';
 
 import type { ITokenStream } from './streams/token-stream.js';
-import type { Token } from './token.js';
+import type { Token, TokenLocation } from './token.js';
 
 const spaceChars = [' ', '\t'];
 const lineBreakChars = ['\r', '\n'];
@@ -43,6 +43,13 @@ export class Scanner implements ITokenStream {
 	}
 
 	/**
+	 * カーソル位置にあるトークンの位置情報を取得します。
+	*/
+	public getPos(): TokenLocation {
+		return this.token.loc;
+	}
+
+	/**
 	 * カーソル位置を次のトークンへ進めます。
 	*/
 	public next(): void {
@@ -75,7 +82,7 @@ export class Scanner implements ITokenStream {
 	*/
 	public expect(kind: TokenKind): void {
 		if (this.getKind() !== kind) {
-			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[this.getKind()]}`, this.token.loc);
+			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[this.getKind()]}`, this.getPos());
 		}
 	}
 
