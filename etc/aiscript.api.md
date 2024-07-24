@@ -22,9 +22,9 @@ abstract class AiScriptError extends Error {
     // (undocumented)
     info?: any;
     // (undocumented)
-    loc?: Loc;
-    // (undocumented)
     name: string;
+    // (undocumented)
+    pos?: Pos;
 }
 
 // @public
@@ -34,11 +34,11 @@ class AiScriptIndexOutOfRangeError extends AiScriptRuntimeError {
 
 // @public
 class AiScriptNamespaceError extends AiScriptError {
-    constructor(message: string, loc: Loc, info?: any);
-    // (undocumented)
-    loc: Loc;
+    constructor(message: string, pos: Pos, info?: any);
     // (undocumented)
     name: string;
+    // (undocumented)
+    pos: Pos;
 }
 
 // @public
@@ -50,20 +50,20 @@ class AiScriptRuntimeError extends AiScriptError {
 
 // @public
 class AiScriptSyntaxError extends AiScriptError {
-    constructor(message: string, loc: Loc, info?: any);
-    // (undocumented)
-    loc: Loc;
+    constructor(message: string, pos: Pos, info?: any);
     // (undocumented)
     name: string;
+    // (undocumented)
+    pos: Pos;
 }
 
 // @public
 class AiScriptTypeError extends AiScriptError {
-    constructor(message: string, loc: Loc, info?: any);
-    // (undocumented)
-    loc: Loc;
+    constructor(message: string, pos: Pos, info?: any);
     // (undocumented)
     name: string;
+    // (undocumented)
+    pos: Pos;
 }
 
 // @public
@@ -119,6 +119,7 @@ declare namespace Ast {
     export {
         isStatement,
         isExpression,
+        Pos,
         Loc,
         Node_2 as Node,
         Namespace,
@@ -390,10 +391,10 @@ function isString(val: Value): val is VStr;
 // @public (undocumented)
 function jsToVal(val: any): Value;
 
-// @public
+// @public (undocumented)
 type Loc = {
-    line: number;
-    column: number;
+    start: Pos;
+    end: Pos;
 };
 
 // @public (undocumented)
@@ -502,6 +503,12 @@ export type ParserPlugin = (nodes: Ast.Node[]) => Ast.Node[];
 
 // @public (undocumented)
 export type PluginType = 'validate' | 'transform';
+
+// @public
+type Pos = {
+    line: number;
+    column: number;
+};
 
 // @public (undocumented)
 type Prop = NodeBase & {

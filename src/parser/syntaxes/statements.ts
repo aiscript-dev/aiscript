@@ -14,7 +14,7 @@ import type { ITokenStream } from '../streams/token-stream.js';
  * ```
 */
 export function parseStatement(s: ITokenStream): Ast.Node {
-	const loc = s.token.loc;
+	const startPos = s.getPos();
 
 	switch (s.getKind()) {
 		case TokenKind.VarKeyword:
@@ -53,11 +53,11 @@ export function parseStatement(s: ITokenStream): Ast.Node {
 		}
 		case TokenKind.BreakKeyword: {
 			s.next();
-			return NODE('break', {}, loc);
+			return NODE('break', {}, startPos, s.getPos());
 		}
 		case TokenKind.ContinueKeyword: {
 			s.next();
-			return NODE('continue', {}, loc);
+			return NODE('continue', {}, startPos, s.getPos());
 		}
 	}
 	const expr = parseExpr(s, false);
@@ -78,7 +78,7 @@ export function parseDefStatement(s: ITokenStream): Ast.Node {
 			return parseFnDef(s);
 		}
 		default: {
-			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[s.getKind()]}`, s.token.loc);
+			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[s.getKind()]}`, s.getPos());
 		}
 	}
 }
@@ -89,11 +89,10 @@ export function parseDefStatement(s: ITokenStream): Ast.Node {
  * ```
 */
 export function parseBlockOrStatement(s: ITokenStream): Ast.Node {
-	const loc = s.token.loc;
-
 	if (s.getKind() === TokenKind.OpenBrace) {
+		const startPos = s.getPos();
 		const statements = parseBlock(s);
-		return NODE('block', { statements }, loc);
+		return NODE('block', { statements }, startPos, s.getPos());
 	} else {
 		return parseStatement(s);
 	}
@@ -105,7 +104,7 @@ export function parseBlockOrStatement(s: ITokenStream): Ast.Node {
  * ```
 */
 function parseVarDef(s: ITokenStream): Ast.Node {
-	const loc = s.token.loc;
+	const startPos = s.getPos();
 
 	let mut;
 	switch (s.getKind()) {
@@ -118,7 +117,7 @@ function parseVarDef(s: ITokenStream): Ast.Node {
 			break;
 		}
 		default: {
-			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[s.getKind()]}`, s.token.loc);
+			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[s.getKind()]}`, s.getPos());
 		}
 	}
 	s.next();
@@ -141,7 +140,7 @@ function parseVarDef(s: ITokenStream): Ast.Node {
 
 	const expr = parseExpr(s, false);
 
-	return NODE('def', { name, varType: type, expr, mut, attr: [] }, loc);
+	return NODE('def', { name, varType: type, expr, mut, attr: [] }, startPos, s.getPos());
 }
 
 /**
@@ -150,7 +149,7 @@ function parseVarDef(s: ITokenStream): Ast.Node {
  * ```
 */
 function parseFnDef(s: ITokenStream): Ast.Node {
-	const loc = s.token.loc;
+	const startPos = s.getPos();
 
 	s.nextWith(TokenKind.At);
 
@@ -168,16 +167,18 @@ function parseFnDef(s: ITokenStream): Ast.Node {
 
 	const body = parseBlock(s);
 
+	const endPos = s.getPos();
+
 	return NODE('def', {
 		name,
 		expr: NODE('fn', {
 			args: params,
 			retType: type,
 			children: body,
-		}, loc),
+		}, startPos, endPos),
 		mut: false,
 		attr: [],
-	}, loc);
+	}, startPos, endPos);
 }
 
 /**
@@ -186,11 +187,12 @@ function parseFnDef(s: ITokenStream): Ast.Node {
  * ```
 */
 function parseOut(s: ITokenStream): Ast.Node {
-	const loc = s.token.loc;
+	const startPos = s.getPos();
 
 	s.nextWith(TokenKind.Out);
 	const expr = parseExpr(s, false);
-	return CALL_NODE('print', [expr], loc);
+
+	return CALL_NODE('print', [expr], startPos, s.getPos());
 }
 
 /**
@@ -200,7 +202,7 @@ function parseOut(s: ITokenStream): Ast.Node {
  * ```
 */
 function parseEach(s: ITokenStream): Ast.Node {
-	const loc = s.token.loc;
+	const startPos = s.getPos();
 	let hasParen = false;
 
 	s.nextWith(TokenKind.EachKeyword);
@@ -219,7 +221,7 @@ function parseEach(s: ITokenStream): Ast.Node {
 	if (s.getKind() === TokenKind.Comma) {
 		s.next();
 	} else {
-		throw new AiScriptSyntaxError('separator expected', s.token.loc);
+		throw new AiScriptSyntaxError('separator expected', s.getPos());
 	}
 
 	const items = parseExpr(s, false);
@@ -234,11 +236,11 @@ function parseEach(s: ITokenStream): Ast.Node {
 		var: name,
 		items: items,
 		for: body,
-	}, loc);
+	}, startPos, s.getPos());
 }
 
 function parseFor(s: ITokenStream): Ast.Node {
-	const loc = s.token.loc;
+	const startPos = s.getPos();
 	let hasParen = false;
 
 	s.nextWith(TokenKind.ForKeyword);
@@ -252,7 +254,7 @@ function parseFor(s: ITokenStream): Ast.Node {
 		// range syntax
 		s.next();
 
-		const identLoc = s.token.loc;
+		const identPos = s.getPos();
 
 		s.expect(TokenKind.Identifier);
 		const name = s.token.value!;
@@ -263,13 +265,13 @@ function parseFor(s: ITokenStream): Ast.Node {
 			s.next();
 			_from = parseExpr(s, false);
 		} else {
-			_from = NODE('num', { value: 0 }, identLoc);
+			_from = NODE('num', { value: 0 }, identPos, identPos);
 		}
 
 		if (s.getKind() === TokenKind.Comma) {
 			s.next();
 		} else {
-			throw new AiScriptSyntaxError('separator expected', s.token.loc);
+			throw new AiScriptSyntaxError('separator expected', s.getPos());
 		}
 
 		const to = parseExpr(s, false);
@@ -285,7 +287,7 @@ function parseFor(s: ITokenStream): Ast.Node {
 			from: _from,
 			to,
 			for: body,
-		}, loc);
+		}, startPos, s.getPos());
 	} else {
 		// times syntax
 
@@ -300,7 +302,7 @@ function parseFor(s: ITokenStream): Ast.Node {
 		return NODE('for', {
 			times,
 			for: body,
-		}, loc);
+		}, startPos, s.getPos());
 	}
 }
 
@@ -310,11 +312,12 @@ function parseFor(s: ITokenStream): Ast.Node {
  * ```
 */
 function parseReturn(s: ITokenStream): Ast.Node {
-	const loc = s.token.loc;
+	const startPos = s.getPos();
 
 	s.nextWith(TokenKind.ReturnKeyword);
 	const expr = parseExpr(s, false);
-	return NODE('return', { expr }, loc);
+
+	return NODE('return', { expr }, startPos, s.getPos());
 }
 
 /**
@@ -332,7 +335,7 @@ function parseStatementWithAttr(s: ITokenStream): Ast.Node {
 	const statement = parseStatement(s);
 
 	if (statement.type !== 'def') {
-		throw new AiScriptSyntaxError('invalid attribute.', statement.loc);
+		throw new AiScriptSyntaxError('invalid attribute.', statement.loc.start);
 	}
 	if (statement.attr != null) {
 		statement.attr.push(...attrs);
@@ -349,7 +352,7 @@ function parseStatementWithAttr(s: ITokenStream): Ast.Node {
  * ```
 */
 function parseAttr(s: ITokenStream): Ast.Node {
-	const loc = s.token.loc;
+	const startPos = s.getPos();
 
 	s.nextWith(TokenKind.OpenSharpBracket);
 
@@ -361,12 +364,13 @@ function parseAttr(s: ITokenStream): Ast.Node {
 	if (s.getKind() !== TokenKind.CloseBracket) {
 		value = parseExpr(s, true);
 	} else {
-		value = NODE('bool', { value: true }, loc);
+		const closePos = s.getPos();
+		value = NODE('bool', { value: true }, closePos, closePos);
 	}
 
 	s.nextWith(TokenKind.CloseBracket);
 
-	return NODE('attr', { name, value }, loc);
+	return NODE('attr', { name, value }, startPos, s.getPos());
 }
 
 /**
@@ -375,11 +379,12 @@ function parseAttr(s: ITokenStream): Ast.Node {
  * ```
 */
 function parseLoop(s: ITokenStream): Ast.Node {
-	const loc = s.token.loc;
+	const startPos = s.getPos();
 
 	s.nextWith(TokenKind.LoopKeyword);
 	const statements = parseBlock(s);
-	return NODE('loop', { statements }, loc);
+
+	return NODE('loop', { statements }, startPos, s.getPos());
 }
 
 /**
@@ -388,23 +393,24 @@ function parseLoop(s: ITokenStream): Ast.Node {
  * ```
 */
 function parseDoWhile(s: ITokenStream): Ast.Node {
-	const doLoc = s.token.loc;
+	const doStartPos = s.getPos();
 	s.nextWith(TokenKind.DoKeyword);
 	const body = parseBlockOrStatement(s);
-	const whileLoc = s.token.loc;
+	const whilePos = s.getPos();
 	s.nextWith(TokenKind.WhileKeyword);
 	const cond = parseExpr(s, false);
+	const endPos = s.getPos();
 
 	return NODE('loop', {
 		statements: [
 			body,
 			NODE('if', {
-				cond: NODE('not', { expr: cond }, whileLoc),
-				then: NODE('break', {}, whileLoc),
+				cond: NODE('not', { expr: cond }, whilePos, endPos),
+				then: NODE('break', {}, endPos, endPos),
 				elseif: [],
-			}, whileLoc),
+			}, whilePos, endPos),
 		],
-	}, doLoc);
+	}, doStartPos, endPos);
 }
 
 /**
@@ -413,21 +419,22 @@ function parseDoWhile(s: ITokenStream): Ast.Node {
  * ```
 */
 function parseWhile(s: ITokenStream): Ast.Node {
-	const loc = s.token.loc;
+	const startPos = s.getPos();
 	s.nextWith(TokenKind.WhileKeyword);
 	const cond = parseExpr(s, false);
+	const condEndPos = s.getPos();
 	const body = parseBlockOrStatement(s);
 
 	return NODE('loop', {
 		statements: [
 			NODE('if', {
-				cond: NODE('not', { expr: cond }, loc),
-				then: NODE('break', {}, loc),
+				cond: NODE('not', { expr: cond }, startPos, condEndPos),
+				then: NODE('break', {}, condEndPos, condEndPos),
 				elseif: [],
-			}, loc),
+			}, startPos, condEndPos),
 			body,
 		],
-	}, loc);
+	}, startPos, s.getPos());
 }
 
 /**
@@ -436,24 +443,24 @@ function parseWhile(s: ITokenStream): Ast.Node {
  * ```
 */
 function tryParseAssign(s: ITokenStream, dest: Ast.Node): Ast.Node | undefined {
-	const loc = s.token.loc;
+	const startPos = s.getPos();
 
 	// Assign
 	switch (s.getKind()) {
 		case TokenKind.Eq: {
 			s.next();
 			const expr = parseExpr(s, false);
-			return NODE('assign', { dest, expr }, loc);
+			return NODE('assign', { dest, expr }, startPos, s.getPos());
 		}
 		case TokenKind.PlusEq: {
 			s.next();
 			const expr = parseExpr(s, false);
-			return NODE('addAssign', { dest, expr }, loc);
+			return NODE('addAssign', { dest, expr }, startPos, s.getPos());
 		}
 		case TokenKind.MinusEq: {
 			s.next();
 			const expr = parseExpr(s, false);
-			return NODE('subAssign', { dest, expr }, loc);
+			return NODE('subAssign', { dest, expr }, startPos, s.getPos());
 		}
 		default: {
 			return;

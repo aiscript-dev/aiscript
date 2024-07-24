@@ -1,6 +1,7 @@
 import * as assert from 'assert';
 import { expect, test } from '@jest/globals';
-import { Parser, Interpreter, values, errors, utils } from '../src';
+import { Parser, Interpreter, values, errors, utils, Ast } from '../src';
+
 let { FN_NATIVE } = values;
 let { AiScriptRuntimeError, AiScriptIndexOutOfRangeError } = errors;
 
@@ -65,26 +66,26 @@ describe('error handler', () => {
 });
 
 describe('error location', () => {
-	const exeAndGetErrLoc = (src: string): Promise<Loc|undefined> => new Promise((ok, ng) => {
+	const exeAndGetErrPos = (src: string): Promise<Ast.Pos|undefined> => new Promise((ok, ng) => {
 		const aiscript = new Interpreter({
 			emitError: FN_NATIVE((_args, _opts) => {
 				throw Error('emitError');
 			}),
 		}, {
-			err(e) { ok(e.loc) },
+			err(e) { ok(e.pos) },
 		});
 		aiscript.exec(Parser.parse(src)).then(() => ng('error has not occured.'));
 	});
 
 	test.concurrent('Non-aiscript Error', async () => {
-		return expect(exeAndGetErrLoc(`/* (の位置
+		return expect(exeAndGetErrPos(`/* (の位置
 			*/
 			emitError()
 		`)).resolves.toEqual({ line: 3, column: 13});
 	});
 
 	test.concurrent('No "var" in namespace declaration', async () => {
-		return expect(exeAndGetErrLoc(`// vの位置
+		return expect(exeAndGetErrPos(`// vの位置
 			:: Ai {
 				let chan = 'kawaii'
 				var kun = '!?'
@@ -93,14 +94,14 @@ describe('error location', () => {
 	});
 
 	test.concurrent('Index out of range', async () => {
-		return expect(exeAndGetErrLoc(`// [の位置
+		return expect(exeAndGetErrPos(`// [の位置
 			let arr = []
 			arr[0]
 		`)).resolves.toEqual({ line: 3, column: 7});
 	});
 
 	test.concurrent('Error in passed function', async () => {
-		return expect(exeAndGetErrLoc(`// /の位置
+		return expect(exeAndGetErrPos(`// /の位置
 			[0, 1, 2].map(@(v){
 				0/v
 			})
@@ -108,7 +109,7 @@ describe('error location', () => {
 	});
 
 	test.concurrent('No such prop', async () => {
-		return expect(exeAndGetErrLoc(`// .の位置
+		return expect(exeAndGetErrPos(`// .の位置
 			[].ai
 		`)).resolves.toEqual({ line: 2, column: 6});
 	});

@@ -48,7 +48,7 @@ export function parseTopLevel(s: ITokenStream): Ast.Node[] {
 				break;
 			}
 			default: {
-				throw new AiScriptSyntaxError('Multiple statements cannot be placed on a single line.', s.token.loc);
+				throw new AiScriptSyntaxError('Multiple statements cannot be placed on a single line.', s.getPos());
 			}
 		}
 	}
@@ -62,7 +62,7 @@ export function parseTopLevel(s: ITokenStream): Ast.Node[] {
  * ```
 */
 export function parseNamespace(s: ITokenStream): Ast.Node {
-	const loc = s.token.loc;
+	const startPos = s.getPos();
 
 	s.nextWith(TokenKind.Colon2);
 
@@ -104,13 +104,13 @@ export function parseNamespace(s: ITokenStream): Ast.Node {
 				break;
 			}
 			default: {
-				throw new AiScriptSyntaxError('Multiple statements cannot be placed on a single line.', s.token.loc);
+				throw new AiScriptSyntaxError('Multiple statements cannot be placed on a single line.', s.getPos());
 			}
 		}
 	}
 	s.nextWith(TokenKind.CloseBrace);
 
-	return NODE('ns', { name, members }, loc);
+	return NODE('ns', { name, members }, startPos, s.getPos());
 }
 
 /**
@@ -119,7 +119,7 @@ export function parseNamespace(s: ITokenStream): Ast.Node {
  * ```
 */
 export function parseMeta(s: ITokenStream): Ast.Node {
-	const loc = s.token.loc;
+	const startPos = s.getPos();
 
 	s.nextWith(TokenKind.Sharp3);
 
@@ -131,5 +131,5 @@ export function parseMeta(s: ITokenStream): Ast.Node {
 
 	const value = parseExpr(s, true);
 
-	return NODE('meta', { name, value }, loc);
+	return NODE('meta', { name, value }, startPos, value.loc.end);
 }
