@@ -31,22 +31,29 @@ export class Scanner implements ITokenStream {
 	/**
 	 * カーソル位置にあるトークンを取得します。
 	*/
-	public get token(): Token {
+	public getToken(): Token {
 		return this._tokens[0]!;
 	}
 
 	/**
-	 * カーソル位置にあるトークンの種類を取得します。
+	 * カーソル位置にあるトークンの種類が指定したトークンの種類と一致するかどうかを示す値を取得します。
 	*/
-	public getKind(): TokenKind {
-		return this.token.kind;
+	public is(kind: TokenKind): boolean {
+		return this.getToken().kind === kind;
+	}
+
+	/**
+	 * トークンに含まれる値を取得します。
+	*/
+	public getValue(): string {
+		return this.getToken().value!;
 	}
 
 	/**
 	 * カーソル位置にあるトークンの位置情報を取得します。
 	*/
 	public getPos(): TokenPosition {
-		return this.token.pos;
+		return this.getToken().pos;
 	}
 
 	/**
@@ -77,22 +84,13 @@ export class Scanner implements ITokenStream {
 	}
 
 	/**
-	 * カーソル位置にあるトークンが指定したトークンの種類と一致するかを確認します。
+	 * カーソル位置にあるトークンの種類が指定したトークンの種類と一致することを確認します。
 	 * 一致しなかった場合には文法エラーを発生させます。
 	*/
 	public expect(kind: TokenKind): void {
-		if (this.getKind() !== kind) {
-			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[this.getKind()]}`, this.getPos());
+		if (!this.is(kind)) {
+			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[this.getToken().kind]}`, this.getPos());
 		}
-	}
-
-	/**
-	 * カーソル位置にあるトークンが指定したトークンの種類と一致することを確認し、
-	 * カーソル位置を次のトークンへ進めます。
-	*/
-	public nextWith(kind: TokenKind): void {
-		this.expect(kind);
-		this.next();
 	}
 
 	private readToken(): Token {
