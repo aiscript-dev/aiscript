@@ -1,11 +1,11 @@
-A primitive property is a special value or function for specific type that can be called in the same notation as an object property.
+A built-in property is a special value or function for specific type that can be called in the same notation as an object property.
 ```js
 // example
 'ai kawaii'.len //9
 
 Core:range(0,2).push(4) //[0,1,2,4]
 ```
-Currently, primitive properties for types number, string, array, and error are available.  
+Currently, built-in properties for types number, string, array, and error are available.  
 The object equivalent is implemented as [std function](std.md#-obj) due to confliction of notation.  
 
 ## Format
@@ -67,19 +67,19 @@ type: `num`
 Number of elements in the array.  
 
 ### @(_v_: arr).push(_i_: value): null
-**Modifying**  
+**MODIFIES THE ARRAY**  
 Appends an element to the end of the array.  
 
 ### @(_v_: arr).unshift(i: value): null
-**Modifying**  
+**MODIFIES THE ARRAY***  
 Prepends an element to the beginning of the array.
 
 ### @(_v_: arr).pop(): value
-**Modifying**  
+**MODIFIES THE ARRAY***  
 Extracts the last element of the array.  
 
 ### @(_v_: arr).shift(): value
-**Modifying**  
+**MODIFIES THE ARRAY***  
 Extracts the first element of the array.  
 
 ### @(_a_: arr).concat(_b_: arr): arr
@@ -91,8 +91,8 @@ Combines all elements of the string array and returns them as a single string.
 ### @(_v_: arr).slice(_begin_: num, _end_: num): arr
 Obtains specified portion of the array.  
 
-### @(_v_: arr).incl(_query_: str | num | bool | null): bool
-Checks if there is an element in the array with the value _query_.  
+### @(_v_: arr).incl(_val_: value): bool
+Checks if there is an element in the array with the value _val_.  
 
 ### @(_v_: arr).map(_func_: fn): arr
 Executes _func_ for each element of the array asynchronously.  
@@ -109,7 +109,13 @@ if _initial_ is given, _func_ is initially called with arguments (_initial_, _v_
 Otherwise, (_v_\[0], _v_\[1], 1).  
 
 ### @(_v_: arr).find(_func_: @(_item_: value, _index_: num) { bool }): value
-Find elements in the array such that _func_ returns true.  
+Finds elements in the array such that _func_ returns true.  
+
+### @(_v_: arr).index_of(_val_: value, _fromIndex_?: num): num
+Finds a value that equals to _val_, and returns the index.  
+If _fromIndex_ is given, the search starts from there.
+When _fromIndex_ is negative, index from the end(length of the array + _fromIndex_) is used.
+When not found, returns -1.
 
 ### @(_v_: arr).reverse(): null
 **Modifying**
@@ -119,7 +125,7 @@ Reverses the array.
 Generates a copy of the array.  
 
 ### @(_v_: arr).sort(_comp_: @(_a_: value, _b_: value)): arr
-**Modifying**
+**MODIFIES THE ARRAY***
 Sorts the array.  
 _comp_ is the comparison function that returns:
 * negative value if _a_ should precede _b_

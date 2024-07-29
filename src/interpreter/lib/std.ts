@@ -2,7 +2,7 @@
 import { v4 as uuid } from 'uuid';
 import { NUM, STR, FN_NATIVE, FALSE, TRUE, ARR, NULL, BOOL, OBJ, ERROR } from '../value.js';
 import { assertNumber, assertString, assertBoolean, valToJs, jsToVal, assertFunction, assertObject, eq, expectAny, assertArray, reprValue } from '../util.js';
-import { AiScriptRuntimeError } from '../../error.js';
+import { AiScriptRuntimeError, AiScriptUserError } from '../../error.js';
 import { AISCRIPT_VERSION } from '../../constants.js';
 import { textDecoder } from '../../const.js';
 import { CryptoGen } from '../../utils/random/CryptoGen.js';
@@ -139,6 +139,10 @@ export const std: Record<string, Value> = {
 		await new Promise((r) => setTimeout(r, delay.value));
 		return NULL;
 	}),
+	'Core:abort': FN_NATIVE(async ([message]) => {
+		assertString(message);
+		throw new AiScriptUserError(message.value);
+	}),
 	//#endregion
 
 	//#region Util
@@ -180,37 +184,75 @@ export const std: Record<string, Value> = {
 
 	'Date:year': FN_NATIVE(([v]) => {
 		if (v) { assertNumber(v); }
-		return NUM(new Date(v?.value || Date.now()).getFullYear());
+		return NUM(new Date(v?.value ?? Date.now()).getFullYear());
 	}),
 
 	'Date:month': FN_NATIVE(([v]) => {
 		if (v) { assertNumber(v); }
-		return NUM(new Date(v?.value || Date.now()).getMonth() + 1);
+		return NUM(new Date(v?.value ?? Date.now()).getMonth() + 1);
 	}),
 
 	'Date:day': FN_NATIVE(([v]) => {
 		if (v) { assertNumber(v); }
-		return NUM(new Date(v?.value || Date.now()).getDate());
+		return NUM(new Date(v?.value ?? Date.now()).getDate());
 	}),
 
 	'Date:hour': FN_NATIVE(([v]) => {
 		if (v) { assertNumber(v); }
-		return NUM(new Date(v?.value || Date.now()).getHours());
+		return NUM(new Date(v?.value ?? Date.now()).getHours());
 	}),
 
 	'Date:minute': FN_NATIVE(([v]) => {
 		if (v) { assertNumber(v); }
-		return NUM(new Date(v?.value || Date.now()).getMinutes());
+		return NUM(new Date(v?.value ?? Date.now()).getMinutes());
 	}),
 
 	'Date:second': FN_NATIVE(([v]) => {
 		if (v) { assertNumber(v); }
-		return NUM(new Date(v?.value || Date.now()).getSeconds());
+		return NUM(new Date(v?.value ?? Date.now()).getSeconds());
+	}),
+
+	'Date:millisecond': FN_NATIVE(([v]) => {
+		if (v) { assertNumber(v); }
+		return NUM(new Date(v?.value ?? Date.now()).getMilliseconds());
 	}),
 
 	'Date:parse': FN_NATIVE(([v]) => {
 		assertString(v);
 		return NUM(new Date(v.value).getTime());
+	}),
+
+	'Date:to_iso_str': FN_NATIVE(([v, ofs]) => {
+		if (v) { assertNumber(v); }
+		const date = new Date(v?.value ?? Date.now());
+
+		if (ofs) { assertNumber(ofs); }
+		const offset = ofs?.value ?? -date.getTimezoneOffset();
+		let offset_s;
+		if (offset === 0) {
+			offset_s = 'Z';
+		} else {
+			const sign = Math.sign(offset);
+			const offset_hours = Math.floor(Math.abs(offset) / 60);
+			const offset_minutes = Math.abs(offset) % 60;
+			date.setUTCHours(date.getUTCHours() + sign * offset_hours);
+			date.setUTCMinutes(date.getUTCMinutes() + sign * offset_minutes);
+
+			const sign_s = (offset > 0) ? '+' : '-';
+			const offset_hours_s = offset_hours.toString().padStart(2, '0');
+			const offset_minutes_s = offset_minutes.toString().padStart(2, '0');
+			offset_s = `${sign_s}${offset_hours_s}:${offset_minutes_s}`;
+		}
+
+		const y = date.getUTCFullYear().toString().padStart(4, '0');
+		const mo = (date.getUTCMonth() + 1).toString().padStart(2, '0');
+		const d = date.getUTCDate().toString().padStart(2, '0');
+		const h = date.getUTCHours().toString().padStart(2, '0');
+		const mi = date.getUTCMinutes().toString().padStart(2, '0');
+		const s = date.getUTCSeconds().toString().padStart(2, '0');
+		const ms = date.getUTCMilliseconds().toString().padStart(3, '0');
+
+		return STR(`${y}-${mo}-${d}T${h}:${mi}:${s}.${ms}${offset_s}`);
 	}),
 	//#endregion
 
@@ -432,11 +474,6 @@ export const std: Record<string, Value> = {
 	//#endregion
 
 	//#region Num
-	'Num:to_hex': FN_NATIVE(([v]) => {
-		assertNumber(v);
-		return STR(v.value.toString(16));
-	}),
-
 	'Num:from_hex': FN_NATIVE(([v]) => {
 		assertString(v);
 		return NUM(parseInt(v.value, 16));
@@ -493,7 +530,39 @@ export const std: Record<string, Value> = {
 	}),
 	//#endregion
 
+	//#region Uri
+	'Uri:encode_full': FN_NATIVE(([v]) => {
+		assertString(v);
+		return STR(encodeURI(v.value));
+	}),	
+
+	'Uri:encode_component': FN_NATIVE(([v]) => {
+		assertString(v);
+		return STR(encodeURIComponent(v.value));
+	}),	
+
+	'Uri:decode_full': FN_NATIVE(([v]) => {
+		assertString(v);
+		return STR(decodeURI(v.value));
+	}),
+	
+	'Uri:decode_component': FN_NATIVE(([v]) => {
+		assertString(v);
+		return STR(decodeURIComponent(v.value));
+	}),
+	//#endregion
+
 	//#region Arr
+	'Arr:create': FN_NATIVE(([length, initial]) => {
+		assertNumber(length);
+		try {
+			return ARR(Array(length.value).fill(initial ?? NULL));
+		} catch (e) {
+			if (length.value < 0) throw new AiScriptRuntimeError('Arr:create expected non-negative number, got negative');
+			if (!Number.isInteger(length.value)) throw new AiScriptRuntimeError('Arr:create expected integer, got non-integer');
+			throw e;
+		}
+	}),
 	//#endregion
 
 	//#region Obj

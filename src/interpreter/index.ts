@@ -31,6 +31,7 @@ export class Interpreter {
 			err?(e: AiScriptError): void;
 			log?(type: string, params: Record<string, any>): void;
 			maxStep?: number;
+			abortOnError?: boolean;
 		} = {},
 	) {
 		const io = {
@@ -145,19 +146,17 @@ export class Interpreter {
 	}
 
 	@autobind
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private handleError(e: any): void {
-		if (this.opts.err) {
-			if (!this.stop) {
-				this.abort();
-				if (e instanceof AiScriptError) {
-					this.opts.err(e);
-				} else {
-					this.opts.err(new NonAiScriptError(e));
-				}
-			}
+	private handleError(e: unknown): void {
+		if (!this.opts.err) throw e;
+		if (this.opts.abortOnError) {
+			// when abortOnError is true, error handler should be called only once
+			if (this.stop) return;
+			this.abort();
+		}
+		if (e instanceof AiScriptError) {
+			this.opts.err(e);
 		} else {
-			throw e;
+			this.opts.err(new NonAiScriptError(e));
 		}
 	}
 
@@ -167,11 +166,11 @@ export class Interpreter {
 	}
 
 	@autobind
-	private async collectNs(script: Ast.Node[]): Promise<void> {
+	private async collectNs(script: Ast.Node[], scope = this.scope): Promise<void> {
 		for (const node of script) {
 			switch (node.type) {
 				case 'ns': {
-					await this.collectNsMember(node);
+					await this.collectNsMember(node, scope);
 					break;
 				}
 
@@ -183,35 +182,36 @@ export class Interpreter {
 	}
 
 	@autobind
-	private async collectNsMember(ns: Ast.Namespace): Promise<void> {
-		const scope = this.scope.createChildScope();
+	private async collectNsMember(ns: Ast.Namespace, scope = this.scope): Promise<void> {
+		const nsScope = scope.createChildNamespaceScope(ns.name);
+
+		await this.collectNs(ns.members, nsScope);
 
 		for (const node of ns.members) {
 			switch (node.type) {
 				case 'def': {
 					if (node.mut) {
-						throw new AiScriptNamespaceError('No "var" in namespace declaration: ' + node.name, node.loc);
+						throw new AiScriptNamespaceError('No "var" in namespace declaration: ' + node.name, node.loc.start);
 					}
 
 					const variable: Variable = {
 						isMutable: node.mut,
-						value: await this._eval(node.expr, scope),
+						value: await this._eval(node.expr, nsScope),
 					};
-					scope.add(node.name, variable);
+					nsScope.add(node.name, variable);
 
-					this.scope.add(ns.name + ':' + node.name, variable);
 					break;
 				}
 
 				case 'ns': {
-					break; // TODO
+					break; // nop
 				}
 
 				default: {
 					// exhaustiveness check
 					const n: never = node;
 					const nd = n as Ast.Node;
-					throw new AiScriptNamespaceError('invalid ns member type: ' + nd.type, nd.loc);
+					throw new AiScriptNamespaceError('invalid ns member type: ' + nd.type, nd.loc.start);
 				}
 			}
 		}
@@ -230,10 +230,12 @@ export class Interpreter {
 			return result ?? NULL;
 		} else {
 			const _args = new Map<string, Variable>();
-			for (let i = 0; i < (fn.args ?? []).length; i++) {
-				_args.set(fn.args![i]!, {
+			for (const i of fn.args.keys()) {
+				const argdef = fn.args[i]!;
+				if (!argdef.default) expectAny(args[i]);
+				_args.set(argdef.name, {
 					isMutable: true,
-					value: args[i]!,
+					value: args[i] ?? argdef.default!,
 				});
 			}
 			const fnScope = fn.scope!.createChildScope(_args);
@@ -244,11 +246,11 @@ export class Interpreter {
 	@autobind
 	private _eval(node: Ast.Node, scope: Scope): Promise<Value> {
 		return this.__eval(node, scope).catch(e => {
-			if (e.loc) throw e;
+			if (e.pos) throw e;
 			else {
 				const e2 = (e instanceof AiScriptError) ? e : new NonAiScriptError(e);
-				e2.loc = node.loc;
-				e2.message = `${e2.message} (Line ${node.loc.line}, Column ${node.loc.column})`;
+				e2.pos = node.loc.start;
+				e2.message = `${e2.message} (Line ${e2.pos.line}, Column ${e2.pos.column})`;
 				throw e2;
 			}
 		});
@@ -486,7 +488,17 @@ export class Interpreter {
 			}
 
 			case 'fn': {
-				return FN(node.args.map(arg => arg.name), node.children, scope);
+				return FN(
+					await Promise.all(node.args.map(async (arg) => {
+						return {
+							name: arg.name,
+							default: arg.default ? await this._eval(arg.default, scope) : arg.optional ? NULL : undefined,
+							// type: (TODO)
+						};
+					})),
+					node.children,
+					scope,
+				);
 			}
 
 			case 'block': {
@@ -635,6 +647,16 @@ export class Interpreter {
 			assertObject(assignee);
 
 			assignee.value.set(dest.name, value);
+		} else if (dest.type === 'arr') {
+			assertArray(value);
+			await Promise.all(dest.value.map(
+				(item, index) => this.assign(scope, item, value.value[index] ?? NULL)
+			));
+		} else if (dest.type === 'obj') {
+			assertObject(value);
+			await Promise.all([...dest.value].map(
+				([key, item]) => this.assign(scope, item, value.value.get(key) ?? NULL)
+			));
 		} else {
 			throw new AiScriptRuntimeError('The left-hand side of an assignment expression must be a variable or a property/index access.');
 		}

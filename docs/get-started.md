@@ -41,9 +41,9 @@ AiScriptのコメントは`//`で始めます。
 this is a comment
 */
 ```
-## 第一級オブジェクト
+## 組み込み型
 <table>
-	<tr><th>種類</th><th>型</th><th>リテラル例</th></tr>
+	<tr><th>名称</th><th>型名</th><th>リテラル例</th></tr>
 	<tr><td>文字列</td><td><code>str</code></td><td><code>"kawaii"</code></td></tr>
 	<tr><td>数値</td><td><code>num</code></td><td><code>42</code></td></tr>
 	<tr><td>真理値</td><td><code>bool</code></td><td><code>true</code>/<code>false</code></td></tr>
@@ -130,21 +130,7 @@ let obj = {foo: "bar", answer: 42}
 ```
 Core:add(1, 1)
 ```
-
-<table>
-	<tr><th>演算子</th><th>標準関数</th><th>意味</th></tr>
-	<tr><td><code>+</code></td><td><code>Core:add</code></td><td>加算</td></tr>
-	<tr><td><code>-</code></td><td><code>Core:sub</code></td><td>減算</td></tr>
-	<tr><td><code>*</code></td><td><code>Core:mul</code></td><td>乗算</td></tr>
-	<tr><td><code>^</code></td><td><code>Core:pow</code></td><td>冪算</td></tr
-	<tr><td><code>/</code></td><td><code>Core:div</code></td><td>除算</td></tr>
-	<tr><td><code>%</code></td><td><code>Core:mod</code></td><td>剰余</td></tr>
-	<tr><td><code>==</code></td><td><code>Core:eq</code></td><td>等しい</td></tr>
-	<tr><td><code>&&</code></td><td><code>Core:and</code></td><td>かつ</td></tr>
-	<tr><td><code>||</code></td><td><code>Core:or</code></td><td>または</td></tr>
-	<tr><td><code>></code></td><td><code>Core:gt</code></td><td>大きい</td></tr>
-	<tr><td><code><</code></td><td><code>Core:lt</code></td><td>小さい</td></tr>
-</table>
+詳しくは→[syntax.md](/docs/syntax.md#%E6%BC%94%E7%AE%97%E5%AD%90)
 
 ## ブロック式
 ブロック式 `eval { ~ }` を使うと、ブロック内で最後に書かれた式が値として返されます。
@@ -241,10 +227,10 @@ each (let item, items) {
 
 [標準定数・関数一覧](./std.md)
 
-### プリミティブ値
-第一級オブジェクトに`.`をつけて呼び出すことができる値および関数です。
+### 組み込みプロパティ
+オブジェクト以外の値に`.`をつけて呼び出すことができる擬似的なプロパティです。
 
-[プリミティブ値一覧](./primitive-props.md)
+[組み込みプロパティ一覧](./builtin-props.md)
 
 ## テンプレート
 バッククォートを使うと、文字列の中に変数や式を埋め込めます:

@@ -1,20 +1,36 @@
 [Read translated version (en)](./translations/en/CHANGELOG.md)
 
-# Next
-- 新しいAiScriptパーサーを実装
-  - スペースの厳密さが緩和
-  - **Breaking Change** 改行トークンを導入。改行の扱いが今までより厳密になりました。改行することができる部分以外では文法エラーになります。
-- 文字列リテラルやテンプレートで、`\`とそれに続く1文字は全てエスケープシーケンスとして扱われるように
-- 文法エラーの表示を改善。理由を詳細に表示するように。
-- 複数行のコメントがある時に文法エラーの表示行数がずれる問題を解消しました。
-- 実行時エラーの発生位置が表示されるように。
+# 0.19.0
+
+- `Date:year`系の関数に0を渡すと現在時刻になる問題を修正
+- シンタックスエラーなどの位置情報を修正
+- `arr.reduce`が空配列に対して初期値なしで呼び出された時、正式にエラーを出すよう
+- `str.pad_start`,`str.pad_end`を追加
+- `arr.insert`,`arr.remove`を追加
+- `arr.sort`の処理を非同期的にして高速化
+- `arr.flat`,`arr.flat_map`を追加
+- `Uri:encode_full`, `Uri:encode_component`, `Uri:decode_full`, `Uri:decode_component`を追加
+- `str.starts_with`,`str.ends_with`を追加
+- `arr.splice`を追加
+- `arr.at`を追加
+- For Hosts: エラーハンドラ使用時、InterpreterのオプションでabortOnErrorをtrueにした時のみ全体のabortを行うように
 - 関数`Math:gen_rng`に第二引数`algorithm`をオプション引数として追加。
   - アルゴリズムを`chacha20`、`rc4`、`rc4_legacy`から選べるようになりました。
   - **Breaking Change** `algorithm`を指定しない場合、`chacha20`が選択されます。
-- **Breaking Change** パースの都合によりmatch文の構文を変更。パターンの前に`case`キーワードが必要となり、`*`は`default`に変更。
-- **Breaking Change** 多くの予約語を追加。これまで変数名等に使えていた名前に影響が出る可能性があります。
-- **Breaking Change** 配列及び関数の引数において、空白区切りが使用できなくなりました。`,`または改行が必要です。
-- Fix: `Math:rnd`が範囲外の値を返す可能性があるのを修正。
+- Fix: **Breaking Change** `Math:rnd`が範囲外の値を返す可能性があるのをアルゴリズムの変更により修正。
+
+# 0.18.0
+- `Core:abort`でプログラムを緊急停止できるように
+- `index_of`の配列版を追加
+- `str.index_of` `arr.index_of`共に第２引数fromIndexを受け付けるように
+- `arr.incl`の引数の型制限を廃止
+- `Date:millisecond`を追加
+- `arr.fill`, `arr.repeat`, `Arr:create`を追加
+- JavaScriptのように分割代入ができるように（現段階では機能は最小限）
+- スコープおよび名前が同一である変数が宣言された際のエラーメッセージを修正
+- ネストされた名前空間下の変数を参照できるように
+- `arr.every`, `arr.some`を追加
+- `Date:to_iso_str`を追加
 
 # 0.17.0
 - `package.json`を修正
@@ -129,4 +145,4 @@
 - 空の関数を定義できない問題を修正
 - 空のスクリプトが許可されていない問題を修正
 - ネームスペース付き変数のインクリメント、デクリメントを修正
-- ネームスペース付き変数への代入ができない問題を修正 
+- ネームスペース付き変数への代入ができない問題を修正

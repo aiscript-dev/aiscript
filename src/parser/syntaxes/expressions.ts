@@ -52,55 +52,57 @@ const operators: OpInfo[] = [
 ];
 
 function parsePrefix(s: ITokenStream, minBp: number): Ast.Node {
-	const loc = s.token.loc;
-	const op = s.kind;
+	const startPos = s.getPos();
+	const op = s.getKind();
 	s.next();
 
 	// 改行のエスケープ
-	if (s.kind === TokenKind.BackSlash) {
+	if (s.getKind() === TokenKind.BackSlash) {
 		s.next();
 		s.nextWith(TokenKind.NewLine);
 	}
 
 	const expr = parsePratt(s, minBp);
 
+	const endPos = expr.loc.end;
+
 	switch (op) {
 		case TokenKind.Plus: {
 			// 数値リテラル以外は非サポート
 			if (expr.type === 'num') {
-				return NODE('num', { value: expr.value }, loc);
+				return NODE('num', { value: expr.value }, startPos, endPos);
 			} else {
-				throw new AiScriptSyntaxError('currently, sign is only supported for number literal.', loc);
+				throw new AiScriptSyntaxError('currently, sign is only supported for number literal.', startPos);
 			}
 			// TODO: 将来的にサポートされる式を拡張
-			// return NODE('plus', { expr }, loc);
+			// return NODE('plus', { expr }, startPos, endPos);
 		}
 		case TokenKind.Minus: {
 			// 数値リテラル以外は非サポート
 			if (expr.type === 'num') {
-				return NODE('num', { value: -1 * expr.value }, loc);
+				return NODE('num', { value: -1 * expr.value }, startPos, endPos);
 			} else {
-				throw new AiScriptSyntaxError('currently, sign is only supported for number literal.', loc);
+				throw new AiScriptSyntaxError('currently, sign is only supported for number literal.', startPos);
 			}
 			// TODO: 将来的にサポートされる式を拡張
-			// return NODE('minus', { expr }, loc);
+			// return NODE('minus', { expr }, startPos, endPos);
 		}
 		case TokenKind.Not: {
-			return NODE('not', { expr }, loc);
+			return NODE('not', { expr }, startPos, endPos);
 		}
 		default: {
-			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[op]}`, loc);
+			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[op]}`, startPos);
 		}
 	}
 }
 
 function parseInfix(s: ITokenStream, left: Ast.Node, minBp: number): Ast.Node {
-	const loc = s.token.loc;
-	const op = s.kind;
+	const startPos = s.getPos();
+	const op = s.getKind();
 	s.next();
 
 	// 改行のエスケープ
-	if (s.kind === TokenKind.BackSlash) {
+	if (s.getKind() === TokenKind.BackSlash) {
 		s.next();
 		s.nextWith(TokenKind.NewLine);
 	}
@@ -113,63 +115,64 @@ function parseInfix(s: ITokenStream, left: Ast.Node, minBp: number): Ast.Node {
 		return NODE('prop', {
 			target: left,
 			name,
-		}, loc);
+		}, startPos, s.getPos());
 	} else {
 		const right = parsePratt(s, minBp);
+		const endPos = s.getPos();
 
 		switch (op) {
 			case TokenKind.Hat: {
-				return CALL_NODE('Core:pow', [left, right], loc);
+				return CALL_NODE('Core:pow', [left, right], startPos, endPos);
 			}
 			case TokenKind.Asterisk: {
-				return CALL_NODE('Core:mul', [left, right], loc);
+				return CALL_NODE('Core:mul', [left, right], startPos, endPos);
 			}
 			case TokenKind.Slash: {
-				return CALL_NODE('Core:div', [left, right], loc);
+				return CALL_NODE('Core:div', [left, right], startPos, endPos);
 			}
 			case TokenKind.Percent: {
-				return CALL_NODE('Core:mod', [left, right], loc);
+				return CALL_NODE('Core:mod', [left, right], startPos, endPos);
 			}
 			case TokenKind.Plus: {
-				return CALL_NODE('Core:add', [left, right], loc);
+				return CALL_NODE('Core:add', [left, right], startPos, endPos);
 			}
 			case TokenKind.Minus: {
-				return CALL_NODE('Core:sub', [left, right], loc);
+				return CALL_NODE('Core:sub', [left, right], startPos, endPos);
 			}
 			case TokenKind.Lt: {
-				return CALL_NODE('Core:lt', [left, right], loc);
+				return CALL_NODE('Core:lt', [left, right], startPos, endPos);
 			}
 			case TokenKind.LtEq: {
-				return CALL_NODE('Core:lteq', [left, right], loc);
+				return CALL_NODE('Core:lteq', [left, right], startPos, endPos);
 			}
 			case TokenKind.Gt: {
-				return CALL_NODE('Core:gt', [left, right], loc);
+				return CALL_NODE('Core:gt', [left, right], startPos, endPos);
 			}
 			case TokenKind.GtEq: {
-				return CALL_NODE('Core:gteq', [left, right], loc);
+				return CALL_NODE('Core:gteq', [left, right], startPos, endPos);
 			}
 			case TokenKind.Eq2: {
-				return CALL_NODE('Core:eq', [left, right], loc);
+				return CALL_NODE('Core:eq', [left, right], startPos, endPos);
 			}
 			case TokenKind.NotEq: {
-				return CALL_NODE('Core:neq', [left, right], loc);
+				return CALL_NODE('Core:neq', [left, right], startPos, endPos);
 			}
 			case TokenKind.And2: {
-				return NODE('and', { left, right }, loc);
+				return NODE('and', { left, right }, startPos, endPos);
 			}
 			case TokenKind.Or2: {
-				return NODE('or', { left, right }, loc);
+				return NODE('or', { left, right }, startPos, endPos);
 			}
 			default: {
-				throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[op]}`, loc);
+				throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[op]}`, startPos);
 			}
 		}
 	}
 }
 
 function parsePostfix(s: ITokenStream, expr: Ast.Node): Ast.Node {
-	const loc = s.token.loc;
-	const op = s.kind;
+	const startPos = s.getPos();
+	const op = s.getKind();
 
 	switch (op) {
 		case TokenKind.OpenParen: {
@@ -183,18 +186,18 @@ function parsePostfix(s: ITokenStream, expr: Ast.Node): Ast.Node {
 			return NODE('index', {
 				target: expr,
 				index,
-			}, loc);
+			}, startPos, s.getPos());
 		}
 		default: {
-			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[op]}`, loc);
+			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[op]}`, startPos);
 		}
 	}
 }
 
 function parseAtom(s: ITokenStream, isStatic: boolean): Ast.Node {
-	const loc = s.token.loc;
+	const startPos = s.getPos();
 
-	switch (s.kind) {
+	switch (s.getKind()) {
 		case TokenKind.IfKeyword: {
 			if (isStatic) break;
 			return parseIf(s);
@@ -220,51 +223,53 @@ function parseAtom(s: ITokenStream, isStatic: boolean): Ast.Node {
 
 			if (isStatic) break;
 
-			for (const element of s.token.children!) {
+			for (const [i, element] of s.token.children!.entries()) {
 				switch (element.kind) {
 					case TokenKind.TemplateStringElement: {
-						values.push(NODE('str', { value: element.value! }, element.loc));
+						// トークンの終了位置を取得するために先読み
+						const nextToken = s.token.children![i + 1] ?? s.lookahead(1);
+						values.push(NODE('str', { value: element.value! }, element.pos, nextToken.pos));
 						break;
 					}
 					case TokenKind.TemplateExprElement: {
 						// スキャナで埋め込み式として事前に読み取っておいたトークン列をパースする
 						const exprStream = new TokenStream(element.children!);
 						const expr = parseExpr(exprStream, false);
-						if (exprStream.kind !== TokenKind.EOF) {
-							throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[exprStream.token.kind]}`, exprStream.token.loc);
+						if (exprStream.getKind() !== TokenKind.EOF) {
+							throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[exprStream.token.kind]}`, exprStream.token.pos);
 						}
 						values.push(expr);
 						break;
 					}
 					default: {
-						throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[element.kind]}`, element.loc);
+						throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[element.kind]}`, element.pos);
 					}
 				}
 			}
 
 			s.next();
-			return NODE('tmpl', { tmpl: values }, loc);
+			return NODE('tmpl', { tmpl: values }, startPos, s.getPos());
 		}
 		case TokenKind.StringLiteral: {
 			const value = s.token.value!;
 			s.next();
-			return NODE('str', { value }, loc);
+			return NODE('str', { value }, startPos, s.getPos());
 		}
 		case TokenKind.NumberLiteral: {
 			// TODO: validate number value
 			const value = Number(s.token.value!);
 			s.next();
-			return NODE('num', { value }, loc);
+			return NODE('num', { value }, startPos, s.getPos());
 		}
 		case TokenKind.TrueKeyword:
 		case TokenKind.FalseKeyword: {
-			const value = (s.kind === TokenKind.TrueKeyword);
+			const value = (s.getKind() === TokenKind.TrueKeyword);
 			s.next();
-			return NODE('bool', { value }, loc);
+			return NODE('bool', { value }, startPos, s.getPos());
 		}
 		case TokenKind.NullKeyword: {
 			s.next();
-			return NODE('null', { }, loc);
+			return NODE('null', {}, startPos, s.getPos());
 		}
 		case TokenKind.OpenBrace: {
 			return parseObject(s, isStatic);
@@ -283,34 +288,34 @@ function parseAtom(s: ITokenStream, isStatic: boolean): Ast.Node {
 			return expr;
 		}
 	}
-	throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[s.kind]}`, loc);
+	throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[s.getKind()]}`, startPos);
 }
 
 /**
  * Call = "(" [Expr *(SEP Expr) [SEP]] ")"
 */
 function parseCall(s: ITokenStream, target: Ast.Node): Ast.Node {
-	const loc = s.token.loc;
+	const startPos = s.getPos();
 	const items: Ast.Node[] = [];
 
 	s.nextWith(TokenKind.OpenParen);
 
-	if (s.kind === TokenKind.NewLine) {
+	if (s.getKind() === TokenKind.NewLine) {
 		s.next();
 	}
 
-	while (s.kind !== TokenKind.CloseParen) {
+	while (s.getKind() !== TokenKind.CloseParen) {
 		items.push(parseExpr(s, false));
 
 		// separator
-		switch (s.kind as TokenKind) {
+		switch (s.getKind()) {
 			case TokenKind.NewLine: {
 				s.next();
 				break;
 			}
 			case TokenKind.Comma: {
 				s.next();
-				if (s.kind === TokenKind.NewLine) {
+				if (s.getKind() === TokenKind.NewLine) {
 					s.next();
 				}
 				break;
@@ -319,7 +324,7 @@ function parseCall(s: ITokenStream, target: Ast.Node): Ast.Node {
 				break;
 			}
 			default: {
-				throw new AiScriptSyntaxError('separator expected', s.token.loc);
+				throw new AiScriptSyntaxError('separator expected', s.getPos());
 			}
 		}
 	}
@@ -329,7 +334,7 @@ function parseCall(s: ITokenStream, target: Ast.Node): Ast.Node {
 	return NODE('call', {
 		target,
 		args: items,
-	}, loc);
+	}, startPos, s.getPos());
 }
 
 /**
@@ -338,34 +343,34 @@ function parseCall(s: ITokenStream, target: Ast.Node): Ast.Node {
  * ```
 */
 function parseIf(s: ITokenStream): Ast.Node {
-	const loc = s.token.loc;
+	const startPos = s.getPos();
 
 	s.nextWith(TokenKind.IfKeyword);
 	const cond = parseExpr(s, false);
 	const then = parseBlockOrStatement(s);
 
-	if (s.kind === TokenKind.NewLine && [TokenKind.ElifKeyword, TokenKind.ElseKeyword].includes(s.lookahead(1).kind)) {
+	if (s.getKind() === TokenKind.NewLine && [TokenKind.ElifKeyword, TokenKind.ElseKeyword].includes(s.lookahead(1).kind)) {
 		s.next();
 	}
 
 	const elseif: { cond: Ast.Node, then: Ast.Node }[] = [];
-	while (s.kind === TokenKind.ElifKeyword) {
+	while (s.getKind() === TokenKind.ElifKeyword) {
 		s.next();
 		const elifCond = parseExpr(s, false);
 		const elifThen = parseBlockOrStatement(s);
-		if ((s.kind as TokenKind) === TokenKind.NewLine && [TokenKind.ElifKeyword, TokenKind.ElseKeyword].includes(s.lookahead(1).kind)) {
+		if ((s.getKind()) === TokenKind.NewLine && [TokenKind.ElifKeyword, TokenKind.ElseKeyword].includes(s.lookahead(1).kind)) {
 			s.next();
 		}
 		elseif.push({ cond: elifCond, then: elifThen });
 	}
 
 	let _else = undefined;
-	if (s.kind === TokenKind.ElseKeyword) {
+	if (s.getKind() === TokenKind.ElseKeyword) {
 		s.next();
 		_else = parseBlockOrStatement(s);
 	}
 
-	return NODE('if', { cond, then, elseif, else: _else }, loc);
+	return NODE('if', { cond, then, elseif, else: _else }, startPos, s.getPos());
 }
 
 /**
@@ -374,21 +379,21 @@ function parseIf(s: ITokenStream): Ast.Node {
  * ```
 */
 function parseFnExpr(s: ITokenStream): Ast.Node {
-	const loc = s.token.loc;
+	const startPos = s.getPos();
 
 	s.nextWith(TokenKind.At);
 
 	const params = parseParams(s);
 
 	let type;
-	if ((s.kind as TokenKind) === TokenKind.Colon) {
+	if ((s.getKind()) === TokenKind.Colon) {
 		s.next();
 		type = parseType(s);
 	}
 
 	const body = parseBlock(s);
 
-	return NODE('fn', { args: params, retType: type, children: body }, loc);
+	return NODE('fn', { args: params, retType: type, children: body }, startPos, s.getPos());
 }
 
 /**
@@ -398,19 +403,19 @@ function parseFnExpr(s: ITokenStream): Ast.Node {
  * ```
 */
 function parseMatch(s: ITokenStream): Ast.Node {
-	const loc = s.token.loc;
+	const startPos = s.getPos();
 
 	s.nextWith(TokenKind.MatchKeyword);
 	const about = parseExpr(s, false);
 
 	s.nextWith(TokenKind.OpenBrace);
 
-	if (s.kind === TokenKind.NewLine) {
+	if (s.getKind() === TokenKind.NewLine) {
 		s.next();
 	}
 
 	const qs: { q: Ast.Node, a: Ast.Node }[] = [];
-	while (s.kind !== TokenKind.DefaultKeyword && s.kind !== TokenKind.CloseBrace) {
+	while (s.getKind() !== TokenKind.DefaultKeyword && s.getKind() !== TokenKind.CloseBrace) {
 		s.nextWith(TokenKind.CaseKeyword);
 		const q = parseExpr(s, false);
 		s.nextWith(TokenKind.Arrow);
@@ -418,14 +423,14 @@ function parseMatch(s: ITokenStream): Ast.Node {
 		qs.push({ q, a });
 
 		// separator
-		switch (s.kind as TokenKind) {
+		switch (s.getKind()) {
 			case TokenKind.NewLine: {
 				s.next();
 				break;
 			}
 			case TokenKind.Comma: {
 				s.next();
-				if (s.kind === TokenKind.NewLine) {
+				if (s.getKind() === TokenKind.NewLine) {
 					s.next();
 				}
 				break;
@@ -435,26 +440,26 @@ function parseMatch(s: ITokenStream): Ast.Node {
 				break;
 			}
 			default: {
-				throw new AiScriptSyntaxError('separator expected', s.token.loc);
+				throw new AiScriptSyntaxError('separator expected', s.getPos());
 			}
 		}
 	}
 
 	let x;
-	if (s.kind === TokenKind.DefaultKeyword) {
+	if (s.getKind() === TokenKind.DefaultKeyword) {
 		s.next();
 		s.nextWith(TokenKind.Arrow);
 		x = parseBlockOrStatement(s);
 
 		// separator
-		switch (s.kind as TokenKind) {
+		switch (s.getKind()) {
 			case TokenKind.NewLine: {
 				s.next();
 				break;
 			}
 			case TokenKind.Comma: {
 				s.next();
-				if ((s.kind as TokenKind) === TokenKind.NewLine) {
+				if ((s.getKind()) === TokenKind.NewLine) {
 					s.next();
 				}
 				break;
@@ -463,14 +468,14 @@ function parseMatch(s: ITokenStream): Ast.Node {
 				break;
 			}
 			default: {
-				throw new AiScriptSyntaxError('separator expected', s.token.loc);
+				throw new AiScriptSyntaxError('separator expected', s.getPos());
 			}
 		}
 	}
 
 	s.nextWith(TokenKind.CloseBrace);
 
-	return NODE('match', { about, qs, default: x }, loc);
+	return NODE('match', { about, qs, default: x }, startPos, s.getPos());
 }
 
 /**
@@ -479,11 +484,12 @@ function parseMatch(s: ITokenStream): Ast.Node {
  * ```
 */
 function parseEval(s: ITokenStream): Ast.Node {
-	const loc = s.token.loc;
+	const startPos = s.getPos();
 
 	s.nextWith(TokenKind.EvalKeyword);
 	const statements = parseBlock(s);
-	return NODE('block', { statements }, loc);
+
+	return NODE('block', { statements }, startPos, s.getPos());
 }
 
 /**
@@ -492,11 +498,12 @@ function parseEval(s: ITokenStream): Ast.Node {
  * ```
 */
 function parseExists(s: ITokenStream): Ast.Node {
-	const loc = s.token.loc;
+	const startPos = s.getPos();
 
 	s.nextWith(TokenKind.ExistsKeyword);
 	const identifier = parseReference(s);
-	return NODE('exists', { identifier }, loc);
+
+	return NODE('exists', { identifier }, startPos, s.getPos());
 }
 
 /**
@@ -505,18 +512,18 @@ function parseExists(s: ITokenStream): Ast.Node {
  * ```
 */
 function parseReference(s: ITokenStream): Ast.Node {
-	const loc = s.token.loc;
+	const startPos = s.getPos();
 
 	const segs: string[] = [];
 	while (true) {
 		if (segs.length > 0) {
-			if (s.kind === TokenKind.Colon) {
+			if (s.getKind() === TokenKind.Colon) {
 				if (s.token.hasLeftSpacing) {
-					throw new AiScriptSyntaxError('Cannot use spaces in a reference.', s.token.loc);
+					throw new AiScriptSyntaxError('Cannot use spaces in a reference.', s.getPos());
 				}
 				s.next();
 				if (s.token.hasLeftSpacing) {
-					throw new AiScriptSyntaxError('Cannot use spaces in a reference.', s.token.loc);
+					throw new AiScriptSyntaxError('Cannot use spaces in a reference.', s.getPos());
 				}
 			} else {
 				break;
@@ -526,7 +533,7 @@ function parseReference(s: ITokenStream): Ast.Node {
 		segs.push(s.token.value!);
 		s.next();
 	}
-	return NODE('identifier', { name: segs.join(':') }, loc);
+	return NODE('identifier', { name: segs.join(':') }, startPos, s.getPos());
 }
 
 /**
@@ -535,16 +542,16 @@ function parseReference(s: ITokenStream): Ast.Node {
  * ```
 */
 function parseObject(s: ITokenStream, isStatic: boolean): Ast.Node {
-	const loc = s.token.loc;
+	const startPos = s.getPos();
 
 	s.nextWith(TokenKind.OpenBrace);
 
-	if (s.kind === TokenKind.NewLine) {
+	while (s.getKind() === TokenKind.NewLine) {
 		s.next();
 	}
 
 	const map = new Map();
-	while (s.kind !== TokenKind.CloseBrace) {
+	while (s.getKind() !== TokenKind.CloseBrace) {
 		s.expect(TokenKind.Identifier);
 		const k = s.token.value!;
 		s.next();
@@ -556,14 +563,11 @@ function parseObject(s: ITokenStream, isStatic: boolean): Ast.Node {
 		map.set(k, v);
 
 		// separator
-		switch (s.kind as TokenKind) {
-			case TokenKind.NewLine: {
-				s.next();
-				break;
-			}
+		switch (s.getKind()) {
+			case TokenKind.NewLine:
 			case TokenKind.Comma: {
 				s.next();
-				if (s.kind === TokenKind.NewLine) {
+				while (s.getKind() === TokenKind.NewLine) {
 					s.next();
 				}
 				break;
@@ -572,14 +576,14 @@ function parseObject(s: ITokenStream, isStatic: boolean): Ast.Node {
 				break;
 			}
 			default: {
-				throw new AiScriptSyntaxError('separator expected', s.token.loc);
+				throw new AiScriptSyntaxError('separator expected', s.getPos());
 			}
 		}
 	}
 
 	s.nextWith(TokenKind.CloseBrace);
 
-	return NODE('obj', { value: map }, loc);
+	return NODE('obj', { value: map }, startPos, s.getPos());
 }
 
 /**
@@ -588,27 +592,24 @@ function parseObject(s: ITokenStream, isStatic: boolean): Ast.Node {
  * ```
 */
 function parseArray(s: ITokenStream, isStatic: boolean): Ast.Node {
-	const loc = s.token.loc;
+	const startPos = s.getPos();
 
 	s.nextWith(TokenKind.OpenBracket);
 
-	if (s.kind === TokenKind.NewLine) {
+	while (s.getKind() === TokenKind.NewLine) {
 		s.next();
 	}
 
 	const value = [];
-	while (s.kind !== TokenKind.CloseBracket) {
+	while (s.getKind() !== TokenKind.CloseBracket) {
 		value.push(parseExpr(s, isStatic));
 
 		// separator
-		switch (s.kind as TokenKind) {
-			case TokenKind.NewLine: {
-				s.next();
-				break;
-			}
+		switch (s.getKind()) {
+			case TokenKind.NewLine:
 			case TokenKind.Comma: {
 				s.next();
-				if (s.kind === TokenKind.NewLine) {
+				while (s.getKind() === TokenKind.NewLine) {
 					s.next();
 				}
 				break;
@@ -617,14 +618,14 @@ function parseArray(s: ITokenStream, isStatic: boolean): Ast.Node {
 				break;
 			}
 			default: {
-				throw new AiScriptSyntaxError('separator expected', s.token.loc);
+				throw new AiScriptSyntaxError('separator expected', s.getPos());
 			}
 		}
 	}
 
 	s.nextWith(TokenKind.CloseBracket);
 
-	return NODE('arr', { value }, loc);
+	return NODE('arr', { value }, startPos, s.getPos());
 }
 
 //#region Pratt parsing
@@ -640,7 +641,7 @@ function parsePratt(s: ITokenStream, minBp: number): Ast.Node {
 
 	let left: Ast.Node;
 
-	const tokenKind = s.kind;
+	const tokenKind = s.getKind();
 	const prefix = operators.find((x): x is PrefixInfo => x.opKind === 'prefix' && x.kind === tokenKind);
 	if (prefix != null) {
 		left = parsePrefix(s, prefix.bp);
@@ -650,12 +651,12 @@ function parsePratt(s: ITokenStream, minBp: number): Ast.Node {
 
 	while (true) {
 		// 改行のエスケープ
-		if (s.kind === TokenKind.BackSlash) {
+		if (s.getKind() === TokenKind.BackSlash) {
 			s.next();
 			s.nextWith(TokenKind.NewLine);
 		}
 
-		const tokenKind = s.kind;
+		const tokenKind = s.getKind();
 
 		const postfix = operators.find((x): x is PostfixInfo => x.opKind === 'postfix' && x.kind === tokenKind);
 		if (postfix != null) {

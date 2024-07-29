@@ -14,7 +14,7 @@ type AddAssign = NodeBase & {
 };
 
 // @public (undocumented)
-export const AISCRIPT_VERSION: "0.17.0";
+export const AISCRIPT_VERSION: "0.19.0";
 
 // @public (undocumented)
 abstract class AiScriptError extends Error {
@@ -22,9 +22,9 @@ abstract class AiScriptError extends Error {
     // (undocumented)
     info?: any;
     // (undocumented)
-    loc?: Loc;
-    // (undocumented)
     name: string;
+    // (undocumented)
+    pos?: Pos;
 }
 
 // @public
@@ -34,11 +34,11 @@ class AiScriptIndexOutOfRangeError extends AiScriptRuntimeError {
 
 // @public
 class AiScriptNamespaceError extends AiScriptError {
-    constructor(message: string, loc: Loc, info?: any);
-    // (undocumented)
-    loc: Loc;
+    constructor(message: string, pos: Pos, info?: any);
     // (undocumented)
     name: string;
+    // (undocumented)
+    pos: Pos;
 }
 
 // @public
@@ -50,18 +50,25 @@ class AiScriptRuntimeError extends AiScriptError {
 
 // @public
 class AiScriptSyntaxError extends AiScriptError {
-    constructor(message: string, loc: Loc, info?: any);
-    // (undocumented)
-    loc: Loc;
+    constructor(message: string, pos: Pos, info?: any);
     // (undocumented)
     name: string;
+    // (undocumented)
+    pos: Pos;
 }
 
 // @public
 class AiScriptTypeError extends AiScriptError {
-    constructor(message: string, loc: Loc, info?: any);
+    constructor(message: string, pos: Pos, info?: any);
     // (undocumented)
-    loc: Loc;
+    name: string;
+    // (undocumented)
+    pos: Pos;
+}
+
+// @public
+class AiScriptUserError extends AiScriptRuntimeError {
+    constructor(message: string, info?: any);
     // (undocumented)
     name: string;
 }
@@ -71,6 +78,7 @@ type And = NodeBase & {
     type: 'and';
     left: Expression;
     right: Expression;
+    operatorLoc: Loc;
 };
 
 // @public (undocumented)
@@ -111,6 +119,7 @@ declare namespace Ast {
     export {
         isStatement,
         isExpression,
+        Pos,
         Loc,
         Node_2 as Node,
         Namespace,
@@ -239,7 +248,8 @@ declare namespace errors {
         AiScriptTypeError,
         AiScriptNamespaceError,
         AiScriptRuntimeError,
-        AiScriptIndexOutOfRangeError
+        AiScriptIndexOutOfRangeError,
+        AiScriptUserError
     }
 }
 export { errors }
@@ -270,6 +280,8 @@ type Fn = NodeBase & {
     type: 'fn';
     args: {
         name: string;
+        optional: boolean;
+        default?: Expression;
         argType?: TypeSource;
     }[];
     retType?: TypeSource;
@@ -332,6 +344,7 @@ export class Interpreter {
         err?(e: AiScriptError): void;
         log?(type: string, params: Record<string, any>): void;
         maxStep?: number;
+        abortOnError?: boolean;
     });
     // (undocumented)
     abort(): void;
@@ -378,10 +391,10 @@ function isString(val: Value): val is VStr;
 // @public (undocumented)
 function jsToVal(val: any): Value;
 
-// @public
+// @public (undocumented)
 type Loc = {
-    line: number;
-    column: number;
+    start: Pos;
+    end: Pos;
 };
 
 // @public (undocumented)
@@ -471,6 +484,7 @@ type Or = NodeBase & {
     type: 'or';
     left: Expression;
     right: Expression;
+    operatorLoc: Loc;
 };
 
 // @public (undocumented)
@@ -489,6 +503,12 @@ export type ParserPlugin = (nodes: Ast.Node[]) => Ast.Node[];
 
 // @public (undocumented)
 export type PluginType = 'validate' | 'transform';
+
+// @public
+type Pos = {
+    line: number;
+    column: number;
+};
 
 // @public (undocumented)
 type Prop = NodeBase & {
@@ -511,9 +531,11 @@ type Return = NodeBase & {
 
 // @public (undocumented)
 export class Scope {
-    constructor(layerdStates?: Scope['layerdStates'], parent?: Scope, name?: Scope['name']);
+    constructor(layerdStates?: Scope['layerdStates'], parent?: Scope, name?: Scope['name'], nsName?: string);
     add(name: string, variable: Variable): void;
     assign(name: string, val: Value): void;
+    // (undocumented)
+    createChildNamespaceScope(nsName: string, states?: Map<string, Variable>, name?: Scope['name']): Scope;
     // Warning: (ae-forgotten-export) The symbol "Variable" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
@@ -523,6 +545,8 @@ export class Scope {
     getAll(): Map<string, Variable>;
     // (undocumented)
     name: string;
+    // (undocumented)
+    nsName?: string;
     // (undocumented)
     opts: {
         log?(type: string, params: Record<string, any>): void;
@@ -611,6 +635,7 @@ declare namespace values {
         VObj,
         VFn,
         VUserFn,
+        VFnArg,
         VNativeFn,
         VReturn,
         VBreak,
@@ -671,6 +696,13 @@ type VError = {
 // @public (undocumented)
 type VFn = VUserFn | VNativeFn;
 
+// @public (undocumented)
+type VFnArg = {
+    name: string;
+    type?: Type;
+    default?: Value;
+};
+
 // @public
 type VNativeFn = VFnBase & {
     native: (args: (Value | undefined)[], opts: {
@@ -715,9 +747,14 @@ type VStr = {
 // @public (undocumented)
 type VUserFn = VFnBase & {
     native?: undefined;
+    args: VFnArg[];
     statements: Node_2[];
     scope: Scope;
 };
+
+// Warnings were encountered during analysis:
+//
+// src/interpreter/value.ts:46:2 - (ae-forgotten-export) The symbol "Type" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 
