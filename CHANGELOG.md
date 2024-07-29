@@ -14,10 +14,6 @@
 - `arr.splice`を追加
 - `arr.at`を追加
 - For Hosts: エラーハンドラ使用時、InterpreterのオプションでabortOnErrorをtrueにした時のみ全体のabortを行うように
-- 関数`Math:gen_rng`に第二引数`algorithm`をオプション引数として追加。
-  - アルゴリズムを`chacha20`、`rc4`、`rc4_legacy`から選べるようになりました。
-  - **Breaking Change** `algorithm`を指定しない場合、`chacha20`が選択されます。
-- Fix: **Breaking Change** `Math:rnd`が範囲外の値を返す可能性があるのをアルゴリズムの変更により修正。
 
 # 0.18.0
 - `Core:abort`でプログラムを緊急停止できるように
@@ -40,7 +36,6 @@
 - 関数`Str#charcode_at` `Str#to_arr` `Str#to_char_arr` `Str#to_charcode_arr` `Str#to_utf8_byte_arr` `Str#to_unicode_codepoint_arr` `Str:from_unicode_codepoints` `Str:from_utf8_bytes`を追加
 - Fix: `Str#codepoint_at`がサロゲートペアに対応していないのを修正
 - 配列の範囲外および非整数のインデックスへの代入でエラーを出すように
-
 ## Note
 バージョン0.16.0に記録漏れがありました。
 >- 関数`Str:from_codepoint` `Str#codepoint_at`を追加
