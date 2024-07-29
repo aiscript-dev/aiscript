@@ -1,15 +1,36 @@
 /**
  * ASTノード
- *
- * ASTノードはCSTノードをインタプリタ等から操作しやすい構造に変形したものです。
 */
 
-export type Loc = {
-	start: number;
-	end: number;
+export type Pos = {
+	line: number;
+	column: number;
 };
 
-export type Node = Namespace | Meta | Statement | Expression | TypeSource;
+export type Loc = {
+	start: Pos;
+	end: Pos;
+};
+
+export type Node = Namespace | Meta | Statement | Expression | TypeSource | Attribute;
+
+type NodeBase = {
+	loc: Loc; // コード位置
+};
+
+export type Namespace = NodeBase & {
+	type: 'ns'; // 名前空間
+	name: string; // 空間名
+	members: (Definition | Namespace)[]; // メンバー
+};
+
+export type Meta = NodeBase & {
+	type: 'meta'; // メタデータ定義
+	name: string | null; // 名
+	value: Expression; // 値
+};
+
+// statement
 
 export type Statement =
 	Definition |
@@ -29,53 +50,6 @@ const statementTypes = [
 export function isStatement(x: Node): x is Statement {
 	return statementTypes.includes(x.type);
 }
-
-export type Expression =
-	If |
-	Fn |
-	Match |
-	Block |
-	Exists |
-	Tmpl |
-	Str |
-	Num |
-	Bool |
-	Null |
-	Obj |
-	Arr |
-	Not |
-	And |
-	Or |
-	Identifier |
-	Call |
-	Index |
-	Prop;
-
-const expressionTypes = [
-	'if', 'fn', 'match', 'block', 'exists', 'tmpl', 'str', 'num', 'bool', 'null', 'obj', 'arr', 'identifier', 'call', 'index', 'prop',
-];
-export function isExpression(x: Node): x is Expression {
-	return expressionTypes.includes(x.type);
-}
-
-type NodeBase = {
-	loc?: { // コード位置
-		start: number;
-		end: number;
-	};
-};
-
-export type Namespace = NodeBase & {
-	type: 'ns'; // 名前空間
-	name: string; // 空間名
-	members: (Definition | Namespace)[]; // メンバー
-};
-
-export type Meta = NodeBase & {
-	type: 'meta'; // メタデータ定義
-	name: string | null; // 名
-	value: Expression; // 値
-};
 
 export type Definition = NodeBase & {
 	type: 'def'; // 変数宣言文
@@ -144,6 +118,36 @@ export type Assign = NodeBase & {
 	expr: Expression; // 式
 };
 
+// expressions
+
+export type Expression =
+	If |
+	Fn |
+	Match |
+	Block |
+	Exists |
+	Tmpl |
+	Str |
+	Num |
+	Bool |
+	Null |
+	Obj |
+	Arr |
+	Not |
+	And |
+	Or |
+	Identifier |
+	Call |
+	Index |
+	Prop;
+
+const expressionTypes = [
+	'if', 'fn', 'match', 'block', 'exists', 'tmpl', 'str', 'num', 'bool', 'null', 'obj', 'arr', 'not', 'and', 'or', 'identifier', 'call', 'index', 'prop',
+];
+export function isExpression(x: Node): x is Expression {
+	return expressionTypes.includes(x.type);
+}
+
 export type Not = NodeBase & {
 	type: 'not'; // 否定
 	expr: Expression; // 式
@@ -178,6 +182,8 @@ export type Fn = NodeBase & {
 	type: 'fn'; // 関数
 	args: {
 		name: string; // 引数名
+		optional: boolean;
+		default?: Expression; // 引数の初期値
 		argType?: TypeSource; // 引数の型
 	}[];
 	retType?: TypeSource; // 戻り値の型
@@ -242,14 +248,6 @@ export type Identifier = NodeBase & {
 	type: 'identifier'; // 変数などの識別子
 	name: string; // 変数名
 };
-
-// chain node example:
-// call > fn
-// call > var(fn)
-// index > arr
-// index > var(arr)
-// prop > prop(obj) > var(obj)
-// call > prop(fn) > obj
 
 export type Call = NodeBase & {
 	type: 'call'; // 関数呼び出し

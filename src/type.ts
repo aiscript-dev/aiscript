@@ -151,7 +151,7 @@ export function getTypeBySource(typeSource: Ast.TypeSource): Type {
 				return T_GENERIC(typeSource.name, [innerType]);
 			}
 		}
-		throw new AiScriptSyntaxError(`Unknown type: '${getTypeNameBySource(typeSource)}'`);
+		throw new AiScriptSyntaxError(`Unknown type: '${getTypeNameBySource(typeSource)}'`, typeSource.loc.start);
 	} else {
 		const argTypes = typeSource.args.map(arg => getTypeBySource(arg));
 		return T_FN(argTypes, getTypeBySource(typeSource.result));
