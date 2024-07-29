@@ -120,13 +120,19 @@ _x_ +1の自然対数を計算します。
 _min_ および _max_ を渡した場合、_min_ <= x, x <= _max_ の整数、  
 渡していない場合は 0 <= x, x < 1 の 小数が返されます。  
 
-### @Math:gen_rng(_seed_: num | str): fn
+### @Math:gen_rng(_seed_: num | str, _algorithm_?: str): @(_min_?: num, _max_?: num)
 シードから乱数生成機を生成します。  
-生成された乱数生成器は 0 <= x, x < 1 の 小数を返します。  
+生成された乱数生成器は、_min_ および _max_ を渡した場合、_min_ <= x, x <= _max_ の整数、  
+渡していない場合は 0 <= x, x < 1 の浮動小数点数を返します。  
+_algorithm_ の指定による挙動の変化は下記の通りです。  
+| _algorithm_ の指定 | 内部の乱数生成アルゴリズム | 範囲指定整数生成アルゴリズム |
+|--|--|--|
+| `rc4` | RC4 | Rejection Sampling |
+| `rc4_legacy` | RC4 | 浮動小数点数演算による範囲制限(0.18.0以前のアルゴリズム) |
+| 無指定 または 上記以外の任意の文字列 | ChaCha20 | Rejection Sampling |
 
-### @Math:gen_rng_unbiased(_seed_: num | str): @(_min_: num, _max_: num)
-シードから _min_ <= x, x <= _max_ の整数を一様分布で生成する乱数生成機を生成します。  
-_min_ および _max_ が渡されていない場合はエラーとなります。  
+> [!CAUTION]
+> `rc4_legacy`等、浮動小数点数演算を伴う範囲指定整数生成アルゴリズムでは、演算時の丸め誤差により、指定した _max_ の値より大きな値が生成される可能性があります。
 
 ## その他
 ### @Math:clz32(_x_: num): num
