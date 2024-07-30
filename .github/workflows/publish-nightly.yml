@@ -6,6 +6,17 @@ on:
   workflow_dispatch:
 
 jobs:
+  get-branches:
+    runs-on: ubuntu-latest
+    outputs:
+      branches: ${{ steps.getb.outputs.branches }}
+    steps:
+      - id: getb
+        run: |
+          branches=[$(git branch -r | grep origin | grep -v '\->' | sed 's/\s*origin\///' | sed 's/^.*$/"&",/')]
+          echo "branches=$branches" >> $GITHUB_OUTPUT
+
+
   publish:
     runs-on: ubuntu-latest
     strategy:
@@ -18,6 +29,8 @@ jobs:
             tag: next
     env:
       NPM_SECRET: ${{ secrets.NPM_SECRET }}
+    needs: get-branches
+    if: contains(fromJSON(needs.get-branches.outputs.branches), matrix.branch)
 
     steps:
       - name: Checkout ${{ matrix.branch }}
