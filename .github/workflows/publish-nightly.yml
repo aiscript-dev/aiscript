@@ -9,13 +9,29 @@ jobs:
   get-branches:
     runs-on: ubuntu-latest
     outputs:
-      branches: ${{ steps.getb.outputs.branches }}
+      branches: ${{ steps.getb.outputs.matrix }}
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.7
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4.0.3
+        with:
+          node-version: 20.x
+          
       - id: getb
         run: |
-          branches=[$(git branch -r | grep origin | grep -v '\->' | sed 's/\s*origin\///' | sed 's/^.*$/"&",/')]
-          echo "branches=$branches" >> $GITHUB_OUTPUT
-
+          branches=("master" "next")
+          matrix="{\"include\":["
+          sep=""
+          for branch in "${branches[@]}"; do
+            if git show-ref --quiet refs/heads/${branch}; then
+              matrix="${matrix}${sep}{\"branch\":\"${branch}\"}"
+              sep=","
+            fi
+          done
+          matrix="${matrix}]}"
+          echo "matrix=$matrix" >> $GITHUB_OUTPUT
 
   publish:
     runs-on: ubuntu-latest
@@ -30,7 +46,7 @@ jobs:
     env:
       NPM_SECRET: ${{ secrets.NPM_SECRET }}
     needs: get-branches
-    if: contains(fromJSON(needs.get-branches.outputs.branches), matrix.branch)
+    if: contains(fromJSON(needs.get-branches.outputs.matrix), matrix.branch)
 
     steps:
       - name: Checkout ${{ matrix.branch }}
