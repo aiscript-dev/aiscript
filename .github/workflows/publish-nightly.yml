@@ -43,11 +43,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix: ${{ needs.get-branches.outputs.matrix }}
-        include: ${{ needs.get-branches.outputs.matrix }}
-          - branch: master
-            tag: dev
-          - branch: aiscript-next
-            tag: next
     env:
       NPM_SECRET: ${{ secrets.NPM_SECRET }}
 
