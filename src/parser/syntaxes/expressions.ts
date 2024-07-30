@@ -637,7 +637,7 @@ function parseArray(s: ITokenStream, isStatic: boolean): Ast.Node {
  * ```
 */
 function parseDictionary(s: ITokenStream, isStatic: boolean): Ast.Node {
-	const pos = s.token.pos;
+	const startPos = s.token.pos;
 
 	s.nextWith(TokenKind.DicKeyword);
 	s.nextWith(TokenKind.OpenBrace);
@@ -679,7 +679,7 @@ function parseDictionary(s: ITokenStream, isStatic: boolean): Ast.Node {
 
 	s.nextWith(TokenKind.CloseBrace);
 
-	return NODE('dic', { value }, pos);
+	return NODE('dic', { value }, startPos, s.getPos());
 }
 
 //#region Pratt parsing
