@@ -43,8 +43,6 @@ jobs:
       matrix: ${{ fromJSON(needs.get-branches.outputs.matrix) }}
     env:
       NPM_SECRET: ${{ secrets.NPM_SECRET }}
-    needs: get-branches
-    if: contains(fromJSON(needs.get-branches.outputs.branches), matrix.branch)
 
     steps:
       - name: Checkout ${{ matrix.branch }}
