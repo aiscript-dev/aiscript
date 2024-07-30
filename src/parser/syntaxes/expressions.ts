@@ -637,7 +637,7 @@ function parseArray(s: ITokenStream, isStatic: boolean): Ast.Node {
  * ```
 */
 function parseDictionary(s: ITokenStream, isStatic: boolean): Ast.Node {
-	const loc = s.token.loc;
+	const pos = s.token.pos;
 
 	s.nextWith(TokenKind.DicKeyword);
 	s.nextWith(TokenKind.OpenBrace);
@@ -672,14 +672,14 @@ function parseDictionary(s: ITokenStream, isStatic: boolean): Ast.Node {
 				break;
 			}
 			default: {
-				throw new AiScriptSyntaxError('separator expected', s.token.loc);
+				throw new AiScriptSyntaxError('separator expected', s.token.pos);
 			}
 		}
 	}
 
 	s.nextWith(TokenKind.CloseBrace);
 
-	return NODE('dic', { value }, loc);
+	return NODE('dic', { value }, pos);
 }
 
 //#region Pratt parsing
