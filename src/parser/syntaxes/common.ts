@@ -60,7 +60,7 @@ export function parseParams(s: ITokenStream): { name: string, argType?: Ast.Node
 				break;
 			}
 			default: {
-				throw new AiScriptSyntaxError('separator expected', s.token.loc);
+				throw new AiScriptSyntaxError('separator expected', s.getPos());
 			}
 		}
 	}
@@ -99,7 +99,7 @@ export function parseBlock(s: ITokenStream): Ast.Node[] {
 				break;
 			}
 			default: {
-				throw new AiScriptSyntaxError('Multiple statements cannot be placed on a single line.', s.token.loc);
+				throw new AiScriptSyntaxError('Multiple statements cannot be placed on a single line.', s.getPos());
 			}
 		}
 	}
@@ -126,7 +126,7 @@ export function parseType(s: ITokenStream): Ast.Node {
  * ```
 */
 function parseFnType(s: ITokenStream): Ast.Node {
-	const loc = s.token.loc;
+	const startPos = s.getPos();
 
 	s.nextWith(TokenKind.At);
 	s.nextWith(TokenKind.OpenParen);
@@ -140,7 +140,7 @@ function parseFnType(s: ITokenStream): Ast.Node {
 					break;
 				}
 				default: {
-					throw new AiScriptSyntaxError('separator expected', s.token.loc);
+					throw new AiScriptSyntaxError('separator expected', s.getPos());
 				}
 			}
 		}
@@ -153,7 +153,7 @@ function parseFnType(s: ITokenStream): Ast.Node {
 
 	const resultType = parseType(s);
 
-	return NODE('fnTypeSource', { args: params, result: resultType }, loc);
+	return NODE('fnTypeSource', { args: params, result: resultType }, startPos, s.getPos());
 }
 
 /**
@@ -162,7 +162,7 @@ function parseFnType(s: ITokenStream): Ast.Node {
  * ```
 */
 function parseNamedType(s: ITokenStream): Ast.Node {
-	const loc = s.token.loc;
+	const startPos = s.getPos();
 
 	s.expect(TokenKind.Identifier);
 	const name = s.token.value!;
@@ -176,7 +176,7 @@ function parseNamedType(s: ITokenStream): Ast.Node {
 		s.nextWith(TokenKind.Gt);
 	}
 
-	return NODE('namedTypeSource', { name, inner }, loc);
+	return NODE('namedTypeSource', { name, inner }, startPos, s.getPos());
 }
 
 //#endregion Type

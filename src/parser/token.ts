@@ -110,12 +110,12 @@ export enum TokenKind {
 	CloseBrace,
 }
 
-export type TokenLocation = { column: number, line: number };
+export type TokenPosition = { column: number, line: number };
 
 export class Token {
 	constructor(
 		public kind: TokenKind,
-		public loc: { column: number, line: number },
+		public pos: TokenPosition,
 		public hasLeftSpacing = false,
 		/** for number literal, string literal */
 		public value?: string,
@@ -128,6 +128,6 @@ export class Token {
  * - opts.value: for number literal, string literal
  * - opts.children: for template syntax
 */
-export function TOKEN(kind: TokenKind, loc: TokenLocation, opts?: { hasLeftSpacing?: boolean, value?: Token['value'], children?: Token['children'] }): Token {
-	return new Token(kind, loc, opts?.hasLeftSpacing, opts?.value, opts?.children);
+export function TOKEN(kind: TokenKind, pos: TokenPosition, opts?: { hasLeftSpacing?: boolean, value?: Token['value'], children?: Token['children'] }): Token {
+	return new Token(kind, pos, opts?.hasLeftSpacing, opts?.value, opts?.children);
 }

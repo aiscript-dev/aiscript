@@ -1,6 +1,6 @@
 import { AiScriptSyntaxError } from '../../error.js';
 import { TOKEN, TokenKind } from '../token.js';
-import type { Token } from '../token.js';
+import type { Token, TokenPosition } from '../token.js';
 
 /**
  * トークンの読み取りに関するインターフェース
@@ -15,6 +15,11 @@ export interface ITokenStream {
 	 * カーソル位置にあるトークンの種類を取得します。
 	*/
 	getKind(): TokenKind;
+
+	/**
+	 * カーソル位置にあるトークンの位置情報を取得します。
+	*/
+	getPos(): TokenPosition;
 
 	/**
 	 * カーソル位置を次のトークンへ進めます。
@@ -75,6 +80,13 @@ export class TokenStream implements ITokenStream {
 	}
 
 	/**
+	 * カーソル位置にあるトークンの位置情報を取得します。
+	*/
+	public getPos(): TokenPosition {
+		return this.token.pos;
+	}
+
+	/**
 	 * カーソル位置を次のトークンへ進めます。
 	*/
 	public next(): void {
@@ -101,7 +113,7 @@ export class TokenStream implements ITokenStream {
 	*/
 	public expect(kind: TokenKind): void {
 		if (this.getKind() !== kind) {
-			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[this.getKind()]}`, this.token.loc);
+			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[this.getKind()]}`, this.getPos());
 		}
 	}
 
