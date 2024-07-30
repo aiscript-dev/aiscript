@@ -212,7 +212,7 @@ export type Exists = NodeBase & {
 
 export type Tmpl = NodeBase & {
 	type: 'tmpl'; // テンプレート
-	tmpl: (string | Expression)[]; // 処理
+	tmpl: Expression[]; // 処理
 };
 
 export type Str = NodeBase & {

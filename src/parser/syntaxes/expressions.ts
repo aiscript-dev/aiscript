@@ -219,7 +219,7 @@ function parseAtom(s: ITokenStream, isStatic: boolean): Ast.Expression {
 			return parseExists(s);
 		}
 		case TokenKind.Template: {
-			const values: (string | Ast.Expression)[] = [];
+			const values: Ast.Expression[] = [];
 
 			if (isStatic) break;
 
