@@ -9,15 +9,10 @@ jobs:
   get-branches:
     runs-on: ubuntu-latest
     outputs:
-      branches: ${{ steps.getb.outputs.matrix }}
+      matrix: ${{ steps.getb.outputs.matrix }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.7
-        
-      - name: Setup Node.js
-        uses: actions/setup-node@v4.0.3
-        with:
-          node-version: 20.x
           
       - id: getb
         run: |
@@ -25,11 +20,11 @@ jobs:
             ["dev"]="master"
             ["next"]="aiscript-next"
           )
-          matrix="{\"include\":["
+          matrix='{"include":['
           sep=""
           for tag in "${!branches[@]}"; do
             branch=${branches[${tag}]}
-            if git show-ref --quiet refs/heads/${branch}; then
+            if git show-ref --quiet refs/remotes/origin/${branch}; then
               matrix="${matrix}${sep}{\"branch\":\"${branch}\",\"tag\":\"${tag}\"}"
               sep=","
             fi
