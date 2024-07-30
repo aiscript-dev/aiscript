@@ -13,6 +13,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.7
+        with:
+          fetch-depth: 0
           
       - id: getb
         run: |
@@ -37,7 +39,7 @@ jobs:
     needs: get-branches
     strategy:
       fail-fast: false
-      matrix: ${{ needs.get-branches.outputs.matrix }}
+      matrix: ${{ fromJSON(needs.get-branches.outputs.matrix) }}
     env:
       NPM_SECRET: ${{ secrets.NPM_SECRET }}
 
