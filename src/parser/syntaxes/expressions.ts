@@ -8,7 +8,7 @@ import { parseBlockOrStatement } from './statements.js';
 import type * as Ast from '../../node.js';
 import type { ITokenStream } from '../streams/token-stream.js';
 
-export function parseExpr(s: ITokenStream, isStatic: boolean): Ast.Node {
+export function parseExpr(s: ITokenStream, isStatic: boolean): Ast.Expression {
 	if (isStatic) {
 		return parseAtom(s, true);
 	} else {
@@ -51,7 +51,7 @@ const operators: OpInfo[] = [
 	{ opKind: 'infix', kind: TokenKind.Or2, lbp: 2, rbp: 3 },
 ];
 
-function parsePrefix(s: ITokenStream, minBp: number): Ast.Node {
+function parsePrefix(s: ITokenStream, minBp: number): Ast.Expression {
 	const startPos = s.getPos();
 	const op = s.getKind();
 	s.next();
@@ -96,7 +96,7 @@ function parsePrefix(s: ITokenStream, minBp: number): Ast.Node {
 	}
 }
 
-function parseInfix(s: ITokenStream, left: Ast.Node, minBp: number): Ast.Node {
+function parseInfix(s: ITokenStream, left: Ast.Expression, minBp: number): Ast.Expression {
 	const startPos = s.getPos();
 	const op = s.getKind();
 	s.next();
@@ -170,7 +170,7 @@ function parseInfix(s: ITokenStream, left: Ast.Node, minBp: number): Ast.Node {
 	}
 }
 
-function parsePostfix(s: ITokenStream, expr: Ast.Node): Ast.Node {
+function parsePostfix(s: ITokenStream, expr: Ast.Expression): Ast.Expression {
 	const startPos = s.getPos();
 	const op = s.getKind();
 
@@ -194,7 +194,7 @@ function parsePostfix(s: ITokenStream, expr: Ast.Node): Ast.Node {
 	}
 }
 
-function parseAtom(s: ITokenStream, isStatic: boolean): Ast.Node {
+function parseAtom(s: ITokenStream, isStatic: boolean): Ast.Expression {
 	const startPos = s.getPos();
 
 	switch (s.getKind()) {
@@ -219,7 +219,7 @@ function parseAtom(s: ITokenStream, isStatic: boolean): Ast.Node {
 			return parseExists(s);
 		}
 		case TokenKind.Template: {
-			const values: (string | Ast.Node)[] = [];
+			const values: (string | Ast.Expression)[] = [];
 
 			if (isStatic) break;
 
@@ -294,9 +294,9 @@ function parseAtom(s: ITokenStream, isStatic: boolean): Ast.Node {
 /**
  * Call = "(" [Expr *(SEP Expr) [SEP]] ")"
 */
-function parseCall(s: ITokenStream, target: Ast.Node): Ast.Node {
+function parseCall(s: ITokenStream, target: Ast.Expression): Ast.Call {
 	const startPos = s.getPos();
-	const items: Ast.Node[] = [];
+	const items: Ast.Expression[] = [];
 
 	s.nextWith(TokenKind.OpenParen);
 
@@ -342,7 +342,7 @@ function parseCall(s: ITokenStream, target: Ast.Node): Ast.Node {
  * If = "if" Expr BlockOrStatement *("elif" Expr BlockOrStatement) ["else" BlockOrStatement]
  * ```
 */
-function parseIf(s: ITokenStream): Ast.Node {
+function parseIf(s: ITokenStream): Ast.If {
 	const startPos = s.getPos();
 
 	s.nextWith(TokenKind.IfKeyword);
@@ -353,7 +353,7 @@ function parseIf(s: ITokenStream): Ast.Node {
 		s.next();
 	}
 
-	const elseif: { cond: Ast.Node, then: Ast.Node }[] = [];
+	const elseif: Ast.If['elseif'] = [];
 	while (s.getKind() === TokenKind.ElifKeyword) {
 		s.next();
 		const elifCond = parseExpr(s, false);
@@ -378,7 +378,7 @@ function parseIf(s: ITokenStream): Ast.Node {
  * FnExpr = "@" Params [":" Type] Block
  * ```
 */
-function parseFnExpr(s: ITokenStream): Ast.Node {
+function parseFnExpr(s: ITokenStream): Ast.Fn {
 	const startPos = s.getPos();
 
 	s.nextWith(TokenKind.At);
@@ -402,7 +402,7 @@ function parseFnExpr(s: ITokenStream): Ast.Node {
  * MatchCases = "case" Expr "=>" BlockOrStatement *(SEP "case" Expr "=>" BlockOrStatement) [SEP]
  * ```
 */
-function parseMatch(s: ITokenStream): Ast.Node {
+function parseMatch(s: ITokenStream): Ast.Match {
 	const startPos = s.getPos();
 
 	s.nextWith(TokenKind.MatchKeyword);
@@ -414,7 +414,7 @@ function parseMatch(s: ITokenStream): Ast.Node {
 		s.next();
 	}
 
-	const qs: { q: Ast.Node, a: Ast.Node }[] = [];
+	const qs: Ast.Match['qs'] = [];
 	while (s.getKind() !== TokenKind.DefaultKeyword && s.getKind() !== TokenKind.CloseBrace) {
 		s.nextWith(TokenKind.CaseKeyword);
 		const q = parseExpr(s, false);
@@ -483,7 +483,7 @@ function parseMatch(s: ITokenStream): Ast.Node {
  * Eval = "eval" Block
  * ```
 */
-function parseEval(s: ITokenStream): Ast.Node {
+function parseEval(s: ITokenStream): Ast.Block {
 	const startPos = s.getPos();
 
 	s.nextWith(TokenKind.EvalKeyword);
@@ -497,7 +497,7 @@ function parseEval(s: ITokenStream): Ast.Node {
  * Exists = "exists" Reference
  * ```
 */
-function parseExists(s: ITokenStream): Ast.Node {
+function parseExists(s: ITokenStream): Ast.Exists {
 	const startPos = s.getPos();
 
 	s.nextWith(TokenKind.ExistsKeyword);
@@ -511,7 +511,7 @@ function parseExists(s: ITokenStream): Ast.Node {
  * Reference = IDENT *(":" IDENT)
  * ```
 */
-function parseReference(s: ITokenStream): Ast.Node {
+function parseReference(s: ITokenStream): Ast.Identifier {
 	const startPos = s.getPos();
 
 	const segs: string[] = [];
@@ -541,7 +541,7 @@ function parseReference(s: ITokenStream): Ast.Node {
  * Object = "{" [IDENT ":" Expr *(SEP IDENT ":" Expr) [SEP]] "}"
  * ```
 */
-function parseObject(s: ITokenStream, isStatic: boolean): Ast.Node {
+function parseObject(s: ITokenStream, isStatic: boolean): Ast.Obj {
 	const startPos = s.getPos();
 
 	s.nextWith(TokenKind.OpenBrace);
@@ -591,7 +591,7 @@ function parseObject(s: ITokenStream, isStatic: boolean): Ast.Node {
  * Array = "[" [Expr *(SEP Expr) [SEP]] "]"
  * ```
 */
-function parseArray(s: ITokenStream, isStatic: boolean): Ast.Node {
+function parseArray(s: ITokenStream, isStatic: boolean): Ast.Arr {
 	const startPos = s.getPos();
 
 	s.nextWith(TokenKind.OpenBracket);
@@ -635,11 +635,11 @@ type InfixInfo = { opKind: 'infix', kind: TokenKind, lbp: number, rbp: number };
 type PostfixInfo = { opKind: 'postfix', kind: TokenKind, bp: number };
 type OpInfo = PrefixInfo | InfixInfo | PostfixInfo;
 
-function parsePratt(s: ITokenStream, minBp: number): Ast.Node {
+function parsePratt(s: ITokenStream, minBp: number): Ast.Expression {
 	// pratt parsing
 	// https://matklad.github.io/2020/04/13/simple-but-powerful-pratt-parsing.html
 
-	let left: Ast.Node;
+	let left: Ast.Expression;
 
 	const tokenKind = s.getKind();
 	const prefix = operators.find((x): x is PrefixInfo => x.opKind === 'prefix' && x.kind === tokenKind);

@@ -12,8 +12,8 @@ import type * as Ast from '../../node.js';
  * Params = "(" [IDENT [":" Type] *(SEP IDENT [":" Type])] ")"
  * ```
 */
-export function parseParams(s: ITokenStream): { name: string, argType?: Ast.Node }[] {
-	const items: { name: string, optional?: boolean, default?: Ast.Node, argType?: Ast.Node }[] = [];
+export function parseParams(s: ITokenStream): Ast.Fn['args'] {
+	const items: Ast.Fn['args'] = [];
 
 	s.nextWith(TokenKind.OpenParen);
 
@@ -75,14 +75,14 @@ export function parseParams(s: ITokenStream): { name: string, argType?: Ast.Node
  * Block = "{" *Statement "}"
  * ```
 */
-export function parseBlock(s: ITokenStream): Ast.Node[] {
+export function parseBlock(s: ITokenStream): (Ast.Statement | Ast.Expression)[] {
 	s.nextWith(TokenKind.OpenBrace);
 
 	while (s.getKind() === TokenKind.NewLine) {
 		s.next();
 	}
 
-	const steps: Ast.Node[] = [];
+	const steps: (Ast.Statement | Ast.Expression)[] = [];
 	while (s.getKind() !== TokenKind.CloseBrace) {
 		steps.push(parseStatement(s));
 
@@ -111,7 +111,7 @@ export function parseBlock(s: ITokenStream): Ast.Node[] {
 
 //#region Type
 
-export function parseType(s: ITokenStream): Ast.Node {
+export function parseType(s: ITokenStream): Ast.TypeSource {
 	if (s.getKind() === TokenKind.At) {
 		return parseFnType(s);
 	} else {
@@ -125,13 +125,13 @@ export function parseType(s: ITokenStream): Ast.Node {
  * ParamTypes = [Type *(SEP Type)]
  * ```
 */
-function parseFnType(s: ITokenStream): Ast.Node {
+function parseFnType(s: ITokenStream): Ast.TypeSource {
 	const startPos = s.getPos();
 
 	s.nextWith(TokenKind.At);
 	s.nextWith(TokenKind.OpenParen);
 
-	const params: Ast.Node[] = [];
+	const params: Ast.TypeSource[] = [];
 	while (s.getKind() !== TokenKind.CloseParen) {
 		if (params.length > 0) {
 			switch (s.getKind()) {
@@ -161,7 +161,7 @@ function parseFnType(s: ITokenStream): Ast.Node {
  * NamedType = IDENT ["<" Type ">"]
  * ```
 */
-function parseNamedType(s: ITokenStream): Ast.Node {
+function parseNamedType(s: ITokenStream): Ast.TypeSource {
 	const startPos = s.getPos();
 
 	s.expect(TokenKind.Identifier);

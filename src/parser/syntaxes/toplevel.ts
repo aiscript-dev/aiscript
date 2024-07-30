@@ -61,7 +61,7 @@ export function parseTopLevel(s: ITokenStream): Ast.Node[] {
  * Namespace = "::" IDENT "{" *(VarDef / FnDef / Namespace) "}"
  * ```
 */
-export function parseNamespace(s: ITokenStream): Ast.Node {
+export function parseNamespace(s: ITokenStream): Ast.Namespace {
 	const startPos = s.getPos();
 
 	s.nextWith(TokenKind.Colon2);
@@ -70,7 +70,7 @@ export function parseNamespace(s: ITokenStream): Ast.Node {
 	const name = s.token.value!;
 	s.next();
 
-	const members: Ast.Node[] = [];
+	const members: (Ast.Namespace | Ast.Definition)[] = [];
 	s.nextWith(TokenKind.OpenBrace);
 
 	while (s.getKind() === TokenKind.NewLine) {
@@ -118,7 +118,7 @@ export function parseNamespace(s: ITokenStream): Ast.Node {
  * Meta = "###" [IDENT] StaticExpr
  * ```
 */
-export function parseMeta(s: ITokenStream): Ast.Node {
+export function parseMeta(s: ITokenStream): Ast.Meta {
 	const startPos = s.getPos();
 
 	s.nextWith(TokenKind.Sharp3);
