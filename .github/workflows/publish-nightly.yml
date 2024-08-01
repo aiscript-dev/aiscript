@@ -6,16 +6,41 @@ on:
   workflow_dispatch:
 
 jobs:
+  get-branches:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.getb.outputs.matrix }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.7
+        with:
+          fetch-depth: 0
+          
+      - id: getb
+        run: |
+          declare -A branches=(
+            ["dev"]="master"
+            ["next"]="aiscript-next"
+          )
+          matrix='{"include":['
+          sep=""
+          for tag in "${!branches[@]}"; do
+            branch=${branches[${tag}]}
+            if git show-ref --quiet refs/remotes/origin/${branch}; then
+              matrix="${matrix}${sep}{\"branch\":\"${branch}\",\"tag\":\"${tag}\"}"
+              sep=","
+            fi
+          done
+          matrix="${matrix}]}"
+          echo "matrix=$matrix" >> $GITHUB_OUTPUT
+
+
   publish:
     runs-on: ubuntu-latest
+    needs: get-branches
     strategy:
       fail-fast: false
-      matrix:
-        include:
-          - branch: master
-            tag: dev
-          - branch: aiscript-next
-            tag: next
+      matrix: ${{ fromJSON(needs.get-branches.outputs.matrix) }}
     env:
       NPM_SECRET: ${{ secrets.NPM_SECRET }}
 
