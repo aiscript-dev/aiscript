@@ -546,6 +546,78 @@ export class Interpreter {
 				return NULL; // nop
 			}
 
+			case 'pow': {
+				const left = await this._eval(node.left, scope);
+				const right = await this._eval(node.right, scope);
+				return this._fn(std['Core:pow'], [left, right]);
+			}
+
+			case 'mul': {
+				const left = await this._eval(node.left, scope);
+				const right = await this._eval(node.right, scope);
+				return this._fn(std['Core:mul'], [left, right]);
+			}
+
+			case 'div': {
+				const left = await this._eval(node.left, scope);
+				const right = await this._eval(node.right, scope);
+				return this._fn(std['Core:div'], [left, right]);
+			}
+
+			case 'rem': {
+				const left = await this._eval(node.left, scope);
+				const right = await this._eval(node.right, scope);
+				return this._fn(std['Core:mod'], [left, right]);
+			}
+
+			case 'add': {
+				const left = await this._eval(node.left, scope);
+				const right = await this._eval(node.right, scope);
+				return this._fn(std['Core:add'], [left, right]);
+			}
+
+			case 'sub': {
+				const left = await this._eval(node.left, scope);
+				const right = await this._eval(node.right, scope);
+				return this._fn(std['Core:sub'], [left, right]);
+			}
+
+			case 'lt': {
+				const left = await this._eval(node.left, scope);
+				const right = await this._eval(node.right, scope);
+				return this._fn(std['Core:lt'], [left, right]);
+			}
+
+			case 'lteq': {
+				const left = await this._eval(node.left, scope);
+				const right = await this._eval(node.right, scope);
+				return this._fn(std['Core:lteq'], [left, right]);
+			}
+
+			case 'gt': {
+				const left = await this._eval(node.left, scope);
+				const right = await this._eval(node.right, scope);
+				return this._fn(std['Core:gt'], [left, right]);
+			}
+
+			case 'gteq': {
+				const left = await this._eval(node.left, scope);
+				const right = await this._eval(node.right, scope);
+				return this._fn(std['Core:gteq'], [left, right]);
+			}
+
+			case 'eq': {
+				const left = await this._eval(node.left, scope);
+				const right = await this._eval(node.right, scope);
+				return this._fn(std['Core:eq'], [left, right]);
+			}
+
+			case 'neq': {
+				const left = await this._eval(node.left, scope);
+				const right = await this._eval(node.right, scope);
+				return this._fn(std['Core:neq'], [left, right]);
+			}
+
 			case 'and': {
 				const leftValue = await this._eval(node.left, scope);
 				assertBoolean(leftValue);
