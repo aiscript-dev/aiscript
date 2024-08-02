@@ -128,7 +128,7 @@ _algorithm_ の指定による挙動の変化は下記の通りです。
 | _algorithm_ の指定 | 内部の乱数生成アルゴリズム | 範囲指定整数生成アルゴリズム |
 |--|--|--|
 | `rc4` | RC4 | Rejection Sampling |
-| `rc4_legacy` | RC4 | 浮動小数点数演算による範囲制限(0.18.0以前のアルゴリズム) |
+| `rc4_legacy` | RC4 | 浮動小数点数演算による範囲制限(0.19.0以前のアルゴリズム) |
 | 無指定 または 上記以外の任意の文字列 | ChaCha20 | Rejection Sampling |
 
 > [!CAUTION]
