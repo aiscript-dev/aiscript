@@ -1,13 +1,13 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { Pos } from './node.js';
 
 export abstract class AiScriptError extends Error {
 	// name is read by Error.prototype.toString
 	public name = 'AiScript';
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	public info?: any;
 	public pos?: Pos;
 
-	constructor(message: string, info?: any) {
+	constructor(message: string, info?: unknown) {
 		super(message);
 
 		this.info = info;
@@ -24,8 +24,8 @@ export abstract class AiScriptError extends Error {
  */
 export class NonAiScriptError extends AiScriptError {
 	public name = 'Internal';
-	constructor(error: any) {
-		super(error.message ?? `${error}`, error);
+	constructor(error: unknown) {
+		super((error as Error | { message?: string }).message ?? `${error}`, error);
 	}
 }
 
@@ -34,16 +34,16 @@ export class NonAiScriptError extends AiScriptError {
  */
 export class AiScriptSyntaxError extends AiScriptError {
 	public name = 'Syntax';
-	constructor(message: string, public pos: Pos, info?: any) {
+	constructor(message: string, public pos: Pos, info?: unknown) {
 		super(`${message} (Line ${pos.line}, Column ${pos.column})`, info);
 	}
 }
 /**
  * Type validation(parser/plugins/validate-type) errors.
- */ 
+ */
 export class AiScriptTypeError extends AiScriptError {
 	public name = 'Type';
-	constructor(message: string, public pos: Pos, info?: any) {
+	constructor(message: string, public pos: Pos, info?: unknown) {
 		super(`${message} (Line ${pos.line}, Column ${pos.column})`, info);
 	}
 }
@@ -53,7 +53,7 @@ export class AiScriptTypeError extends AiScriptError {
  */
 export class AiScriptNamespaceError extends AiScriptError {
 	public name = 'Namespace';
-	constructor(message: string, public pos: Pos, info?: any) {
+	constructor(message: string, public pos: Pos, info?: unknown) {
 		super(`${message} (Line ${pos.line}, Column ${pos.column})`, info);
 	}
 }
@@ -63,7 +63,7 @@ export class AiScriptNamespaceError extends AiScriptError {
  */
 export class AiScriptRuntimeError extends AiScriptError {
 	public name = 'Runtime';
-	constructor(message: string, info?: any) {
+	constructor(message: string, info?: unknown) {
 		super(message, info);
 	}
 }
@@ -71,7 +71,7 @@ export class AiScriptRuntimeError extends AiScriptError {
  * RuntimeError for illegal access to arrays.
  */
 export class AiScriptIndexOutOfRangeError extends AiScriptRuntimeError {
-	constructor(message: string, info?: any) {
+	constructor(message: string, info?: unknown) {
 		super(message, info);
 	}
 }
@@ -80,7 +80,7 @@ export class AiScriptIndexOutOfRangeError extends AiScriptRuntimeError {
  */
 export class AiScriptUserError extends AiScriptRuntimeError {
 	public name = '';
-	constructor(message: string, info?: any) {
+	constructor(message: string, info?: unknown) {
 		super(message, info);
 	}
 }

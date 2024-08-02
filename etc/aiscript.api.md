@@ -18,7 +18,7 @@ export const AISCRIPT_VERSION: "1.0.0";
 
 // @public (undocumented)
 abstract class AiScriptError extends Error {
-    constructor(message: string, info?: any);
+    constructor(message: string, info?: unknown);
     // (undocumented)
     info?: any;
     // (undocumented)
@@ -29,12 +29,12 @@ abstract class AiScriptError extends Error {
 
 // @public
 class AiScriptIndexOutOfRangeError extends AiScriptRuntimeError {
-    constructor(message: string, info?: any);
+    constructor(message: string, info?: unknown);
 }
 
 // @public
 class AiScriptNamespaceError extends AiScriptError {
-    constructor(message: string, pos: Pos, info?: any);
+    constructor(message: string, pos: Pos, info?: unknown);
     // (undocumented)
     name: string;
     // (undocumented)
@@ -43,14 +43,14 @@ class AiScriptNamespaceError extends AiScriptError {
 
 // @public
 class AiScriptRuntimeError extends AiScriptError {
-    constructor(message: string, info?: any);
+    constructor(message: string, info?: unknown);
     // (undocumented)
     name: string;
 }
 
 // @public
 class AiScriptSyntaxError extends AiScriptError {
-    constructor(message: string, pos: Pos, info?: any);
+    constructor(message: string, pos: Pos, info?: unknown);
     // (undocumented)
     name: string;
     // (undocumented)
@@ -59,7 +59,7 @@ class AiScriptSyntaxError extends AiScriptError {
 
 // @public
 class AiScriptTypeError extends AiScriptError {
-    constructor(message: string, pos: Pos, info?: any);
+    constructor(message: string, pos: Pos, info?: unknown);
     // (undocumented)
     name: string;
     // (undocumented)
@@ -68,7 +68,7 @@ class AiScriptTypeError extends AiScriptError {
 
 // @public
 class AiScriptUserError extends AiScriptRuntimeError {
-    constructor(message: string, info?: any);
+    constructor(message: string, info?: unknown);
     // (undocumented)
     name: string;
 }
@@ -439,7 +439,7 @@ type Node_2 = Namespace | Meta | Statement | Expression | TypeSource | Attribute
 
 // @public
 class NonAiScriptError extends AiScriptError {
-    constructor(error: any);
+    constructor(error: unknown);
     // (undocumented)
     name: string;
 }
