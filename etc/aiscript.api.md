@@ -341,7 +341,7 @@ export class Interpreter {
         in?(q: string): Promise<string>;
         out?(value: Value): void;
         err?(e: AiScriptError): void;
-        log?(type: string, params: Record<string, any>): void;
+        log?(type: string, params: LogObject): void;
         maxStep?: number;
         abortOnError?: boolean;
     });
@@ -547,7 +547,7 @@ export class Scope {
     nsName?: string;
     // (undocumented)
     opts: {
-        log?(type: string, params: Record<string, any>): void;
+        log?(type: string, params: LogObject): void;
         onUpdated?(name: string, value: Value): void;
     };
 }
@@ -752,6 +752,7 @@ type VUserFn = VFnBase & {
 
 // Warnings were encountered during analysis:
 //
+// src/interpreter/index.ts:39:4 - (ae-forgotten-export) The symbol "LogObject" needs to be exported by the entry point index.d.ts
 // src/interpreter/value.ts:46:2 - (ae-forgotten-export) The symbol "Type" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)

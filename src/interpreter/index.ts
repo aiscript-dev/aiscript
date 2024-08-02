@@ -16,6 +16,13 @@ import type * as Ast from '../node.js';
 const IRQ_RATE = 300;
 const IRQ_AT = IRQ_RATE - 1;
 
+export type LogObject = {
+	scope?: string;
+	name?: string;
+	var?: string;
+	val?: Value | Variable;
+};
+
 export class Interpreter {
 	public stepCount = 0;
 	private stop = false;
@@ -29,7 +36,7 @@ export class Interpreter {
 			in?(q: string): Promise<string>;
 			out?(value: Value): void;
 			err?(e: AiScriptError): void;
-			log?(type: string, params: Record<string, any>): void;
+			log?(type: string, params: LogObject): void;
 			maxStep?: number;
 			abortOnError?: boolean;
 		} = {},
@@ -161,7 +168,7 @@ export class Interpreter {
 	}
 
 	@autobind
-	private log(type: string, params: Record<string, unknown>): void {
+	private log(type: string, params: LogObject): void {
 		if (this.opts.log) this.opts.log(type, params);
 	}
 
