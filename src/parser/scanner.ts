@@ -96,7 +96,7 @@ export class Scanner implements ITokenStream {
 	}
 
 	private readToken(): Token {
-		let token;
+		let token: Token | undefined;
 		let hasLeftSpacing = false;
 
 		while (true) {
@@ -453,7 +453,7 @@ export class Scanner implements ITokenStream {
 				throw new AiScriptSyntaxError('digit expected', pos);
 			}
 		}
-		let value;
+		let value: string;
 		if (fractional.length > 0) {
 			value = wholeNumber + '.' + fractional;
 		} else {

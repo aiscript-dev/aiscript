@@ -385,7 +385,7 @@ function parseFnExpr(s: ITokenStream): Ast.Fn {
 
 	const params = parseParams(s);
 
-	let type;
+	let type: Ast.TypeSource | undefined;
 	if ((s.getKind()) === TokenKind.Colon) {
 		s.next();
 		type = parseType(s);
@@ -445,7 +445,7 @@ function parseMatch(s: ITokenStream): Ast.Match {
 		}
 	}
 
-	let x;
+	let x: Ast.Match["default"];
 	if (s.getKind() === TokenKind.DefaultKeyword) {
 		s.next();
 		s.nextWith(TokenKind.Arrow);

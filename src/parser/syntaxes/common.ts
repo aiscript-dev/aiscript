@@ -27,7 +27,7 @@ export function parseParams(s: ITokenStream): Ast.Fn['args'] {
 		s.next();
 
 		let optional = false;
-		let defaultExpr;
+		let defaultExpr: Ast.Expression | undefined;
 		if ((s.getKind() as TokenKind) === TokenKind.Question) {
 			s.next();
 			optional = true;
@@ -35,7 +35,7 @@ export function parseParams(s: ITokenStream): Ast.Fn['args'] {
 			s.next();
 			defaultExpr = parseExpr(s, false);
 		}
-		let type;
+		let type: Ast.TypeSource | undefined;
 		if (s.getKind() === TokenKind.Colon) {
 			s.next();
 			type = parseType(s);
@@ -169,7 +169,7 @@ function parseNamedType(s: ITokenStream): Ast.TypeSource {
 	s.next();
 
 	// inner type
-	let inner;
+	let inner: Ast.TypeSource | undefined;
 	if (s.getKind() === TokenKind.Lt) {
 		s.next();
 		inner = parseType(s);

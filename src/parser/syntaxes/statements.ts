@@ -106,7 +106,7 @@ export function parseBlockOrStatement(s: ITokenStream): Ast.Statement | Ast.Expr
 function parseVarDef(s: ITokenStream): Ast.Definition {
 	const startPos = s.getPos();
 
-	let mut;
+	let mut: boolean;
 	switch (s.getKind()) {
 		case TokenKind.LetKeyword: {
 			mut = false;
@@ -126,7 +126,7 @@ function parseVarDef(s: ITokenStream): Ast.Definition {
 	const name = s.token.value!;
 	s.next();
 
-	let type;
+	let type: Ast.TypeSource | undefined;
 	if (s.getKind() === TokenKind.Colon) {
 		s.next();
 		type = parseType(s);
@@ -159,7 +159,7 @@ function parseFnDef(s: ITokenStream): Ast.Definition {
 
 	const params = parseParams(s);
 
-	let type;
+	let type: Ast.TypeSource | undefined;
 	if (s.getKind() === TokenKind.Colon) {
 		s.next();
 		type = parseType(s);
@@ -260,7 +260,7 @@ function parseFor(s: ITokenStream): Ast.For {
 		const name = s.token.value!;
 		s.next();
 
-		let _from;
+		let _from: Ast.Expression;
 		if (s.getKind() === TokenKind.Eq) {
 			s.next();
 			_from = parseExpr(s, false);
@@ -360,7 +360,7 @@ function parseAttr(s: ITokenStream): Ast.Attribute {
 	const name = s.token.value!;
 	s.next();
 
-	let value;
+	let value: Ast.Expression;
 	if (s.getKind() !== TokenKind.CloseBracket) {
 		value = parseExpr(s, true);
 	} else {
