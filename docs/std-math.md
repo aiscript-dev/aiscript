@@ -120,15 +120,16 @@ _x_ +1の自然対数を計算します。
 _min_ および _max_ を渡した場合、_min_ <= x, x <= _max_ の整数、  
 渡していない場合は 0 <= x, x < 1 の 小数が返されます。  
 
-### @Math:gen_rng(_seed_: num | str, _algorithm_?: str): @(_min_?: num, _max_?: num)
+### @Math:gen_rng(_seed_: num | str, _options_?: str | obj): @(_min_?: num, _max_?: num)
 シードから乱数生成機を生成します。  
 生成された乱数生成器は、_min_ および _max_ を渡した場合、_min_ <= x, x <= _max_ の整数、  
 渡していない場合は 0 <= x, x < 1 の浮動小数点数を返します。  
-_algorithm_ の指定による挙動の変化は下記の通りです。  
-| _algorithm_ の指定 | 内部の乱数生成アルゴリズム | 範囲指定整数生成アルゴリズム |
+_options_ に渡した文字列またはオブジェクトを通じて、内部の挙動を指定できます。  
+_options_ を文字列で指定した場合や、`options.algorithm`の指定による挙動の変化は下記の通りです。  
+| `options.algorithm` | 内部の乱数生成アルゴリズム | 範囲指定整数生成アルゴリズム |
 |--|--|--|
 | `rc4` | RC4 | Rejection Sampling |
-| `rc4_legacy` | RC4 | 浮動小数点数演算による範囲制限(0.19.0以前のアルゴリズム) |
+| `rc4_legacy` | RC4 | 浮動小数点数演算による範囲制限​(0.19.0以前のアルゴリズム) |
 | 無指定 または 上記以外の任意の文字列 | ChaCha20 | Rejection Sampling |
 
 > [!CAUTION]

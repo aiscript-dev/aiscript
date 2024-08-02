@@ -458,11 +458,18 @@ export const std: Record<string, Value> = {
 		return NUM(CryptoGen.instance.generateNumber0To1());
 	}),
 
-	'Math:gen_rng': FN_NATIVE(async ([seed, algorithm]) => {
+	'Math:gen_rng': FN_NATIVE(async ([seed, options]) => {
 		expectAny(seed);
-		const algo = !algorithm || algorithm.type !== 'str' ? STR('chacha20') : algorithm;
+		let algo = 'chacha20';
+		if (options?.type === 'obj') {
+			const v = options.value.get('algorithm');
+			algo = v?.type === 'str' ? v.value : algo;
+		}
+		else if (options?.type === 'str') {
+			algo = options.value;
+		}
 		if (seed.type !== 'num' && seed.type !== 'str' && seed.type !== 'null') return NULL;
-		switch (algo.value) {
+		switch (algo) {
 			case 'rc4_legacy':
 				return GenerateLegacyRandom(seed);
 			case 'rc4':
