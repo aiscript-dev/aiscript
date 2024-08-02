@@ -473,7 +473,7 @@ export const std: Record<string, Value> = {
 			case 'rc4':
 				return GenerateRC4Random(seed);
 			case 'chacha20':
-				return GenerateChaCha20Random(seed);
+				return await GenerateChaCha20Random(seed);
 			default:
 				throw new AiScriptRuntimeError('`object.algorithm` must be one of these: `chacha20`, `rc4`, or `rc4_legacy`.');
 		}
