@@ -38,12 +38,8 @@ export class Scanner implements ITokenStream {
 	/**
 	 * カーソル位置にあるトークンの種類が指定したトークンの種類と一致するかどうかを示す値を取得します。
 	*/
-	public is(kind: TokenKind | TokenKind[]): boolean {
-		if (Array.isArray(kind)) {
-			return kind.includes(this.getTokenKind());
-		} else {
-			return this.getTokenKind() === kind;
-		}
+	public is(kind: TokenKind): boolean {
+		return this.getTokenKind() === kind;
 	}
 
 	/**
