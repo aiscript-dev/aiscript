@@ -68,7 +68,7 @@ export function parseNamespace(s: ITokenStream): Ast.Node {
 	s.next();
 
 	s.expect(TokenKind.Identifier);
-	const name = s.getValue();
+	const name = s.getTokenValue();
 	s.next();
 
 	const members: Ast.Node[] = [];
@@ -129,7 +129,7 @@ export function parseMeta(s: ITokenStream): Ast.Node {
 
 	let name = null;
 	if (s.is(TokenKind.Identifier)) {
-		name = s.getValue();
+		name = s.getTokenValue();
 		s.next();
 	}
 

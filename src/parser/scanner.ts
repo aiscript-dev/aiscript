@@ -43,9 +43,16 @@ export class Scanner implements ITokenStream {
 	}
 
 	/**
-	 * トークンに含まれる値を取得します。
+	 * カーソル位置にあるトークンの種類を取得します。
 	*/
-	public getValue(): string {
+	public getTokenKind(): TokenKind {
+		return this.getToken().kind;
+	}
+
+	/**
+	 * カーソル位置にあるトークンに含まれる値を取得します。
+	*/
+	public getTokenValue(): string {
 		return this.getToken().value!;
 	}
 

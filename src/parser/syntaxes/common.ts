@@ -24,7 +24,7 @@ export function parseParams(s: ITokenStream): { name: string, argType?: Ast.Node
 
 	while (!s.is(TokenKind.CloseParen)) {
 		s.expect(TokenKind.Identifier);
-		const name = s.getValue();
+		const name = s.getTokenValue();
 		s.next();
 
 		let optional = false;
@@ -173,7 +173,7 @@ function parseNamedType(s: ITokenStream): Ast.Node {
 	const startPos = s.getPos();
 
 	s.expect(TokenKind.Identifier);
-	const name = s.getValue();
+	const name = s.getTokenValue();
 	s.next();
 
 	// inner type

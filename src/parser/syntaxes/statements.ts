@@ -123,7 +123,7 @@ function parseVarDef(s: ITokenStream): Ast.Node {
 	s.next();
 
 	s.expect(TokenKind.Identifier);
-	const name = s.getValue();
+	const name = s.getTokenValue();
 	s.next();
 
 	let type;
@@ -156,7 +156,7 @@ function parseFnDef(s: ITokenStream): Ast.Node {
 	s.next();
 
 	s.expect(TokenKind.Identifier);
-	const name = s.getValue();
+	const name = s.getTokenValue();
 	s.next();
 
 	const params = parseParams(s);
@@ -220,7 +220,7 @@ function parseEach(s: ITokenStream): Ast.Node {
 	s.next();
 
 	s.expect(TokenKind.Identifier);
-	const name = s.getValue();
+	const name = s.getTokenValue();
 	s.next();
 
 	if (s.is(TokenKind.Comma)) {
@@ -264,7 +264,7 @@ function parseFor(s: ITokenStream): Ast.Node {
 		const identPos = s.getPos();
 
 		s.expect(TokenKind.Identifier);
-		const name = s.getValue();
+		const name = s.getTokenValue();
 		s.next();
 
 		let _from;
@@ -369,7 +369,7 @@ function parseAttr(s: ITokenStream): Ast.Node {
 	s.next();
 
 	s.expect(TokenKind.Identifier);
-	const name = s.getValue();
+	const name = s.getTokenValue();
 	s.next();
 
 	let value;

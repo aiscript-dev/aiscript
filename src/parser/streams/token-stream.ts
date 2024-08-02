@@ -17,9 +17,14 @@ export interface ITokenStream {
 	is(kind: TokenKind): boolean;
 
 	/**
-	 * トークンに含まれる値を取得します。
+	 * カーソル位置にあるトークンの種類を取得します。
 	*/
-	getValue(): string;
+	getTokenKind(): TokenKind;
+
+	/**
+	 * カーソル位置にあるトークンに含まれる値を取得します。
+	*/
+	getTokenValue(): string;
 
 	/**
 	 * カーソル位置にあるトークンの位置情報を取得します。
@@ -79,16 +84,16 @@ export class TokenStream implements ITokenStream {
 	}
 
 	/**
-	 * トークンに含まれる値を取得します。
+	 * カーソル位置にあるトークンに含まれる値を取得します。
 	*/
-	public getValue(): string {
+	public getTokenValue(): string {
 		return this.getToken().value!;
 	}
 
 	/**
 	 * カーソル位置にあるトークンの種類を取得します。
 	*/
-	public getKind(): TokenKind {
+	public getTokenKind(): TokenKind {
 		return this.getToken().kind;
 	}
 
@@ -126,7 +131,7 @@ export class TokenStream implements ITokenStream {
 	*/
 	public expect(kind: TokenKind): void {
 		if (!this.is(kind)) {
-			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[this.getKind()]}`, this.getPos());
+			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[this.getToken().kind]}`, this.getPos());
 		}
 	}
 

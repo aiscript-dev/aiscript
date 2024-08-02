@@ -111,7 +111,7 @@ function parseInfix(s: ITokenStream, left: Ast.Node, minBp: number): Ast.Node {
 
 	if (op === TokenKind.Dot) {
 		s.expect(TokenKind.Identifier);
-		const name = s.getValue();
+		const name = s.getTokenValue();
 		s.next();
 
 		return NODE('prop', {
@@ -236,11 +236,9 @@ function parseAtom(s: ITokenStream, isStatic: boolean): Ast.Node {
 					}
 					case TokenKind.TemplateExprElement: {
 						// スキャナで埋め込み式として事前に読み取っておいたトークン列をパースする
-						const exprStream = new TokenStream(element.children!);
+						const exprStream: ITokenStream = new TokenStream(element.children!);
 						const expr = parseExpr(exprStream, false);
-						if (exprStream.getKind() !== TokenKind.EOF) {
-							throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[exprStream.getToken().kind]}`, exprStream.getToken().pos);
-						}
+						exprStream.expect(TokenKind.EOF);
 						values.push(expr);
 						break;
 					}
@@ -254,13 +252,13 @@ function parseAtom(s: ITokenStream, isStatic: boolean): Ast.Node {
 			return NODE('tmpl', { tmpl: values }, startPos, s.getPos());
 		}
 		case TokenKind.StringLiteral: {
-			const value = s.getValue();
+			const value = s.getTokenValue();
 			s.next();
 			return NODE('str', { value }, startPos, s.getPos());
 		}
 		case TokenKind.NumberLiteral: {
 			// TODO: validate number value
-			const value = Number(s.getValue());
+			const value = Number(s.getTokenValue());
 			s.next();
 			return NODE('num', { value }, startPos, s.getPos());
 		}
@@ -546,7 +544,7 @@ function parseReference(s: ITokenStream): Ast.Node {
 			}
 		}
 		s.expect(TokenKind.Identifier);
-		segs.push(s.getValue());
+		segs.push(s.getTokenValue());
 		s.next();
 	}
 	return NODE('identifier', { name: segs.join(':') }, startPos, s.getPos());
@@ -570,7 +568,7 @@ function parseObject(s: ITokenStream, isStatic: boolean): Ast.Node {
 	const map = new Map();
 	while (!s.is(TokenKind.CloseBrace)) {
 		s.expect(TokenKind.Identifier);
-		const k = s.getValue();
+		const k = s.getTokenValue();
 		s.next();
 
 		s.expect(TokenKind.Colon);
