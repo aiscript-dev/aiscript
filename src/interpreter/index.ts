@@ -547,75 +547,99 @@ export class Interpreter {
 			}
 
 			case 'pow': {
+				const callee = scope.get('Core:pow');
+				assertFunction(callee);
 				const left = await this._eval(node.left, scope);
 				const right = await this._eval(node.right, scope);
-				return this._fn(std['Core:pow'], [left, right]);
+				return this._fn(callee, [left, right]);
 			}
 
 			case 'mul': {
+				const callee = scope.get('Core:mul');
+				assertFunction(callee);
 				const left = await this._eval(node.left, scope);
 				const right = await this._eval(node.right, scope);
-				return this._fn(std['Core:mul'], [left, right]);
+				return this._fn(callee, [left, right]);
 			}
 
 			case 'div': {
+				const callee = scope.get('Core:div');
+				assertFunction(callee);
 				const left = await this._eval(node.left, scope);
 				const right = await this._eval(node.right, scope);
-				return this._fn(std['Core:div'], [left, right]);
+				return this._fn(callee, [left, right]);
 			}
 
 			case 'rem': {
+				const callee = scope.get('Core:mod');
+				assertFunction(callee);
 				const left = await this._eval(node.left, scope);
 				const right = await this._eval(node.right, scope);
-				return this._fn(std['Core:mod'], [left, right]);
+				return this._fn(callee, [left, right]);
 			}
 
 			case 'add': {
+				const callee = scope.get('Core:add');
+				assertFunction(callee);
 				const left = await this._eval(node.left, scope);
 				const right = await this._eval(node.right, scope);
-				return this._fn(std['Core:add'], [left, right]);
+				return this._fn(callee, [left, right]);
 			}
 
 			case 'sub': {
+				const callee = scope.get('Core:sub');
+				assertFunction(callee);
 				const left = await this._eval(node.left, scope);
 				const right = await this._eval(node.right, scope);
-				return this._fn(std['Core:sub'], [left, right]);
+				return this._fn(callee, [left, right]);
 			}
 
 			case 'lt': {
+				const callee = scope.get('Core:lt');
+				assertFunction(callee);
 				const left = await this._eval(node.left, scope);
 				const right = await this._eval(node.right, scope);
-				return this._fn(std['Core:lt'], [left, right]);
+				return this._fn(callee, [left, right]);
 			}
 
 			case 'lteq': {
+				const callee = scope.get('Core:lteq');
+				assertFunction(callee);
 				const left = await this._eval(node.left, scope);
 				const right = await this._eval(node.right, scope);
-				return this._fn(std['Core:lteq'], [left, right]);
+				return this._fn(callee, [left, right]);
 			}
 
 			case 'gt': {
+				const callee = scope.get('Core:gt');
+				assertFunction(callee);
 				const left = await this._eval(node.left, scope);
 				const right = await this._eval(node.right, scope);
-				return this._fn(std['Core:gt'], [left, right]);
+				return this._fn(callee, [left, right]);
 			}
 
 			case 'gteq': {
+				const callee = scope.get('Core:gteq');
+				assertFunction(callee);
 				const left = await this._eval(node.left, scope);
 				const right = await this._eval(node.right, scope);
-				return this._fn(std['Core:gteq'], [left, right]);
+				return this._fn(callee, [left, right]);
 			}
 
 			case 'eq': {
+				const callee = scope.get('Core:eq');
+				assertFunction(callee);
 				const left = await this._eval(node.left, scope);
 				const right = await this._eval(node.right, scope);
-				return this._fn(std['Core:eq'], [left, right]);
+				return this._fn(callee, [left, right]);
 			}
 
 			case 'neq': {
+				const callee = scope.get('Core:neq');
+				assertFunction(callee);
 				const left = await this._eval(node.left, scope);
 				const right = await this._eval(node.right, scope);
-				return this._fn(std['Core:neq'], [left, right]);
+				return this._fn(callee, [left, right]);
 			}
 
 			case 'and': {
