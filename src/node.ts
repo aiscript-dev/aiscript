@@ -157,14 +157,12 @@ export type And = NodeBase & {
 	type: 'and';
 	left: Expression;
 	right: Expression;
-	operatorLoc: Loc;
 }
 
 export type Or = NodeBase & {
 	type: 'or';
 	left: Expression;
 	right: Expression;
-	operatorLoc: Loc;
 }
 
 export type If = NodeBase & {
