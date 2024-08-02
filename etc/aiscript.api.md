@@ -348,7 +348,7 @@ export class Interpreter {
     // (undocumented)
     abort(): void;
     // (undocumented)
-    static collectMetadata(script?: Ast.Node[]): Map<any, any> | undefined;
+    static collectMetadata(script?: Ast.Node[]): Map<string, JsValue> | undefined;
     // (undocumented)
     exec(script?: Ast.Node[]): Promise<void>;
     execFn(fn: VFn, args: Value[]): Promise<Value>;
@@ -388,7 +388,12 @@ function isStatement(x: Node_2): x is Statement;
 function isString(val: Value): val is VStr;
 
 // @public (undocumented)
-function jsToVal(val: any): Value;
+function jsToVal(val: unknown): Value;
+
+// @public (undocumented)
+type JsValue = {
+    [key: string]: JsValue;
+} | JsValue[] | string | number | boolean | null | undefined;
 
 // @public (undocumented)
 type Loc = {
@@ -609,13 +614,14 @@ declare namespace utils {
         valToJs,
         jsToVal,
         getLangVersion,
-        reprValue
+        reprValue,
+        JsValue
     }
 }
 export { utils }
 
 // @public (undocumented)
-function valToJs(val: Value): any;
+function valToJs(val: Value): JsValue;
 
 // @public (undocumented)
 function valToString(val: Value, simple?: boolean): string;
@@ -752,7 +758,7 @@ type VUserFn = VFnBase & {
 
 // Warnings were encountered during analysis:
 //
-// src/interpreter/index.ts:39:4 - (ae-forgotten-export) The symbol "LogObject" needs to be exported by the entry point index.d.ts
+// src/interpreter/index.ts:40:4 - (ae-forgotten-export) The symbol "LogObject" needs to be exported by the entry point index.d.ts
 // src/interpreter/value.ts:46:2 - (ae-forgotten-export) The symbol "Type" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
