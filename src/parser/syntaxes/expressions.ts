@@ -445,7 +445,7 @@ function parseMatch(s: ITokenStream): Ast.Match {
 		}
 	}
 
-	let x: Ast.Match["default"];
+	let x: Ast.Match['default'];
 	if (s.getKind() === TokenKind.DefaultKeyword) {
 		s.next();
 		s.nextWith(TokenKind.Arrow);
