@@ -20,7 +20,7 @@ export function parseTopLevel(s: ITokenStream): Ast.Node[] {
 	}
 
 	while (!s.is(TokenKind.EOF)) {
-		switch (s.getToken().kind) {
+		switch (s.getTokenKind()) {
 			case TokenKind.Colon2: {
 				nodes.push(parseNamespace(s));
 				break;
@@ -36,10 +36,10 @@ export function parseTopLevel(s: ITokenStream): Ast.Node[] {
 		}
 
 		// terminator
-		switch (s.getToken().kind) {
+		switch (s.getTokenKind()) {
 			case TokenKind.NewLine:
 			case TokenKind.SemiColon: {
-				while ([TokenKind.NewLine, TokenKind.SemiColon].includes(s.getToken().kind)) {
+				while ([TokenKind.NewLine, TokenKind.SemiColon].includes(s.getTokenKind())) {
 					s.next();
 				}
 				break;
@@ -80,7 +80,7 @@ export function parseNamespace(s: ITokenStream): Ast.Node {
 	}
 
 	while (!s.is(TokenKind.CloseBrace)) {
-		switch (s.getToken().kind) {
+		switch (s.getTokenKind()) {
 			case TokenKind.VarKeyword:
 			case TokenKind.LetKeyword:
 			case TokenKind.At: {
@@ -94,10 +94,10 @@ export function parseNamespace(s: ITokenStream): Ast.Node {
 		}
 
 		// terminator
-		switch (s.getToken().kind) {
+		switch (s.getTokenKind()) {
 			case TokenKind.NewLine:
 			case TokenKind.SemiColon: {
-				while ([TokenKind.NewLine, TokenKind.SemiColon].includes(s.getToken().kind)) {
+				while ([TokenKind.NewLine, TokenKind.SemiColon].includes(s.getTokenKind())) {
 					s.next();
 				}
 				break;

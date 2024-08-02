@@ -45,7 +45,7 @@ export function parseParams(s: ITokenStream): { name: string, argType?: Ast.Node
 		items.push({ name, optional, default: defaultExpr, argType: type });
 
 		// separator
-		switch (s.getToken().kind) {
+		switch (s.getTokenKind()) {
 			case TokenKind.NewLine: {
 				s.next();
 				break;
@@ -90,10 +90,10 @@ export function parseBlock(s: ITokenStream): Ast.Node[] {
 		steps.push(parseStatement(s));
 
 		// terminator
-		switch (s.getToken().kind) {
+		switch (s.getTokenKind()) {
 			case TokenKind.NewLine:
 			case TokenKind.SemiColon: {
-				while ([TokenKind.NewLine, TokenKind.SemiColon].includes(s.getToken().kind)) {
+				while ([TokenKind.NewLine, TokenKind.SemiColon].includes(s.getTokenKind())) {
 					s.next();
 				}
 				break;
@@ -140,7 +140,7 @@ function parseFnType(s: ITokenStream): Ast.Node {
 	const params: Ast.Node[] = [];
 	while (!s.is(TokenKind.CloseParen)) {
 		if (params.length > 0) {
-			switch (s.getToken().kind) {
+			switch (s.getTokenKind()) {
 				case TokenKind.Comma: {
 					s.next();
 					break;

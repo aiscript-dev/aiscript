@@ -14,7 +14,7 @@ export interface ITokenStream {
 	/**
 	 * カーソル位置にあるトークンの種類が指定したトークンの種類と一致するかどうかを示す値を取得します。
 	*/
-	is(kind: TokenKind): boolean;
+	is(kind: TokenKind | TokenKind[]): boolean;
 
 	/**
 	 * カーソル位置にあるトークンの種類を取得します。
@@ -79,8 +79,12 @@ export class TokenStream implements ITokenStream {
 	/**
 	 * カーソル位置にあるトークンの種類が指定したトークンの種類と一致するかどうかを示す値を取得します。
 	*/
-	public is(kind: TokenKind): boolean {
-		return this.getToken().kind === kind;
+	public is(kind: TokenKind | TokenKind[]): boolean {
+		if (Array.isArray(kind)) {
+			return kind.includes(this.getTokenKind());
+		} else {
+			return this.getTokenKind() === kind;
+		}
 	}
 
 	/**
@@ -131,7 +135,7 @@ export class TokenStream implements ITokenStream {
 	*/
 	public expect(kind: TokenKind): void {
 		if (!this.is(kind)) {
-			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[this.getToken().kind]}`, this.getPos());
+			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[this.getTokenKind()]}`, this.getPos());
 		}
 	}
 

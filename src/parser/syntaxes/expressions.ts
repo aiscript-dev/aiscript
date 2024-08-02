@@ -53,7 +53,7 @@ const operators: OpInfo[] = [
 
 function parsePrefix(s: ITokenStream, minBp: number): Ast.Node {
 	const startPos = s.getPos();
-	const op = s.getToken().kind;
+	const op = s.getTokenKind();
 	s.next();
 
 	// 改行のエスケープ
@@ -99,7 +99,7 @@ function parsePrefix(s: ITokenStream, minBp: number): Ast.Node {
 
 function parseInfix(s: ITokenStream, left: Ast.Node, minBp: number): Ast.Node {
 	const startPos = s.getPos();
-	const op = s.getToken().kind;
+	const op = s.getTokenKind();
 	s.next();
 
 	// 改行のエスケープ
@@ -174,7 +174,7 @@ function parseInfix(s: ITokenStream, left: Ast.Node, minBp: number): Ast.Node {
 
 function parsePostfix(s: ITokenStream, expr: Ast.Node): Ast.Node {
 	const startPos = s.getPos();
-	const op = s.getToken().kind;
+	const op = s.getTokenKind();
 
 	switch (op) {
 		case TokenKind.OpenParen: {
@@ -200,7 +200,7 @@ function parsePostfix(s: ITokenStream, expr: Ast.Node): Ast.Node {
 function parseAtom(s: ITokenStream, isStatic: boolean): Ast.Node {
 	const startPos = s.getPos();
 
-	switch (s.getToken().kind) {
+	switch (s.getTokenKind()) {
 		case TokenKind.IfKeyword: {
 			if (isStatic) break;
 			return parseIf(s);
@@ -290,7 +290,7 @@ function parseAtom(s: ITokenStream, isStatic: boolean): Ast.Node {
 			return expr;
 		}
 	}
-	throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[s.getToken().kind]}`, startPos);
+	throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[s.getTokenKind()]}`, startPos);
 }
 
 /**
@@ -311,7 +311,7 @@ function parseCall(s: ITokenStream, target: Ast.Node): Ast.Node {
 		items.push(parseExpr(s, false));
 
 		// separator
-		switch (s.getToken().kind) {
+		switch (s.getTokenKind()) {
 			case TokenKind.NewLine: {
 				s.next();
 				break;
@@ -433,7 +433,7 @@ function parseMatch(s: ITokenStream): Ast.Node {
 		qs.push({ q, a });
 
 		// separator
-		switch (s.getToken().kind) {
+		switch (s.getTokenKind()) {
 			case TokenKind.NewLine: {
 				s.next();
 				break;
@@ -463,7 +463,7 @@ function parseMatch(s: ITokenStream): Ast.Node {
 		x = parseBlockOrStatement(s);
 
 		// separator
-		switch (s.getToken().kind) {
+		switch (s.getTokenKind()) {
 			case TokenKind.NewLine: {
 				s.next();
 				break;
@@ -579,7 +579,7 @@ function parseObject(s: ITokenStream, isStatic: boolean): Ast.Node {
 		map.set(k, v);
 
 		// separator
-		switch (s.getToken().kind) {
+		switch (s.getTokenKind()) {
 			case TokenKind.NewLine:
 			case TokenKind.Comma: {
 				s.next();
@@ -623,7 +623,7 @@ function parseArray(s: ITokenStream, isStatic: boolean): Ast.Node {
 		value.push(parseExpr(s, isStatic));
 
 		// separator
-		switch (s.getToken().kind) {
+		switch (s.getTokenKind()) {
 			case TokenKind.NewLine:
 			case TokenKind.Comma: {
 				s.next();
@@ -660,7 +660,7 @@ function parsePratt(s: ITokenStream, minBp: number): Ast.Node {
 
 	let left: Ast.Node;
 
-	const tokenKind = s.getToken().kind;
+	const tokenKind = s.getTokenKind();
 	const prefix = operators.find((x): x is PrefixInfo => x.opKind === 'prefix' && x.kind === tokenKind);
 	if (prefix != null) {
 		left = parsePrefix(s, prefix.bp);
@@ -676,7 +676,7 @@ function parsePratt(s: ITokenStream, minBp: number): Ast.Node {
 			s.next();
 		}
 
-		const tokenKind = s.getToken().kind;
+		const tokenKind = s.getTokenKind();
 
 		const postfix = operators.find((x): x is PostfixInfo => x.opKind === 'postfix' && x.kind === tokenKind);
 		if (postfix != null) {

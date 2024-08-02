@@ -16,7 +16,7 @@ import type { ITokenStream } from '../streams/token-stream.js';
 export function parseStatement(s: ITokenStream): Ast.Node {
 	const startPos = s.getPos();
 
-	switch (s.getToken().kind) {
+	switch (s.getTokenKind()) {
 		case TokenKind.VarKeyword:
 		case TokenKind.LetKeyword: {
 			return parseVarDef(s);
@@ -69,7 +69,7 @@ export function parseStatement(s: ITokenStream): Ast.Node {
 }
 
 export function parseDefStatement(s: ITokenStream): Ast.Node {
-	switch (s.getToken().kind) {
+	switch (s.getTokenKind()) {
 		case TokenKind.VarKeyword:
 		case TokenKind.LetKeyword: {
 			return parseVarDef(s);
@@ -78,7 +78,7 @@ export function parseDefStatement(s: ITokenStream): Ast.Node {
 			return parseFnDef(s);
 		}
 		default: {
-			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[s.getToken().kind]}`, s.getPos());
+			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[s.getTokenKind()]}`, s.getPos());
 		}
 	}
 }
@@ -107,7 +107,7 @@ function parseVarDef(s: ITokenStream): Ast.Node {
 	const startPos = s.getPos();
 
 	let mut;
-	switch (s.getToken().kind) {
+	switch (s.getTokenKind()) {
 		case TokenKind.LetKeyword: {
 			mut = false;
 			break;
@@ -117,7 +117,7 @@ function parseVarDef(s: ITokenStream): Ast.Node {
 			break;
 		}
 		default: {
-			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[s.getToken().kind]}`, s.getPos());
+			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[s.getTokenKind()]}`, s.getPos());
 		}
 	}
 	s.next();
@@ -463,7 +463,7 @@ function tryParseAssign(s: ITokenStream, dest: Ast.Node): Ast.Node | undefined {
 	const startPos = s.getPos();
 
 	// Assign
-	switch (s.getToken().kind) {
+	switch (s.getTokenKind()) {
 		case TokenKind.Eq: {
 			s.next();
 			const expr = parseExpr(s, false);
