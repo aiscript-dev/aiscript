@@ -90,7 +90,7 @@ type And = NodeBase & {
 };
 
 // @public (undocumented)
-const ARR: (arr: VArr['value']) => VArr;
+const ARR: (arr: VArr["value"]) => VArr;
 
 // @public (undocumented)
 type Arr = NodeBase & {
@@ -205,7 +205,7 @@ type Block = NodeBase & {
 };
 
 // @public (undocumented)
-const BOOL: (bool: VBool['value']) => VBool;
+const BOOL: (bool: VBool["value"]) => VBool;
 
 // @public (undocumented)
 type Bool = NodeBase & {
@@ -309,7 +309,7 @@ const FALSE: {
 };
 
 // @public (undocumented)
-const FN: (args: VUserFn['args'], statements: VUserFn['statements'], scope: VUserFn['scope']) => VUserFn;
+const FN: (args: VUserFn["args"], statements: VUserFn["statements"], scope: VUserFn["scope"]) => VUserFn;
 
 // @public (undocumented)
 type Fn = NodeBase & {
@@ -325,7 +325,7 @@ type Fn = NodeBase & {
 };
 
 // @public (undocumented)
-const FN_NATIVE: (fn: VNativeFn['native']) => VNativeFn;
+const FN_NATIVE: (fn: VNativeFn["native"]) => VNativeFn;
 
 // @public (undocumented)
 type FnTypeSource = NodeBase & {
@@ -546,7 +546,7 @@ type Null = NodeBase & {
 };
 
 // @public (undocumented)
-const NUM: (num: VNum['value']) => VNum;
+const NUM: (num: VNum["value"]) => VNum;
 
 // @public (undocumented)
 type Num = NodeBase & {
@@ -555,7 +555,7 @@ type Num = NodeBase & {
 };
 
 // @public (undocumented)
-const OBJ: (obj: VObj['value']) => VObj;
+const OBJ: (obj: VObj["value"]) => VObj;
 
 // @public (undocumented)
 type Obj = NodeBase & {
@@ -621,7 +621,7 @@ type Rem = NodeBase & {
 function reprValue(value: Value, literalLike?: boolean, processedObjects?: Set<object>): string;
 
 // @public (undocumented)
-const RETURN: (v: VReturn['value']) => Value;
+const RETURN: (v: VReturn["value"]) => Value;
 
 // @public (undocumented)
 type Return = NodeBase & {
@@ -658,7 +658,7 @@ export class Scope {
 type Statement = Definition | Return | Each | For | Loop | Break | Continue | Assign | AddAssign | SubAssign;
 
 // @public (undocumented)
-const STR: (str: VStr['value']) => VStr;
+const STR: (str: VStr["value"]) => VStr;
 
 // @public (undocumented)
 type Str = NodeBase & {
