@@ -6,8 +6,9 @@ import { assertNumber, assertString, assertBoolean, valToJs, jsToVal, assertFunc
 import { AiScriptRuntimeError, AiScriptUserError } from '../../error.js';
 import { AISCRIPT_VERSION } from '../../constants.js';
 import { textDecoder } from '../../const.js';
+import type { Value } from '../value.js';
 
-export const std = {
+export const std: Record<string, Value> = {
 	'help': STR('SEE: https://github.com/syuilo/aiscript/blob/master/docs/get-started.md'),
 
 	//#region Core
