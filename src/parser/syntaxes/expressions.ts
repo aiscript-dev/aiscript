@@ -1,5 +1,5 @@
 import { AiScriptSyntaxError } from '../../error.js';
-import { CALL_NODE, NODE } from '../utils.js';
+import { NODE } from '../utils.js';
 import { TokenStream } from '../streams/token-stream.js';
 import { TokenKind } from '../token.js';
 import { parseBlock, parseParams, parseType } from './common.js';
@@ -124,40 +124,40 @@ function parseInfix(s: ITokenStream, left: Ast.Node, minBp: number): Ast.Node {
 
 		switch (op) {
 			case TokenKind.Hat: {
-				return CALL_NODE('Core:pow', [left, right], startPos, endPos);
+				return NODE('pow', { left, right }, startPos, endPos);
 			}
 			case TokenKind.Asterisk: {
-				return CALL_NODE('Core:mul', [left, right], startPos, endPos);
+				return NODE('mul', { left, right }, startPos, endPos);
 			}
 			case TokenKind.Slash: {
-				return CALL_NODE('Core:div', [left, right], startPos, endPos);
+				return NODE('div', { left, right }, startPos, endPos);
 			}
 			case TokenKind.Percent: {
-				return CALL_NODE('Core:mod', [left, right], startPos, endPos);
+				return NODE('rem', { left, right }, startPos, endPos);
 			}
 			case TokenKind.Plus: {
-				return CALL_NODE('Core:add', [left, right], startPos, endPos);
+				return NODE('add', { left, right }, startPos, endPos);
 			}
 			case TokenKind.Minus: {
-				return CALL_NODE('Core:sub', [left, right], startPos, endPos);
+				return NODE('sub', { left, right }, startPos, endPos);
 			}
 			case TokenKind.Lt: {
-				return CALL_NODE('Core:lt', [left, right], startPos, endPos);
+				return NODE('lt', { left, right }, startPos, endPos);
 			}
 			case TokenKind.LtEq: {
-				return CALL_NODE('Core:lteq', [left, right], startPos, endPos);
+				return NODE('lteq', { left, right }, startPos, endPos);
 			}
 			case TokenKind.Gt: {
-				return CALL_NODE('Core:gt', [left, right], startPos, endPos);
+				return NODE('gt', { left, right }, startPos, endPos);
 			}
 			case TokenKind.GtEq: {
-				return CALL_NODE('Core:gteq', [left, right], startPos, endPos);
+				return NODE('gteq', { left, right }, startPos, endPos);
 			}
 			case TokenKind.Eq2: {
-				return CALL_NODE('Core:eq', [left, right], startPos, endPos);
+				return NODE('eq', { left, right }, startPos, endPos);
 			}
 			case TokenKind.NotEq: {
-				return CALL_NODE('Core:neq', [left, right], startPos, endPos);
+				return NODE('neq', { left, right }, startPos, endPos);
 			}
 			case TokenKind.And2: {
 				return NODE('and', { left, right }, startPos, endPos);

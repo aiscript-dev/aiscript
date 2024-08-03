@@ -7,6 +7,14 @@
 // Warning: (ae-forgotten-export) The symbol "NodeBase" needs to be exported by the entry point index.d.ts
 //
 // @public (undocumented)
+type Add = NodeBase & {
+    type: 'add';
+    left: Expression;
+    right: Expression;
+    operatorLoc: Loc;
+};
+
+// @public (undocumented)
 type AddAssign = NodeBase & {
     type: 'addAssign';
     dest: Expression;
@@ -138,6 +146,18 @@ declare namespace Ast {
         Assign,
         Expression,
         Not,
+        Pow,
+        Mul,
+        Div,
+        Rem,
+        Add,
+        Sub,
+        Lt,
+        Lteq,
+        Gt,
+        Gteq,
+        Eq,
+        Neq,
         And,
         Or,
         If,
@@ -227,11 +247,27 @@ type Definition = NodeBase & {
 };
 
 // @public (undocumented)
+type Div = NodeBase & {
+    type: 'div';
+    left: Expression;
+    right: Expression;
+    operatorLoc: Loc;
+};
+
+// @public (undocumented)
 type Each = NodeBase & {
     type: 'each';
     var: string;
     items: Expression;
     for: Statement | Expression;
+};
+
+// @public (undocumented)
+type Eq = NodeBase & {
+    type: 'eq';
+    left: Expression;
+    right: Expression;
+    operatorLoc: Loc;
 };
 
 // @public (undocumented)
@@ -264,7 +300,7 @@ type Exists = NodeBase & {
 function expectAny(val: Value | null | undefined): asserts val is Value;
 
 // @public (undocumented)
-type Expression = If | Fn | Match | Block | Exists | Tmpl | Str | Num | Bool | Null | Obj | Arr | Not | And | Or | Identifier | Call | Index | Prop;
+type Expression = If | Fn | Match | Block | Exists | Tmpl | Str | Num | Bool | Null | Obj | Arr | Not | Pow | Mul | Div | Rem | Add | Sub | Lt | Lteq | Gt | Gteq | Eq | Neq | And | Or | Identifier | Call | Index | Prop;
 
 // @public (undocumented)
 const FALSE: {
@@ -310,6 +346,22 @@ type For = NodeBase & {
 
 // @public (undocumented)
 function getLangVersion(input: string): string | null;
+
+// @public (undocumented)
+type Gt = NodeBase & {
+    type: 'gt';
+    left: Expression;
+    right: Expression;
+    operatorLoc: Loc;
+};
+
+// @public (undocumented)
+type Gteq = NodeBase & {
+    type: 'gteq';
+    left: Expression;
+    right: Expression;
+    operatorLoc: Loc;
+};
 
 // @public (undocumented)
 type Identifier = NodeBase & {
@@ -404,6 +456,22 @@ type Loop = NodeBase & {
 };
 
 // @public (undocumented)
+type Lt = NodeBase & {
+    type: 'lt';
+    left: Expression;
+    right: Expression;
+    operatorLoc: Loc;
+};
+
+// @public (undocumented)
+type Lteq = NodeBase & {
+    type: 'lteq';
+    left: Expression;
+    right: Expression;
+    operatorLoc: Loc;
+};
+
+// @public (undocumented)
 type Match = NodeBase & {
     type: 'match';
     about: Expression;
@@ -422,6 +490,14 @@ type Meta = NodeBase & {
 };
 
 // @public (undocumented)
+type Mul = NodeBase & {
+    type: 'mul';
+    left: Expression;
+    right: Expression;
+    operatorLoc: Loc;
+};
+
+// @public (undocumented)
 type NamedTypeSource = NodeBase & {
     type: 'namedTypeSource';
     name: string;
@@ -433,6 +509,14 @@ type Namespace = NodeBase & {
     type: 'ns';
     name: string;
     members: (Definition | Namespace)[];
+};
+
+// @public (undocumented)
+type Neq = NodeBase & {
+    type: 'neq';
+    left: Expression;
+    right: Expression;
+    operatorLoc: Loc;
 };
 
 // @public (undocumented)
@@ -511,10 +595,26 @@ type Pos = {
 };
 
 // @public (undocumented)
+type Pow = NodeBase & {
+    type: 'pow';
+    left: Expression;
+    right: Expression;
+    operatorLoc: Loc;
+};
+
+// @public (undocumented)
 type Prop = NodeBase & {
     type: 'prop';
     target: Expression;
     name: string;
+};
+
+// @public (undocumented)
+type Rem = NodeBase & {
+    type: 'rem';
+    left: Expression;
+    right: Expression;
+    operatorLoc: Loc;
 };
 
 // @public (undocumented)
@@ -564,6 +664,14 @@ const STR: (str: VStr["value"]) => VStr;
 type Str = NodeBase & {
     type: 'str';
     value: string;
+};
+
+// @public (undocumented)
+type Sub = NodeBase & {
+    type: 'sub';
+    left: Expression;
+    right: Expression;
+    operatorLoc: Loc;
 };
 
 // @public (undocumented)
