@@ -463,10 +463,13 @@ export const std: Record<string, Value> = {
 		let algo = 'chacha20';
 		if (options?.type === 'obj') {
 			const v = options.value.get('algorithm');
-			if (v?.type !== 'str') throw new AiScriptRuntimeError('`object.algorithm` must be string.');
+			if (v?.type !== 'str') throw new AiScriptRuntimeError('`options.algorithm` must be string.');
 			algo = v.value;
 		}
-		if (seed.type !== 'num' && seed.type !== 'str' && seed.type !== 'null') return NULL;
+		else if (options?.type !== undefined) {
+			throw new AiScriptRuntimeError('`options` must be an object if specified.');
+		}
+		if (seed.type !== 'num' && seed.type !== 'str' && seed.type !== 'null') throw new AiScriptRuntimeError('`seed` must be either number or string if specified.');
 		switch (algo) {
 			case 'rc4_legacy':
 				return GenerateLegacyRandom(seed);
@@ -475,7 +478,7 @@ export const std: Record<string, Value> = {
 			case 'chacha20':
 				return await GenerateChaCha20Random(seed);
 			default:
-				throw new AiScriptRuntimeError('`object.algorithm` must be one of these: `chacha20`, `rc4`, or `rc4_legacy`.');
+				throw new AiScriptRuntimeError('`options.algorithm` must be one of these: `chacha20`, `rc4`, or `rc4_legacy`.');
 		}
 	}),
 	//#endregion
