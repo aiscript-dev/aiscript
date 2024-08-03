@@ -49,6 +49,7 @@ this is a comment
 	<tr><td>真理値</td><td><code>bool</code></td><td><code>true</code>/<code>false</code></td></tr>
 	<tr><td>配列</td><td><code>arr</code></td><td><code>["ai" "chan" "cute"]</code></td></tr>
 	<tr><td>オブジェクト</td><td><code>obj</code></td><td><code>{ foo: "bar"; a: 42; }</code></td></tr>
+	<tr><td>連想配列</td><td><code>dic</code></td><td><code>dic { [true]: "apple"; [[1, 2]]: 42; }</code></td></tr>
 	<tr><td>null</td><td><code>null</code></td><td><code>null</code></td></tr>
 	<tr><td>関数</td><td><code>fn</code></td><td><code>@(x) { x }</code></td></tr>
 	<tr><td>エラー</td><td><code>error</code></td><td><code>(TODO)</code></td></tr>
@@ -84,7 +85,7 @@ print(message)
 ```
 
 ## 配列
-`[]`の中に式をスペースで区切って列挙します。
+`[]`の中に式をコンマ（または改行）で区切って列挙します。
 ```
 ["ai", "chan", "kawaii"]
 ```
@@ -119,6 +120,45 @@ AiScriptにおけるオブジェクトは文字列のみをキーとした連想
 let obj = {foo: "bar", answer: 42}
 <: obj.foo // "bar"
 <: obj["answer"] // 42
+```
+
+## 連想配列
+オブジェクトと似た文法ですが、`{`の前にキーワード`dic`を置く必要があります。  
+また、キーにはプロパティ名の代わりに任意の式を利用します。  
+そして、全てのキーを`[]`で囲う必要があります。  
+アクセスの方法は`yourdic[<expr>]`です。（ドット記法は使えません）  
+
+AiScriptにおいてオブジェクトは文字列のみをキーとしますが、連想配列は全ての値をキーとします。  
+```js
+var mydic = dic {
+	[null]: 42
+	[true]: 'foo'
+	[57]: false
+	['bar']: null
+}
+<: mydic['bar'] // null
+mydic['bar'] = 12
+<: mydic['bar'] // 12
+```
+
+キーを配列、オブジェクト、または連想配列にした場合はdeep-equalで検索が行われます。  
+```js
+var mydic = dic {
+	[[1, 2, 3]]: Math:Infinity
+}
+<: mydic[[1, 2, 3]] // Infinity
+mydic[[1, 2, 3]] = -0.083
+<: mydic[[1, 2, 3]] // -0.083
+```
+関数は参照比較です。  
+```js
+let key = @(){}
+var mydic = dic {
+	[@(){}]: 1
+	[key]: 2
+}
+<: mydic[@(){}] // null (not found)
+<: mydic[key] // 2
 ```
 
 ## 演算
