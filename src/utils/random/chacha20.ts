@@ -1,4 +1,4 @@
-import { RandomBase, readBigUintLittleEndian, safeIntegerBits } from './randomBase.js';
+import { RandomBase, readBigUintLittleEndian } from './randomBase.js';
 
 // translated from https://github.com/skeeto/chacha-js/blob/master/chacha.js
 const chacha20BlockSize = 64;
@@ -13,29 +13,38 @@ function quarterRound(x: Uint32Array, a: number, b: number, c: number, d: number
 	let vc = x[c];
 	let vd = x[d];
 	if (va === undefined || vb === undefined || vc === undefined || vd === undefined) return;
-	va += vb;
+	va = (va + vb) | 0;
 	vd = rotate(vd ^ va, 16);
-	vc += vd;
+	vc = (vc + vd) | 0;
 	vb = rotate(vb ^ vc, 12);
-	va += vb;
+	va = (va + vb) | 0;
 	vd = rotate(vd ^ va, 8);
-	vc += vd;
+	vc = (vc + vd) | 0;
 	vb = rotate(vb ^ vc, 7);
 	x[a] = va;
 	x[b] = vb;
 	x[c] = vc;
 	x[d] = vd;
 }
-function generateChaCha20(state: Uint32Array) : void {
+function generateChaCha20(dst: Uint32Array, state: Uint32Array) : void {
+	if (dst.length < 16 || state.length < 16) return;
+	dst.set(state);
 	for (let i = 0; i < CHACHA_ROUNDS; i += 2) {
-		quarterRound(state, 0, 4, 8, 12);
-		quarterRound(state, 1, 5, 9, 13);
-		quarterRound(state, 2, 6, 10, 14);
-		quarterRound(state, 3, 7, 11, 15);
-		quarterRound(state, 0, 5, 10, 15);
-		quarterRound(state, 1, 6, 11, 12);
-		quarterRound(state, 2, 7, 8, 13);
-		quarterRound(state, 3, 4, 9, 14);
+		quarterRound(dst, 0, 4, 8, 12);
+		quarterRound(dst, 1, 5, 9, 13);
+		quarterRound(dst, 2, 6, 10, 14);
+		quarterRound(dst, 3, 7, 11, 15);
+		quarterRound(dst, 0, 5, 10, 15);
+		quarterRound(dst, 1, 6, 11, 12);
+		quarterRound(dst, 2, 7, 8, 13);
+		quarterRound(dst, 3, 4, 9, 14);
+	}
+	for (let i = 0; i < 16; i++) {
+		let d = dst[i];
+		const s = state[i];
+		if (d === undefined || s === undefined) throw new Error('generateChaCha20: Something went wrong!');
+		d = (d + s) | 0;
+		dst[i] = d;
 	}
 }
 export class ChaCha20 extends RandomBase {
@@ -85,12 +94,12 @@ export class ChaCha20 extends RandomBase {
 		let dst = buffer;
 		while (dst.length > 0) {
 			const dbuf = dst.subarray(0, state.byteLength);
+			const dst32 = new Uint32Array(dbuf.buffer);
 			state.set(this.keynonce);
 			counterState[6] = BigInt.asUintN(64, counter);
-			generateChaCha20(state);
-			dbuf.set(new Uint8Array(state.buffer));
+			generateChaCha20(dst32, state);
 			dst = dst.subarray(dbuf.length);
-			counter = BigInt.asUintN(safeIntegerBits, counter + 1n);
+			counter = BigInt.asUintN(64, counter + 1n);
 		}
 		this.counter = counter;
 		return buffer;
