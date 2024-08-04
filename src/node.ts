@@ -171,84 +171,72 @@ export type Pow = NodeBase & {
 	type: 'pow';
 	left: Expression;
 	right: Expression;
-	operatorLoc: Loc;
 }
 
 export type Mul = NodeBase & {
 	type: 'mul';
 	left: Expression;
 	right: Expression;
-	operatorLoc: Loc;
 }
 
 export type Div = NodeBase & {
 	type: 'div';
 	left: Expression;
 	right: Expression;
-	operatorLoc: Loc;
 }
 
 export type Rem = NodeBase & {
 	type: 'rem';
 	left: Expression;
 	right: Expression;
-	operatorLoc: Loc;
 }
 
 export type Add = NodeBase & {
 	type: 'add';
 	left: Expression;
 	right: Expression;
-	operatorLoc: Loc;
 }
 
 export type Sub = NodeBase & {
 	type: 'sub';
 	left: Expression;
 	right: Expression;
-	operatorLoc: Loc;
 }
 
 export type Lt = NodeBase & {
 	type: 'lt';
 	left: Expression;
 	right: Expression;
-	operatorLoc: Loc;
 }
 
 export type Lteq = NodeBase & {
 	type: 'lteq';
 	left: Expression;
 	right: Expression;
-	operatorLoc: Loc;
 }
 
 export type Gt = NodeBase & {
 	type: 'gt';
 	left: Expression;
 	right: Expression;
-	operatorLoc: Loc;
 }
 
 export type Gteq = NodeBase & {
 	type: 'gteq';
 	left: Expression;
 	right: Expression;
-	operatorLoc: Loc;
 }
 
 export type Eq = NodeBase & {
 	type: 'eq';
 	left: Expression;
 	right: Expression;
-	operatorLoc: Loc;
 }
 
 export type Neq = NodeBase & {
 	type: 'neq';
 	left: Expression;
 	right: Expression;
-	operatorLoc: Loc;
 }
 
 export type And = NodeBase & {
