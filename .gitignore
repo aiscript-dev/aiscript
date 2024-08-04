@@ -7,5 +7,6 @@
 /src/parser/parser.js
 /src/parser/parser.mjs
 npm-debug.log
+main.ais
 pnpm-lock.yaml
 tsdoc-metadata.json
