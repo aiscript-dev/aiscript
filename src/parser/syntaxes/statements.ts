@@ -16,7 +16,7 @@ import type { ITokenStream } from '../streams/token-stream.js';
 export function parseStatement(s: ITokenStream): Ast.Statement | Ast.Expression {
 	const startPos = s.getPos();
 
-	switch (s.getKind()) {
+	switch (s.getTokenKind()) {
 		case TokenKind.VarKeyword:
 		case TokenKind.LetKeyword: {
 			return parseVarDef(s);
@@ -69,7 +69,7 @@ export function parseStatement(s: ITokenStream): Ast.Statement | Ast.Expression 
 }
 
 export function parseDefStatement(s: ITokenStream): Ast.Definition {
-	switch (s.getKind()) {
+	switch (s.getTokenKind()) {
 		case TokenKind.VarKeyword:
 		case TokenKind.LetKeyword: {
 			return parseVarDef(s);
@@ -78,7 +78,7 @@ export function parseDefStatement(s: ITokenStream): Ast.Definition {
 			return parseFnDef(s);
 		}
 		default: {
-			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[s.getKind()]}`, s.getPos());
+			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[s.getTokenKind()]}`, s.getPos());
 		}
 	}
 }
@@ -89,7 +89,7 @@ export function parseDefStatement(s: ITokenStream): Ast.Definition {
  * ```
 */
 export function parseBlockOrStatement(s: ITokenStream): Ast.Statement | Ast.Expression {
-	if (s.getKind() === TokenKind.OpenBrace) {
+	if (s.is(TokenKind.OpenBrace)) {
 		const startPos = s.getPos();
 		const statements = parseBlock(s);
 		return NODE('block', { statements }, startPos, s.getPos());
@@ -107,7 +107,7 @@ function parseVarDef(s: ITokenStream): Ast.Definition {
 	const startPos = s.getPos();
 
 	let mut: boolean;
-	switch (s.getKind()) {
+	switch (s.getTokenKind()) {
 		case TokenKind.LetKeyword: {
 			mut = false;
 			break;
@@ -117,24 +117,25 @@ function parseVarDef(s: ITokenStream): Ast.Definition {
 			break;
 		}
 		default: {
-			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[s.getKind()]}`, s.getPos());
+			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[s.getTokenKind()]}`, s.getPos());
 		}
 	}
 	s.next();
 
 	s.expect(TokenKind.Identifier);
-	const name = s.token.value!;
+	const name = s.getTokenValue();
 	s.next();
 
 	let type: Ast.TypeSource | undefined;
-	if (s.getKind() === TokenKind.Colon) {
+	if (s.is(TokenKind.Colon)) {
 		s.next();
 		type = parseType(s);
 	}
 
-	s.nextWith(TokenKind.Eq);
+	s.expect(TokenKind.Eq);
+	s.next();
 
-	if (s.getKind() === TokenKind.NewLine) {
+	if (s.is(TokenKind.NewLine)) {
 		s.next();
 	}
 
@@ -151,16 +152,17 @@ function parseVarDef(s: ITokenStream): Ast.Definition {
 function parseFnDef(s: ITokenStream): Ast.Definition {
 	const startPos = s.getPos();
 
-	s.nextWith(TokenKind.At);
+	s.expect(TokenKind.At);
+	s.next();
 
 	s.expect(TokenKind.Identifier);
-	const name = s.token.value;
+	const name = s.getTokenValue();
 	s.next();
 
 	const params = parseParams(s);
 
 	let type: Ast.TypeSource | undefined;
-	if (s.getKind() === TokenKind.Colon) {
+	if (s.is(TokenKind.Colon)) {
 		s.next();
 		type = parseType(s);
 	}
@@ -189,7 +191,8 @@ function parseFnDef(s: ITokenStream): Ast.Definition {
 function parseOut(s: ITokenStream): Ast.Call {
 	const startPos = s.getPos();
 
-	s.nextWith(TokenKind.Out);
+	s.expect(TokenKind.Out);
+	s.next();
 	const expr = parseExpr(s, false);
 
 	return CALL_NODE('print', [expr], startPos, s.getPos());
@@ -205,20 +208,22 @@ function parseEach(s: ITokenStream): Ast.Each {
 	const startPos = s.getPos();
 	let hasParen = false;
 
-	s.nextWith(TokenKind.EachKeyword);
+	s.expect(TokenKind.EachKeyword);
+	s.next();
 
-	if (s.getKind() === TokenKind.OpenParen) {
+	if (s.is(TokenKind.OpenParen)) {
 		hasParen = true;
 		s.next();
 	}
 
-	s.nextWith(TokenKind.LetKeyword);
-
-	s.expect(TokenKind.Identifier);
-	const name = s.token.value!;
+	s.expect(TokenKind.LetKeyword);
 	s.next();
 
-	if (s.getKind() === TokenKind.Comma) {
+	s.expect(TokenKind.Identifier);
+	const name = s.getTokenValue();
+	s.next();
+
+	if (s.is(TokenKind.Comma)) {
 		s.next();
 	} else {
 		throw new AiScriptSyntaxError('separator expected', s.getPos());
@@ -227,7 +232,8 @@ function parseEach(s: ITokenStream): Ast.Each {
 	const items = parseExpr(s, false);
 
 	if (hasParen) {
-		s.nextWith(TokenKind.CloseParen);
+		s.expect(TokenKind.CloseParen);
+		s.next();
 	}
 
 	const body = parseBlockOrStatement(s);
@@ -243,32 +249,33 @@ function parseFor(s: ITokenStream): Ast.For {
 	const startPos = s.getPos();
 	let hasParen = false;
 
-	s.nextWith(TokenKind.ForKeyword);
+	s.expect(TokenKind.ForKeyword);
+	s.next();
 
-	if (s.getKind() === TokenKind.OpenParen) {
+	if (s.is(TokenKind.OpenParen)) {
 		hasParen = true;
 		s.next();
 	}
 
-	if (s.getKind() === TokenKind.LetKeyword) {
+	if (s.is(TokenKind.LetKeyword)) {
 		// range syntax
 		s.next();
 
 		const identPos = s.getPos();
 
 		s.expect(TokenKind.Identifier);
-		const name = s.token.value!;
+		const name = s.getTokenValue();
 		s.next();
 
 		let _from: Ast.Expression;
-		if (s.getKind() === TokenKind.Eq) {
+		if (s.is(TokenKind.Eq)) {
 			s.next();
 			_from = parseExpr(s, false);
 		} else {
 			_from = NODE('num', { value: 0 }, identPos, identPos);
 		}
 
-		if (s.getKind() === TokenKind.Comma) {
+		if (s.is(TokenKind.Comma)) {
 			s.next();
 		} else {
 			throw new AiScriptSyntaxError('separator expected', s.getPos());
@@ -277,7 +284,8 @@ function parseFor(s: ITokenStream): Ast.For {
 		const to = parseExpr(s, false);
 
 		if (hasParen) {
-			s.nextWith(TokenKind.CloseParen);
+			s.expect(TokenKind.CloseParen);
+			s.next();
 		}
 
 		const body = parseBlockOrStatement(s);
@@ -294,7 +302,8 @@ function parseFor(s: ITokenStream): Ast.For {
 		const times = parseExpr(s, false);
 
 		if (hasParen) {
-			s.nextWith(TokenKind.CloseParen);
+			s.expect(TokenKind.CloseParen);
+			s.next();
 		}
 	
 		const body = parseBlockOrStatement(s);
@@ -314,7 +323,8 @@ function parseFor(s: ITokenStream): Ast.For {
 function parseReturn(s: ITokenStream): Ast.Return {
 	const startPos = s.getPos();
 
-	s.nextWith(TokenKind.ReturnKeyword);
+	s.expect(TokenKind.ReturnKeyword);
+	s.next();
 	const expr = parseExpr(s, false);
 
 	return NODE('return', { expr }, startPos, s.getPos());
@@ -327,9 +337,10 @@ function parseReturn(s: ITokenStream): Ast.Return {
 */
 function parseStatementWithAttr(s: ITokenStream): Ast.Definition {
 	const attrs: Ast.Attribute[] = [];
-	while (s.getKind() === TokenKind.OpenSharpBracket) {
+	while (s.is(TokenKind.OpenSharpBracket)) {
 		attrs.push(parseAttr(s) as Ast.Attribute);
-		s.nextWith(TokenKind.NewLine);
+		s.expect(TokenKind.NewLine);
+		s.next();
 	}
 
 	const statement = parseStatement(s);
@@ -354,21 +365,23 @@ function parseStatementWithAttr(s: ITokenStream): Ast.Definition {
 function parseAttr(s: ITokenStream): Ast.Attribute {
 	const startPos = s.getPos();
 
-	s.nextWith(TokenKind.OpenSharpBracket);
+	s.expect(TokenKind.OpenSharpBracket);
+	s.next();
 
 	s.expect(TokenKind.Identifier);
-	const name = s.token.value!;
+	const name = s.getTokenValue();
 	s.next();
 
 	let value: Ast.Expression;
-	if (s.getKind() !== TokenKind.CloseBracket) {
+	if (!s.is(TokenKind.CloseBracket)) {
 		value = parseExpr(s, true);
 	} else {
 		const closePos = s.getPos();
 		value = NODE('bool', { value: true }, closePos, closePos);
 	}
 
-	s.nextWith(TokenKind.CloseBracket);
+	s.expect(TokenKind.CloseBracket);
+	s.next();
 
 	return NODE('attr', { name, value }, startPos, s.getPos());
 }
@@ -381,7 +394,8 @@ function parseAttr(s: ITokenStream): Ast.Attribute {
 function parseLoop(s: ITokenStream): Ast.Loop {
 	const startPos = s.getPos();
 
-	s.nextWith(TokenKind.LoopKeyword);
+	s.expect(TokenKind.LoopKeyword);
+	s.next();
 	const statements = parseBlock(s);
 
 	return NODE('loop', { statements }, startPos, s.getPos());
@@ -394,10 +408,12 @@ function parseLoop(s: ITokenStream): Ast.Loop {
 */
 function parseDoWhile(s: ITokenStream): Ast.Loop {
 	const doStartPos = s.getPos();
-	s.nextWith(TokenKind.DoKeyword);
+	s.expect(TokenKind.DoKeyword);
+	s.next();
 	const body = parseBlockOrStatement(s);
 	const whilePos = s.getPos();
-	s.nextWith(TokenKind.WhileKeyword);
+	s.expect(TokenKind.WhileKeyword);
+	s.next();
 	const cond = parseExpr(s, false);
 	const endPos = s.getPos();
 
@@ -420,7 +436,8 @@ function parseDoWhile(s: ITokenStream): Ast.Loop {
 */
 function parseWhile(s: ITokenStream): Ast.Loop {
 	const startPos = s.getPos();
-	s.nextWith(TokenKind.WhileKeyword);
+	s.expect(TokenKind.WhileKeyword);
+	s.next();
 	const cond = parseExpr(s, false);
 	const condEndPos = s.getPos();
 	const body = parseBlockOrStatement(s);
@@ -446,7 +463,7 @@ function tryParseAssign(s: ITokenStream, dest: Ast.Expression): Ast.Statement | 
 	const startPos = s.getPos();
 
 	// Assign
-	switch (s.getKind()) {
+	switch (s.getTokenKind()) {
 		case TokenKind.Eq: {
 			s.next();
 			const expr = parseExpr(s, false);

@@ -15,12 +15,12 @@ import type { ITokenStream } from '../streams/token-stream.js';
 export function parseTopLevel(s: ITokenStream): Ast.Node[] {
 	const nodes: Ast.Node[] = [];
 
-	while (s.getKind() === TokenKind.NewLine) {
+	while (s.is(TokenKind.NewLine)) {
 		s.next();
 	}
 
-	while (s.getKind() !== TokenKind.EOF) {
-		switch (s.getKind()) {
+	while (!s.is(TokenKind.EOF)) {
+		switch (s.getTokenKind()) {
 			case TokenKind.Colon2: {
 				nodes.push(parseNamespace(s));
 				break;
@@ -36,10 +36,10 @@ export function parseTopLevel(s: ITokenStream): Ast.Node[] {
 		}
 
 		// terminator
-		switch (s.getKind()) {
+		switch (s.getTokenKind()) {
 			case TokenKind.NewLine:
 			case TokenKind.SemiColon: {
-				while ([TokenKind.NewLine, TokenKind.SemiColon].includes(s.getKind())) {
+				while (s.is(TokenKind.NewLine) || s.is(TokenKind.SemiColon)) {
 					s.next();
 				}
 				break;
@@ -64,21 +64,23 @@ export function parseTopLevel(s: ITokenStream): Ast.Node[] {
 export function parseNamespace(s: ITokenStream): Ast.Namespace {
 	const startPos = s.getPos();
 
-	s.nextWith(TokenKind.Colon2);
+	s.expect(TokenKind.Colon2);
+	s.next();
 
 	s.expect(TokenKind.Identifier);
-	const name = s.token.value!;
+	const name = s.getTokenValue();
 	s.next();
 
 	const members: (Ast.Namespace | Ast.Definition)[] = [];
-	s.nextWith(TokenKind.OpenBrace);
+	s.expect(TokenKind.OpenBrace);
+	s.next();
 
-	while (s.getKind() === TokenKind.NewLine) {
+	while (s.is(TokenKind.NewLine)) {
 		s.next();
 	}
 
-	while (s.getKind() !== TokenKind.CloseBrace) {
-		switch (s.getKind()) {
+	while (!s.is(TokenKind.CloseBrace)) {
+		switch (s.getTokenKind()) {
 			case TokenKind.VarKeyword:
 			case TokenKind.LetKeyword:
 			case TokenKind.At: {
@@ -92,10 +94,10 @@ export function parseNamespace(s: ITokenStream): Ast.Namespace {
 		}
 
 		// terminator
-		switch (s.getKind()) {
+		switch (s.getTokenKind()) {
 			case TokenKind.NewLine:
 			case TokenKind.SemiColon: {
-				while ([TokenKind.NewLine, TokenKind.SemiColon].includes(s.getKind())) {
+				while (s.is(TokenKind.NewLine) || s.is(TokenKind.SemiColon)) {
 					s.next();
 				}
 				break;
@@ -108,7 +110,8 @@ export function parseNamespace(s: ITokenStream): Ast.Namespace {
 			}
 		}
 	}
-	s.nextWith(TokenKind.CloseBrace);
+	s.expect(TokenKind.CloseBrace);
+	s.next();
 
 	return NODE('ns', { name, members }, startPos, s.getPos());
 }
@@ -121,11 +124,12 @@ export function parseNamespace(s: ITokenStream): Ast.Namespace {
 export function parseMeta(s: ITokenStream): Ast.Meta {
 	const startPos = s.getPos();
 
-	s.nextWith(TokenKind.Sharp3);
+	s.expect(TokenKind.Sharp3);
+	s.next();
 
 	let name = null;
-	if (s.getKind() === TokenKind.Identifier) {
-		name = s.token.value!;
+	if (s.is(TokenKind.Identifier)) {
+		name = s.getTokenValue();
 		s.next();
 	}
 
