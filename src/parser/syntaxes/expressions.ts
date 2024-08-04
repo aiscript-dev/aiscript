@@ -404,8 +404,9 @@ function parseFnExpr(s: ITokenStream): Ast.Fn {
 
 /**
  * ```abnf
- * Match = "match" Expr "{" [MatchCases] ["default" "=>" BlockOrStatement [SEP]] "}"
+ * Match = "match" Expr "{" [MatchCases] [defaultCase] "}"
  * MatchCases = "case" Expr "=>" BlockOrStatement *(SEP "case" Expr "=>" BlockOrStatement) [SEP]
+ * DefaultCase = "default" "=>" BlockOrStatement [SEP]
  * ```
 */
 function parseMatch(s: ITokenStream): Ast.Match {
