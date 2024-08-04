@@ -554,6 +554,102 @@ export class Interpreter {
 				return NULL; // nop
 			}
 
+			case 'pow': {
+				const callee = scope.get('Core:pow');
+				assertFunction(callee);
+				const left = await this._eval(node.left, scope);
+				const right = await this._eval(node.right, scope);
+				return this._fn(callee, [left, right]);
+			}
+
+			case 'mul': {
+				const callee = scope.get('Core:mul');
+				assertFunction(callee);
+				const left = await this._eval(node.left, scope);
+				const right = await this._eval(node.right, scope);
+				return this._fn(callee, [left, right]);
+			}
+
+			case 'div': {
+				const callee = scope.get('Core:div');
+				assertFunction(callee);
+				const left = await this._eval(node.left, scope);
+				const right = await this._eval(node.right, scope);
+				return this._fn(callee, [left, right]);
+			}
+
+			case 'rem': {
+				const callee = scope.get('Core:mod');
+				assertFunction(callee);
+				const left = await this._eval(node.left, scope);
+				const right = await this._eval(node.right, scope);
+				return this._fn(callee, [left, right]);
+			}
+
+			case 'add': {
+				const callee = scope.get('Core:add');
+				assertFunction(callee);
+				const left = await this._eval(node.left, scope);
+				const right = await this._eval(node.right, scope);
+				return this._fn(callee, [left, right]);
+			}
+
+			case 'sub': {
+				const callee = scope.get('Core:sub');
+				assertFunction(callee);
+				const left = await this._eval(node.left, scope);
+				const right = await this._eval(node.right, scope);
+				return this._fn(callee, [left, right]);
+			}
+
+			case 'lt': {
+				const callee = scope.get('Core:lt');
+				assertFunction(callee);
+				const left = await this._eval(node.left, scope);
+				const right = await this._eval(node.right, scope);
+				return this._fn(callee, [left, right]);
+			}
+
+			case 'lteq': {
+				const callee = scope.get('Core:lteq');
+				assertFunction(callee);
+				const left = await this._eval(node.left, scope);
+				const right = await this._eval(node.right, scope);
+				return this._fn(callee, [left, right]);
+			}
+
+			case 'gt': {
+				const callee = scope.get('Core:gt');
+				assertFunction(callee);
+				const left = await this._eval(node.left, scope);
+				const right = await this._eval(node.right, scope);
+				return this._fn(callee, [left, right]);
+			}
+
+			case 'gteq': {
+				const callee = scope.get('Core:gteq');
+				assertFunction(callee);
+				const left = await this._eval(node.left, scope);
+				const right = await this._eval(node.right, scope);
+				return this._fn(callee, [left, right]);
+			}
+
+			case 'eq': {
+				const callee = scope.get('Core:eq');
+				assertFunction(callee);
+				const left = await this._eval(node.left, scope);
+				const right = await this._eval(node.right, scope);
+				return this._fn(callee, [left, right]);
+			}
+
+			case 'neq': {
+				const callee = scope.get('Core:neq');
+				assertFunction(callee);
+				const left = await this._eval(node.left, scope);
+				const right = await this._eval(node.right, scope);
+				return this._fn(callee, [left, right]);
+			}
+
 			case 'and': {
 				const leftValue = await this._eval(node.left, scope);
 				assertBoolean(leftValue);

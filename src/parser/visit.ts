@@ -136,10 +136,52 @@ export function visitNode(node: Ast.Node, fn: (node: Ast.Node) => Ast.Node): Ast
 			break;
 		}
 
-		case 'or':
-		case 'and': {
-			result.left = visitNode(result.left, fn) as (Ast.And | Ast.Or)['left'];
-			result.right = visitNode(result.right, fn) as (Ast.And | Ast.Or)['right'];
+		case 'pow':
+		case 'mul':
+		case 'div':
+		case 'rem':
+		case 'add':
+		case 'sub':
+		case 'lt':
+		case 'lteq':
+		case 'gt':
+		case 'gteq':
+		case 'eq':
+		case 'neq':
+		case 'and':
+		case 'or': {
+			result.left = visitNode(result.left, fn) as (
+				Ast.Pow |
+				Ast.Mul |
+				Ast.Div |
+				Ast.Rem |
+				Ast.Add |
+				Ast.Sub |
+				Ast.Lt |
+				Ast.Lteq |
+				Ast.Gt |
+				Ast.Gteq |
+				Ast.Eq |
+				Ast.Neq |
+				Ast.And |
+				Ast.Or
+			)['left'];
+			result.right = visitNode(result.right, fn) as (
+				Ast.Pow |
+				Ast.Mul |
+				Ast.Div |
+				Ast.Rem |
+				Ast.Add |
+				Ast.Sub |
+				Ast.Lt |
+				Ast.Lteq |
+				Ast.Gt |
+				Ast.Gteq |
+				Ast.Eq |
+				Ast.Neq |
+				Ast.And |
+				Ast.Or
+			)['right'];
 			break;
 		}
 	}
