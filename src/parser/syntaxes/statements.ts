@@ -7,12 +7,6 @@ import { parseExpr } from './expressions.js';
 import type * as Ast from '../../node.js';
 import type { ITokenStream } from '../streams/token-stream.js';
 
-/**
- * ```abnf
- * Statement = VarDef / FnDef / Out / Return / Attr / Each / For / Loop
- *           / Break / Continue / Assign / Expr
- * ```
-*/
 export function parseStatement(s: ITokenStream): Ast.Node {
 	const startPos = s.getPos();
 
@@ -22,6 +16,7 @@ export function parseStatement(s: ITokenStream): Ast.Node {
 			return parseVarDef(s);
 		}
 		case TokenKind.At: {
+			// 識別子が続く場合はFnDef、そうでなければFnExpr
 			if (s.lookahead(1).kind === TokenKind.Identifier) {
 				return parseFnDef(s);
 			}
@@ -68,6 +63,11 @@ export function parseStatement(s: ITokenStream): Ast.Node {
 	return expr;
 }
 
+/**
+ * ```abnf
+ * DefStatement = VarDef / FnDef
+ * ```
+*/
 export function parseDefStatement(s: ITokenStream): Ast.Node {
 	switch (s.getTokenKind()) {
 		case TokenKind.VarKeyword:
@@ -200,8 +200,8 @@ function parseOut(s: ITokenStream): Ast.Node {
 
 /**
  * ```abnf
- * Each = "each" "let" IDENT ("," / SPACE) Expr BlockOrStatement
- *      / "each" "(" "let" IDENT ("," / SPACE) Expr ")" BlockOrStatement
+ * Each = "each" "(" "let" IDENT "," Expr ")" BlockOrStatement
+ *      / "each"     "let" IDENT "," Expr     BlockOrStatement
  * ```
 */
 function parseEach(s: ITokenStream): Ast.Node {
@@ -245,6 +245,15 @@ function parseEach(s: ITokenStream): Ast.Node {
 	}, startPos, s.getPos());
 }
 
+/**
+ * ```abnf
+ * For = ForRange / ForTimes
+ * ForRange = "for" "(" "let" IDENT ["=" Expr] "," Expr ")" BlockOrStatement
+ *          / "for"     "let" IDENT ["=" Expr] "," Expr     BlockOrStatement
+ * ForTimes = "for" "(" Expr ")" BlockOrStatement
+ *          / "for"     Expr     BlockOrStatement
+ * ```
+*/
 function parseFor(s: ITokenStream): Ast.Node {
 	const startPos = s.getPos();
 	let hasParen = false;
