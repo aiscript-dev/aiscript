@@ -19,7 +19,6 @@ const IRQ_AT = IRQ_RATE - 1;
 
 export type LogObject = {
 	scope?: string;
-	name?: string;
 	var?: string;
 	val?: Value | Variable;
 };
