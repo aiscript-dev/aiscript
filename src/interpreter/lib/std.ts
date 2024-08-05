@@ -230,7 +230,7 @@ export const std: Record<string, Value> = {
 
 		if (ofs) { assertNumber(ofs); }
 		const offset = ofs?.value ?? -date.getTimezoneOffset();
-		let offset_s;
+		let offset_s: string;
 		if (offset === 0) {
 			offset_s = 'Z';
 		} else {

@@ -1,17 +1,28 @@
 import type * as Ast from '../node.js';
 
-export function NODE(type: string, params: Record<string, any>, start: Ast.Pos, end: Ast.Pos): Ast.Node {
-	const node: Record<string, any> = { type };
+export function NODE<T extends Ast.Node['type']>(
+	type: T,
+	params: Omit<Extract<Ast.Node, { type: T }>, 'type' | 'loc'>,
+	start: Ast.Pos,
+	end: Ast.Pos,
+): Extract<Ast.Node, { type: T }> {
+	const node: Record<string, unknown> = { type };
 	for (const key of Object.keys(params)) {
-		if (params[key] !== undefined) {
-			node[key] = params[key];
+		type Key = keyof typeof params;
+		if (params[key as Key] !== undefined) {
+			node[key] = params[key as Key];
 		}
 	}
 	node.loc = { start, end };
-	return node as Ast.Node;
+	return node as Extract<Ast.Node, { type: T }>;
 }
 
-export function CALL_NODE(name: string, args: Ast.Node[], start: Ast.Pos, end: Ast.Pos): Ast.Node {
+export function CALL_NODE(
+	name: string,
+	args: Ast.Expression[],
+	start: Ast.Pos,
+	end: Ast.Pos,
+): Ast.Call {
 	return NODE('call', {
 		// 糖衣構文はidentifierがソースコードに出現しないので長さ0とする。
 		target: NODE('identifier', { name }, start, start),

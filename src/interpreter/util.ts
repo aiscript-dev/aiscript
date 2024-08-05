@@ -114,7 +114,9 @@ export function valToString(val: Value, simple = false): string {
 	return `${val.type}<${label}>`;
 }
 
-export function valToJs(val: Value): any {
+export type JsValue = { [key: string]: JsValue } | JsValue[] | string | number | boolean | null | undefined;
+
+export function valToJs(val: Value): JsValue {
 	switch (val.type) {
 		case 'fn': return '<function>';
 		case 'arr': return val.value.map(item => valToJs(item));
@@ -122,7 +124,7 @@ export function valToJs(val: Value): any {
 		case 'null': return null;
 		case 'num': return val.value;
 		case 'obj': {
-			const obj: { [k: string]: object | string | number | boolean | null } = {};
+			const obj: { [key: string]: JsValue } = {};
 			for (const [k, v] of val.value.entries()) {
 				// TODO: keyが__proto__とかじゃないかチェック
 				obj[k] = valToJs(v);
@@ -134,7 +136,7 @@ export function valToJs(val: Value): any {
 	}
 }
 
-export function jsToVal(val: any): Value {
+export function jsToVal(val: unknown): Value {
 	if (val === null) return NULL;
 	if (typeof val === 'boolean') return BOOL(val);
 	if (typeof val === 'string') return STR(val);
