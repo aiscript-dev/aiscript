@@ -120,8 +120,20 @@ _x_ +1の自然対数を計算します。
 _min_ および _max_ を渡した場合、_min_ <= x, x <= _max_ の整数、  
 渡していない場合は 0 <= x, x < 1 の 小数が返されます。  
 
-### @Math:gen_rng(_seed_: num | str): fn
+### @Math:gen_rng(_seed_: num | str, _options_?: obj): @(_min_?: num, _max_?: num)
 シードから乱数生成機を生成します。  
+生成された乱数生成器は、_min_ および _max_ を渡した場合、_min_ <= x, x <= _max_ の整数、  
+渡していない場合は 0 <= x, x < 1 の浮動小数点数を返します。  
+_options_ に渡したオブジェクトを通じて、内部の挙動を指定できます。  
+`options.algorithm`の指定による挙動の変化は下記の通りです。  
+| `options.algorithm` | 内部の乱数生成アルゴリズム | 範囲指定整数生成アルゴリズム |
+|--|--|--|
+| `rc4` | RC4 | Rejection Sampling |
+| `rc4_legacy` | RC4 | 浮動小数点数演算による範囲制限​(0.19.0以前のアルゴリズム) |
+| 無指定 または 'chacha20' | ChaCha20 | Rejection Sampling |
+
+> [!CAUTION]
+> `rc4_legacy`等、浮動小数点数演算を伴う範囲指定整数生成アルゴリズムでは、演算時の丸め誤差により、指定した _max_ の値より大きな値が生成される可能性があります。
 
 ## その他
 ### @Math:clz32(_x_: num): num
