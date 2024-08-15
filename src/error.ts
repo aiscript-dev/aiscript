@@ -3,8 +3,7 @@ import type { Pos } from './node.js';
 export abstract class AiScriptError extends Error {
 	// name is read by Error.prototype.toString
 	public name = 'AiScript';
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	public info?: any;
+	public info: unknown;
 	public pos?: Pos;
 
 	constructor(message: string, info?: unknown) {
