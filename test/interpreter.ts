@@ -101,7 +101,7 @@ describe('error location', () => {
 	});
 
 	test.concurrent('Error in passed function', async () => {
-		return expect(exeAndGetErrPos(`// {の位置
+		return expect(exeAndGetErrPos(`// (の位置
 			[1, 2, 3].map(@(v){
 				if v==1 Core:abort("error")
 			})
