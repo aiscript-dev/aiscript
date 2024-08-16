@@ -27,7 +27,7 @@ export const AISCRIPT_VERSION: "1.0.0";
 abstract class AiScriptError extends Error {
     constructor(message: string, info?: unknown);
     // (undocumented)
-    info?: any;
+    info: unknown;
     // (undocumented)
     name: string;
     // (undocumented)
