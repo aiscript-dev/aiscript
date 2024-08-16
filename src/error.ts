@@ -24,7 +24,10 @@ export abstract class AiScriptError extends Error {
 export class NonAiScriptError extends AiScriptError {
 	public name = 'Internal';
 	constructor(error: unknown) {
-		super((error as Error | null | undefined)?.message ?? String(error), error);
+		const message = String(
+			(error as { message?: unknown } | null | undefined)?.message ?? error,
+		);
+		super(message, error);
 	}
 }
 
