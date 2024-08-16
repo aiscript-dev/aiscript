@@ -102,10 +102,10 @@ describe('error location', () => {
 
 	test.concurrent('Error in passed function', async () => {
 		return expect(exeAndGetErrPos(`// {の位置
-			["aes256ecb", "rc4_legacy", "chacha20"].map(@(v){
-				Math:gen_rng(0, {algorithm: v})
+			[1, 2, 3].map(@(v){
+				if v==1 Core:abort("error")
 			})
-		`)).resolves.toEqual({ line: 3, column: 17});
+		`)).resolves.toEqual({ line: 3, column: 23});
 	});
 
 	test.concurrent('No such prop', async () => {
