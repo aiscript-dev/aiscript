@@ -1,0 +1,5 @@
+- Breaking For Hosts: 曖昧な型を変更しました。（TypeScriptの型のみの変更であり、JavaScriptの値としては変更はありません）
+  - `Interpreter`のオプションのlog関数の引数の型
+  - `AiScriptError`のinfoの型
+  - `Interpreter.collectMetadata`、`valToJs`の戻り値の型
+  - `Node`型で存在しないプロパティーの削除

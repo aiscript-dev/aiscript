@@ -11,7 +11,6 @@ type Add = NodeBase & {
     type: 'add';
     left: Expression;
     right: Expression;
-    operatorLoc: Loc;
 };
 
 // @public (undocumented)
@@ -26,9 +25,9 @@ export const AISCRIPT_VERSION: "1.0.0";
 
 // @public (undocumented)
 abstract class AiScriptError extends Error {
-    constructor(message: string, info?: any);
+    constructor(message: string, info?: unknown);
     // (undocumented)
-    info?: any;
+    info: unknown;
     // (undocumented)
     name: string;
     // (undocumented)
@@ -37,12 +36,12 @@ abstract class AiScriptError extends Error {
 
 // @public
 class AiScriptIndexOutOfRangeError extends AiScriptRuntimeError {
-    constructor(message: string, info?: any);
+    constructor(message: string, info?: unknown);
 }
 
 // @public
 class AiScriptNamespaceError extends AiScriptError {
-    constructor(message: string, pos: Pos, info?: any);
+    constructor(message: string, pos: Pos, info?: unknown);
     // (undocumented)
     name: string;
     // (undocumented)
@@ -51,14 +50,14 @@ class AiScriptNamespaceError extends AiScriptError {
 
 // @public
 class AiScriptRuntimeError extends AiScriptError {
-    constructor(message: string, info?: any);
+    constructor(message: string, info?: unknown);
     // (undocumented)
     name: string;
 }
 
 // @public
 class AiScriptSyntaxError extends AiScriptError {
-    constructor(message: string, pos: Pos, info?: any);
+    constructor(message: string, pos: Pos, info?: unknown);
     // (undocumented)
     name: string;
     // (undocumented)
@@ -67,7 +66,7 @@ class AiScriptSyntaxError extends AiScriptError {
 
 // @public
 class AiScriptTypeError extends AiScriptError {
-    constructor(message: string, pos: Pos, info?: any);
+    constructor(message: string, pos: Pos, info?: unknown);
     // (undocumented)
     name: string;
     // (undocumented)
@@ -76,7 +75,7 @@ class AiScriptTypeError extends AiScriptError {
 
 // @public
 class AiScriptUserError extends AiScriptRuntimeError {
-    constructor(message: string, info?: any);
+    constructor(message: string, info?: unknown);
     // (undocumented)
     name: string;
 }
@@ -86,7 +85,6 @@ type And = NodeBase & {
     type: 'and';
     left: Expression;
     right: Expression;
-    operatorLoc: Loc;
 };
 
 // @public (undocumented)
@@ -251,7 +249,6 @@ type Div = NodeBase & {
     type: 'div';
     left: Expression;
     right: Expression;
-    operatorLoc: Loc;
 };
 
 // @public (undocumented)
@@ -267,7 +264,6 @@ type Eq = NodeBase & {
     type: 'eq';
     left: Expression;
     right: Expression;
-    operatorLoc: Loc;
 };
 
 // @public (undocumented)
@@ -352,7 +348,6 @@ type Gt = NodeBase & {
     type: 'gt';
     left: Expression;
     right: Expression;
-    operatorLoc: Loc;
 };
 
 // @public (undocumented)
@@ -360,7 +355,6 @@ type Gteq = NodeBase & {
     type: 'gteq';
     left: Expression;
     right: Expression;
-    operatorLoc: Loc;
 };
 
 // @public (undocumented)
@@ -394,14 +388,14 @@ export class Interpreter {
         in?(q: string): Promise<string>;
         out?(value: Value): void;
         err?(e: AiScriptError): void;
-        log?(type: string, params: Record<string, any>): void;
+        log?(type: string, params: LogObject): void;
         maxStep?: number;
         abortOnError?: boolean;
     });
     // (undocumented)
     abort(): void;
     // (undocumented)
-    static collectMetadata(script?: Ast.Node[]): Map<any, any> | undefined;
+    static collectMetadata(script?: Ast.Node[]): Map<string, JsValue> | undefined;
     // (undocumented)
     exec(script?: Ast.Node[]): Promise<void>;
     execFn(fn: VFn, args: Value[]): Promise<Value>;
@@ -441,7 +435,12 @@ function isStatement(x: Node_2): x is Statement;
 function isString(val: Value): val is VStr;
 
 // @public (undocumented)
-function jsToVal(val: any): Value;
+function jsToVal(val: unknown): Value;
+
+// @public (undocumented)
+type JsValue = {
+    [key: string]: JsValue;
+} | JsValue[] | string | number | boolean | null | undefined;
 
 // @public (undocumented)
 type Loc = {
@@ -460,7 +459,6 @@ type Lt = NodeBase & {
     type: 'lt';
     left: Expression;
     right: Expression;
-    operatorLoc: Loc;
 };
 
 // @public (undocumented)
@@ -468,7 +466,6 @@ type Lteq = NodeBase & {
     type: 'lteq';
     left: Expression;
     right: Expression;
-    operatorLoc: Loc;
 };
 
 // @public (undocumented)
@@ -494,7 +491,6 @@ type Mul = NodeBase & {
     type: 'mul';
     left: Expression;
     right: Expression;
-    operatorLoc: Loc;
 };
 
 // @public (undocumented)
@@ -516,7 +512,6 @@ type Neq = NodeBase & {
     type: 'neq';
     left: Expression;
     right: Expression;
-    operatorLoc: Loc;
 };
 
 // @public (undocumented)
@@ -524,7 +519,7 @@ type Node_2 = Namespace | Meta | Statement | Expression | TypeSource | Attribute
 
 // @public
 class NonAiScriptError extends AiScriptError {
-    constructor(error: any);
+    constructor(error: unknown);
     // (undocumented)
     name: string;
 }
@@ -568,7 +563,6 @@ type Or = NodeBase & {
     type: 'or';
     left: Expression;
     right: Expression;
-    operatorLoc: Loc;
 };
 
 // @public (undocumented)
@@ -599,7 +593,6 @@ type Pow = NodeBase & {
     type: 'pow';
     left: Expression;
     right: Expression;
-    operatorLoc: Loc;
 };
 
 // @public (undocumented)
@@ -614,7 +607,6 @@ type Rem = NodeBase & {
     type: 'rem';
     left: Expression;
     right: Expression;
-    operatorLoc: Loc;
 };
 
 // @public (undocumented)
@@ -649,7 +641,7 @@ export class Scope {
     nsName?: string;
     // (undocumented)
     opts: {
-        log?(type: string, params: Record<string, any>): void;
+        log?(type: string, params: LogObject): void;
         onUpdated?(name: string, value: Value): void;
     };
 }
@@ -671,7 +663,6 @@ type Sub = NodeBase & {
     type: 'sub';
     left: Expression;
     right: Expression;
-    operatorLoc: Loc;
 };
 
 // @public (undocumented)
@@ -684,7 +675,7 @@ type SubAssign = NodeBase & {
 // @public (undocumented)
 type Tmpl = NodeBase & {
     type: 'tmpl';
-    tmpl: (string | Expression)[];
+    tmpl: Expression[];
 };
 
 // @public (undocumented)
@@ -719,13 +710,14 @@ declare namespace utils {
         valToJs,
         jsToVal,
         getLangVersion,
-        reprValue
+        reprValue,
+        JsValue
     }
 }
 export { utils }
 
 // @public (undocumented)
-function valToJs(val: Value): any;
+function valToJs(val: Value): JsValue;
 
 // @public (undocumented)
 function valToString(val: Value, simple?: boolean): string;
@@ -862,6 +854,7 @@ type VUserFn = VFnBase & {
 
 // Warnings were encountered during analysis:
 //
+// src/interpreter/index.ts:39:4 - (ae-forgotten-export) The symbol "LogObject" needs to be exported by the entry point index.d.ts
 // src/interpreter/value.ts:46:2 - (ae-forgotten-export) The symbol "Type" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)

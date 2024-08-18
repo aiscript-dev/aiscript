@@ -10,11 +10,18 @@ import { assertNumber, assertString, assertFunction, assertBoolean, assertObject
 import { NULL, RETURN, unWrapRet, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, BREAK, CONTINUE, ERROR } from './value.js';
 import { getPrimProp } from './primitive-props.js';
 import { Variable } from './variable.js';
+import type { JsValue } from './util.js';
 import type { Value, VFn } from './value.js';
 import type * as Ast from '../node.js';
 
 const IRQ_RATE = 300;
 const IRQ_AT = IRQ_RATE - 1;
+
+export type LogObject = {
+	scope?: string;
+	var?: string;
+	val?: Value | Variable;
+};
 
 export class Interpreter {
 	public stepCount = 0;
@@ -29,7 +36,7 @@ export class Interpreter {
 			in?(q: string): Promise<string>;
 			out?(value: Value): void;
 			err?(e: AiScriptError): void;
-			log?(type: string, params: Record<string, any>): void;
+			log?(type: string, params: LogObject): void;
 			maxStep?: number;
 			abortOnError?: boolean;
 		} = {},
@@ -105,17 +112,17 @@ export class Interpreter {
 	}
 
 	@autobind
-	public static collectMetadata(script?: Ast.Node[]): Map<any, any> | undefined {
+	public static collectMetadata(script?: Ast.Node[]): Map<string, JsValue> | undefined {
 		if (script == null || script.length === 0) return;
 
-		function nodeToJs(node: Ast.Node): any {
+		function nodeToJs(node: Ast.Node): JsValue {
 			switch (node.type) {
 				case 'arr': return node.value.map(item => nodeToJs(item));
 				case 'bool': return node.value;
 				case 'null': return null;
 				case 'num': return node.value;
 				case 'obj': {
-					const obj: { [keys: string]: object | string | number | boolean | null | undefined } = {};
+					const obj: { [keys: string]: JsValue } = {};
 					for (const [k, v] of node.value.entries()) {
 						// TODO: keyが__proto__とかじゃないかチェック
 						obj[k] = nodeToJs(v);
@@ -161,7 +168,7 @@ export class Interpreter {
 	}
 
 	@autobind
-	private log(type: string, params: Record<string, unknown>): void {
+	private log(type: string, params: LogObject): void {
 		if (this.opts.log) this.opts.log(type, params);
 	}
 

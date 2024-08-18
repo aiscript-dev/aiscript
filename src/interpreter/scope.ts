@@ -2,13 +2,14 @@ import { autobind } from '../utils/mini-autobind.js';
 import { AiScriptRuntimeError } from '../error.js';
 import type { Value } from './value.js';
 import type { Variable } from './variable.js';
+import type { LogObject } from './index.js';
 
 export class Scope {
 	private parent?: Scope;
 	private layerdStates: Map<string, Variable>[];
 	public name: string;
 	public opts: {
-		log?(type: string, params: Record<string, any>): void;
+		log?(type: string, params: LogObject): void;
 		onUpdated?(name: string, value: Value): void;
 	} = {};
 	public nsName?: string;
@@ -21,7 +22,7 @@ export class Scope {
 	}
 
 	@autobind
-	private log(type: string, params: Record<string, any>): void {
+	private log(type: string, params: LogObject): void {
 		if (this.parent) {
 			this.parent.log(type, params);
 		} else {

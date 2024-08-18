@@ -12,8 +12,8 @@ import type * as Ast from '../../node.js';
  * Params = "(" [IDENT [":" Type] *(SEP IDENT [":" Type])] ")"
  * ```
 */
-export function parseParams(s: ITokenStream): { name: string, argType?: Ast.Node }[] {
-	const items: { name: string, optional?: boolean, default?: Ast.Node, argType?: Ast.Node }[] = [];
+export function parseParams(s: ITokenStream): Ast.Fn['args'] {
+	const items: Ast.Fn['args'] = [];
 
 	s.expect(TokenKind.OpenParen);
 	s.next();
@@ -28,7 +28,7 @@ export function parseParams(s: ITokenStream): { name: string, argType?: Ast.Node
 		s.next();
 
 		let optional = false;
-		let defaultExpr;
+		let defaultExpr: Ast.Expression | undefined;
 		if (s.is(TokenKind.Question)) {
 			s.next();
 			optional = true;
@@ -36,7 +36,7 @@ export function parseParams(s: ITokenStream): { name: string, argType?: Ast.Node
 			s.next();
 			defaultExpr = parseExpr(s, false);
 		}
-		let type;
+		let type: Ast.TypeSource | undefined;
 		if (s.is(TokenKind.Colon)) {
 			s.next();
 			type = parseType(s);
@@ -77,7 +77,7 @@ export function parseParams(s: ITokenStream): { name: string, argType?: Ast.Node
  * Block = "{" *Statement "}"
  * ```
 */
-export function parseBlock(s: ITokenStream): Ast.Node[] {
+export function parseBlock(s: ITokenStream): (Ast.Statement | Ast.Expression)[] {
 	s.expect(TokenKind.OpenBrace);
 	s.next();
 
@@ -85,7 +85,7 @@ export function parseBlock(s: ITokenStream): Ast.Node[] {
 		s.next();
 	}
 
-	const steps: Ast.Node[] = [];
+	const steps: (Ast.Statement | Ast.Expression)[] = [];
 	while (!s.is(TokenKind.CloseBrace)) {
 		steps.push(parseStatement(s));
 
@@ -115,7 +115,7 @@ export function parseBlock(s: ITokenStream): Ast.Node[] {
 
 //#region Type
 
-export function parseType(s: ITokenStream): Ast.Node {
+export function parseType(s: ITokenStream): Ast.TypeSource {
 	if (s.is(TokenKind.At)) {
 		return parseFnType(s);
 	} else {
@@ -129,7 +129,7 @@ export function parseType(s: ITokenStream): Ast.Node {
  * ParamTypes = [Type *(SEP Type)]
  * ```
 */
-function parseFnType(s: ITokenStream): Ast.Node {
+function parseFnType(s: ITokenStream): Ast.TypeSource {
 	const startPos = s.getPos();
 
 	s.expect(TokenKind.At);
@@ -137,7 +137,7 @@ function parseFnType(s: ITokenStream): Ast.Node {
 	s.expect(TokenKind.OpenParen);
 	s.next();
 
-	const params: Ast.Node[] = [];
+	const params: Ast.TypeSource[] = [];
 	while (!s.is(TokenKind.CloseParen)) {
 		if (params.length > 0) {
 			switch (s.getTokenKind()) {
@@ -169,7 +169,7 @@ function parseFnType(s: ITokenStream): Ast.Node {
  * NamedType = IDENT ["<" Type ">"]
  * ```
 */
-function parseNamedType(s: ITokenStream): Ast.Node {
+function parseNamedType(s: ITokenStream): Ast.TypeSource {
 	const startPos = s.getPos();
 
 	s.expect(TokenKind.Identifier);
@@ -177,7 +177,7 @@ function parseNamedType(s: ITokenStream): Ast.Node {
 	s.next();
 
 	// inner type
-	let inner = null;
+	let inner: Ast.TypeSource | undefined;
 	if (s.is(TokenKind.Lt)) {
 		s.next();
 		inner = parseType(s);
