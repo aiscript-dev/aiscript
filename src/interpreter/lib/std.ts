@@ -70,7 +70,6 @@ export const std: Record<string, Value> = {
 		assertNumber(a);
 		assertNumber(b);
 		const res = a.value ** b.value;
-		if (isNaN(res)) throw new AiScriptRuntimeError('Invalid operation.'); // ex. √-1
 		return NUM(res);
 	}),
 
@@ -78,7 +77,6 @@ export const std: Record<string, Value> = {
 		assertNumber(a);
 		assertNumber(b);
 		const res = a.value / b.value;
-		if (isNaN(res)) throw new AiScriptRuntimeError('Invalid operation.');
 		return NUM(res);
 	}),
 
@@ -433,7 +431,6 @@ export const std: Record<string, Value> = {
 	'Math:sqrt': FN_NATIVE(([v]) => {
 		assertNumber(v);
 		const res = Math.sqrt(v.value);
-		if (isNaN(res)) throw new AiScriptRuntimeError('Invalid operation.');
 		return NUM(res);
 	}),
 

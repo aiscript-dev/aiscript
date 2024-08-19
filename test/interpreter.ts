@@ -101,11 +101,11 @@ describe('error location', () => {
 	});
 
 	test.concurrent('Error in passed function', async () => {
-		return expect(exeAndGetErrPos(`// /の位置
-			[0, 1, 2].map(@(v){
-				0/v
+		return expect(exeAndGetErrPos(`// (の位置
+			[1, 2, 3].map(@(v){
+				if v==1 Core:abort("error")
 			})
-		`)).resolves.toEqual({ line: 3, column: 6});
+		`)).resolves.toEqual({ line: 3, column: 23});
 	});
 
 	test.concurrent('No such prop', async () => {
