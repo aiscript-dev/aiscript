@@ -1,0 +1,4 @@
+- 関数`Math:gen_rng`に第二引数`algorithm`をオプション引数として追加。
+  - アルゴリズムを`chacha20`、`rc4`、`rc4_legacy`から選べるようになりました。
+  - **Breaking Change** `algorithm`を指定しない場合、`chacha20`が選択されます。
+- Fix: **Breaking Change** `Math:rnd`が範囲外の値を返す可能性があるのをアルゴリズムの変更により修正。

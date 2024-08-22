@@ -11,11 +11,18 @@ import { NULL, RETURN, unWrapRet, FN_NATIVE, BOOL, NUM, STR, ARR, DIC, OBJ, FN, 
 import { getPrimProp } from './primitive-props.js';
 import { Variable } from './variable.js';
 import { DicNode } from './dic.js';
+import type { JsValue } from './util.js';
 import type { Value, VFn } from './value.js';
 import type * as Ast from '../node.js';
 
 const IRQ_RATE = 300;
 const IRQ_AT = IRQ_RATE - 1;
+
+export type LogObject = {
+	scope?: string;
+	var?: string;
+	val?: Value | Variable;
+};
 
 export class Interpreter {
 	public stepCount = 0;
@@ -30,7 +37,7 @@ export class Interpreter {
 			in?(q: string): Promise<string>;
 			out?(value: Value): void;
 			err?(e: AiScriptError): void;
-			log?(type: string, params: Record<string, any>): void;
+			log?(type: string, params: LogObject): void;
 			maxStep?: number;
 			abortOnError?: boolean;
 		} = {},
@@ -106,18 +113,17 @@ export class Interpreter {
 	}
 
 	@autobind
-	public static collectMetadata(script?: Ast.Node[]): Map<any, any> | undefined {
+	public static collectMetadata(script?: Ast.Node[]): Map<string, JsValue> | undefined {
 		if (script == null || script.length === 0) return;
 
-		function nodeToJs(node: Ast.Node): any {
+		function nodeToJs(node: Ast.Node): JsValue {
 			switch (node.type) {
 				case 'arr': return node.value.map(item => nodeToJs(item));
-				case 'dic': return new DicNode(node.value.map(([key, val]) => [nodeToJs(key), nodeToJs(val)]));
 				case 'bool': return node.value;
 				case 'null': return null;
 				case 'num': return node.value;
 				case 'obj': {
-					const obj: { [keys: string]: object | string | number | boolean | null | undefined } = {};
+					const obj: { [keys: string]: JsValue } = {};
 					for (const [k, v] of node.value.entries()) {
 						// TODO: keyが__proto__とかじゃないかチェック
 						obj[k] = nodeToJs(v);
@@ -163,7 +169,7 @@ export class Interpreter {
 	}
 
 	@autobind
-	private log(type: string, params: Record<string, unknown>): void {
+	private log(type: string, params: LogObject): void {
 		if (this.opts.log) this.opts.log(type, params);
 	}
 
@@ -555,6 +561,102 @@ export class Interpreter {
 
 			case 'meta': {
 				return NULL; // nop
+			}
+
+			case 'pow': {
+				const callee = scope.get('Core:pow');
+				assertFunction(callee);
+				const left = await this._eval(node.left, scope);
+				const right = await this._eval(node.right, scope);
+				return this._fn(callee, [left, right]);
+			}
+
+			case 'mul': {
+				const callee = scope.get('Core:mul');
+				assertFunction(callee);
+				const left = await this._eval(node.left, scope);
+				const right = await this._eval(node.right, scope);
+				return this._fn(callee, [left, right]);
+			}
+
+			case 'div': {
+				const callee = scope.get('Core:div');
+				assertFunction(callee);
+				const left = await this._eval(node.left, scope);
+				const right = await this._eval(node.right, scope);
+				return this._fn(callee, [left, right]);
+			}
+
+			case 'rem': {
+				const callee = scope.get('Core:mod');
+				assertFunction(callee);
+				const left = await this._eval(node.left, scope);
+				const right = await this._eval(node.right, scope);
+				return this._fn(callee, [left, right]);
+			}
+
+			case 'add': {
+				const callee = scope.get('Core:add');
+				assertFunction(callee);
+				const left = await this._eval(node.left, scope);
+				const right = await this._eval(node.right, scope);
+				return this._fn(callee, [left, right]);
+			}
+
+			case 'sub': {
+				const callee = scope.get('Core:sub');
+				assertFunction(callee);
+				const left = await this._eval(node.left, scope);
+				const right = await this._eval(node.right, scope);
+				return this._fn(callee, [left, right]);
+			}
+
+			case 'lt': {
+				const callee = scope.get('Core:lt');
+				assertFunction(callee);
+				const left = await this._eval(node.left, scope);
+				const right = await this._eval(node.right, scope);
+				return this._fn(callee, [left, right]);
+			}
+
+			case 'lteq': {
+				const callee = scope.get('Core:lteq');
+				assertFunction(callee);
+				const left = await this._eval(node.left, scope);
+				const right = await this._eval(node.right, scope);
+				return this._fn(callee, [left, right]);
+			}
+
+			case 'gt': {
+				const callee = scope.get('Core:gt');
+				assertFunction(callee);
+				const left = await this._eval(node.left, scope);
+				const right = await this._eval(node.right, scope);
+				return this._fn(callee, [left, right]);
+			}
+
+			case 'gteq': {
+				const callee = scope.get('Core:gteq');
+				assertFunction(callee);
+				const left = await this._eval(node.left, scope);
+				const right = await this._eval(node.right, scope);
+				return this._fn(callee, [left, right]);
+			}
+
+			case 'eq': {
+				const callee = scope.get('Core:eq');
+				assertFunction(callee);
+				const left = await this._eval(node.left, scope);
+				const right = await this._eval(node.right, scope);
+				return this._fn(callee, [left, right]);
+			}
+
+			case 'neq': {
+				const callee = scope.get('Core:neq');
+				assertFunction(callee);
+				const left = await this._eval(node.left, scope);
+				const right = await this._eval(node.right, scope);
+				return this._fn(callee, [left, right]);
 			}
 
 			case 'and': {

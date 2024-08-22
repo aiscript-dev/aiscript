@@ -78,7 +78,7 @@ describe('Scanner', () => {
 		return stream;
 	}
 	function next(stream: Scanner, kind: TokenKind, pos: TokenPosition, opts: { hasLeftSpacing?: boolean, value?: string }) {
-		assert.deepStrictEqual(stream.token, TOKEN(kind, pos, opts));
+		assert.deepStrictEqual(stream.getToken(), TOKEN(kind, pos, opts));
 		stream.next();
 	}
 

@@ -1,11 +1,12 @@
 /* eslint-disable no-empty-pattern */
 import { v4 as uuid } from 'uuid';
-import seedrandom from 'seedrandom';
 import { NUM, STR, FN_NATIVE, FALSE, TRUE, ARR, NULL, BOOL, OBJ, ERROR } from '../value.js';
 import { assertNumber, assertString, assertBoolean, valToJs, jsToVal, assertFunction, assertObject, eq, expectAny, assertArray, reprValue } from '../util.js';
 import { AiScriptRuntimeError, AiScriptUserError } from '../../error.js';
 import { AISCRIPT_VERSION } from '../../constants.js';
 import { textDecoder } from '../../const.js';
+import { CryptoGen } from '../../utils/random/CryptoGen.js';
+import { GenerateChaCha20Random, GenerateLegacyRandom, GenerateRC4Random } from '../../utils/random/genrng.js';
 import type { Value } from '../value.js';
 
 export const std: Record<string, Value> = {
@@ -69,7 +70,6 @@ export const std: Record<string, Value> = {
 		assertNumber(a);
 		assertNumber(b);
 		const res = a.value ** b.value;
-		if (isNaN(res)) throw new AiScriptRuntimeError('Invalid operation.'); // ex. √-1
 		return NUM(res);
 	}),
 
@@ -77,7 +77,6 @@ export const std: Record<string, Value> = {
 		assertNumber(a);
 		assertNumber(b);
 		const res = a.value / b.value;
-		if (isNaN(res)) throw new AiScriptRuntimeError('Invalid operation.');
 		return NUM(res);
 	}),
 
@@ -218,7 +217,9 @@ export const std: Record<string, Value> = {
 
 	'Date:parse': FN_NATIVE(([v]) => {
 		assertString(v);
-		return NUM(new Date(v.value).getTime());
+		const res = new Date(v.value).getTime();
+		// NaN doesn't equal to itself
+		return (res === res) ? NUM(res) : ERROR('not_date');
 	}),
 
 	'Date:to_iso_str': FN_NATIVE(([v, ofs]) => {
@@ -227,7 +228,7 @@ export const std: Record<string, Value> = {
 
 		if (ofs) { assertNumber(ofs); }
 		const offset = ofs?.value ?? -date.getTimezoneOffset();
-		let offset_s;
+		let offset_s: string;
 		if (offset === 0) {
 			offset_s = 'Z';
 		} else {
@@ -430,7 +431,6 @@ export const std: Record<string, Value> = {
 	'Math:sqrt': FN_NATIVE(([v]) => {
 		assertNumber(v);
 		const res = Math.sqrt(v.value);
-		if (isNaN(res)) throw new AiScriptRuntimeError('Invalid operation.');
 		return NUM(res);
 	}),
 
@@ -451,23 +451,34 @@ export const std: Record<string, Value> = {
 
 	'Math:rnd': FN_NATIVE(([min, max]) => {
 		if (min && min.type === 'num' && max && max.type === 'num') {
-			return NUM(Math.floor(Math.random() * (Math.floor(max.value) - Math.ceil(min.value) + 1) + Math.ceil(min.value)));
+			const res = CryptoGen.instance.generateRandomIntegerInRange(min.value, max.value);
+			return res === null ? NULL : NUM(res);
 		}
-		return NUM(Math.random());
+		return NUM(CryptoGen.instance.generateNumber0To1());
 	}),
 
-	'Math:gen_rng': FN_NATIVE(([seed]) => {
+	'Math:gen_rng': FN_NATIVE(async ([seed, options]) => {
 		expectAny(seed);
-		if (seed.type !== 'num' && seed.type !== 'str') return NULL;
-
-		const rng = seedrandom(seed.value.toString());
-
-		return FN_NATIVE(([min, max]) => {
-			if (min && min.type === 'num' && max && max.type === 'num') {
-				return NUM(Math.floor(rng() * (Math.floor(max.value) - Math.ceil(min.value) + 1) + Math.ceil(min.value)));
-			}
-			return NUM(rng());
-		});
+		let algo = 'chacha20';
+		if (options?.type === 'obj') {
+			const v = options.value.get('algorithm');
+			if (v?.type !== 'str') throw new AiScriptRuntimeError('`options.algorithm` must be string.');
+			algo = v.value;
+		}
+		else if (options?.type !== undefined) {
+			throw new AiScriptRuntimeError('`options` must be an object if specified.');
+		}
+		if (seed.type !== 'num' && seed.type !== 'str' && seed.type !== 'null') throw new AiScriptRuntimeError('`seed` must be either number or string if specified.');
+		switch (algo) {
+			case 'rc4_legacy':
+				return GenerateLegacyRandom(seed);
+			case 'rc4':
+				return GenerateRC4Random(seed);
+			case 'chacha20':
+				return await GenerateChaCha20Random(seed);
+			default:
+				throw new AiScriptRuntimeError('`options.algorithm` must be one of these: `chacha20`, `rc4`, or `rc4_legacy`.');
+		}
 	}),
 	//#endregion
 

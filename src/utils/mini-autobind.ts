@@ -1,4 +1,4 @@
-export function autobind<T extends (...args: any[]) => any>(target: object, key: string | symbol, descriptor: TypedPropertyDescriptor<T>): void | TypedPropertyDescriptor<T> {
+export function autobind<T extends (...args: never[]) => unknown>(target: object, key: string | symbol, descriptor: TypedPropertyDescriptor<T>): TypedPropertyDescriptor<T> {
 	let fn = descriptor.value!;
 
 	return {

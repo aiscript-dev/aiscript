@@ -39,7 +39,7 @@ const interpreter = new Interpreter({}, {
 	}
 });
 
-const script = fs.readFileSync('./test.is', 'utf8');
+const script = fs.readFileSync('./main.ais', 'utf8');
 try {
 	const ast = Parser.parse(script);
 	await interpreter.exec(ast);

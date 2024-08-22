@@ -638,16 +638,11 @@ describe('chain', () => {
 	});
 });
 
-test.concurrent('Throws error when divided by zero', async () => {
-	try {
-		await exe(`
+test.concurrent('Does not throw error when divided by zero', async () => {
+	const res = await exe(`
 		<: (0 / 0)
-		`);
-	} catch (e) {
-		assert.ok(true);
-		return;
-	}
-	assert.fail();
+	`);
+	eq(res, NUM(NaN));
 });
 
 describe('Function call', () => {

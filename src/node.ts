@@ -135,6 +135,18 @@ export type Expression =
 	Arr |
 	Dic |
 	Not |
+	Pow |
+	Mul |
+	Div |
+	Rem |
+	Add |
+	Sub |
+	Lt |
+	Lteq |
+	Gt |
+	Gteq |
+	Eq |
+	Neq |
 	And |
 	Or |
 	Identifier |
@@ -143,7 +155,9 @@ export type Expression =
 	Prop;
 
 const expressionTypes = [
-	'if', 'fn', 'match', 'block', 'exists', 'tmpl', 'str', 'num', 'bool', 'null', 'obj', 'arr', 'dic', 'not', 'and', 'or', 'identifier', 'call', 'index', 'prop',
+	'if', 'fn', 'match', 'block', 'exists', 'tmpl', 'str', 'num', 'bool', 'null', 'obj', 'arr', 'dic',
+	'not', 'pow', 'mul', 'div', 'rem', 'add', 'sub', 'lt', 'lteq', 'gt', 'gteq', 'eq', 'neq', 'and', 'or',
+	'identifier', 'call', 'index', 'prop',
 ];
 export function isExpression(x: Node): x is Expression {
 	return expressionTypes.includes(x.type);
@@ -154,18 +168,88 @@ export type Not = NodeBase & {
 	expr: Expression; // 式
 };
 
+export type Pow = NodeBase & {
+	type: 'pow';
+	left: Expression;
+	right: Expression;
+}
+
+export type Mul = NodeBase & {
+	type: 'mul';
+	left: Expression;
+	right: Expression;
+}
+
+export type Div = NodeBase & {
+	type: 'div';
+	left: Expression;
+	right: Expression;
+}
+
+export type Rem = NodeBase & {
+	type: 'rem';
+	left: Expression;
+	right: Expression;
+}
+
+export type Add = NodeBase & {
+	type: 'add';
+	left: Expression;
+	right: Expression;
+}
+
+export type Sub = NodeBase & {
+	type: 'sub';
+	left: Expression;
+	right: Expression;
+}
+
+export type Lt = NodeBase & {
+	type: 'lt';
+	left: Expression;
+	right: Expression;
+}
+
+export type Lteq = NodeBase & {
+	type: 'lteq';
+	left: Expression;
+	right: Expression;
+}
+
+export type Gt = NodeBase & {
+	type: 'gt';
+	left: Expression;
+	right: Expression;
+}
+
+export type Gteq = NodeBase & {
+	type: 'gteq';
+	left: Expression;
+	right: Expression;
+}
+
+export type Eq = NodeBase & {
+	type: 'eq';
+	left: Expression;
+	right: Expression;
+}
+
+export type Neq = NodeBase & {
+	type: 'neq';
+	left: Expression;
+	right: Expression;
+}
+
 export type And = NodeBase & {
 	type: 'and';
 	left: Expression;
 	right: Expression;
-	operatorLoc: Loc;
 }
 
 export type Or = NodeBase & {
 	type: 'or';
 	left: Expression;
 	right: Expression;
-	operatorLoc: Loc;
 }
 
 export type If = NodeBase & {
@@ -213,7 +297,7 @@ export type Exists = NodeBase & {
 
 export type Tmpl = NodeBase & {
 	type: 'tmpl'; // テンプレート
-	tmpl: (string | Expression)[]; // 処理
+	tmpl: Expression[]; // 処理
 };
 
 export type Str = NodeBase & {
