@@ -447,8 +447,8 @@ export class Interpreter {
 
 			case 'obj': {
 				const obj = new Map<string, Value>();
-				for (const k of node.value.keys()) {
-					obj.set(k, await this._eval(node.value.get(k)!, scope));
+				for (const [key, value] of node.value) {
+					obj.set(key, await this._eval(value, scope));
 				}
 				return OBJ(obj);
 			}
