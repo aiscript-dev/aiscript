@@ -112,7 +112,7 @@ export class Interpreter {
 	}
 
 	@autobind
-	public static collectMetadata(script?: Ast.Node[]): Map<string, JsValue> | undefined {
+	public static collectMetadata(script?: Ast.Node[]): Map<string | null, JsValue> | undefined {
 		if (script == null || script.length === 0) return;
 
 		function nodeToJs(node: Ast.Node): JsValue {
@@ -134,7 +134,7 @@ export class Interpreter {
 			}
 		}
 
-		const meta = new Map();
+		const meta = new Map<string | null, JsValue>();
 
 		for (const node of script) {
 			switch (node.type) {
