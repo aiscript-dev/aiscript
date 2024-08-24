@@ -446,7 +446,7 @@ export class Interpreter {
 			case 'arr': return ARR(await Promise.all(node.value.map(item => this._eval(item, scope))));
 
 			case 'obj': {
-				const obj = new Map() as Map<string, Value>;
+				const obj = new Map<string, Value>();
 				for (const k of node.value.keys()) {
 					obj.set(k, await this._eval(node.value.get(k)!, scope));
 				}
