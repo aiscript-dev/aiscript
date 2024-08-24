@@ -123,7 +123,7 @@ function parseVarDef(s: ITokenStream): Ast.Definition {
 	s.next();
 
 	let dest: Ast.Expression;
-	// 全部parseExprに任せるとparseReferenceが型宣言を巻き込んでしまうためIdentifierのみ個別に処理。
+	// 全部parseExprに任せるとparseReferenceが型注釈を巻き込んでしまうためIdentifierのみ個別に処理。
 	if (s.is(TokenKind.Identifier)) {
 		const nameStartPos = s.getPos();
 		const name = s.getTokenValue();
