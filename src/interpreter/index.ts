@@ -197,15 +197,15 @@ export class Interpreter {
 		for (const node of ns.members) {
 			switch (node.type) {
 				case 'def': {
+					if (node.dest.type !== 'identifier') {
+						throw new AiScriptNamespaceError('Destructuring assignment is invalid in namespace declarations.', node.loc.start);
+					}
 					if (node.mut) {
-						throw new AiScriptNamespaceError('No "var" in namespace declaration: ' + node.name, node.loc.start);
+						throw new AiScriptNamespaceError('No "var" in namespace declaration: ' + node.dest.name, node.loc.start);
 					}
 
-					const variable: Variable = {
-						isMutable: node.mut,
-						value: await this._eval(node.expr, nsScope),
-					};
-					nsScope.add(node.name, variable);
+					const value = await this._eval(node.expr, nsScope);
+					this.define(nsScope, node.dest, value, node.mut);
 
 					break;
 				}
@@ -396,10 +396,7 @@ export class Interpreter {
 					}
 					value.attr = attrs;
 				}
-				scope.add(node.name, {
-					isMutable: node.mut,
-					value: value,
-				});
+				this.define(scope, node.dest, value, node.mut);
 				return NULL;
 			}
 
@@ -724,6 +721,33 @@ export class Interpreter {
 			handler();
 		}
 		this.abortHandlers = [];
+	}
+
+	@autobind
+	private async define(scope: Scope, dest: Ast.Expression, value: Value, isMutable: boolean): Promise<void> {
+		switch (dest.type) {
+			case 'identifier': {
+				scope.add(dest.name, { isMutable, value });
+				break;
+			}
+			case 'arr': {
+				assertArray(value);
+				await Promise.all(dest.value.map(
+					(item, index) => this.define(scope, item, value.value[index] ?? NULL, isMutable),
+				));
+				break;
+			}
+			case 'obj': {
+				assertObject(value);
+				await Promise.all([...dest.value].map(
+					([key, item]) => this.define(scope, item, value.value.get(key) ?? NULL, isMutable),
+				));
+				break;
+			}
+			default: {
+				throw new AiScriptRuntimeError('The left-hand side of an definition expression must be a variable.');
+			}
+		}
 	}
 
 	@autobind

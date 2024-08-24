@@ -123,8 +123,10 @@ function parseVarDef(s: ITokenStream): Ast.Definition {
 	s.next();
 
 	s.expect(TokenKind.Identifier);
+	const nameStartPos = s.getPos();
 	const name = s.getTokenValue();
 	s.next();
+	const dest = NODE('identifier', { name }, nameStartPos, s.getPos());
 
 	let type: Ast.TypeSource | undefined;
 	if (s.is(TokenKind.Colon)) {
@@ -141,7 +143,7 @@ function parseVarDef(s: ITokenStream): Ast.Definition {
 
 	const expr = parseExpr(s, false);
 
-	return NODE('def', { name, varType: type, expr, mut, attr: [] }, startPos, s.getPos());
+	return NODE('def', { dest, varType: type, expr, mut, attr: [] }, startPos, s.getPos());
 }
 
 /**
@@ -156,8 +158,10 @@ function parseFnDef(s: ITokenStream): Ast.Definition {
 	s.next();
 
 	s.expect(TokenKind.Identifier);
+	const nameStartPos = s.getPos();
 	const name = s.getTokenValue();
 	s.next();
+	const dest = NODE('identifier', { name }, nameStartPos, s.getPos());
 
 	const params = parseParams(s);
 
@@ -172,7 +176,7 @@ function parseFnDef(s: ITokenStream): Ast.Definition {
 	const endPos = s.getPos();
 
 	return NODE('def', {
-		name,
+		dest,
 		expr: NODE('fn', {
 			args: params,
 			retType: type,
