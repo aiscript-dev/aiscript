@@ -752,40 +752,52 @@ export class Interpreter {
 
 	@autobind
 	private async assign(scope: Scope, dest: Ast.Expression, value: Value): Promise<void> {
-		if (dest.type === 'identifier') {
-			scope.assign(dest.name, value);
-		} else if (dest.type === 'index') {
-			const assignee = await this._eval(dest.target, scope);
-			const i = await this._eval(dest.index, scope);
-			if (isArray(assignee)) {
-				assertNumber(i);
-				if (assignee.value[i.value] === undefined) {
-					throw new AiScriptIndexOutOfRangeError(`Index out of range. index: ${i.value} max: ${assignee.value.length - 1}`);
-				}
-				assignee.value[i.value] = value;
-			} else if (isObject(assignee)) {
-				assertString(i);
-				assignee.value.set(i.value, value);
-			} else {
-				throw new AiScriptRuntimeError(`Cannot read prop (${reprValue(i)}) of ${assignee.type}.`);
+		switch (dest.type) {
+			case 'identifier': {
+				scope.assign(dest.name, value);
+				break;
 			}
-		} else if (dest.type === 'prop') {
-			const assignee = await this._eval(dest.target, scope);
-			assertObject(assignee);
+			case 'index': {
+				const assignee = await this._eval(dest.target, scope);
+				const i = await this._eval(dest.index, scope);
+				if (isArray(assignee)) {
+					assertNumber(i);
+					if (assignee.value[i.value] === undefined) {
+						throw new AiScriptIndexOutOfRangeError(`Index out of range. index: ${i.value} max: ${assignee.value.length - 1}`);
+					}
+					assignee.value[i.value] = value;
+				} else if (isObject(assignee)) {
+					assertString(i);
+					assignee.value.set(i.value, value);
+				} else {
+					throw new AiScriptRuntimeError(`Cannot read prop (${reprValue(i)}) of ${assignee.type}.`);
+				}
+				break;
+			}
+			case 'prop': {
+				const assignee = await this._eval(dest.target, scope);
+				assertObject(assignee);
 
-			assignee.value.set(dest.name, value);
-		} else if (dest.type === 'arr') {
-			assertArray(value);
-			await Promise.all(dest.value.map(
-				(item, index) => this.assign(scope, item, value.value[index] ?? NULL)
-			));
-		} else if (dest.type === 'obj') {
-			assertObject(value);
-			await Promise.all([...dest.value].map(
-				([key, item]) => this.assign(scope, item, value.value.get(key) ?? NULL)
-			));
-		} else {
-			throw new AiScriptRuntimeError('The left-hand side of an assignment expression must be a variable or a property/index access.');
+				assignee.value.set(dest.name, value);
+				break;
+			}
+			case 'arr': {
+				assertArray(value);
+				await Promise.all(dest.value.map(
+					(item, index) => this.assign(scope, item, value.value[index] ?? NULL),
+				));
+				break;
+			}
+			case 'obj': {
+				assertObject(value);
+				await Promise.all([...dest.value].map(
+					([key, item]) => this.assign(scope, item, value.value.get(key) ?? NULL),
+				));
+				break;
+			}
+			default: {
+				throw new AiScriptRuntimeError('The left-hand side of an assignment expression must be a variable or a property/index access.');
+			}
 		}
 	}
 }
