@@ -122,11 +122,16 @@ function parseVarDef(s: ITokenStream): Ast.Definition {
 	}
 	s.next();
 
-	s.expect(TokenKind.Identifier);
-	const nameStartPos = s.getPos();
-	const name = s.getTokenValue();
-	s.next();
-	const dest = NODE('identifier', { name }, nameStartPos, s.getPos());
+	let dest: Ast.Expression;
+	// 全部parseExprに任せるとparseReferenceが型宣言を巻き込んでしまうためIdentifierのみ個別に処理。
+	if (s.is(TokenKind.Identifier)) {
+		const nameStartPos = s.getPos();
+		const name = s.getTokenValue();
+		s.next();
+		dest = NODE('identifier', { name }, nameStartPos, s.getPos());
+	} else {
+		dest = parseExpr(s, false);
+	}
 
 	let type: Ast.TypeSource | undefined;
 	if (s.is(TokenKind.Colon)) {
