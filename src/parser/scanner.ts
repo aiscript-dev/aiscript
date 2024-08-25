@@ -144,6 +144,8 @@ export class Scanner implements ITokenStream {
 						if (!this.stream.eof && (this.stream.char as string) === '#') {
 							this.stream.next();
 							return TOKEN(TokenKind.Sharp3, pos, { hasLeftSpacing });
+						} else {
+							throw new AiScriptSyntaxError('invalid sequence of characters: "##"', pos);
 						}
 					} else if (!this.stream.eof && (this.stream.char as string) === '[') {
 						this.stream.next();
@@ -161,6 +163,8 @@ export class Scanner implements ITokenStream {
 					if (!this.stream.eof && (this.stream.char as string) === '&') {
 						this.stream.next();
 						return TOKEN(TokenKind.And2, pos, { hasLeftSpacing });
+					} else {
+						throw new AiScriptSyntaxError('invalid character: "&"', pos);
 					}
 				}
 				case '(': {
@@ -297,6 +301,8 @@ export class Scanner implements ITokenStream {
 					if (!this.stream.eof && (this.stream.char as string) === '|') {
 						this.stream.next();
 						return TOKEN(TokenKind.Or2, pos, { hasLeftSpacing });
+					} else {
+						throw new AiScriptSyntaxError('invalid character: "&"', pos);
 					}
 				}
 				case '}': {
