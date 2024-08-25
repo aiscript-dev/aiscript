@@ -9,8 +9,8 @@ Also, when you start implementation, please assign yourself to the issue in ques
 By indicating that you are going to implement it, you can avoid conflicts.
 
 ## Tools
-### Jest
-In this project, we have introduced [Jest](https://jestjs.io/) as a testing framework.
+### Vitest
+In this project, we have introduced [Vitest](https://vitest.dev) as a testing framework.
 Tests are placed in the [`/test` directory](./test).
 
 Testing is done automatically by CI for each commit/each PR.
