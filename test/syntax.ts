@@ -1021,6 +1021,20 @@ describe('namespace', () => {
 		assert.fail();
 	});
 
+	test.concurrent('cannot destructuring declaration', async () => {
+		try {
+			await exe(`
+			:: Foo {
+				let [a, b] = [1, 2]
+			}
+			`);
+		} catch {
+			assert.ok(true);
+			return;
+		}
+		assert.fail();
+	});
+
 	test.concurrent('nested', async () => {
 		const res = await exe(`
 		<: Foo:Bar:baz()
