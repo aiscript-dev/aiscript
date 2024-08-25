@@ -27,7 +27,6 @@
 		"api": "npx api-extractor run --local --verbose",
 		"api-prod": "npx api-extractor run --verbose",
 		"lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-		"tsd": "tsd",
 		"test": "vitest run",
 		"pre-release": "node scripts/pre-release.mjs && npm run build",
 		"prepublishOnly": "node scripts/check-release.mjs"
@@ -45,7 +44,6 @@
 		"eslint-plugin-import": "2.29.1",
 		"semver": "7.6.3",
 		"ts-node": "10.9.2",
-		"tsd": "0.31.1",
 		"typescript": "5.5.4",
 		"vitest": "2.0.5"
 	},

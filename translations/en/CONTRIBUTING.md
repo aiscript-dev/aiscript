@@ -16,14 +16,6 @@ Tests are placed in the [`/test` directory](./test).
 Testing is done automatically by CI for each commit/each PR.
 To run the test in your local environment, run `npm run test`.
 
-### tsd
-In this project, we have introduced [tsd](https://github.com/SamVerschueren/tsd) to test the types.
-By using tsd, we can ensure that the type is what we intended it to be.
-Type tests with tsd are placed in the [`/test-d` directory](./test-d).
-
-Testing is done automatically by CI for each commit/each PR.
-To run the test in your local environment, run `npm run test`.
-
 ### API Extractor
 In this project, we have introduced [API Extractor](https://api-extractor.com/), which is responsible for generating API reports.
 The API report is a snapshot of the API, so to speak, and contains the definitions of the various functions and types that the library exposes (exports) to the outside world. When you run the `npm run api` command, the current report will be generated in the [`/etc` directory](./etc).
