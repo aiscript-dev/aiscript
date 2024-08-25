@@ -422,19 +422,18 @@ describe('Date', () => {
 	});
 
 	test.concurrent('parse', async () => {
-			eq(await exe(`<: [
-				'01 Jan 1970 00:00:00 GMT'
-				'1970-01-01'
-				'1970-01-01T00:00:00.000Z'
-				'1970-01-01T00:00:00.000+00:00'
-				'hoge'
-			].map(Date:parse)`), ARR([
-				NUM(0),
-				NUM(0),
-				NUM(0),
-				NUM(0),
-				ERROR('not_date')
-			]));
-		});
+		eq(await exe(`<: [
+			'01 Jan 1970 00:00:00 GMT'
+			'1970-01-01'
+			'1970-01-01T00:00:00.000Z'
+			'1970-01-01T00:00:00.000+00:00'
+			'hoge'
+		].map(Date:parse)`), ARR([
+			NUM(0),
+			NUM(0),
+			NUM(0),
+			NUM(0),
+			ERROR('not_date')
+		]));
 	});
 });
