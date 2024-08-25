@@ -9,3 +9,4 @@ node_modules
 /playground
 /test
 parser.js
+/vitest.config.ts
