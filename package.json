@@ -29,7 +29,7 @@
 		"lint": "eslint . --ext .js,.jsx,.ts,.tsx",
 		"jest": "jest --coverage --detectOpenHandles",
 		"tsd": "tsd",
-		"test": "npm run jest",
+		"test": "vitest run",
 		"pre-release": "node scripts/pre-release.mjs && npm run build",
 		"prepublishOnly": "node scripts/check-release.mjs"
 	},
