@@ -4,7 +4,7 @@
  */
 
 import * as assert from 'assert';
-import { test } from '@jest/globals';
+import { describe, test } from 'vitest';
 import { Parser, Interpreter, Ast } from '../src';
 import { NUM, STR, NULL, ARR, OBJ, BOOL, TRUE, FALSE, ERROR ,FN_NATIVE } from '../src/interpreter/value';
 import { AiScriptSyntaxError, AiScriptRuntimeError, AiScriptIndexOutOfRangeError } from '../src/error';

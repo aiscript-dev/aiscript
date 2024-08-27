@@ -1,4 +1,4 @@
-import { expect, test } from '@jest/globals';
+import { describe, expect, test } from 'vitest';
 import { NUM, STR, NULL, ARR, OBJ, BOOL, TRUE, FALSE, ERROR ,FN_NATIVE } from '../src/interpreter/value';
 import { exe, eq } from './testutils';
 
