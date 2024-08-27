@@ -122,7 +122,8 @@ export class Scanner implements ITokenStream {
 				return TOKEN(TokenKind.NewLine, pos, { hasLeftSpacing });
 			}
 
-			// Fallthrough case in switchの禁止を利用し、全てのパターンが網羅されることを強制している
+			// noFallthroughCasesInSwitchを利用し、全ての場合分けがreturnかcontinueで適切に処理されることを強制している
+			// その都合上、break文の使用ないしこのswitch文の後に処理を書くことは極力避けてほしい
 			switch (this.stream.char) {
 				case '!': {
 					this.stream.next();
