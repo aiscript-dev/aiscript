@@ -112,7 +112,7 @@ export class Interpreter {
 	}
 
 	@autobind
-	public static collectMetadata(script?: Ast.Node[]): Map<string, JsValue> | undefined {
+	public static collectMetadata(script?: Ast.Node[]): Map<string | null, JsValue> | undefined {
 		if (script == null || script.length === 0) return;
 
 		function nodeToJs(node: Ast.Node): JsValue {
@@ -134,7 +134,7 @@ export class Interpreter {
 			}
 		}
 
-		const meta = new Map();
+		const meta = new Map<string | null, JsValue>();
 
 		for (const node of script) {
 			switch (node.type) {
@@ -443,9 +443,9 @@ export class Interpreter {
 			case 'arr': return ARR(await Promise.all(node.value.map(item => this._eval(item, scope))));
 
 			case 'obj': {
-				const obj = new Map() as Map<string, Value>;
-				for (const k of node.value.keys()) {
-					obj.set(k, await this._eval(node.value.get(k)!, scope));
+				const obj = new Map<string, Value>();
+				for (const [key, value] of node.value) {
+					obj.set(key, await this._eval(value, scope));
 				}
 				return OBJ(obj);
 			}
