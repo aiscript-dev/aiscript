@@ -237,7 +237,7 @@ type Continue = NodeBase & {
 // @public (undocumented)
 type Definition = NodeBase & {
     type: 'def';
-    name: string;
+    dest: Expression;
     varType?: TypeSource;
     expr: Expression;
     mut: boolean;

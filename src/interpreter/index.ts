@@ -197,15 +197,15 @@ export class Interpreter {
 		for (const node of ns.members) {
 			switch (node.type) {
 				case 'def': {
+					if (node.dest.type !== 'identifier') {
+						throw new AiScriptNamespaceError('Destructuring assignment is invalid in namespace declarations.', node.loc.start);
+					}
 					if (node.mut) {
-						throw new AiScriptNamespaceError('No "var" in namespace declaration: ' + node.name, node.loc.start);
+						throw new AiScriptNamespaceError('No "var" in namespace declaration: ' + node.dest.name, node.loc.start);
 					}
 
-					const variable: Variable = {
-						isMutable: node.mut,
-						value: await this._eval(node.expr, nsScope),
-					};
-					nsScope.add(node.name, variable);
+					const value = await this._eval(node.expr, nsScope);
+					this.define(nsScope, node.dest, value, node.mut);
 
 					break;
 				}
@@ -396,10 +396,7 @@ export class Interpreter {
 					}
 					value.attr = attrs;
 				}
-				scope.add(node.name, {
-					isMutable: node.mut,
-					value: value,
-				});
+				this.define(scope, node.dest, value, node.mut);
 				return NULL;
 			}
 
@@ -727,41 +724,80 @@ export class Interpreter {
 	}
 
 	@autobind
-	private async assign(scope: Scope, dest: Ast.Expression, value: Value): Promise<void> {
-		if (dest.type === 'identifier') {
-			scope.assign(dest.name, value);
-		} else if (dest.type === 'index') {
-			const assignee = await this._eval(dest.target, scope);
-			const i = await this._eval(dest.index, scope);
-			if (isArray(assignee)) {
-				assertNumber(i);
-				if (assignee.value[i.value] === undefined) {
-					throw new AiScriptIndexOutOfRangeError(`Index out of range. index: ${i.value} max: ${assignee.value.length - 1}`);
-				}
-				assignee.value[i.value] = value;
-			} else if (isObject(assignee)) {
-				assertString(i);
-				assignee.value.set(i.value, value);
-			} else {
-				throw new AiScriptRuntimeError(`Cannot read prop (${reprValue(i)}) of ${assignee.type}.`);
+	private async define(scope: Scope, dest: Ast.Expression, value: Value, isMutable: boolean): Promise<void> {
+		switch (dest.type) {
+			case 'identifier': {
+				scope.add(dest.name, { isMutable, value });
+				break;
 			}
-		} else if (dest.type === 'prop') {
-			const assignee = await this._eval(dest.target, scope);
-			assertObject(assignee);
+			case 'arr': {
+				assertArray(value);
+				await Promise.all(dest.value.map(
+					(item, index) => this.define(scope, item, value.value[index] ?? NULL, isMutable),
+				));
+				break;
+			}
+			case 'obj': {
+				assertObject(value);
+				await Promise.all([...dest.value].map(
+					([key, item]) => this.define(scope, item, value.value.get(key) ?? NULL, isMutable),
+				));
+				break;
+			}
+			default: {
+				throw new AiScriptRuntimeError('The left-hand side of an definition expression must be a variable.');
+			}
+		}
+	}
 
-			assignee.value.set(dest.name, value);
-		} else if (dest.type === 'arr') {
-			assertArray(value);
-			await Promise.all(dest.value.map(
-				(item, index) => this.assign(scope, item, value.value[index] ?? NULL)
-			));
-		} else if (dest.type === 'obj') {
-			assertObject(value);
-			await Promise.all([...dest.value].map(
-				([key, item]) => this.assign(scope, item, value.value.get(key) ?? NULL)
-			));
-		} else {
-			throw new AiScriptRuntimeError('The left-hand side of an assignment expression must be a variable or a property/index access.');
+	@autobind
+	private async assign(scope: Scope, dest: Ast.Expression, value: Value): Promise<void> {
+		switch (dest.type) {
+			case 'identifier': {
+				scope.assign(dest.name, value);
+				break;
+			}
+			case 'index': {
+				const assignee = await this._eval(dest.target, scope);
+				const i = await this._eval(dest.index, scope);
+				if (isArray(assignee)) {
+					assertNumber(i);
+					if (assignee.value[i.value] === undefined) {
+						throw new AiScriptIndexOutOfRangeError(`Index out of range. index: ${i.value} max: ${assignee.value.length - 1}`);
+					}
+					assignee.value[i.value] = value;
+				} else if (isObject(assignee)) {
+					assertString(i);
+					assignee.value.set(i.value, value);
+				} else {
+					throw new AiScriptRuntimeError(`Cannot read prop (${reprValue(i)}) of ${assignee.type}.`);
+				}
+				break;
+			}
+			case 'prop': {
+				const assignee = await this._eval(dest.target, scope);
+				assertObject(assignee);
+
+				assignee.value.set(dest.name, value);
+				break;
+			}
+			case 'arr': {
+				assertArray(value);
+				await Promise.all(dest.value.map(
+					(item, index) => this.assign(scope, item, value.value[index] ?? NULL),
+				));
+				break;
+			}
+			case 'obj': {
+				assertObject(value);
+				await Promise.all([...dest.value].map(
+					([key, item]) => this.assign(scope, item, value.value.get(key) ?? NULL),
+				));
+				break;
+			}
+			default: {
+				throw new AiScriptRuntimeError('The left-hand side of an assignment expression must be a variable or a property/index access.');
+			}
 		}
 	}
 }

@@ -58,8 +58,16 @@ function throwReservedWordError(name: string, loc: Ast.Loc): void {
 
 function validateNode(node: Ast.Node): Ast.Node {
 	switch (node.type) {
+		case 'def': {
+			visitNode(node, node => {
+				if (node.type === 'identifier' && reservedWord.includes(node.name)) {
+					throwReservedWordError(node.name, node.loc);
+				}
+				return node;
+			});
+			break;
+		}
 		case 'ns':
-		case 'def':
 		case 'attr':
 		case 'identifier':
 		case 'prop': {

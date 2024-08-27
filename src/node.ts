@@ -53,7 +53,7 @@ export function isStatement(x: Node): x is Statement {
 
 export type Definition = NodeBase & {
 	type: 'def'; // 変数宣言文
-	name: string; // 変数名
+	dest: Expression; // 宣言式
 	varType?: TypeSource; // 変数の型
 	expr: Expression; // 式
 	mut: boolean; // ミュータブルか否か
