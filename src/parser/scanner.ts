@@ -122,7 +122,7 @@ export class Scanner implements ITokenStream {
 				return TOKEN(TokenKind.NewLine, pos, { hasLeftSpacing });
 			}
 
-			// noFallthroughCasesInSwitchを利用し、全ての場合分けがreturnかcontinueで適切に処理されることを強制している
+			// noFallthroughCasesInSwitchと関数の返り値の型を利用し、全ての場合分けがreturnかcontinueで適切に処理されることを強制している
 			// その都合上、break文の使用ないしこのswitch文の後に処理を書くことは極力避けてほしい
 			switch (this.stream.char) {
 				case '!': {
@@ -320,9 +320,11 @@ export class Scanner implements ITokenStream {
 					throw new AiScriptSyntaxError(`invalid character: "${this.stream.char}"`, pos);
 				}
 			}
-			// should have been returned or continued before here
+			// use `return` or `continue` before reaching this line
+			// no more code should be added here, this line should be unreachable
 			break;
 		}
+		// no more code should be added here, this line should be unreachable
 	}
 
 	private tryReadWord(hasLeftSpacing: boolean): Token | undefined {
