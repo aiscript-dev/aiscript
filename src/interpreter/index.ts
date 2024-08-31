@@ -205,7 +205,7 @@ export class Interpreter {
 					}
 
 					const value = await this._eval(node.expr, nsScope);
-					this.define(nsScope, node.dest, value, node.mut);
+					await this.define(nsScope, node.dest, value, node.mut);
 
 					break;
 				}
@@ -396,7 +396,7 @@ export class Interpreter {
 					}
 					value.attr = attrs;
 				}
-				this.define(scope, node.dest, value, node.mut);
+				await this.define(scope, node.dest, value, node.mut);
 				return NULL;
 			}
 
