@@ -100,7 +100,7 @@ export function parseBlockOrStatement(s: ITokenStream): Ast.Statement | Ast.Expr
 
 /**
  * ```abnf
- * VarDef = ("let" / "var") IDENT [":" Type] "=" Expr
+ * VarDef = ("let" / "var") (IDENT / Expr) [":" Type] "=" Expr
  * ```
 */
 function parseVarDef(s: ITokenStream): Ast.Definition {
@@ -123,7 +123,7 @@ function parseVarDef(s: ITokenStream): Ast.Definition {
 	s.next();
 
 	let dest: Ast.Expression;
-	// 全部parseExprに任せるとparseReferenceが型注釈を巻き込んでしまうためIdentifierのみ個別に処理。
+	// 全部parseExprに任せるとparseReferenceが型注釈を巻き込んでパースしてしまうためIdentifierのみ個別に処理。
 	if (s.is(TokenKind.Identifier)) {
 		const nameStartPos = s.getPos();
 		const name = s.getTokenValue();
