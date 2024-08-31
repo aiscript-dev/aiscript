@@ -729,6 +729,15 @@ describe('each', () => {
 		eq(res, ARR([STR('ai!'), STR('chan!'), STR('kawaii!')]));
 	});
 
+	test.concurrent('destructuring declaration', async () => {
+		const res = await exe(`
+			each let { value: a }, [{ value: 1 }] {
+				<: a
+			}
+		`);
+		eq(res, NUM(1));
+	});
+
 	test.concurrent('Break', async () => {
 		const res = await exe(`
 		let msgs = []

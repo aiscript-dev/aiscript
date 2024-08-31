@@ -209,8 +209,8 @@ function parseOut(s: ITokenStream): Ast.Call {
 
 /**
  * ```abnf
- * Each = "each" "(" "let" IDENT "," Expr ")" BlockOrStatement
- *      / "each"     "let" IDENT "," Expr     BlockOrStatement
+ * Each = "each" "(" "let" Expr "," Expr ")" BlockOrStatement
+ *      / "each"     "let" Expr "," Expr     BlockOrStatement
  * ```
 */
 function parseEach(s: ITokenStream): Ast.Each {
@@ -228,9 +228,7 @@ function parseEach(s: ITokenStream): Ast.Each {
 	s.expect(TokenKind.LetKeyword);
 	s.next();
 
-	s.expect(TokenKind.Identifier);
-	const name = s.getTokenValue();
-	s.next();
+	const dest = parseExpr(s, false);
 
 	if (s.is(TokenKind.Comma)) {
 		s.next();
@@ -248,7 +246,7 @@ function parseEach(s: ITokenStream): Ast.Each {
 	const body = parseBlockOrStatement(s);
 
 	return NODE('each', {
-		var: name,
+		var: dest,
 		items: items,
 		for: body,
 	}, startPos, s.getPos());

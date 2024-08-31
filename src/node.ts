@@ -73,7 +73,7 @@ export type Return = NodeBase & {
 
 export type Each = NodeBase & {
 	type: 'each'; // each文
-	var: string; // イテレータ変数名
+	var: Expression; // イテレータ宣言
 	items: Expression; // 配列
 	for: Statement | Expression; // 本体処理
 };

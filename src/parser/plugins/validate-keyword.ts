@@ -101,9 +101,7 @@ function validateNode(node: Ast.Node): Ast.Node {
 			break;
 		}
 		case 'each': {
-			if (reservedWord.includes(node.var)) {
-				throwReservedWordError(node.var, node.loc);
-			}
+			validateDest(node.var);
 			break;
 		}
 		case 'for': {

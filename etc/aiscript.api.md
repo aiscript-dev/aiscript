@@ -254,7 +254,7 @@ type Div = NodeBase & {
 // @public (undocumented)
 type Each = NodeBase & {
     type: 'each';
-    var: string;
+    var: Expression;
     items: Expression;
     for: Statement | Expression;
 };

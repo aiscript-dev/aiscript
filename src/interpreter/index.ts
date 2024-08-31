@@ -369,12 +369,9 @@ export class Interpreter {
 				const items = await this._eval(node.items, scope);
 				assertArray(items);
 				for (const item of items.value) {
-					const v = await this._eval(node.for, scope.createChildScope(new Map([
-						[node.var, {
-							isMutable: false,
-							value: item,
-						}],
-					])));
+					const eachScope = scope.createChildScope();
+					this.define(eachScope, node.var, item, false);
+					const v = await this._eval(node.for, eachScope);
 					if (v.type === 'break') {
 						break;
 					} else if (v.type === 'return') {

@@ -151,6 +151,10 @@ let ai_kun = {
 // 宣言で分割代入を使うことも可能
 let [hoge, fuga] = ['hoge', 'fuga']
 
+each let { value: a }, [{ value: 1 }, { value: 2 }] {
+	<: a // 1, 2
+}
+
 // 再宣言を含む宣言は不可
 var a = 0
 let [a, b] = [1, 'piyo'] // Runtime Error
