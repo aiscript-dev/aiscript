@@ -724,7 +724,7 @@ export class Interpreter {
 	}
 
 	@autobind
-	private define(scope: Scope, dest: Ast.Expression, value: Value, isMutable: boolean): void {
+	private async define(scope: Scope, dest: Ast.Expression, value: Value, isMutable: boolean): Promise<void> {
 		switch (dest.type) {
 			case 'identifier': {
 				scope.add(dest.name, { isMutable, value });
@@ -732,16 +732,16 @@ export class Interpreter {
 			}
 			case 'arr': {
 				assertArray(value);
-				for (const [index, item] of dest.value.entries()) {
-					this.define(scope, item, value.value[index] ?? NULL, isMutable);
-				}
+				await Promise.all(dest.value.map(
+					(item, index) => this.define(scope, item, value.value[index] ?? NULL, isMutable),
+				));
 				break;
 			}
 			case 'obj': {
 				assertObject(value);
-				for (const [key, item] of dest.value) {
-					this.define(scope, item, value.value.get(key) ?? NULL, isMutable);
-				}
+				await Promise.all([...dest.value].map(
+					([key, item]) => this.define(scope, item, value.value.get(key) ?? NULL, isMutable),
+				));
 				break;
 			}
 			default: {
