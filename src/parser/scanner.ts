@@ -320,11 +320,12 @@ export class Scanner implements ITokenStream {
 					throw new AiScriptSyntaxError(`invalid character: "${this.stream.char}"`, pos);
 				}
 			}
-			// use `return` or `continue` before reaching this line
-			// no more code should be added here, this line should be unreachable
+			// Use `return` or `continue` before reaching this line.
+			// Do not add any more code here. This line should be unreachable.
 			break;
 		}
-		// no more code should be added here, this line should be unreachable
+		// Use `return` or `continue` before reaching this line.
+		// Do not add any more code here. This line should be unreachable.
 	}
 
 	private tryReadWord(hasLeftSpacing: boolean): Token | undefined {
