@@ -1,3 +1,20 @@
+# 0.12.4
+- block comment `/* ... */`
+- Math:Infinity
+
+# 0.12.3
+- Fix: `break`/`return` does not work in `each` statement
+- IndexOutOfRangeError now occurs when accessing outside boundaries of arrays
+
+# 0.12.2
+- Logical Not operator `!`
+- Adjustment of interpreter processing speed
+
+# 0.12.1
+- Single quotes are now available for string literal
+- Fix: `return` does not work in for/loop statement
+- Runtime now constantly pauses a few milliseconds to prevent infinite loops from causing runtime freezes
+
 # 0.12.0
 ## Breaking changes
 - `#` for variable definition → `let`
