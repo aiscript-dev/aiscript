@@ -156,10 +156,12 @@ each let { value: a }, [{ value: 1 }, { value: 2 }] {
 }
 
 // 引数でも使用可能
-@add([a, b]) {
-	a + b
+@func([a, b] = [0, 0]) {
+	[a, b]
 }
-add([1, 2]) // 3
+func([1, 2]) // [1, 2]
+func([1]) // [1, null], not [1, 0]
+func() // [0, 0]
 
 // 再宣言を含む宣言は不可
 var a = 0
