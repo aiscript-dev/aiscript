@@ -112,9 +112,7 @@ function validateNode(node: Ast.Node): Ast.Node {
 		}
 		case 'fn': {
 			for (const arg of node.args) {
-				if (reservedWord.includes(arg.name)) {
-					throwReservedWordError(arg.name, node.loc);
-				}
+				validateDest(arg.dest);
 			}
 			break;
 		}

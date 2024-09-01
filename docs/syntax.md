@@ -155,6 +155,12 @@ each let { value: a }, [{ value: 1 }, { value: 2 }] {
 	<: a // 1, 2
 }
 
+// 引数でも使用可能
+@add([a, b]) {
+	a + b
+}
+add([1, 2]) // 3
+
 // 再宣言を含む宣言は不可
 var a = 0
 let [a, b] = [1, 'piyo'] // Runtime Error

@@ -434,6 +434,16 @@ describe('separator', () => {
 			`);
 			eq(res, NUM(3));
 		});
+
+		test.concurrent('destructuring param', async () => {
+			const res = await exe(`
+			@f([a, b]) {
+				a + b
+			}
+			<: f([1, 2])
+			`);
+			eq(res, NUM(3));
+		});
 	});
 });
 

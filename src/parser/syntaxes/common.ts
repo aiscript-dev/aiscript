@@ -23,9 +23,16 @@ export function parseParams(s: ITokenStream): Ast.Fn['args'] {
 	}
 
 	while (!s.is(TokenKind.CloseParen)) {
-		s.expect(TokenKind.Identifier);
-		const name = s.getTokenValue();
-		s.next();
+		let dest: Ast.Expression;
+		// 全部parseExprに任せるとparseReferenceが型注釈を巻き込んでパースしてしまうためIdentifierのみ個別に処理。
+		if (s.is(TokenKind.Identifier)) {
+			const nameStartPos = s.getPos();
+			const name = s.getTokenValue();
+			s.next();
+			dest = NODE('identifier', { name }, nameStartPos, s.getPos());
+		} else {
+			dest = parseExpr(s, false);
+		}
 
 		let optional = false;
 		let defaultExpr: Ast.Expression | undefined;
@@ -42,7 +49,7 @@ export function parseParams(s: ITokenStream): Ast.Fn['args'] {
 			type = parseType(s);
 		}
 
-		items.push({ name, optional, default: defaultExpr, argType: type });
+		items.push({ dest, optional, default: defaultExpr, argType: type });
 
 		// separator
 		switch (s.getTokenKind()) {
