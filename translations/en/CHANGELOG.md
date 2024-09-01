@@ -1,3 +1,17 @@
+# 0.15.0
+- Enrichment of `Math:`
+- Fix: Terms of operator `&&`, `||` may not be converted correctly
+
+# 0.14.1
+- Fix: Short-circuit evaluation of `&&`, `||` is not working correctly
+- Fix: operator `+=`, `-=` may overwrite unrelated variable
+
+# 0.14.0
+- Add `Obj:vals` that returns an array of values of given object
+- Add `Json:parsable` that judges whether given string is parsable with `Json:parse`
+- When first argument of or/and determines the result, now second argument is no longer evaluated
+- Fix immediate value check in Async:interval
+
 # 0.13.3
 - Random number generation now includes specified maximum value in returning range
 
