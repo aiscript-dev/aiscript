@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import { expect, test } from '@jest/globals';
+import { describe, expect, test } from 'vitest';
 import { Parser, Interpreter, values, errors, utils, Ast } from '../src';
 
 let { FN_NATIVE } = values;

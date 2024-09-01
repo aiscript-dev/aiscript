@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import { expect, test } from '@jest/globals';
+import { describe, test } from 'vitest';
 import { } from '../src';
 import { NUM, STR, NULL, ARR, OBJ, BOOL, TRUE, FALSE, ERROR ,FN_NATIVE } from '../src/interpreter/value';
 import { } from '../src/error';

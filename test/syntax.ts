@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import { expect, test } from '@jest/globals';
+import { describe, test } from 'vitest';
 import { utils } from '../src';
 import { NUM, STR, NULL, ARR, OBJ, BOOL, TRUE, FALSE, ERROR ,FN_NATIVE } from '../src/interpreter/value';
 import { AiScriptRuntimeError } from '../src/error';
@@ -590,6 +590,13 @@ describe('Variable declaration', () => {
 
 		assert.ok(err instanceof AiScriptRuntimeError);
 	});
+	test.concurrent('destructuring declaration', async () => {
+		const res = await exe(`
+			let [a, { value: b }] = [1, { value: 2 }]
+			<: [a, b]
+		`);
+		eq(res, ARR([NUM(1), NUM(2)]));
+	});
 	test.concurrent('empty function', async () => {
 		const res = await exe(`
 			@hoge() { }
@@ -1008,6 +1015,20 @@ describe('namespace', () => {
 			}
 			`);
 		} catch (e) {
+			assert.ok(true);
+			return;
+		}
+		assert.fail();
+	});
+
+	test.concurrent('cannot destructuring declaration', async () => {
+		try {
+			await exe(`
+			:: Foo {
+				let [a, b] = [1, 2]
+			}
+			`);
+		} catch {
 			assert.ok(true);
 			return;
 		}

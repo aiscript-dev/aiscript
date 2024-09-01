@@ -237,7 +237,7 @@ type Continue = NodeBase & {
 // @public (undocumented)
 type Definition = NodeBase & {
     type: 'def';
-    name: string;
+    dest: Expression;
     varType?: TypeSource;
     expr: Expression;
     mut: boolean;
@@ -395,7 +395,7 @@ export class Interpreter {
     // (undocumented)
     abort(): void;
     // (undocumented)
-    static collectMetadata(script?: Ast.Node[]): Map<string, JsValue> | undefined;
+    static collectMetadata(script?: Ast.Node[]): Map<string | null, JsValue> | undefined;
     // (undocumented)
     exec(script?: Ast.Node[]): Promise<void>;
     execFn(fn: VFn, args: Value[]): Promise<Value>;

@@ -143,7 +143,7 @@ export function jsToVal(val: unknown): Value {
 	if (typeof val === 'number') return NUM(val);
 	if (Array.isArray(val)) return ARR(val.map(item => jsToVal(item)));
 	if (typeof val === 'object') {
-		const obj = new Map();
+		const obj: VObj['value'] = new Map();
 		for (const [k, v] of Object.entries(val)) {
 			obj.set(k, jsToVal(v));
 		}

@@ -100,7 +100,7 @@ export function parseBlockOrStatement(s: ITokenStream): Ast.Statement | Ast.Expr
 
 /**
  * ```abnf
- * VarDef = ("let" / "var") IDENT [":" Type] "=" Expr
+ * VarDef = ("let" / "var") (IDENT / Expr) [":" Type] "=" Expr
  * ```
 */
 function parseVarDef(s: ITokenStream): Ast.Definition {
@@ -122,9 +122,16 @@ function parseVarDef(s: ITokenStream): Ast.Definition {
 	}
 	s.next();
 
-	s.expect(TokenKind.Identifier);
-	const name = s.getTokenValue();
-	s.next();
+	let dest: Ast.Expression;
+	// 全部parseExprに任せるとparseReferenceが型注釈を巻き込んでパースしてしまうためIdentifierのみ個別に処理。
+	if (s.is(TokenKind.Identifier)) {
+		const nameStartPos = s.getPos();
+		const name = s.getTokenValue();
+		s.next();
+		dest = NODE('identifier', { name }, nameStartPos, s.getPos());
+	} else {
+		dest = parseExpr(s, false);
+	}
 
 	let type: Ast.TypeSource | undefined;
 	if (s.is(TokenKind.Colon)) {
@@ -141,7 +148,7 @@ function parseVarDef(s: ITokenStream): Ast.Definition {
 
 	const expr = parseExpr(s, false);
 
-	return NODE('def', { name, varType: type, expr, mut, attr: [] }, startPos, s.getPos());
+	return NODE('def', { dest, varType: type, expr, mut, attr: [] }, startPos, s.getPos());
 }
 
 /**
@@ -156,8 +163,10 @@ function parseFnDef(s: ITokenStream): Ast.Definition {
 	s.next();
 
 	s.expect(TokenKind.Identifier);
+	const nameStartPos = s.getPos();
 	const name = s.getTokenValue();
 	s.next();
+	const dest = NODE('identifier', { name }, nameStartPos, s.getPos());
 
 	const params = parseParams(s);
 
@@ -172,7 +181,7 @@ function parseFnDef(s: ITokenStream): Ast.Definition {
 	const endPos = s.getPos();
 
 	return NODE('def', {
-		name,
+		dest,
 		expr: NODE('fn', {
 			args: params,
 			retType: type,

@@ -56,10 +56,36 @@ function throwReservedWordError(name: string, loc: Ast.Loc): void {
 	throw new AiScriptSyntaxError(`Reserved word "${name}" cannot be used as variable name.`, loc.start);
 }
 
+function validateDest(node: Ast.Node): Ast.Node {
+	return visitNode(node, node => {
+		switch (node.type) {
+			case 'null': {
+				throwReservedWordError(node.type, node.loc);
+				break;
+			}
+			case 'bool': {
+				throwReservedWordError(`${node.value}`, node.loc);
+				break;
+			}
+			case 'identifier': {
+				if (reservedWord.includes(node.name)) {
+					throwReservedWordError(node.name, node.loc);
+				}
+				break;
+			}
+		}
+
+		return node;
+	});
+}
+
 function validateNode(node: Ast.Node): Ast.Node {
 	switch (node.type) {
+		case 'def': {
+			validateDest(node.dest);
+			break;
+		}
 		case 'ns':
-		case 'def':
 		case 'attr':
 		case 'identifier':
 		case 'prop': {
