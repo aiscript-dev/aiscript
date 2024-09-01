@@ -9,7 +9,24 @@ import type * as Ast from '../../node.js';
 
 /**
  * ```abnf
- * Params = "(" [IDENT [":" Type] *(SEP IDENT [":" Type])] ")"
+ * Dest = IDENT / Expr
+ * ```
+*/
+export function parseDest(s: ITokenStream): Ast.Expression {
+	// 全部parseExprに任せるとparseReferenceが型注釈を巻き込んでパースしてしまうためIdentifierのみ個別に処理。
+	if (s.is(TokenKind.Identifier)) {
+		const nameStartPos = s.getPos();
+		const name = s.getTokenValue();
+		s.next();
+		return NODE('identifier', { name }, nameStartPos, s.getPos());
+	} else {
+		return parseExpr(s, false);
+	}
+}
+
+/**
+ * ```abnf
+ * Params = "(" [Dest [":" Type] *(SEP Dest [":" Type])] ")"
  * ```
 */
 export function parseParams(s: ITokenStream): Ast.Fn['args'] {
@@ -23,16 +40,7 @@ export function parseParams(s: ITokenStream): Ast.Fn['args'] {
 	}
 
 	while (!s.is(TokenKind.CloseParen)) {
-		let dest: Ast.Expression;
-		// 全部parseExprに任せるとparseReferenceが型注釈を巻き込んでパースしてしまうためIdentifierのみ個別に処理。
-		if (s.is(TokenKind.Identifier)) {
-			const nameStartPos = s.getPos();
-			const name = s.getTokenValue();
-			s.next();
-			dest = NODE('identifier', { name }, nameStartPos, s.getPos());
-		} else {
-			dest = parseExpr(s, false);
-		}
+		const dest = parseDest(s);
 
 		let optional = false;
 		let defaultExpr: Ast.Expression | undefined;

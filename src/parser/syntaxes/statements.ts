@@ -1,7 +1,7 @@
 import { AiScriptSyntaxError } from '../../error.js';
 import { CALL_NODE, NODE } from '../utils.js';
 import { TokenKind } from '../token.js';
-import { parseBlock, parseParams, parseType } from './common.js';
+import { parseBlock, parseDest, parseParams, parseType } from './common.js';
 import { parseExpr } from './expressions.js';
 
 import type * as Ast from '../../node.js';
@@ -100,7 +100,7 @@ export function parseBlockOrStatement(s: ITokenStream): Ast.Statement | Ast.Expr
 
 /**
  * ```abnf
- * VarDef = ("let" / "var") (IDENT / Expr) [":" Type] "=" Expr
+ * VarDef = ("let" / "var") Dest [":" Type] "=" Expr
  * ```
 */
 function parseVarDef(s: ITokenStream): Ast.Definition {
@@ -122,16 +122,7 @@ function parseVarDef(s: ITokenStream): Ast.Definition {
 	}
 	s.next();
 
-	let dest: Ast.Expression;
-	// 全部parseExprに任せるとparseReferenceが型注釈を巻き込んでパースしてしまうためIdentifierのみ個別に処理。
-	if (s.is(TokenKind.Identifier)) {
-		const nameStartPos = s.getPos();
-		const name = s.getTokenValue();
-		s.next();
-		dest = NODE('identifier', { name }, nameStartPos, s.getPos());
-	} else {
-		dest = parseExpr(s, false);
-	}
+	const dest = parseDest(s);
 
 	let type: Ast.TypeSource | undefined;
 	if (s.is(TokenKind.Colon)) {
@@ -209,8 +200,8 @@ function parseOut(s: ITokenStream): Ast.Call {
 
 /**
  * ```abnf
- * Each = "each" "(" "let" Expr "," Expr ")" BlockOrStatement
- *      / "each"     "let" Expr "," Expr     BlockOrStatement
+ * Each = "each" "(" "let" Dest "," Expr ")" BlockOrStatement
+ *      / "each"     "let" Dest "," Expr     BlockOrStatement
  * ```
 */
 function parseEach(s: ITokenStream): Ast.Each {
@@ -228,7 +219,7 @@ function parseEach(s: ITokenStream): Ast.Each {
 	s.expect(TokenKind.LetKeyword);
 	s.next();
 
-	const dest = parseExpr(s, false);
+	const dest = parseDest(s);
 
 	if (s.is(TokenKind.Comma)) {
 		s.next();
