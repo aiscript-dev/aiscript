@@ -1,3 +1,20 @@
+# 0.13.3
+- Random number generation now includes specified maximum value in returning range
+
+# 0.13.2
+- `Date:year`,`Date:month`,`Date:day`,`Date:hour`,`Date:minute`,`Date:second` are now accepting a number argument to specify the time
+- Add `array.sort` and comparison functions `Str:lt`, `Str:gt`
+- Random number generation now includes specified maximum value in returning range
+
+# 0.13.1
+- Fix: `Json:stringify` returns corrupted value when given functions as argument
+
+# 0.13.0
+- Index arguments for callbacks of some array properties are now zero-start: `map`,`filter`,`reduce`,`find`
+- Add `@Math:ceil(x: num): num`
+- Exponentiation function `Core:pow` and syntax sugar `^`
+- Minor fixes of parsing
+
 # 0.12.4
 - block comment `/* ... */`
 - Math:Infinity
