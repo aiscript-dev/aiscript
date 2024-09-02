@@ -101,13 +101,11 @@ export class Scanner implements ITokenStream {
 	}
 
 	private readToken(): Token {
-		let token: Token | undefined;
 		let hasLeftSpacing = false;
 
 		while (true) {
 			if (this.stream.eof) {
-				token = TOKEN(TokenKind.EOF, this.stream.getPos(), { hasLeftSpacing });
-				break;
+				return TOKEN(TokenKind.EOF, this.stream.getPos(), { hasLeftSpacing });
 			}
 			// skip spasing
 			if (spaceChars.includes(this.stream.char)) {
@@ -121,24 +119,24 @@ export class Scanner implements ITokenStream {
 
 			if (lineBreakChars.includes(this.stream.char)) {
 				this.stream.next();
-				token = TOKEN(TokenKind.NewLine, pos, { hasLeftSpacing });
-				return token;
+				return TOKEN(TokenKind.NewLine, pos, { hasLeftSpacing });
 			}
+
+			// noFallthroughCasesInSwitchと関数の返り値の型を利用し、全ての場合分けがreturnかcontinueで適切に処理されることを強制している
+			// その都合上、break文の使用ないしこのswitch文の後に処理を書くことは極力避けてほしい
 			switch (this.stream.char) {
 				case '!': {
 					this.stream.next();
 					if (!this.stream.eof && (this.stream.char as string) === '=') {
 						this.stream.next();
-						token = TOKEN(TokenKind.NotEq, pos, { hasLeftSpacing });
+						return TOKEN(TokenKind.NotEq, pos, { hasLeftSpacing });
 					} else {
-						token = TOKEN(TokenKind.Not, pos, { hasLeftSpacing });
+						return TOKEN(TokenKind.Not, pos, { hasLeftSpacing });
 					}
-					break;
 				}
 				case '"':
 				case '\'': {
-					token = this.readStringLiteral(hasLeftSpacing);
-					break;
+					return this.readStringLiteral(hasLeftSpacing);
 				}
 				case '#': {
 					this.stream.next();
@@ -146,73 +144,67 @@ export class Scanner implements ITokenStream {
 						this.stream.next();
 						if (!this.stream.eof && (this.stream.char as string) === '#') {
 							this.stream.next();
-							token = TOKEN(TokenKind.Sharp3, pos, { hasLeftSpacing });
+							return TOKEN(TokenKind.Sharp3, pos, { hasLeftSpacing });
+						} else {
+							throw new AiScriptSyntaxError('invalid sequence of characters: "##"', pos);
 						}
 					} else if (!this.stream.eof && (this.stream.char as string) === '[') {
 						this.stream.next();
-						token = TOKEN(TokenKind.OpenSharpBracket, pos, { hasLeftSpacing });
+						return TOKEN(TokenKind.OpenSharpBracket, pos, { hasLeftSpacing });
 					} else {
 						throw new AiScriptSyntaxError('invalid character: "#"', pos);
 					}
-					break;
 				}
 				case '%': {
 					this.stream.next();
-					token = TOKEN(TokenKind.Percent, pos, { hasLeftSpacing });
-					break;
+					return TOKEN(TokenKind.Percent, pos, { hasLeftSpacing });
 				}
 				case '&': {
 					this.stream.next();
 					if (!this.stream.eof && (this.stream.char as string) === '&') {
 						this.stream.next();
-						token = TOKEN(TokenKind.And2, pos, { hasLeftSpacing });
+						return TOKEN(TokenKind.And2, pos, { hasLeftSpacing });
+					} else {
+						throw new AiScriptSyntaxError('invalid character: "&"', pos);
 					}
-					break;
 				}
 				case '(': {
 					this.stream.next();
-					token = TOKEN(TokenKind.OpenParen, pos, { hasLeftSpacing });
-					break;
+					return TOKEN(TokenKind.OpenParen, pos, { hasLeftSpacing });
 				}
 				case ')': {
 					this.stream.next();
-					token = TOKEN(TokenKind.CloseParen, pos, { hasLeftSpacing });
-					break;
+					return TOKEN(TokenKind.CloseParen, pos, { hasLeftSpacing });
 				}
 				case '*': {
 					this.stream.next();
-					token = TOKEN(TokenKind.Asterisk, pos, { hasLeftSpacing });
-					break;
+					return TOKEN(TokenKind.Asterisk, pos, { hasLeftSpacing });
 				}
 				case '+': {
 					this.stream.next();
 					if (!this.stream.eof && (this.stream.char as string) === '=') {
 						this.stream.next();
-						token = TOKEN(TokenKind.PlusEq, pos, { hasLeftSpacing });
+						return TOKEN(TokenKind.PlusEq, pos, { hasLeftSpacing });
 					} else {
-						token = TOKEN(TokenKind.Plus, pos, { hasLeftSpacing });
+						return TOKEN(TokenKind.Plus, pos, { hasLeftSpacing });
 					}
-					break;
 				}
 				case ',': {
 					this.stream.next();
-					token = TOKEN(TokenKind.Comma, pos, { hasLeftSpacing });
-					break;
+					return TOKEN(TokenKind.Comma, pos, { hasLeftSpacing });
 				}
 				case '-': {
 					this.stream.next();
 					if (!this.stream.eof && (this.stream.char as string) === '=') {
 						this.stream.next();
-						token = TOKEN(TokenKind.MinusEq, pos, { hasLeftSpacing });
+						return TOKEN(TokenKind.MinusEq, pos, { hasLeftSpacing });
 					} else {
-						token = TOKEN(TokenKind.Minus, pos, { hasLeftSpacing });
+						return TOKEN(TokenKind.Minus, pos, { hasLeftSpacing });
 					}
-					break;
 				}
 				case '.': {
 					this.stream.next();
-					token = TOKEN(TokenKind.Dot, pos, { hasLeftSpacing });
-					break;
+					return TOKEN(TokenKind.Dot, pos, { hasLeftSpacing });
 				}
 				case '/': {
 					this.stream.next();
@@ -225,130 +217,115 @@ export class Scanner implements ITokenStream {
 						this.skipCommentLine();
 						continue;
 					} else {
-						token = TOKEN(TokenKind.Slash, pos, { hasLeftSpacing });
+						return TOKEN(TokenKind.Slash, pos, { hasLeftSpacing });
 					}
-					break;
 				}
 				case ':': {
 					this.stream.next();
 					if (!this.stream.eof && (this.stream.char as string) === ':') {
 						this.stream.next();
-						token = TOKEN(TokenKind.Colon2, pos, { hasLeftSpacing });
+						return TOKEN(TokenKind.Colon2, pos, { hasLeftSpacing });
 					} else {
-						token = TOKEN(TokenKind.Colon, pos, { hasLeftSpacing });
+						return TOKEN(TokenKind.Colon, pos, { hasLeftSpacing });
 					}
-					break;
 				}
 				case ';': {
 					this.stream.next();
-					token = TOKEN(TokenKind.SemiColon, pos, { hasLeftSpacing });
-					break;
+					return TOKEN(TokenKind.SemiColon, pos, { hasLeftSpacing });
 				}
 				case '<': {
 					this.stream.next();
 					if (!this.stream.eof && (this.stream.char as string) === '=') {
 						this.stream.next();
-						token = TOKEN(TokenKind.LtEq, pos, { hasLeftSpacing });
+						return TOKEN(TokenKind.LtEq, pos, { hasLeftSpacing });
 					} else if (!this.stream.eof && (this.stream.char as string) === ':') {
 						this.stream.next();
-						token = TOKEN(TokenKind.Out, pos, { hasLeftSpacing });
+						return TOKEN(TokenKind.Out, pos, { hasLeftSpacing });
 					} else {
-						token = TOKEN(TokenKind.Lt, pos, { hasLeftSpacing });
+						return TOKEN(TokenKind.Lt, pos, { hasLeftSpacing });
 					}
-					break;
 				}
 				case '=': {
 					this.stream.next();
 					if (!this.stream.eof && (this.stream.char as string) === '=') {
 						this.stream.next();
-						token = TOKEN(TokenKind.Eq2, pos, { hasLeftSpacing });
+						return TOKEN(TokenKind.Eq2, pos, { hasLeftSpacing });
 					} else if (!this.stream.eof && (this.stream.char as string) === '>') {
 						this.stream.next();
-						token = TOKEN(TokenKind.Arrow, pos, { hasLeftSpacing });
+						return TOKEN(TokenKind.Arrow, pos, { hasLeftSpacing });
 					} else {
-						token = TOKEN(TokenKind.Eq, pos, { hasLeftSpacing });
+						return TOKEN(TokenKind.Eq, pos, { hasLeftSpacing });
 					}
-					break;
 				}
 				case '>': {
 					this.stream.next();
 					if (!this.stream.eof && (this.stream.char as string) === '=') {
 						this.stream.next();
-						token = TOKEN(TokenKind.GtEq, pos, { hasLeftSpacing });
+						return TOKEN(TokenKind.GtEq, pos, { hasLeftSpacing });
 					} else {
-						token = TOKEN(TokenKind.Gt, pos, { hasLeftSpacing });
+						return TOKEN(TokenKind.Gt, pos, { hasLeftSpacing });
 					}
-					break;
 				}
 				case '?': {
 					this.stream.next();
-					token = TOKEN(TokenKind.Question, pos, { hasLeftSpacing });
-					break;
+					return TOKEN(TokenKind.Question, pos, { hasLeftSpacing });
 				}
 				case '@': {
 					this.stream.next();
-					token = TOKEN(TokenKind.At, pos, { hasLeftSpacing });
-					break;
+					return TOKEN(TokenKind.At, pos, { hasLeftSpacing });
 				}
 				case '[': {
 					this.stream.next();
-					token = TOKEN(TokenKind.OpenBracket, pos, { hasLeftSpacing });
-					break;
+					return TOKEN(TokenKind.OpenBracket, pos, { hasLeftSpacing });
 				}
 				case '\\': {
 					this.stream.next();
-					token = TOKEN(TokenKind.BackSlash, pos, { hasLeftSpacing });
-					break;
+					return TOKEN(TokenKind.BackSlash, pos, { hasLeftSpacing });
 				}
 				case ']': {
 					this.stream.next();
-					token = TOKEN(TokenKind.CloseBracket, pos, { hasLeftSpacing });
-					break;
+					return TOKEN(TokenKind.CloseBracket, pos, { hasLeftSpacing });
 				}
 				case '^': {
 					this.stream.next();
-					token = TOKEN(TokenKind.Hat, pos, { hasLeftSpacing });
-					break;
+					return TOKEN(TokenKind.Hat, pos, { hasLeftSpacing });
 				}
 				case '`': {
-					token = this.readTemplate(hasLeftSpacing);
-					break;
+					return this.readTemplate(hasLeftSpacing);
 				}
 				case '{': {
 					this.stream.next();
-					token = TOKEN(TokenKind.OpenBrace, pos, { hasLeftSpacing });
-					break;
+					return TOKEN(TokenKind.OpenBrace, pos, { hasLeftSpacing });
 				}
 				case '|': {
 					this.stream.next();
 					if (!this.stream.eof && (this.stream.char as string) === '|') {
 						this.stream.next();
-						token = TOKEN(TokenKind.Or2, pos, { hasLeftSpacing });
+						return TOKEN(TokenKind.Or2, pos, { hasLeftSpacing });
+					} else {
+						throw new AiScriptSyntaxError('invalid character: "|"', pos);
 					}
-					break;
 				}
 				case '}': {
 					this.stream.next();
-					token = TOKEN(TokenKind.CloseBrace, pos, { hasLeftSpacing });
-					break;
+					return TOKEN(TokenKind.CloseBrace, pos, { hasLeftSpacing });
+				}
+				default: {
+					const digitToken = this.tryReadDigits(hasLeftSpacing);
+					if (digitToken) return digitToken;
+
+					const wordToken = this.tryReadWord(hasLeftSpacing);
+					if (wordToken) return wordToken;
+
+					throw new AiScriptSyntaxError(`invalid character: "${this.stream.char}"`, pos);
 				}
 			}
-			if (token == null) {
-				const digitToken = this.tryReadDigits(hasLeftSpacing);
-				if (digitToken) {
-					token = digitToken;
-					break;
-				}
-				const wordToken = this.tryReadWord(hasLeftSpacing);
-				if (wordToken) {
-					token = wordToken;
-					break;
-				}
-				throw new AiScriptSyntaxError(`invalid character: "${this.stream.char}"`, pos);
-			}
+			// Use `return` or `continue` before reaching this line.
+			// Do not add any more code here. This line should be unreachable.
 			break;
 		}
-		return token;
+		// Use `return` or `continue` before reaching this line.
+		// Do not add any more code here. This line should be unreachable.
 	}
 
 	private tryReadWord(hasLeftSpacing: boolean): Token | undefined {
