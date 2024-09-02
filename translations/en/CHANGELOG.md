@@ -1,3 +1,19 @@
+# 0.16.0
+- **Namespaces can no longer include `var` (while `let` is available as it has been)**
+- `Core:to_str` and template syntax can now convert any type of values into string
+- Add `Core:sleep`: waits specified milliseconds
+- New syntax: `exists <variable-name>` can judge specified name of variable actually exists in runtime
+- Object values can be now referenced via index (ex. `object['index']`)
+- New value type: Error Type (type name: `error`)
+- `Json:parse` now returns error-type value when parsing failed
+- Fix: Variables defined with `let` is yet mutable
+- Add new functions `Str:from_codepoint` `Str#codepoint_at`
+
+## For Hosts
+- **Breaking Change** Subclasses of AiScriptError now have `AiScript-` prefix (ex. SyntaxError→AiScriptSyntaxError)
+- `Interpreter`'s second constructor argument now accepts `err` option: pass a callback function to be called when `Interpreter.exec` fails **or `Async:interval`/`Async:timeout` fails**. Noted that using this feature disables AiScript process from throwing JavaScript errors.
+- Native functions can use `opts.topCall` instead of `opts.call` to call error callback when failing like two functions above. **Use only when necessary. If `opts.call` calls error callback correctly, use that.**
+
 # 0.15.0
 - Enrichment of `Math:`
 - Fix: Terms of operator `&&`, `||` may not be converted correctly
