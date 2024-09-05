@@ -1,3 +1,15 @@
+# 0.17.0
+- Fix `package.json`
+- New function `Error:create` to create a error-type value
+- New function `Obj:merge` to get a merge of two objects
+- Fix: Chainings(`[]` for index access, `.` for property access, `()` for function call) used in conjunction with parentheses may cause unexpected behaviour
+- New functions: `Str#charcode_at` `Str#to_arr` `Str#to_char_arr` `Str#to_charcode_arr` `Str#to_utf8_byte_arr` `Str#to_unicode_codepoint_arr` `Str:from_unicode_codepoints` `Str:from_utf8_bytes`
+- Fix: `Str#codepoint_at` not supporting surrogate pairs
+- IndexOutOfRangeError now also occurs when assigning non-integer index or outside boundaries of arrays
+## Note
+CHANGELOG had a missing record in V0.16.0.
+>- Add new functions `Str:from_codepoint` `Str#codepoint_at`
+
 # 0.16.0
 - **Namespaces can no longer include `var` (while `let` is available as it has been)**
 - `Core:to_str` and template syntax can now convert any type of values into string
