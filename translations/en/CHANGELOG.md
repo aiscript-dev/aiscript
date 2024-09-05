@@ -1,3 +1,17 @@
+# 0.19.0
+- Fix: Zero passed to `Date:year` family functions ignored
+- Fix location informations in syntax errors and others
+- `[].reduce` without a third argument now throws unique error
+- Add `str.pad_start`,`str.pad_end`
+- Add `arr.insert`,`arr.remove`
+- asynchronization of `arr.sort` for better processing speed
+- Add `arr.flat`, `arr.flat_map`
+- Add `Uri:encode_full`, `Uri:encode_component`, `Uri:decode_full`, `Uri:decode_component`
+- Add `str.starts_with`,`str.ends_with`
+- Add `arr.splice`
+- Add `arr.at`
+- For Hosts: With an error handler, Interpreter now do the abortion of all processes only when `abortOnError` option is set to true
+
 # 0.18.0
 - New function `Core:abort` for immediate abortion of the program
 - Add array version of `index_of`
