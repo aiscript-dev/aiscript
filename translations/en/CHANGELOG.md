@@ -1,3 +1,16 @@
+# 0.18.0
+- New function `Core:abort` for immediate abortion of the program
+- Add array version of `index_of`
+- `str.index_of` and `arr.index_of` now accepts second argument
+- Remove type restriction on the argument for `arr.incl`
+- Add `Date:millisecond`
+- Add `arr.fill`, `arr.repeat`, `Arr:create`
+- Destructuring assignment available, like JavaScript(but limited functionality now)
+- Amend the error message on duplicated declaration of variable
+- Variables under nested namespaces now can be accessed
+- Add `arr.every`, `arr.some`
+- Add `Date:to_iso_str`
+
 # 0.17.0
 - Fix `package.json`
 - New function `Error:create` to create a error-type value
