@@ -1,4 +1,4 @@
-import type { Node } from '../node.js';
+import type { Expression, Node } from '../node.js';
 import type { Type } from '../type.js';
 import type { Scope } from './scope.js';
 
@@ -42,7 +42,7 @@ export type VUserFn = VFnBase & {
 	scope: Scope;
 };
 export type VFnArg = {
-	name: string;
+	dest: Expression;
 	type?: Type;
 	default?: Value;
 }

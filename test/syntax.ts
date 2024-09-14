@@ -434,6 +434,16 @@ describe('separator', () => {
 			`);
 			eq(res, NUM(3));
 		});
+
+		test.concurrent('destructuring param', async () => {
+			const res = await exe(`
+			@f([a, b]) {
+				a + b
+			}
+			<: f([1, 2])
+			`);
+			eq(res, NUM(3));
+		});
 	});
 });
 
@@ -727,6 +737,15 @@ describe('each', () => {
 		<: msgs
 		`);
 		eq(res, ARR([STR('ai!'), STR('chan!'), STR('kawaii!')]));
+	});
+
+	test.concurrent('destructuring declaration', async () => {
+		const res = await exe(`
+			each let { value: a }, [{ value: 1 }] {
+				<: a
+			}
+		`);
+		eq(res, NUM(1));
 	});
 
 	test.concurrent('Break', async () => {

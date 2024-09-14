@@ -254,7 +254,7 @@ type Div = NodeBase & {
 // @public (undocumented)
 type Each = NodeBase & {
     type: 'each';
-    var: string;
+    var: Expression;
     items: Expression;
     for: Statement | Expression;
 };
@@ -311,7 +311,7 @@ const FN: (args: VUserFn["args"], statements: VUserFn["statements"], scope: VUse
 type Fn = NodeBase & {
     type: 'fn';
     args: {
-        name: string;
+        dest: Expression;
         optional: boolean;
         default?: Expression;
         argType?: TypeSource;
@@ -798,7 +798,7 @@ type VFn = VUserFn | VNativeFn;
 
 // @public (undocumented)
 type VFnArg = {
-    name: string;
+    dest: Expression;
     type?: Type;
     default?: Value;
 };

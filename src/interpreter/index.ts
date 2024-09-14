@@ -236,16 +236,12 @@ export class Interpreter {
 			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 			return result ?? NULL;
 		} else {
-			const _args = new Map<string, Variable>();
+			const fnScope = fn.scope!.createChildScope();
 			for (const i of fn.args.keys()) {
 				const argdef = fn.args[i]!;
 				if (!argdef.default) expectAny(args[i]);
-				_args.set(argdef.name, {
-					isMutable: true,
-					value: args[i] ?? argdef.default!,
-				});
+				this.define(fnScope, argdef.dest, args[i] ?? argdef.default!, true);
 			}
-			const fnScope = fn.scope!.createChildScope(_args);
 			return unWrapRet(await this._run(fn.statements!, fnScope));
 		}
 	}
@@ -369,12 +365,9 @@ export class Interpreter {
 				const items = await this._eval(node.items, scope);
 				assertArray(items);
 				for (const item of items.value) {
-					const v = await this._eval(node.for, scope.createChildScope(new Map([
-						[node.var, {
-							isMutable: false,
-							value: item,
-						}],
-					])));
+					const eachScope = scope.createChildScope();
+					this.define(eachScope, node.var, item, false);
+					const v = await this._eval(node.for, eachScope);
 					if (v.type === 'break') {
 						break;
 					} else if (v.type === 'return') {
@@ -495,7 +488,7 @@ export class Interpreter {
 				return FN(
 					await Promise.all(node.args.map(async (arg) => {
 						return {
-							name: arg.name,
+							dest: arg.dest,
 							default: arg.default ? await this._eval(arg.default, scope) : arg.optional ? NULL : undefined,
 							// type: (TODO)
 						};
