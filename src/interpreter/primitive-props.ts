@@ -334,12 +334,12 @@ const PRIMITIVE_PROPS: {
 		splice: (target: VArr): VFn => FN_NATIVE(async ([idx, rc, vs], opts) => {
 			assertNumber(idx);
 			const index = (idx.value < -target.value.length) ? 0
-				: (idx.value < 0) ? target.value.length + idx.value
-				: (idx.value >= target.value.length) ? target.value.length
-				: idx.value;
+						: (idx.value < 0) ? target.value.length + idx.value
+						: (idx.value >= target.value.length) ? target.value.length
+						: idx.value;
 
 			const remove_count = (rc != null) ? (assertNumber(rc), rc.value)
-				: target.value.length - index;
+								: target.value.length - index;
 
 			const items = (vs != null) ? (assertArray(vs), vs.value) : [];
 
@@ -378,7 +378,7 @@ const PRIMITIVE_PROPS: {
 			});
 			const mapped_vals = await Promise.all(vals);
 			return ARR(mapped_vals.flat());
-		}),
+    }),
 
 		every: (target: VArr): VFn => FN_NATIVE(async ([fn], opts) => {
 			assertFunction(fn);
