@@ -168,7 +168,7 @@ export function jsToVal(val: unknown): Value {
 	if (typeof val === 'number') return NUM(val);
 	if (Array.isArray(val)) return ARR(val.map(item => jsToVal(item)));
 	if (typeof val === 'object') {
-		const obj = new Map();
+		const obj: VObj['value'] = new Map();
 		for (const [k, v] of Object.entries(val)) {
 			obj.set(k, jsToVal(v));
 		}
@@ -230,7 +230,7 @@ export function reprValue(value: Value, literalLike = false, processedObjects = 
 			// そのうちネイティブ関数の引数も表示できるようにしたいが、ホスト向けの破壊的変更を伴うと思われる
 			return '@( ?? ) { native code }';
 		} else {
-			return `@( ${(value.args.map(v => v.name)).join(', ')} ) { ... }`;
+			return `@( ${(value.args.map(v => v.dest.type === 'identifier' ? v.dest.name : '?')).join(', ')} ) { ... }`;
 		}
 	}
 

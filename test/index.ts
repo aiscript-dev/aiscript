@@ -4,7 +4,7 @@
  */
 
 import * as assert from 'assert';
-import { test } from '@jest/globals';
+import { describe, test } from 'vitest';
 import { Parser, Interpreter, Ast } from '../src';
 import { NUM, STR, NULL, ARR, OBJ, DIC, BOOL, TRUE, FALSE, ERROR, FN_NATIVE } from '../src/interpreter/value';
 import { AiScriptSyntaxError, AiScriptRuntimeError, AiScriptIndexOutOfRangeError } from '../src/error';
@@ -929,8 +929,8 @@ describe('Attribute', () => {
 		`);
 		assert.equal(nodes.length, 1);
 		node = nodes[0];
-		if (node.type !== 'def') assert.fail();
-		assert.equal(node.name, 'onRecieved');
+		if (node.type !== 'def' || node.dest.type !== 'identifier') assert.fail();
+		assert.equal(node.dest.name, 'onRecieved');
 		assert.equal(node.attr.length, 1);
 		// attribute 1
 		attr = node.attr[0];
@@ -954,8 +954,8 @@ describe('Attribute', () => {
 		`);
 		assert.equal(nodes.length, 1);
 		node = nodes[0];
-		if (node.type !== 'def') assert.fail();
-		assert.equal(node.name, 'createNote');
+		if (node.type !== 'def' || node.dest.type !== 'identifier') assert.fail();
+		assert.equal(node.dest.name, 'createNote');
 		assert.equal(node.attr.length, 3);
 		// attribute 1
 		attr = node.attr[0];
@@ -999,8 +999,8 @@ describe('Attribute', () => {
 		`);
 		assert.equal(nodes.length, 1);
 		node = nodes[0];
-		if (node.type !== 'def') assert.fail();
-		assert.equal(node.name, 'data');
+		if (node.type !== 'def' || node.dest.type !== 'identifier') assert.fail();
+		assert.equal(node.dest.name, 'data');
 		assert.equal(node.attr.length, 1);
 		// attribute 1
 		attr = node.attr[0];

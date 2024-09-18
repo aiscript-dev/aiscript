@@ -113,7 +113,7 @@ export class Interpreter {
 	}
 
 	@autobind
-	public static collectMetadata(script?: Ast.Node[]): Map<string, JsValue> | undefined {
+	public static collectMetadata(script?: Ast.Node[]): Map<string | null, JsValue> | undefined {
 		if (script == null || script.length === 0) return;
 
 		function nodeToJs(node: Ast.Node): JsValue {
@@ -135,7 +135,7 @@ export class Interpreter {
 			}
 		}
 
-		const meta = new Map();
+		const meta = new Map<string | null, JsValue>();
 
 		for (const node of script) {
 			switch (node.type) {
@@ -198,15 +198,15 @@ export class Interpreter {
 		for (const node of ns.members) {
 			switch (node.type) {
 				case 'def': {
+					if (node.dest.type !== 'identifier') {
+						throw new AiScriptNamespaceError('Destructuring assignment is invalid in namespace declarations.', node.loc.start);
+					}
 					if (node.mut) {
-						throw new AiScriptNamespaceError('No "var" in namespace declaration: ' + node.name, node.loc.start);
+						throw new AiScriptNamespaceError('No "var" in namespace declaration: ' + node.dest.name, node.loc.start);
 					}
 
-					const variable: Variable = {
-						isMutable: node.mut,
-						value: await this._eval(node.expr, nsScope),
-					};
-					nsScope.add(node.name, variable);
+					const value = await this._eval(node.expr, nsScope);
+					await this.define(nsScope, node.dest, value, node.mut);
 
 					break;
 				}
@@ -237,16 +237,12 @@ export class Interpreter {
 			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 			return result ?? NULL;
 		} else {
-			const _args = new Map<string, Variable>();
+			const fnScope = fn.scope!.createChildScope();
 			for (const i of fn.args.keys()) {
 				const argdef = fn.args[i]!;
 				if (!argdef.default) expectAny(args[i]);
-				_args.set(argdef.name, {
-					isMutable: true,
-					value: args[i] ?? argdef.default!,
-				});
+				this.define(fnScope, argdef.dest, args[i] ?? argdef.default!, true);
 			}
-			const fnScope = fn.scope!.createChildScope(_args);
 			return unWrapRet(await this._run(fn.statements!, fnScope));
 		}
 	}
@@ -370,12 +366,9 @@ export class Interpreter {
 				const items = await this._eval(node.items, scope);
 				assertArray(items);
 				for (const item of items.value) {
-					const v = await this._eval(node.for, scope.createChildScope(new Map([
-						[node.var, {
-							isMutable: false,
-							value: item,
-						}],
-					])));
+					const eachScope = scope.createChildScope();
+					this.define(eachScope, node.var, item, false);
+					const v = await this._eval(node.for, eachScope);
 					if (v.type === 'break') {
 						break;
 					} else if (v.type === 'return') {
@@ -397,10 +390,7 @@ export class Interpreter {
 					}
 					value.attr = attrs;
 				}
-				scope.add(node.name, {
-					isMutable: node.mut,
-					value: value,
-				});
+				await this.define(scope, node.dest, value, node.mut);
 				return NULL;
 			}
 
@@ -454,9 +444,9 @@ export class Interpreter {
 			));
 
 			case 'obj': {
-				const obj = new Map() as Map<string, Value>;
-				for (const k of node.value.keys()) {
-					obj.set(k, await this._eval(node.value.get(k)!, scope));
+				const obj = new Map<string, Value>();
+				for (const [key, value] of node.value) {
+					obj.set(key, await this._eval(value, scope));
 				}
 				return OBJ(obj);
 			}
@@ -508,7 +498,7 @@ export class Interpreter {
 				return FN(
 					await Promise.all(node.args.map(async (arg) => {
 						return {
-							name: arg.name,
+							dest: arg.dest,
 							default: arg.default ? await this._eval(arg.default, scope) : arg.optional ? NULL : undefined,
 							// type: (TODO)
 						};
@@ -737,48 +727,96 @@ export class Interpreter {
 	}
 
 	@autobind
-	private async assign(scope: Scope, dest: Ast.Expression, value: Value): Promise<void> {
-		if (dest.type === 'identifier') {
-			scope.assign(dest.name, value);
-		} else if (dest.type === 'index') {
-			const assignee = await this._eval(dest.target, scope);
-			const i = await this._eval(dest.index, scope);
-			if (isArray(assignee)) {
-				assertNumber(i);
-				if (assignee.value[i.value] === undefined) {
-					throw new AiScriptIndexOutOfRangeError(`Index out of range. index: ${i.value} max: ${assignee.value.length - 1}`);
-				}
-				assignee.value[i.value] = value;
-			} else if (isObject(assignee)) {
-				assertString(i);
-				assignee.value.set(i.value, value);
-			} else if (isValue(assignee, 'dic')) {
-				assignee.value.set(i, value);
-			} else {
-				throw new AiScriptRuntimeError(`Cannot read prop (${reprValue(i)}) of ${assignee.type}.`);
+	private async define(scope: Scope, dest: Ast.Expression, value: Value, isMutable: boolean): Promise<void> {
+		switch (dest.type) {
+			case 'identifier': {
+				scope.add(dest.name, { isMutable, value });
+				break;
 			}
-		} else if (dest.type === 'prop') {
-			const assignee = await this._eval(dest.target, scope);
-			assertObject(assignee);
+			case 'arr': {
+				assertArray(value);
+				await Promise.all(dest.value.map(
+					(item, index) => this.define(scope, item, value.value[index] ?? NULL, isMutable),
+				));
+				break;
+			}
+			case 'obj': {
+				assertObject(value);
+				await Promise.all([...dest.value].map(
+					([key, item]) => this.define(scope, item, value.value.get(key) ?? NULL, isMutable),
+				));
+				break;
+			}
+			case 'dic': {
+				assertValue(value, 'dic');
+				await Promise.all([...dest.value].map(
+					async ([key, item]) => this.define(scope, item, value.value.get(await this._eval(key, scope)) ?? NULL, isMutable),
+				));
+				break;
+			}
+			default: {
+				throw new AiScriptRuntimeError('The left-hand side of an definition expression must be a variable.');
+			}
+		}
+	}
 
-			assignee.value.set(dest.name, value);
-		} else if (dest.type === 'arr') {
-			assertArray(value);
-			await Promise.all(dest.value.map(
-				(item, index) => this.assign(scope, item, value.value[index] ?? NULL),
-			));
-		} else if (dest.type === 'obj') {
-			assertObject(value);
-			await Promise.all([...dest.value].map(
-				([key, item]) => this.assign(scope, item, value.value.get(key) ?? NULL),
-			));
-		} else if (dest.type === 'dic') {
-			assertValue(value, 'dic');
-			await Promise.all([...dest.value].map(
-				async ([key, item]) => this.assign(scope, item, value.value.get(await this._eval(key, scope)) ?? NULL),
-			));
-		} else {
-			throw new AiScriptRuntimeError('The left-hand side of an assignment expression must be a variable or a property/index access.');
+	@autobind
+	private async assign(scope: Scope, dest: Ast.Expression, value: Value): Promise<void> {
+		switch (dest.type) {
+			case 'identifier': {
+				scope.assign(dest.name, value);
+				break;
+			}
+			case 'index': {
+				const assignee = await this._eval(dest.target, scope);
+				const i = await this._eval(dest.index, scope);
+				if (isArray(assignee)) {
+					assertNumber(i);
+					if (assignee.value[i.value] === undefined) {
+						throw new AiScriptIndexOutOfRangeError(`Index out of range. index: ${i.value} max: ${assignee.value.length - 1}`);
+					}
+					assignee.value[i.value] = value;
+				} else if (isObject(assignee)) {
+					assertString(i);
+					assignee.value.set(i.value, value);
+				} else if (isValue(assignee, 'dic')) {
+					assignee.value.set(i, value);
+				} else {
+					throw new AiScriptRuntimeError(`Cannot read prop (${reprValue(i)}) of ${assignee.type}.`);
+				}
+				break;
+			}
+			case 'prop': {
+				const assignee = await this._eval(dest.target, scope);
+				assertObject(assignee);
+
+				assignee.value.set(dest.name, value);
+				break;
+			}
+			case 'arr': {
+				assertArray(value);
+				await Promise.all(dest.value.map(
+					(item, index) => this.assign(scope, item, value.value[index] ?? NULL),
+				));
+				break;
+			}
+			case 'obj': {
+				assertObject(value);
+				await Promise.all([...dest.value].map(
+					([key, item]) => this.assign(scope, item, value.value.get(key) ?? NULL),
+				));
+				break;
+			}
+			case 'dic': {
+				assertValue(value, 'dic');
+				await Promise.all([...dest.value].map(
+					async ([key, item]) => this.assign(scope, item, value.value.get(await this._eval(key, scope)) ?? NULL),
+				));
+				break;
+			}
+			default: {
+				throw new AiScriptRuntimeError('The left-hand side of an assignment expression must be a variable or a property/index access.');
+			}
 		}
 	}
 }

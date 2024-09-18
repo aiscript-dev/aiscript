@@ -569,7 +569,7 @@ function parseObject(s: ITokenStream, isStatic: boolean): Ast.Obj {
 		s.next();
 	}
 
-	const map = new Map();
+	const map = new Map<string, Ast.Expression>();
 	while (!s.is(TokenKind.CloseBrace)) {
 		s.expect(TokenKind.Identifier);
 		const k = s.getTokenValue();

@@ -1,4 +1,4 @@
-import { expect, test } from '@jest/globals';
+import { describe, expect, test } from 'vitest';
 import { Parser, Interpreter } from '../src';
 import { AiScriptSyntaxError } from '../src/error';
 import { exe } from './testutils';

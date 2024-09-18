@@ -148,6 +148,32 @@ let ai_kun = {
 <: b // 'kakkoii'
 ```
 ```js
+// 宣言で分割代入を使うことも可能
+let [hoge, fuga] = ['hoge', 'fuga']
+
+each let { value: a }, [{ value: 1 }, { value: 2 }] {
+	<: a // 1, 2
+}
+
+// 引数でも使用可能
+@func([a, b] = [0, 0]) {
+	[a, b]
+}
+func([1, 2]) // [1, 2]
+func([1]) // [1, null], not [1, 0]
+func() // [0, 0]
+
+// 再宣言を含む宣言は不可
+var a = 0
+let [a, b] = [1, 'piyo'] // Runtime Error
+
+// 名前空間での宣言では使用不可
+:: Ai {
+	// Runtime Error
+	let [chan, kun] = ['kawaii', 'kakkoii']
+}
+```
+```js
 // 代入値が分割できる型でなければエラー
 [a, b] = 1 // Runtime Error
 { zero: a, one: b } = ['hoge', 'fuga'] // Runtime Error

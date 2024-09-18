@@ -1,7 +1,7 @@
 import { AiScriptSyntaxError } from '../../error.js';
 import { CALL_NODE, NODE } from '../utils.js';
 import { TokenKind } from '../token.js';
-import { parseBlock, parseParams, parseType } from './common.js';
+import { parseBlock, parseDest, parseParams, parseType } from './common.js';
 import { parseExpr } from './expressions.js';
 
 import type * as Ast from '../../node.js';
@@ -100,7 +100,7 @@ export function parseBlockOrStatement(s: ITokenStream): Ast.Statement | Ast.Expr
 
 /**
  * ```abnf
- * VarDef = ("let" / "var") IDENT [":" Type] "=" Expr
+ * VarDef = ("let" / "var") Dest [":" Type] "=" Expr
  * ```
 */
 function parseVarDef(s: ITokenStream): Ast.Definition {
@@ -122,9 +122,7 @@ function parseVarDef(s: ITokenStream): Ast.Definition {
 	}
 	s.next();
 
-	s.expect(TokenKind.Identifier);
-	const name = s.getTokenValue();
-	s.next();
+	const dest = parseDest(s);
 
 	let type: Ast.TypeSource | undefined;
 	if (s.is(TokenKind.Colon)) {
@@ -141,7 +139,7 @@ function parseVarDef(s: ITokenStream): Ast.Definition {
 
 	const expr = parseExpr(s, false);
 
-	return NODE('def', { name, varType: type, expr, mut, attr: [] }, startPos, s.getPos());
+	return NODE('def', { dest, varType: type, expr, mut, attr: [] }, startPos, s.getPos());
 }
 
 /**
@@ -156,8 +154,10 @@ function parseFnDef(s: ITokenStream): Ast.Definition {
 	s.next();
 
 	s.expect(TokenKind.Identifier);
+	const nameStartPos = s.getPos();
 	const name = s.getTokenValue();
 	s.next();
+	const dest = NODE('identifier', { name }, nameStartPos, s.getPos());
 
 	const params = parseParams(s);
 
@@ -172,7 +172,7 @@ function parseFnDef(s: ITokenStream): Ast.Definition {
 	const endPos = s.getPos();
 
 	return NODE('def', {
-		name,
+		dest,
 		expr: NODE('fn', {
 			args: params,
 			retType: type,
@@ -200,8 +200,8 @@ function parseOut(s: ITokenStream): Ast.Call {
 
 /**
  * ```abnf
- * Each = "each" "(" "let" IDENT "," Expr ")" BlockOrStatement
- *      / "each"     "let" IDENT "," Expr     BlockOrStatement
+ * Each = "each" "(" "let" Dest "," Expr ")" BlockOrStatement
+ *      / "each"     "let" Dest "," Expr     BlockOrStatement
  * ```
 */
 function parseEach(s: ITokenStream): Ast.Each {
@@ -219,9 +219,7 @@ function parseEach(s: ITokenStream): Ast.Each {
 	s.expect(TokenKind.LetKeyword);
 	s.next();
 
-	s.expect(TokenKind.Identifier);
-	const name = s.getTokenValue();
-	s.next();
+	const dest = parseDest(s);
 
 	if (s.is(TokenKind.Comma)) {
 		s.next();
@@ -239,7 +237,7 @@ function parseEach(s: ITokenStream): Ast.Each {
 	const body = parseBlockOrStatement(s);
 
 	return NODE('each', {
-		var: name,
+		var: dest,
 		items: items,
 		for: body,
 	}, startPos, s.getPos());

@@ -243,7 +243,7 @@ type Continue = NodeBase & {
 // @public (undocumented)
 type Definition = NodeBase & {
     type: 'def';
-    name: string;
+    dest: Expression;
     varType?: TypeSource;
     expr: Expression;
     mut: boolean;
@@ -293,7 +293,7 @@ type Div = NodeBase & {
 // @public (undocumented)
 type Each = NodeBase & {
     type: 'each';
-    var: string;
+    var: Expression;
     items: Expression;
     for: Statement | Expression;
 };
@@ -350,7 +350,7 @@ const FN: (args: VUserFn["args"], statements: VUserFn["statements"], scope: VUse
 type Fn = NodeBase & {
     type: 'fn';
     args: {
-        name: string;
+        dest: Expression;
         optional: boolean;
         default?: Expression;
         argType?: TypeSource;
@@ -434,7 +434,7 @@ export class Interpreter {
     // (undocumented)
     abort(): void;
     // (undocumented)
-    static collectMetadata(script?: Ast.Node[]): Map<string, JsValue> | undefined;
+    static collectMetadata(script?: Ast.Node[]): Map<string | null, JsValue> | undefined;
     // (undocumented)
     exec(script?: Ast.Node[]): Promise<void>;
     execFn(fn: VFn, args: Value[]): Promise<Value>;
@@ -853,7 +853,7 @@ type VFn = VUserFn | VNativeFn;
 
 // @public (undocumented)
 type VFnArg = {
-    name: string;
+    dest: Expression;
     type?: Type;
     default?: Value;
 };

@@ -53,7 +53,7 @@ export function isStatement(x: Node): x is Statement {
 
 export type Definition = NodeBase & {
 	type: 'def'; // 変数宣言文
-	name: string; // 変数名
+	dest: Expression; // 宣言式
 	varType?: TypeSource; // 変数の型
 	expr: Expression; // 式
 	mut: boolean; // ミュータブルか否か
@@ -73,7 +73,7 @@ export type Return = NodeBase & {
 
 export type Each = NodeBase & {
 	type: 'each'; // each文
-	var: string; // イテレータ変数名
+	var: Expression; // イテレータ宣言
 	items: Expression; // 配列
 	for: Statement | Expression; // 本体処理
 };
@@ -266,7 +266,7 @@ export type If = NodeBase & {
 export type Fn = NodeBase & {
 	type: 'fn'; // 関数
 	args: {
-		name: string; // 引数名
+		dest: Expression; // 引数名
 		optional: boolean;
 		default?: Expression; // 引数の初期値
 		argType?: TypeSource; // 引数の型
