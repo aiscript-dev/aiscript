@@ -15,7 +15,7 @@
 # 0.18.0
 - New function `Core:abort` for immediate abortion of the program
 - Add array version of `index_of`
-- `str.index_of` and `arr.index_of` now accepts second argument
+- `str.index_of` and `arr.index_of` now accept a second argument
 - Remove type restriction on the argument for `arr.incl`
 - Add `Date:millisecond`
 - Add `arr.fill`, `arr.repeat`, `Arr:create`
