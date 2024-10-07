@@ -1,7 +1,7 @@
 # 0.19.0
 - Fix: Zero passed to `Date:year` family functions ignored
 - Fix location informations in syntax errors and others
-- `[].reduce` without a third argument now throws unique error
+- `arr.reduce` now throws a distinct error when called with an empty array and no second argument
 - Add `str.pad_start`,`str.pad_end`
 - Add `arr.insert`,`arr.remove`
 - asynchronization of `arr.sort` for better processing speed
