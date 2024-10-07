@@ -21,7 +21,7 @@
 - Add `arr.fill`, `arr.repeat`, `Arr:create`
 - Destructuring assignment available, like JavaScript(but limited functionality now)
 - Amend the error message on duplicated declaration of variable
-- Variables under nested namespaces now can be accessed
+- Variables under nested namespaces are now accessible
 - Add `arr.every`, `arr.some`
 - Add `Date:to_iso_str`
 
