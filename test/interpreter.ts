@@ -114,3 +114,33 @@ describe('error location', () => {
 		`)).resolves.toEqual({ line: 2, column: 6});
 	});
 });
+
+describe('callstack', () => {
+	const exeAndGetErrMessage = (src: string): Promise<string> => new Promise((ok, ng) => {
+		const aiscript = new Interpreter({
+			emitError: FN_NATIVE((_args, _opts) => {
+				throw Error('emitError');
+			}),
+		}, {
+			err(e) { ok(e.message) },
+		});
+		aiscript.exec(Parser.parse(src)).then(() => ng('error has not occurred.'));
+	});
+
+	test('error in function', async () => {
+		const result = await exeAndGetErrMessage(`
+			@function1() { emitError() }
+			let obj = {
+				function2: @() { function1() }
+			}
+			obj.function2()
+		`);
+		expect(result).toMatch(/at function1.+at \.function2/s);
+	});
+	test('error in anonymous function', async () => {
+		const result = await exeAndGetErrMessage(`
+			(@() { emitError() })()
+		`);
+		expect(result).toContain('at <anonymous>');
+	});
+});
