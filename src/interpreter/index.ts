@@ -258,7 +258,12 @@ export class Interpreter {
 			else {
 				const e2 = (e instanceof AiScriptError) ? e : new NonAiScriptError(e);
 				e2.pos = node.loc.start;
-				e2.message = `${e2.message} (Line ${e2.pos.line}, Column ${e2.pos.column})`;
+				e2.message = [
+					`${e2.message} (Line ${e2.pos.line}, Column ${e2.pos.column})`,
+					...callStack.map(({ name, pos }) =>
+						`  at ${name} (Line ${pos.line}, Column ${pos.column})`
+					).reverse(),
+				].join("\n");
 				throw e2;
 			}
 		});
