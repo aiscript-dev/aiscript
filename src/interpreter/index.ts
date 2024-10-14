@@ -6,7 +6,7 @@ import { autobind } from '../utils/mini-autobind.js';
 import { AiScriptError, NonAiScriptError, AiScriptNamespaceError, AiScriptIndexOutOfRangeError, AiScriptRuntimeError } from '../error.js';
 import { Scope } from './scope.js';
 import { std } from './lib/std.js';
-import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray, eq, isObject, isArray, expectAny, reprValue } from './util.js';
+import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray, eq, isObject, isArray, expectAny, reprValue, isFunction } from './util.js';
 import { NULL, RETURN, unWrapRet, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, BREAK, CONTINUE, ERROR } from './value.js';
 import { getPrimProp } from './primitive-props.js';
 import { Variable } from './variable.js';
@@ -210,6 +210,14 @@ export class Interpreter {
 					}
 
 					const value = await this._eval(node.expr, nsScope, []);
+					if (
+						node.expr.type === 'fn'
+						&& node.dest.type === 'identifier'
+						&& isFunction(value)
+						&& !value.native
+					) {
+						value.name = node.dest.name;
+					}
 					await this.define(nsScope, node.dest, value, node.mut);
 
 					break;
@@ -401,6 +409,14 @@ export class Interpreter {
 						});
 					}
 					value.attr = attrs;
+				}
+				if (
+					node.expr.type === 'fn'
+					&& node.dest.type === 'identifier'
+					&& isFunction(value)
+					&& !value.native
+				) {
+					value.name = node.dest.name;
 				}
 				await this.define(scope, node.dest, value, node.mut);
 				return NULL;
