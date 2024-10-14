@@ -23,7 +23,12 @@
 		<div id="ast" class="container">
 			<header>AST</header>
 			<div>
-				<pre>{{ JSON.stringify(ast, null, '\t') }}</pre>
+				<pre>{{ JSON.stringify(ast, (_key, value) => {
+					if (value instanceof Map) {
+						return Object.fromEntries(value);
+					}
+					return value;
+				}, '\t') }}</pre>
 			</div>
 		</div>
 		<div id="bin" class="container">
