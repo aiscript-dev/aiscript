@@ -25,7 +25,7 @@ export type LogObject = {
 
 type CallInfo = {
 	name: string;
-	pos: Ast.Pos;
+	pos: Ast.Pos | undefined;
 };
 
 export class Interpreter {
@@ -238,10 +238,11 @@ export class Interpreter {
 	}
 
 	@autobind
-	private async _fn(fn: VFn, args: Value[], callStack: readonly CallInfo[]): Promise<Value> {
+	private async _fn(fn: VFn, args: Value[], callStack: readonly CallInfo[], pos?: Ast.Pos): Promise<Value> {
 		if (fn.native) {
+			const info: CallInfo = { name: "<native>", pos };
 			const result = fn.native(args, {
-				call: (fn, args) => this._fn(fn, args, callStack),
+				call: (fn, args) => this._fn(fn, args, [...callStack, info]),
 				topCall: this.execFn,
 				registerAbortHandler: this.registerAbortHandler,
 				unregisterAbortHandler: this.unregisterAbortHandler,
@@ -255,7 +256,9 @@ export class Interpreter {
 				if (!argdef.default) expectAny(args[i]);
 				this.define(fnScope, argdef.dest, args[i] ?? argdef.default!, true);
 			}
-			return unWrapRet(await this._run(fn.statements!, fnScope, callStack));
+
+			const info: CallInfo = { name: fn.name ?? "<anonymous>", pos };
+			return unWrapRet(await this._run(fn.statements!, fnScope, [...callStack, info]));
 		}
 	}
 
@@ -269,7 +272,9 @@ export class Interpreter {
 				e2.message = [
 					`${e2.message} (Line ${e2.pos.line}, Column ${e2.pos.column})`,
 					...callStack.map(({ name, pos }) =>
-						`  at ${name} (Line ${pos.line}, Column ${pos.column})`
+						pos
+					 		? `  at ${name} (Line ${pos.line}, Column ${pos.column})`
+					 		: `  at ${name}`
 					).reverse(),
 				].join("\n");
 				throw e2;
@@ -291,15 +296,7 @@ export class Interpreter {
 				const callee = await this._eval(node.target, scope, callStack);
 				assertFunction(callee);
 				const args = await Promise.all(node.args.map(expr => this._eval(expr, scope, callStack)));
-
-				const info: CallInfo = {
-					name:
-						node.target.type === 'identifier' ? node.target.name :
-						node.target.type === 'prop' ? `.${node.target.name}` :
-						"<anonymous>",
-					pos: node.loc.start,
-				};
-				return this._fn(callee, args, [...callStack, info]);
+				return this._fn(callee, args, callStack, node.loc.start);
 			}
 
 			case 'if': {
