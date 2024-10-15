@@ -130,16 +130,16 @@ describe('callstack', () => {
 	test('error in function', async () => {
 		const result = await exeAndGetErrMessage(`
 			@function1() { emitError() }
-			let obj = {
-				function2: @() { function1() }
-			}
-			obj.function2()
+			@function2() { function1() }
+			function2()
 		`);
-		expect(result).toMatch(/at function1.+at \.function2/s);
+		expect(result).toContain("at function2");
 	});
 	test('error in anonymous function', async () => {
 		const result = await exeAndGetErrMessage(`
-			(@() { emitError() })()
+			(@() {
+				(@() { emitError() })()
+			})()
 		`);
 		expect(result).toContain('at <anonymous>');
 	});

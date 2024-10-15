@@ -271,11 +271,12 @@ export class Interpreter {
 				e2.pos = node.loc.start;
 				e2.message = [
 					`${e2.message} (Line ${e2.pos.line}, Column ${e2.pos.column})`,
-					...callStack.map(({ name, pos }) =>
-						pos
-					 		? `  at ${name} (Line ${pos.line}, Column ${pos.column})`
-					 		: `  at ${name}`
-					).reverse(),
+					...callStack.map(({ pos }, i) => {
+						const name = callStack[i - 1]?.name ?? "<root>";
+						return pos
+							? `  at ${name} (Line ${pos.line}, Column ${pos.column})`
+							: `  at ${name}`;
+					}).reverse(),
 				].join("\n");
 				throw e2;
 			}
