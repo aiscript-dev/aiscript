@@ -269,8 +269,8 @@ export class Interpreter {
 				const e2 = (e instanceof AiScriptError) ? e : new NonAiScriptError(e);
 				e2.pos = node.loc.start;
 				e2.message = [
-					`${e2.message} (Line ${e2.pos.line}, Column ${e2.pos.column})`,
-					...callStack.map(({ pos }, i) => {
+					e2.message,
+					...[...callStack, { pos: e2.pos }].map(({ pos }, i) => {
 						const name = callStack[i - 1]?.name ?? '<root>';
 						return pos
 							? `  at ${name} (Line ${pos.line}, Column ${pos.column})`
