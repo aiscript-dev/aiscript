@@ -212,7 +212,6 @@ export class Interpreter {
 					const value = await this._eval(node.expr, nsScope, []);
 					if (
 						node.expr.type === 'fn'
-						&& node.dest.type === 'identifier'
 						&& isFunction(value)
 						&& !value.native
 					) {
@@ -240,7 +239,7 @@ export class Interpreter {
 	@autobind
 	private async _fn(fn: VFn, args: Value[], callStack: readonly CallInfo[], pos?: Ast.Pos): Promise<Value> {
 		if (fn.native) {
-			const info: CallInfo = { name: "<native>", pos };
+			const info: CallInfo = { name: '<native>', pos };
 			const result = fn.native(args, {
 				call: (fn, args) => this._fn(fn, args, [...callStack, info]),
 				topCall: this.execFn,
@@ -257,7 +256,7 @@ export class Interpreter {
 				this.define(fnScope, argdef.dest, args[i] ?? argdef.default!, true);
 			}
 
-			const info: CallInfo = { name: fn.name ?? "<anonymous>", pos };
+			const info: CallInfo = { name: fn.name ?? '<anonymous>', pos };
 			return unWrapRet(await this._run(fn.statements!, fnScope, [...callStack, info]));
 		}
 	}
@@ -272,12 +271,12 @@ export class Interpreter {
 				e2.message = [
 					`${e2.message} (Line ${e2.pos.line}, Column ${e2.pos.column})`,
 					...callStack.map(({ pos }, i) => {
-						const name = callStack[i - 1]?.name ?? "<root>";
+						const name = callStack[i - 1]?.name ?? '<root>';
 						return pos
 							? `  at ${name} (Line ${pos.line}, Column ${pos.column})`
 							: `  at ${name}`;
 					}).reverse(),
-				].join("\n");
+				].join('\n');
 				throw e2;
 			}
 		});
@@ -521,7 +520,7 @@ export class Interpreter {
 							default:
 								arg.default ? await this._eval(arg.default, scope, callStack) :
 								arg.optional ? NULL :
-									undefined,
+								undefined,
 							// type: (TODO)
 						};
 					})),
