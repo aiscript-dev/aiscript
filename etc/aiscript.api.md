@@ -115,6 +115,11 @@ function assertObject(val: Value | null | undefined): asserts val is VObj;
 function assertString(val: Value | null | undefined): asserts val is VStr;
 
 // @public (undocumented)
+function assertValue<TLabel extends Value['type']>(val: Value | null | undefined, label: TLabel): asserts val is Value & {
+    type: TLabel;
+};
+
+// @public (undocumented)
 type Assign = NodeBase & {
     type: 'assign';
     dest: Expression;
@@ -170,6 +175,7 @@ declare namespace Ast {
         Null,
         Obj,
         Arr,
+        Dic,
         Identifier,
         Call,
         Index,
@@ -245,6 +251,39 @@ type Definition = NodeBase & {
 };
 
 // @public (undocumented)
+const DIC: {
+    fromNode: (dic: DicNode) => VDic;
+    fromEntries: (kvs?: [Value, Value][] | undefined) => VDic;
+};
+
+// @public (undocumented)
+type Dic = NodeBase & {
+    type: 'dic';
+    value: [Expression, Expression][];
+};
+
+// @public (undocumented)
+class DicNode {
+    constructor(kvs?: [Value, Value][]);
+    // (undocumented)
+    get(key: Value): Value;
+    // Warning: (ae-forgotten-export) The symbol "SeriExpToken" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    getRaw(keyGen: Generator<SeriExpToken, void, undefined>): Value | undefined;
+    // (undocumented)
+    has(key: Value): boolean;
+    // (undocumented)
+    kvs(): Generator<[Value, Value], void, undefined>;
+    // (undocumented)
+    serializedKvs(keyPrefix?: SeriExpToken[]): Generator<[SeriExpToken[], Value], void, undefined>;
+    // (undocumented)
+    set(key: Value, val: Value): void;
+    // (undocumented)
+    setRaw(keyGen: Generator<SeriExpToken, void, undefined>, val: Value): void;
+}
+
+// @public (undocumented)
 type Div = NodeBase & {
     type: 'div';
     left: Expression;
@@ -296,7 +335,7 @@ type Exists = NodeBase & {
 function expectAny(val: Value | null | undefined): asserts val is Value;
 
 // @public (undocumented)
-type Expression = If | Fn | Match | Block | Exists | Tmpl | Str | Num | Bool | Null | Obj | Arr | Not | Pow | Mul | Div | Rem | Add | Sub | Lt | Lteq | Gt | Gteq | Eq | Neq | And | Or | Identifier | Call | Index | Prop;
+type Expression = If | Fn | Match | Block | Exists | Tmpl | Str | Num | Bool | Null | Obj | Arr | Dic | Not | Pow | Mul | Div | Rem | Add | Sub | Lt | Lteq | Gt | Gteq | Eq | Neq | And | Or | Identifier | Call | Index | Prop;
 
 // @public (undocumented)
 const FALSE: {
@@ -433,6 +472,11 @@ function isStatement(x: Node_2): x is Statement;
 
 // @public (undocumented)
 function isString(val: Value): val is VStr;
+
+// @public (undocumented)
+function isValue<TLabel extends Value['type']>(val: Value, label: TLabel): val is Value & {
+    type: TLabel;
+};
 
 // @public (undocumented)
 function jsToVal(val: unknown): Value;
@@ -699,12 +743,14 @@ declare namespace utils {
         assertNumber,
         assertObject,
         assertArray,
+        assertValue,
         isBoolean,
         isFunction,
         isString,
         isNumber,
         isObject,
         isArray,
+        isValue,
         eq,
         valToString,
         valToJs,
@@ -723,16 +769,18 @@ function valToJs(val: Value): JsValue;
 function valToString(val: Value, simple?: boolean): string;
 
 // @public (undocumented)
-type Value = (VNull | VBool | VNum | VStr | VArr | VObj | VFn | VReturn | VBreak | VContinue | VError) & Attr_2;
+type Value = (VNull | VBool | VNum | VStr | VArr | VObj | VDic | VFn | VReturn | VBreak | VContinue | VError) & Attr_2;
 
 declare namespace values {
     export {
+        DicNode,
         VNull,
         VBool,
         VNum,
         VStr,
         VArr,
         VObj,
+        VDic,
         VFn,
         VUserFn,
         VFnArg,
@@ -751,6 +799,7 @@ declare namespace values {
         BOOL,
         OBJ,
         ARR,
+        DIC,
         FN,
         FN_NATIVE,
         RETURN,
@@ -784,6 +833,12 @@ type VBreak = {
 type VContinue = {
     type: 'continue';
     value: null;
+};
+
+// @public (undocumented)
+type VDic = {
+    type: 'dic';
+    value: DicNode;
 };
 
 // @public (undocumented)
@@ -854,8 +909,8 @@ type VUserFn = VFnBase & {
 
 // Warnings were encountered during analysis:
 //
-// src/interpreter/index.ts:39:4 - (ae-forgotten-export) The symbol "LogObject" needs to be exported by the entry point index.d.ts
-// src/interpreter/value.ts:46:2 - (ae-forgotten-export) The symbol "Type" needs to be exported by the entry point index.d.ts
+// src/interpreter/index.ts:40:4 - (ae-forgotten-export) The symbol "LogObject" needs to be exported by the entry point index.d.ts
+// src/interpreter/value.ts:53:2 - (ae-forgotten-export) The symbol "Type" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

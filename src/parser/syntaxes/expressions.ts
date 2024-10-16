@@ -278,6 +278,9 @@ function parseAtom(s: ITokenStream, isStatic: boolean): Ast.Expression {
 		case TokenKind.OpenBracket: {
 			return parseArray(s, isStatic);
 		}
+		case TokenKind.DicKeyword: {
+			return parseDictionary(s, isStatic);
+		}
 		case TokenKind.Identifier: {
 			if (isStatic) break;
 			return parseReference(s);
@@ -646,6 +649,63 @@ function parseArray(s: ITokenStream, isStatic: boolean): Ast.Arr {
 	s.next();
 
 	return NODE('arr', { value }, startPos, s.getPos());
+}
+
+/**
+ * ```abnf
+ * Dictionary = "dic" "{" ["[" Expr "]" ":" Expr *(SEP Expr ":" Expr) [SEP]] "}"
+ * ```
+*/
+function parseDictionary(s: ITokenStream, isStatic: boolean): Ast.Dic {
+	const startPos = s.getPos();
+
+	s.expect(TokenKind.DicKeyword);
+	s.next();
+	s.expect(TokenKind.OpenBrace);
+	s.next();
+
+	while (s.is(TokenKind.NewLine)) {
+		s.next();
+	}
+
+	const value: [Ast.Expression, Ast.Expression][] = [];
+	while (!s.is(TokenKind.CloseBrace)) {
+		s.expect(TokenKind.OpenBracket);
+		s.next();
+		const k = parseExpr(s, isStatic);
+		s.expect(TokenKind.CloseBracket);
+		s.next();
+
+		s.expect(TokenKind.Colon);
+		s.next();
+
+		const v = parseExpr(s, isStatic);
+
+		value.push([k, v]);
+
+		// separator
+		switch (s.getTokenKind()) {
+			case TokenKind.NewLine:
+			case TokenKind.Comma: {
+				s.next();
+				while (s.is(TokenKind.NewLine)) {
+					s.next();
+				}
+				break;
+			}
+			case TokenKind.CloseBrace: {
+				break;
+			}
+			default: {
+				throw new AiScriptSyntaxError('separator expected', s.getPos());
+			}
+		}
+	}
+
+	s.expect(TokenKind.CloseBrace);
+	s.next();
+
+	return NODE('dic', { value }, startPos, s.getPos());
 }
 
 //#region Pratt parsing

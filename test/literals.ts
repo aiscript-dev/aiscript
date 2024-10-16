@@ -1,7 +1,7 @@
 import * as assert from 'assert';
 import { describe, test } from 'vitest';
 import { } from '../src';
-import { NUM, STR, NULL, ARR, OBJ, BOOL, TRUE, FALSE, ERROR ,FN_NATIVE } from '../src/interpreter/value';
+import { NUM, STR, NULL, ARR, OBJ, DIC, BOOL, TRUE, FALSE, ERROR ,FN_NATIVE } from '../src/interpreter/value';
 import { } from '../src/error';
 import { exe, eq } from './testutils';
 
@@ -58,78 +58,41 @@ describe('literal', () => {
 		eq(res, NUM(0.5));
 	});
 
-	test.concurrent('arr (separated by comma)', async () => {
-		const res = await exe(`
-		<: [1, 2, 3]
-		`);
-		eq(res, ARR([NUM(1), NUM(2), NUM(3)]));
+	describe.each([[
+		'arr',
+		(cm, tcm, lb) => `<: [${lb}1${cm}${lb}2${cm}${lb}3${tcm}${lb}]`,
+		ARR([NUM(1), NUM(2), NUM(3)]),
+	], [
+		'obj',
+		(cm, tcm, lb) => `<: {${lb}a: 1${cm}${lb}b: 2${cm}${lb}c: 3${tcm}${lb}}`,
+		OBJ(new Map([['a', NUM(1)], ['b', NUM(2)], ['c', NUM(3)]])),
+	], [
+		'dic',
+		(cm, tcm, lb) => `<: dic {${lb}[null]: 1${cm}${lb}[2]: 2${cm}${lb}["c"]: 3${tcm}${lb}}`,
+		DIC.fromEntries([[NULL, NUM(1)], [NUM(2), NUM(2)], [STR('c'), NUM(3)]]),
+	]])('%s', (_, script, result) => {
+		test.concurrent.each([[
+			'separated by comma',
+			[', ', '', ''],
+		], [
+			'separated by comma, with trailing comma',
+			[', ', ',', ''],
+		], [
+			'separated by line break',
+			['', '', '\n'],
+		], [
+			'separated by line break and comma',
+			[',', '', '\n'],
+		], [
+			'separated by line break and comma, with trailing comma',
+			[',', ',', '\n'],
+		]])('%s', async (_, [cm, tcm, lb]) => {
+			eq(
+				result,
+				await exe(script(cm, tcm, lb)),
+			);
+		});
 	});
-
-	test.concurrent('arr (separated by comma) (with trailing comma)', async () => {
-		const res = await exe(`
-		<: [1, 2, 3,]
-		`);
-		eq(res, ARR([NUM(1), NUM(2), NUM(3)]));
-	});
-
-	test.concurrent('arr (separated by line break)', async () => {
-		const res = await exe(`
-		<: [
-			1
-			2
-			3
-		]
-		`);
-		eq(res, ARR([NUM(1), NUM(2), NUM(3)]));
-	});
-
-	test.concurrent('arr (separated by line break and comma)', async () => {
-		const res = await exe(`
-		<: [
-			1,
-			2,
-			3
-		]
-		`);
-		eq(res, ARR([NUM(1), NUM(2), NUM(3)]));
-	});
-
-	test.concurrent('arr (separated by line break and comma) (with trailing comma)', async () => {
-		const res = await exe(`
-		<: [
-			1,
-			2,
-			3,
-		]
-		`);
-		eq(res, ARR([NUM(1), NUM(2), NUM(3)]));
-	});
-
-	test.concurrent('obj (separated by comma)', async () => {
-		const res = await exe(`
-		<: { a: 1, b: 2, c: 3 }
-		`);
-		eq(res, OBJ(new Map([['a', NUM(1)], ['b', NUM(2)], ['c', NUM(3)]])));
-	});
-
-	test.concurrent('obj (separated by comma) (with trailing comma)', async () => {
-		const res = await exe(`
-		<: { a: 1, b: 2, c: 3, }
-		`);
-		eq(res, OBJ(new Map([['a', NUM(1)], ['b', NUM(2)], ['c', NUM(3)]])));
-	});
-
-	test.concurrent('obj (separated by line break)', async () => {
-		const res = await exe(`
-		<: {
-			a: 1
-			b: 2
-			c: 3
-		}
-		`);
-		eq(res, OBJ(new Map([['a', NUM(1)], ['b', NUM(2)], ['c', NUM(3)]])));
-	});
-
 	test.concurrent('obj and arr (separated by line break)', async () => {
 		const res = await exe(`
 		<: {

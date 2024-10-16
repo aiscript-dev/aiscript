@@ -62,6 +62,22 @@ export function assertArray(val: Value | null | undefined): asserts val is VArr 
 	}
 }
 
+export function assertValue<
+	TLabel extends Value['type'],
+>(
+	val: Value | null | undefined,
+	label: TLabel,
+): asserts val is Value & {
+	type: TLabel;
+} {
+	if (val == null) {
+		throw new AiScriptRuntimeError(`Expect ${label}, but got nothing.`);
+	}
+	if (val.type !== label) {
+		throw new AiScriptRuntimeError(`Expect ${label}, but got ${val.type}.`);
+	}
+}
+
 export function isBoolean(val: Value): val is VBool {
 	return val.type === 'bool';
 }
@@ -84,6 +100,15 @@ export function isObject(val: Value): val is VObj {
 
 export function isArray(val: Value): val is VArr {
 	return val.type === 'arr';
+}
+
+export function isValue<
+	TLabel extends Value['type'],
+>(
+	val: Value,
+	label: TLabel,
+): val is Value & { type: TLabel } {
+	return val.type === label;
 }
 
 export function eq(a: Value, b: Value): boolean {
@@ -187,6 +212,16 @@ export function reprValue(value: Value, literalLike = false, processedObjects = 
 		}
 
 		return '{ ' + content.join(', ') + ' }';
+	}
+	if (value.type === 'dic') {
+		processedObjects.add(value.value);
+		const content = [];
+
+		for (const [key, val] of value.value.kvs()) {
+			content.push(`[${reprValue(key, true, processedObjects)}]: ${reprValue(val, true, processedObjects)}`);
+		}
+
+		return 'dic { ' + content.join(', ') + ' }';
 	}
 	if (value.type === 'bool') return value.value.toString();
 	if (value.type === 'null') return 'null';

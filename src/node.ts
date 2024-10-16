@@ -133,6 +133,7 @@ export type Expression =
 	Null |
 	Obj |
 	Arr |
+	Dic |
 	Not |
 	Pow |
 	Mul |
@@ -154,7 +155,7 @@ export type Expression =
 	Prop;
 
 const expressionTypes = [
-	'if', 'fn', 'match', 'block', 'exists', 'tmpl', 'str', 'num', 'bool', 'null', 'obj', 'arr',
+	'if', 'fn', 'match', 'block', 'exists', 'tmpl', 'str', 'num', 'bool', 'null', 'obj', 'arr', 'dic',
 	'not', 'pow', 'mul', 'div', 'rem', 'add', 'sub', 'lt', 'lteq', 'gt', 'gteq', 'eq', 'neq', 'and', 'or',
 	'identifier', 'call', 'index', 'prop',
 ];
@@ -326,6 +327,11 @@ export type Obj = NodeBase & {
 export type Arr = NodeBase & {
 	type: 'arr'; // 配列
 	value: Expression[]; // アイテム
+};
+
+export type Dic = NodeBase & {
+	type: 'dic'; // 連想配列
+	value: [Expression, Expression][]; // アイテム
 };
 
 export type Identifier = NodeBase & {

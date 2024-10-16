@@ -27,6 +27,7 @@ const getInterpreter = () => new Interpreter({}, {
 	},
 	err(e) {
 		console.log(chalk.red(`${e}`));
+		interpreter = getInterpreter();
 	},
 	log(type, params) {
 		switch (type) {
@@ -36,17 +37,22 @@ const getInterpreter = () => new Interpreter({}, {
 	}
 });
 
-let interpreter;
+let interpreter = getInterpreter();
 async function main(){
 	let a = await i.question('> ');
-	interpreter?.abort();
 	if (a === 'exit') return false;
+	if (a === 'reset') {
+		interpreter.abort();
+		interpreter = getInterpreter();
+		return true;
+	}
 	try {
 		let ast = Parser.parse(a);
-		interpreter = getInterpreter();
 		await interpreter.exec(ast);
 	} catch(e) {
 		console.log(chalk.red(`${e}`));
+		interpreter.abort();
+		interpreter = getInterpreter();
 	}
 	return true;
 };

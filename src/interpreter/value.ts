@@ -1,3 +1,5 @@
+import { DicNode } from './dic.js';
+export { DicNode };
 import type { Expression, Node } from '../node.js';
 import type { Type } from '../type.js';
 import type { Scope } from './scope.js';
@@ -29,6 +31,11 @@ export type VArr = {
 export type VObj = {
 	type: 'obj';
 	value: Map<string, Value>;
+};
+
+export type VDic = {
+	type: 'dic';
+	value: DicNode;
 };
 
 export type VFn = VUserFn | VNativeFn;
@@ -86,7 +93,7 @@ export type Attr = {
 	}[];
 };
 
-export type Value = (VNull | VBool | VNum | VStr | VArr | VObj | VFn | VReturn | VBreak | VContinue | VError) & Attr;
+export type Value = (VNull | VBool | VNum | VStr | VArr | VObj | VDic | VFn | VReturn | VBreak | VContinue | VError) & Attr;
 
 export const NULL = {
 	type: 'null' as const,
@@ -126,6 +133,17 @@ export const ARR = (arr: VArr['value']): VArr => ({
 	type: 'arr' as const,
 	value: arr,
 });
+
+export const DIC = {
+	fromNode: (dic: DicNode): VDic => ({
+		type: 'dic' as const,
+		value: dic,
+	}),
+	fromEntries: (...dic: ConstructorParameters<typeof DicNode>): VDic => ({
+		type: 'dic' as const,
+		value: new DicNode(...dic),
+	}),
+};
 
 export const FN = (args: VUserFn['args'], statements: VUserFn['statements'], scope: VUserFn['scope']): VUserFn => ({
 	type: 'fn' as const,

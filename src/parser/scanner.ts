@@ -406,6 +406,9 @@ export class Scanner implements ITokenStream {
 			case 'exists': {
 				return TOKEN(TokenKind.ExistsKeyword, pos, { hasLeftSpacing });
 			}
+			case 'dic': {
+				return TOKEN(TokenKind.DicKeyword, pos, { hasLeftSpacing });
+			}
 			default: {
 				return TOKEN(TokenKind.Identifier, pos, { hasLeftSpacing, value });
 			}
