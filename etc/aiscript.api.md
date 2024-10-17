@@ -635,6 +635,7 @@ export class Scope {
     exists(name: string): boolean;
     get(name: string): Value;
     getAll(): Map<string, Variable>;
+    getNsPrefix(): string;
     // (undocumented)
     name: string;
     // (undocumented)
@@ -847,6 +848,7 @@ type VStr = {
 // @public (undocumented)
 type VUserFn = VFnBase & {
     native?: undefined;
+    name?: string;
     args: VFnArg[];
     statements: Node_2[];
     scope: Scope;
@@ -854,8 +856,8 @@ type VUserFn = VFnBase & {
 
 // Warnings were encountered during analysis:
 //
-// src/interpreter/index.ts:39:4 - (ae-forgotten-export) The symbol "LogObject" needs to be exported by the entry point index.d.ts
-// src/interpreter/value.ts:46:2 - (ae-forgotten-export) The symbol "Type" needs to be exported by the entry point index.d.ts
+// src/interpreter/index.ts:44:4 - (ae-forgotten-export) The symbol "LogObject" needs to be exported by the entry point index.d.ts
+// src/interpreter/value.ts:47:2 - (ae-forgotten-export) The symbol "Type" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 
