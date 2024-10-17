@@ -133,7 +133,12 @@ describe('callstack', () => {
 			@function2() { function1() }
 			function2()
 		`);
-		expect(result).toMatch(/at function1.+at function2/s);
+		expect(result).toMatchInlineSnapshot(`
+			"emitError
+			  at function1 (Line 2, Column 28)
+			  at function2 (Line 3, Column 28)
+			  at <root> (Line 4, Column 13)"
+		`);
 	});
 	test('error in function in namespace', async () => {
 		const result = await exeAndGetErrMessage(`
@@ -142,12 +147,20 @@ describe('callstack', () => {
 			}
 			Ai:function()
 		`);
-		expect(result).toContain("at Ai:function");
+		expect(result).toMatchInlineSnapshot(`
+			"emitError
+			  at Ai:function (Line 3, Column 28)
+			  at <root> (Line 5, Column 15)"
+		`);
 	});
 	test('error in anonymous function', async () => {
 		const result = await exeAndGetErrMessage(`
 			(@() { emitError() })()
 		`);
-		expect(result).toContain('at <anonymous>');
+		expect(result).toMatchInlineSnapshot(`
+			"emitError
+			  at <anonymous> (Line 2, Column 20)
+			  at <root> (Line 2, Column 25)"
+		`);
 	});
 });
