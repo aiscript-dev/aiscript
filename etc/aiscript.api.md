@@ -635,6 +635,7 @@ export class Scope {
     exists(name: string): boolean;
     get(name: string): Value;
     getAll(): Map<string, Variable>;
+    getNsPrefix(): string;
     // (undocumented)
     name: string;
     // (undocumented)

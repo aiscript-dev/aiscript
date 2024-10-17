@@ -215,7 +215,7 @@ export class Interpreter {
 						&& isFunction(value)
 						&& !value.native
 					) {
-						value.name = node.dest.name;
+						value.name = nsScope.getNsPrefix() + node.dest.name;
 					}
 					await this.define(nsScope, node.dest, value, node.mut);
 

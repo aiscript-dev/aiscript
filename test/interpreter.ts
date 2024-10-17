@@ -135,6 +135,15 @@ describe('callstack', () => {
 		`);
 		expect(result).toMatch(/at function1.+at function2/s);
 	});
+	test('error in function in namespace', async () => {
+		const result = await exeAndGetErrMessage(`
+			:: Ai {
+				@function() { emitError() }
+			}
+			Ai:function()
+		`);
+		expect(result).toContain("at Ai:function");
+	});
 	test('error in anonymous function', async () => {
 		const result = await exeAndGetErrMessage(`
 			(@() { emitError() })()
