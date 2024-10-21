@@ -114,3 +114,33 @@ describe('error location', () => {
 		`)).resolves.toEqual({ line: 2, column: 6});
 	});
 });
+
+describe('IRQ', () => {
+	async function countSleeps(irqRate: number): Promise<number> {
+		let count = 0;
+		const interpreter = new Interpreter({}, {
+			irqRate,
+			// It's safe only when no massive loop occurs
+			irqSleep: async () => count++,
+		});
+		await interpreter.exec(Parser.parse(`
+		'Ai-chan kawaii'
+		'Ai-chan kawaii'
+		'Ai-chan kawaii'
+		'Ai-chan kawaii'
+		'Ai-chan kawaii'
+		'Ai-chan kawaii'
+		'Ai-chan kawaii'
+		'Ai-chan kawaii'
+		'Ai-chan kawaii'
+		'Ai-chan kawaii'`));
+		return count;
+	}
+	test.concurrent.each([
+		[1, 10],
+		[2, 5],
+		[10, 1],
+	])('rate = %d', async (rate, count) => {
+		return expect(countSleeps(rate)).resolves.toEqual(count);
+	});
+});
