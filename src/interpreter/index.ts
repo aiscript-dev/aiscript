@@ -14,9 +14,6 @@ import type { JsValue } from './util.js';
 import type { Value, VFn } from './value.js';
 import type * as Ast from '../node.js';
 
-const IRQ_RATE = 300;
-const IRQ_AT = IRQ_RATE - 1;
-
 export type LogObject = {
 	scope?: string;
 	var?: string;
@@ -29,6 +26,8 @@ export class Interpreter {
 	public scope: Scope;
 	private abortHandlers: (() => void)[] = [];
 	private vars: Record<string, Variable> = {};
+	private irqRate: number;
+	private irqSleep: () => Promise<void>;
 
 	constructor(
 		consts: Record<string, Value>,
@@ -39,6 +38,8 @@ export class Interpreter {
 			log?(type: string, params: LogObject): void;
 			maxStep?: number;
 			abortOnError?: boolean;
+			irqRate?: number;
+			irqSleep?: number | (() => Promise<void>);
 		} = {},
 	) {
 		const io = {
@@ -70,6 +71,13 @@ export class Interpreter {
 				default: break;
 			}
 		};
+
+		this.irqRate = this.opts.irqRate ?? 300;
+		if (typeof this.opts.irqSleep === 'function') {
+			this.irqSleep = this.opts.irqSleep;
+		} else {
+			this.irqSleep = (): void => new Promise(resolve => setTimeout(resolve, (this.opts.irqSleep ?? 5) as number));
+		}
 	}
 
 	@autobind
@@ -262,7 +270,9 @@ export class Interpreter {
 	@autobind
 	private async __eval(node: Ast.Node, scope: Scope): Promise<Value> {
 		if (this.stop) return NULL;
-		if (this.stepCount % IRQ_RATE === IRQ_AT) await new Promise(resolve => setTimeout(resolve, 5));
+		if (this.stepCount % this.irqRate === this.irqRate - 1) {
+			await this.irqSleep();
+		}
 		this.stepCount++;
 		if (this.opts.maxStep && this.stepCount > this.opts.maxStep) {
 			throw new AiScriptRuntimeError('max step exceeded');

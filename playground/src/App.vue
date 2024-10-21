@@ -1,6 +1,7 @@
 <template>
 <div id="root">
-	<h1>AiScript (v{{ AISCRIPT_VERSION }}) Playground</h1>
+	<Settings v-if="showSettings" @exit="showSettings = false" />
+	<h1>AiScript (v{{ AISCRIPT_VERSION }}) Playground<button id="show-settings-button" @click="showSettings = true">Settings</button></h1>
 	<div id="grid1">
 		<div id="editor" class="container">
 			<header>Input<div class="actions"><button @click="setCode">FizzBuzz</button></div></header>
@@ -57,12 +58,14 @@ import { highlight, languages } from 'prismjs/components/prism-core';
 import 'prismjs/components/prism-clike';
 import 'prismjs/components/prism-javascript';
 import 'prismjs/themes/prism-okaidia.css';
+import Settings, { settings } from './Settings.vue';
 
 const script = ref(window.localStorage.getItem('script') || '<: "Hello, AiScript!"');
 
 const ast = ref(null);
 const logs = ref([]);
 const syntaxErrorMessage = ref(null);
+const showSettings = ref(false);
 
 watch(script, () => {
 	window.localStorage.setItem('script', script.value);
@@ -119,7 +122,9 @@ const run = async () => {
 				}); break;
 				default: break;
 			}
-		}
+		},
+		irqRate: settings.value.irqRate,
+		irqSleep: settings.value.irqSleep,
 	});
 
 	try {
@@ -167,6 +172,11 @@ pre {
 #root > h1 {
 	font-size: 1.5em;
 	margin: 16px 16px 0 16px;
+	display: flex;
+}
+
+#show-settings-button {
+	margin-left: auto;
 }
 
 #grid1 {
