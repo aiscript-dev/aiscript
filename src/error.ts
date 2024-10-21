@@ -86,3 +86,12 @@ export class AiScriptUserError extends AiScriptRuntimeError {
 		super(message, info);
 	}
 }
+/**
+ * Host side configuration errors.
+ */
+export class AiScriptHostsideError extends AiScriptError {
+	public name = 'Host';
+	constructor(message: string, info?: unknown) {
+		super(message, info);
+	}
+}
