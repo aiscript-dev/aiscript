@@ -76,7 +76,7 @@ export class Interpreter {
 		if (typeof this.opts.irqSleep === 'function') {
 			this.irqSleep = this.opts.irqSleep;
 		} else {
-			this.irqSleep = (): void => new Promise(resolve => setTimeout(resolve, (this.opts.irqSleep ?? 5) as number));
+			this.irqSleep = (): Promise<void> => new Promise(resolve => setTimeout(resolve, (this.opts.irqSleep ?? 5) as number));
 		}
 	}
 
