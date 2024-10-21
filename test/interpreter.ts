@@ -3,7 +3,7 @@ import { describe, expect, test } from 'vitest';
 import { Parser, Interpreter, values, errors, utils, Ast } from '../src';
 
 let { FN_NATIVE } = values;
-let { AiScriptRuntimeError, AiScriptIndexOutOfRangeError } = errors;
+let { AiScriptRuntimeError, AiScriptIndexOutOfRangeError, AiScriptHostsideError } = errors;
 
 describe('Scope', () => {
 	test.concurrent('getAll', async () => {
@@ -136,11 +136,20 @@ describe('IRQ', () => {
 		'Ai-chan kawaii'`));
 		return count;
 	}
+
 	test.concurrent.each([
+		[0, 0],
 		[1, 10],
 		[2, 5],
 		[10, 1],
+		[Infinity, 0],
 	])('rate = %d', async (rate, count) => {
 		return expect(countSleeps(rate)).resolves.toEqual(count);
+	});
+
+	test.concurrent.each([
+		[-1, NaN],
+	])('rate = %d', async (rate, count) => {
+		return expect(countSleeps(rate)).rejects.toThrow(AiScriptHostsideError);
 	});
 });

@@ -72,7 +72,7 @@ export class Interpreter {
 			}
 		};
 
-		if (this.irqRate < 0) throw new AiScriptHostsideError('IRQ rate must not be negative value');
+		if (this.opts.irqRate < 0) throw new AiScriptHostsideError('IRQ rate must not be negative value');
 		this.irqRate = this.opts.irqRate ?? 300;
 		if (typeof this.opts.irqSleep === 'function') {
 			this.irqSleep = this.opts.irqSleep;
@@ -271,10 +271,7 @@ export class Interpreter {
 	@autobind
 	private async __eval(node: Ast.Node, scope: Scope): Promise<Value> {
 		if (this.stop) return NULL;
-		// When this.irqRate is zero, the % operation results in NaN
-		// So the whole condition is always false and this.irqSleep would never be called
-		// It's the same behavior as when this.irqRate is Infinity
-		if (this.stepCount % this.irqRate >= this.irqRate - 1) {
+		if (this.irqRate !== 0 && this.stepCount % this.irqRate >= this.irqRate - 1) {
 			await this.irqSleep();
 		}
 		this.stepCount++;
