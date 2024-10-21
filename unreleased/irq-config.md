@@ -1,0 +1,3 @@
+- For Hosts: Interpreterのオプションに`irqRate`と`irqSleep`を追加
+  - `irqRate`はInterpreterの定期休止が何ステップに一回起こるかを指定する数値
+  - `irqSleep`は休止時間をミリ秒で指定する数値、または休止ごとにawaitされるPromiseを返す関数
