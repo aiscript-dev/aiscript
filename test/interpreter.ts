@@ -185,15 +185,15 @@ describe('IRQ', () => {
 
 		test.concurrent('It ends', async () => {
 			const countSleepsSpy = vi.fn(countSleeps);
-			const promise = countSleepsSpy(100);
-			vi.advanceTimersByTime(1000);
+			countSleepsSpy(100);
+			await vi.advanceTimersByTimeAsync(1000);
 			return expect(countSleepsSpy).toHaveResolved();
 		});
 
-		test.concurrent('It takes time', () => {
+		test.concurrent('It takes time', async () => {
 			const countSleepsSpy = vi.fn(countSleeps);
-			const promise = countSleepsSpy(100);
-			vi.advanceTimersByTime(900);
+			countSleepsSpy(100);
+			await vi.advanceTimersByTimeAsync(999);
 			return expect(countSleepsSpy).not.toHaveResolved();
 		});
 
