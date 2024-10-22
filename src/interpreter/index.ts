@@ -72,12 +72,23 @@ export class Interpreter {
 			}
 		};
 
-		if (this.opts.irqRate < 0) throw new AiScriptHostsideError('IRQ rate must not be negative value');
+		if (!((this.opts.irqRate ?? 300) >= 0)) {
+			throw new AiScriptHostsideError(`Invalid IRQ rate (${this.opts.irqRate}): must be non-negative number`);
+		}
 		this.irqRate = this.opts.irqRate ?? 300;
+
+		const sleep = (time: number) => (
+			(): Promise<void> => new Promise(resolve => setTimeout(resolve, time))
+		);
+
 		if (typeof this.opts.irqSleep === 'function') {
 			this.irqSleep = this.opts.irqSleep;
+		} else if (this.opts.irqSleep === undefined) {
+			this.irqSleep = sleep(5);
+		} else if (this.opts.irqSleep >= 0) {
+			this.irqSleep = sleep(this.opts.irqSleep);
 		} else {
-			this.irqSleep = (): Promise<void> => new Promise(resolve => setTimeout(resolve, (this.opts.irqSleep ?? 5) as number));
+			throw new AiScriptHostsideError('irqSleep must be a function or a positive number.');
 		}
 	}
 
