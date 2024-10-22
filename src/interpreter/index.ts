@@ -282,6 +282,7 @@ export class Interpreter {
 	@autobind
 	private async __eval(node: Ast.Node, scope: Scope): Promise<Value> {
 		if (this.stop) return NULL;
+		// irqRateが小数の場合は不等間隔になる
 		if (this.irqRate !== 0 && this.stepCount % this.irqRate >= this.irqRate - 1) {
 			await this.irqSleep();
 		}
