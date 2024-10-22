@@ -35,6 +35,13 @@ abstract class AiScriptError extends Error {
 }
 
 // @public
+class AiScriptHostsideError extends AiScriptError {
+    constructor(message: string, info?: unknown);
+    // (undocumented)
+    name: string;
+}
+
+// @public
 class AiScriptIndexOutOfRangeError extends AiScriptRuntimeError {
     constructor(message: string, info?: unknown);
 }
@@ -281,7 +288,8 @@ declare namespace errors {
         AiScriptNamespaceError,
         AiScriptRuntimeError,
         AiScriptIndexOutOfRangeError,
-        AiScriptUserError
+        AiScriptUserError,
+        AiScriptHostsideError
     }
 }
 export { errors }
