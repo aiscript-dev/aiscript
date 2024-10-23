@@ -183,21 +183,21 @@ describe('IRQ', () => {
 			vi.restoreAllMocks();
 		})
 
-		test.concurrent('It ends', async () => {
+		test('It ends', async () => {
 			const countSleepsSpy = vi.fn(countSleeps);
 			countSleepsSpy(100);
 			await vi.advanceTimersByTimeAsync(1000);
 			return expect(countSleepsSpy).toHaveResolved();
 		});
 
-		test.concurrent('It takes time', async () => {
+		test('It takes time', async () => {
 			const countSleepsSpy = vi.fn(countSleeps);
 			countSleepsSpy(100);
 			await vi.advanceTimersByTimeAsync(999);
 			return expect(countSleepsSpy).not.toHaveResolved();
 		});
 
-		test.concurrent.each(
+		test.each(
 			[-1, NaN]
 		)('Invalid number: %d', (time) => {
 			return expect(countSleeps(time)).rejects.toThrow(AiScriptHostsideError);
