@@ -12,7 +12,7 @@ jobs:
       matrix: ${{ steps.getb.outputs.matrix }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.2.1
+        uses: actions/checkout@v4.2.2
         with:
           fetch-depth: 0
           
@@ -46,7 +46,7 @@ jobs:
 
     steps:
       - name: Checkout ${{ matrix.branch }}
-        uses: actions/checkout@v4.2.1
+        uses: actions/checkout@v4.2.2
         with:
           ref: ${{ matrix.branch }}
 
