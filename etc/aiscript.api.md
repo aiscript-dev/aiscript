@@ -35,6 +35,13 @@ abstract class AiScriptError extends Error {
 }
 
 // @public
+class AiScriptHostsideError extends AiScriptError {
+    constructor(message: string, info?: unknown);
+    // (undocumented)
+    name: string;
+}
+
+// @public
 class AiScriptIndexOutOfRangeError extends AiScriptRuntimeError {
     constructor(message: string, info?: unknown);
 }
@@ -281,7 +288,8 @@ declare namespace errors {
         AiScriptNamespaceError,
         AiScriptRuntimeError,
         AiScriptIndexOutOfRangeError,
-        AiScriptUserError
+        AiScriptUserError,
+        AiScriptHostsideError
     }
 }
 export { errors }
@@ -391,6 +399,8 @@ export class Interpreter {
         log?(type: string, params: LogObject): void;
         maxStep?: number;
         abortOnError?: boolean;
+        irqRate?: number;
+        irqSleep?: number | (() => Promise<void>);
     });
     // (undocumented)
     abort(): void;
@@ -854,7 +864,7 @@ type VUserFn = VFnBase & {
 
 // Warnings were encountered during analysis:
 //
-// src/interpreter/index.ts:39:4 - (ae-forgotten-export) The symbol "LogObject" needs to be exported by the entry point index.d.ts
+// src/interpreter/index.ts:38:4 - (ae-forgotten-export) The symbol "LogObject" needs to be exported by the entry point index.d.ts
 // src/interpreter/value.ts:46:2 - (ae-forgotten-export) The symbol "Type" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
