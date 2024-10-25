@@ -176,6 +176,24 @@ describe('separator', () => {
 			`);
 			eq(res, STR('c'));
 		});
+
+		test.concurrent('no separator', async () => {
+			await assert.rejects(async () => {
+				await exe(`
+				let x = 1
+				<:match x{case 1=>"a" case 2=>"b"}
+				`);
+			});
+		});
+
+		test.concurrent('no separator (default)', async () => {
+			await assert.rejects(async () => {
+				await exe(`
+				let x = 1
+				<:match x{case 1=>"a" default=>"b"}
+				`);
+			});
+		});
 	});
 
 	describe('call', () => {

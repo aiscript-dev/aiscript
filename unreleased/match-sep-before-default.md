@@ -1,0 +1,1 @@
+- **Breaking Change** match式において、case節とdefault節の間に区切り文字が必須になりました。case節の後にdefault節を区切り文字なしで続けると文法エラーになります。
