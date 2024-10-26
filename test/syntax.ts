@@ -725,6 +725,15 @@ describe('for', () => {
 		}
 		assert.fail();
 	});
+
+	test.concurrent('scope', async () => {
+		await assert.rejects(async () => {
+			await exe(`
+			for 1 let a = 1
+			<: a
+			`);
+		});
+	});
 });
 
 describe('each', () => {
@@ -1460,6 +1469,27 @@ describe('if', () => {
 		`);
 		eq(res2, STR('kawaii'));
 	});
+
+	test.concurrent('scope', async () => {
+		await assert.rejects(async () => {
+			await exe(`
+			if true let a = 1
+			<: a
+			`);
+		});
+		await assert.rejects(async () => {
+			await exe(`
+			if false null elif true let a = 1
+			<: a
+			`);
+		});
+		await assert.rejects(async () => {
+			await exe(`
+			if false null else let a = 1
+			<: a
+			`);
+		});
+	});
 });
 
 describe('eval', () => {
@@ -1540,6 +1570,21 @@ describe('match', () => {
 		<: f(1)
 		`);
 		eq(res, STR('ai'));
+	});
+
+	test.concurrent('scope', async () => {
+		await assert.rejects(async () => {
+			await exe(`
+			match 1 { case 1 => let a = 1 }
+			<: a
+			`);
+		});
+		await assert.rejects(async () => {
+			await exe(`
+			match 1 { default => let a = 1 }
+			<: a
+			`);
+		});
 	});
 });
 
