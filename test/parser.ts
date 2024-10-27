@@ -152,5 +152,6 @@ describe('Scanner', () => {
 		next(stream, TokenKind.OpenBrace, { line: 1, column: 8 }, { });
 		next(stream, TokenKind.NewLine, { line: 1, column: 9 }, { });
 		next(stream, TokenKind.CloseBrace, { line: 3, column: 1 }, { });
-	})
+		next(stream, TokenKind.EOF, { line: 3, column: 2 }, { });
+	});
 });
