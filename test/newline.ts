@@ -253,4 +253,70 @@ describe('empty lines', () => {
             eq(res, NUM(1));
         });
     });
+
+    describe('obj literal', () => {
+        test.concurrent('empty line', async () => {
+            const res = await exe(`
+            <: {
+                // comment
+            }
+            `);
+            eq(res, OBJ(new Map()));
+        });
+
+        test.concurrent('empty line before', async () => {
+            const res = await exe(`
+            let x = {
+                // comment
+                a: 1
+            }
+            <: x.a
+            `);
+            eq(res, NUM(1));
+        });
+
+        test.concurrent('empty line after', async () => {
+            const res = await exe(`
+            let x = {
+                a: 1
+                // comment
+            }
+            <: x.a
+            `);
+            eq(res, NUM(1));
+        });
+    });
+
+    describe('arr literal', () => {
+        test.concurrent('empty line', async () => {
+            const res = await exe(`
+            <: [
+                // comment
+            ]
+            `);
+            eq(res, ARR([]));
+        });
+
+        test.concurrent('empty line before', async () => {
+            const res = await exe(`
+            let x = [
+                // comment
+                1
+            ]
+            <: x[0]
+            `);
+            eq(res, NUM(1));
+        });
+
+        test.concurrent('empty line after', async () => {
+            const res = await exe(`
+            let x = [
+                1
+                // comment
+            ]
+            <: x[0]
+            `);
+            eq(res, NUM(1));
+        });
+    });
 });
