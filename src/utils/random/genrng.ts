@@ -1,9 +1,9 @@
 import seedrandom from 'seedrandom';
 import { FN_NATIVE, NULL, NUM } from '../../interpreter/value.js';
+import { textEncoder } from '../../const.js';
 import { SeedRandomWrapper } from './seedrandom.js';
 import { ChaCha20 } from './chacha20.js';
 import type { VNativeFn, VNull, Value } from '../../interpreter/value.js';
-import { textEncoder } from '../../const.js';
 
 export function GenerateLegacyRandom(seed: Value | undefined) : VNativeFn | VNull {
 	if (!seed || seed.type !== 'num' && seed.type !== 'str') return NULL;

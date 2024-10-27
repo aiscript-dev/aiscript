@@ -1,9 +1,9 @@
 import * as assert from 'assert';
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi, beforeEach, afterEach } from 'vitest';
 import { Parser, Interpreter, values, errors, utils, Ast } from '../src';
 
 let { FN_NATIVE } = values;
-let { AiScriptRuntimeError, AiScriptIndexOutOfRangeError } = errors;
+let { AiScriptRuntimeError, AiScriptIndexOutOfRangeError, AiScriptHostsideError } = errors;
 
 describe('Scope', () => {
 	test.concurrent('getAll', async () => {
@@ -162,5 +162,95 @@ describe('callstack', () => {
 			  at <anonymous> (Line 2, Column 20)
 			  at <root> (Line 2, Column 25)"
 		`);
+	});
+});
+
+describe('IRQ', () => {
+	describe('irqSleep is function', () => {
+		async function countSleeps(irqRate: number): Promise<number> {
+			let count = 0;
+			const interpreter = new Interpreter({}, {
+				irqRate,
+				// It's safe only when no massive loop occurs
+				irqSleep: async () => count++,
+			});
+			await interpreter.exec(Parser.parse(`
+			'Ai-chan kawaii'
+			'Ai-chan kawaii'
+			'Ai-chan kawaii'
+			'Ai-chan kawaii'
+			'Ai-chan kawaii'
+			'Ai-chan kawaii'
+			'Ai-chan kawaii'
+			'Ai-chan kawaii'
+			'Ai-chan kawaii'
+			'Ai-chan kawaii'`));
+			return count;
+		}
+
+		test.concurrent.each([
+			[0, 0],
+			[1, 10],
+			[2, 5],
+			[10, 1],
+			[Infinity, 0],
+		])('rate = %d', async (rate, count) => {
+			return expect(countSleeps(rate)).resolves.toEqual(count);
+		});
+
+		test.concurrent.each(
+			[-1, NaN],
+		)('rate = %d', async (rate, count) => {
+			return expect(countSleeps(rate)).rejects.toThrow(AiScriptHostsideError);
+		});
+	});
+
+	describe('irqSleep is number', () => {
+		// This function does IRQ 10 times so takes 10 * irqSleep milliseconds in sum when executed.
+		async function countSleeps(irqSleep: number): Promise<void> {
+			const interpreter = new Interpreter({}, {
+				irqRate: 1,
+				irqSleep,
+			});
+			await interpreter.exec(Parser.parse(`
+			'Ai-chan kawaii'
+			'Ai-chan kawaii'
+			'Ai-chan kawaii'
+			'Ai-chan kawaii'
+			'Ai-chan kawaii'
+			'Ai-chan kawaii'
+			'Ai-chan kawaii'
+			'Ai-chan kawaii'
+			'Ai-chan kawaii'
+			'Ai-chan kawaii'`));
+		}
+
+		beforeEach(() => {
+			vi.useFakeTimers();
+		})
+
+		afterEach(() => {
+			vi.restoreAllMocks();
+		})
+
+		test('It ends', async () => {
+			const countSleepsSpy = vi.fn(countSleeps);
+			countSleepsSpy(100);
+			await vi.advanceTimersByTimeAsync(1000);
+			return expect(countSleepsSpy).toHaveResolved();
+		});
+
+		test('It takes time', async () => {
+			const countSleepsSpy = vi.fn(countSleeps);
+			countSleepsSpy(100);
+			await vi.advanceTimersByTimeAsync(999);
+			return expect(countSleepsSpy).not.toHaveResolved();
+		});
+
+		test.each(
+			[-1, NaN]
+		)('Invalid number: %d', (time) => {
+			return expect(countSleeps(time)).rejects.toThrow(AiScriptHostsideError);
+		});
 	});
 });

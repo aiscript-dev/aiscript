@@ -3,7 +3,7 @@
  */
 
 import { autobind } from '../utils/mini-autobind.js';
-import { AiScriptError, NonAiScriptError, AiScriptNamespaceError, AiScriptIndexOutOfRangeError, AiScriptRuntimeError } from '../error.js';
+import { AiScriptError, NonAiScriptError, AiScriptNamespaceError, AiScriptIndexOutOfRangeError, AiScriptRuntimeError, AiScriptHostsideError } from '../error.js';
 import { Scope } from './scope.js';
 import { std } from './lib/std.js';
 import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray, eq, isObject, isArray, expectAny, reprValue, isFunction } from './util.js';
@@ -13,9 +13,6 @@ import { Variable } from './variable.js';
 import type { JsValue } from './util.js';
 import type { Value, VFn } from './value.js';
 import type * as Ast from '../node.js';
-
-const IRQ_RATE = 300;
-const IRQ_AT = IRQ_RATE - 1;
 
 export type LogObject = {
 	scope?: string;
@@ -34,6 +31,8 @@ export class Interpreter {
 	public scope: Scope;
 	private abortHandlers: (() => void)[] = [];
 	private vars: Record<string, Variable> = {};
+	private irqRate: number;
+	private irqSleep: () => Promise<void>;
 
 	constructor(
 		consts: Record<string, Value>,
@@ -44,6 +43,8 @@ export class Interpreter {
 			log?(type: string, params: LogObject): void;
 			maxStep?: number;
 			abortOnError?: boolean;
+			irqRate?: number;
+			irqSleep?: number | (() => Promise<void>);
 		} = {},
 	) {
 		const io = {
@@ -75,6 +76,25 @@ export class Interpreter {
 				default: break;
 			}
 		};
+
+		if (!((this.opts.irqRate ?? 300) >= 0)) {
+			throw new AiScriptHostsideError(`Invalid IRQ rate (${this.opts.irqRate}): must be non-negative number`);
+		}
+		this.irqRate = this.opts.irqRate ?? 300;
+
+		const sleep = (time: number) => (
+			(): Promise<void> => new Promise(resolve => setTimeout(resolve, time))
+		);
+
+		if (typeof this.opts.irqSleep === 'function') {
+			this.irqSleep = this.opts.irqSleep;
+		} else if (this.opts.irqSleep === undefined) {
+			this.irqSleep = sleep(5);
+		} else if (this.opts.irqSleep >= 0) {
+			this.irqSleep = sleep(this.opts.irqSleep);
+		} else {
+			throw new AiScriptHostsideError('irqSleep must be a function or a positive number.');
+		}
 	}
 
 	@autobind
@@ -285,7 +305,10 @@ export class Interpreter {
 	@autobind
 	private async __eval(node: Ast.Node, scope: Scope, callStack: readonly CallInfo[]): Promise<Value> {
 		if (this.stop) return NULL;
-		if (this.stepCount % IRQ_RATE === IRQ_AT) await new Promise(resolve => setTimeout(resolve, 5));
+		// irqRateが小数の場合は不等間隔になる
+		if (this.irqRate !== 0 && this.stepCount % this.irqRate >= this.irqRate - 1) {
+			await this.irqSleep();
+		}
 		this.stepCount++;
 		if (this.opts.maxStep && this.stepCount > this.opts.maxStep) {
 			throw new AiScriptRuntimeError('max step exceeded');
