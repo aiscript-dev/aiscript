@@ -174,7 +174,7 @@ function parseFnDef(s: ITokenStream): Ast.Definition {
 	return NODE('def', {
 		dest,
 		expr: NODE('fn', {
-			args: params,
+			params: params,
 			retType: type,
 			children: body,
 		}, startPos, endPos),

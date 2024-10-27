@@ -264,7 +264,7 @@ export type If = NodeBase & {
 
 export type Fn = NodeBase & {
 	type: 'fn'; // 関数
-	args: {
+	params: {
 		dest: Expression; // 引数名
 		optional: boolean;
 		default?: Expression; // 引数の初期値
@@ -363,6 +363,6 @@ export type NamedTypeSource = NodeBase & {
 
 export type FnTypeSource = NodeBase & {
 	type: 'fnTypeSource'; // 関数の型
-	args: TypeSource[]; // 引数の型
+	params: TypeSource[]; // 引数の型
 	result: TypeSource; // 戻り値の型
 };

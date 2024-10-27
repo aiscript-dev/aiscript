@@ -11,9 +11,9 @@ function validateNode(node: Ast.Node): Ast.Node {
 			break;
 		}
 		case 'fn': {
-			for (const arg of node.args) {
-				if (arg.argType != null) {
-					getTypeBySource(arg.argType);
+			for (const param of node.params) {
+				if (param.argType != null) {
+					getTypeBySource(param.argType);
 				}
 			}
 			if (node.retType != null) {

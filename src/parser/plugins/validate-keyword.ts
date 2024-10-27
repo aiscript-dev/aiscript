@@ -111,8 +111,8 @@ function validateNode(node: Ast.Node): Ast.Node {
 			break;
 		}
 		case 'fn': {
-			for (const arg of node.args) {
-				validateDest(arg.dest);
+			for (const param of node.params) {
+				validateDest(param.dest);
 			}
 			break;
 		}

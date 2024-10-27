@@ -313,12 +313,12 @@ const FALSE: {
 };
 
 // @public (undocumented)
-const FN: (args: VUserFn["args"], statements: VUserFn["statements"], scope: VUserFn["scope"]) => VUserFn;
+const FN: (params: VUserFn["params"], statements: VUserFn["statements"], scope: VUserFn["scope"]) => VUserFn;
 
 // @public (undocumented)
 type Fn = NodeBase & {
     type: 'fn';
-    args: {
+    params: {
         dest: Expression;
         optional: boolean;
         default?: Expression;
@@ -334,7 +334,7 @@ const FN_NATIVE: (fn: VNativeFn["native"]) => VNativeFn;
 // @public (undocumented)
 type FnTypeSource = NodeBase & {
     type: 'fnTypeSource';
-    args: TypeSource[];
+    params: TypeSource[];
     result: TypeSource;
 };
 
@@ -745,7 +745,7 @@ declare namespace values {
         VObj,
         VFn,
         VUserFn,
-        VFnArg,
+        VFnParam,
         VNativeFn,
         VReturn,
         VBreak,
@@ -807,7 +807,7 @@ type VError = {
 type VFn = VUserFn | VNativeFn;
 
 // @public (undocumented)
-type VFnArg = {
+type VFnParam = {
     dest: Expression;
     type?: Type;
     default?: Value;
@@ -857,7 +857,7 @@ type VStr = {
 // @public (undocumented)
 type VUserFn = VFnBase & {
     native?: undefined;
-    args: VFnArg[];
+    params: VFnParam[];
     statements: Node_2[];
     scope: Scope;
 };

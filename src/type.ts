@@ -35,14 +35,14 @@ export function T_GENERIC<N extends string>(name: N, inners: Type[]): TGeneric<N
 
 export type TFn = {
 	type: 'fn';
-	args: Type[];
+	params: Type[];
 	result: Type;
 };
 
-export function T_FN(args: Type[], result: Type): TFn {
+export function T_FN(params: Type[], result: Type): TFn {
 	return {
 		type: 'fn',
-		args,
+		params,
 		result,
 	};
 }
@@ -80,10 +80,10 @@ export function isCompatibleType(a: Type, b: Type): boolean {
 			assertTFn(b); // NOTE: TypeGuardが効かない
 			// fn result
 			if (!isCompatibleType(a.result, b.result)) return false;
-			// fn args
-			if (a.args.length !== b.args.length) return false;
-			for (let i = 0; i < a.args.length; i++) {
-				if (!isCompatibleType(a.args[i]!, b.args[i]!)) return false;
+			// fn parameters
+			if (a.params.length !== b.params.length) return false;
+			for (let i = 0; i < a.params.length; i++) {
+				if (!isCompatibleType(a.params[i]!, b.params[i]!)) return false;
 			}
 			break;
 		}
@@ -101,7 +101,7 @@ export function getTypeName(type: Type): string {
 			return `${type.name}<${type.inners.map(inner => getTypeName(inner)).join(', ')}>`;
 		}
 		case 'fn': {
-			return `@(${type.args.map(arg => getTypeName(arg)).join(', ')}) { ${getTypeName(type.result)} }`;
+			return `@(${type.params.map(param => getTypeName(param)).join(', ')}) { ${getTypeName(type.result)} }`;
 		}
 	}
 }
@@ -117,9 +117,9 @@ export function getTypeNameBySource(typeSource: Ast.TypeSource): string {
 			}
 		}
 		case 'fnTypeSource': {
-			const args = typeSource.args.map(arg => getTypeNameBySource(arg)).join(', ');
+			const params = typeSource.params.map(param => getTypeNameBySource(param)).join(', ');
 			const result = getTypeNameBySource(typeSource.result);
-			return `@(${args}) { ${result} }`;
+			return `@(${params}) { ${result} }`;
 		}
 	}
 }
@@ -153,7 +153,7 @@ export function getTypeBySource(typeSource: Ast.TypeSource): Type {
 		}
 		throw new AiScriptSyntaxError(`Unknown type: '${getTypeNameBySource(typeSource)}'`, typeSource.loc.start);
 	} else {
-		const argTypes = typeSource.args.map(arg => getTypeBySource(arg));
-		return T_FN(argTypes, getTypeBySource(typeSource.result));
+		const paramTypes = typeSource.params.map(param => getTypeBySource(param));
+		return T_FN(paramTypes, getTypeBySource(typeSource.result));
 	}
 }
