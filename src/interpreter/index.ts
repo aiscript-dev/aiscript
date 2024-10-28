@@ -4,6 +4,7 @@
 
 import { autobind } from '../utils/mini-autobind.js';
 import { AiScriptError, NonAiScriptError, AiScriptNamespaceError, AiScriptIndexOutOfRangeError, AiScriptRuntimeError, AiScriptHostsideError } from '../error.js';
+import * as Ast from '../node.js';
 import { Scope } from './scope.js';
 import { std } from './lib/std.js';
 import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray, eq, isObject, isArray, expectAny, reprValue, isFunction } from './util.js';
@@ -12,7 +13,6 @@ import { getPrimProp } from './primitive-props.js';
 import { Variable } from './variable.js';
 import type { JsValue } from './util.js';
 import type { Value, VFn } from './value.js';
-import type * as Ast from '../node.js';
 
 export type LogObject = {
 	scope?: string;
@@ -282,6 +282,11 @@ export class Interpreter {
 	}
 
 	@autobind
+	private _evalClause(node: Ast.Statement | Ast.Expression, scope: Scope, callStack: readonly CallInfo[]): Promise<Value> {
+		return this._eval(node, Ast.isStatement(node) ? scope.createChildScope() : scope, callStack);
+	}
+
+	@autobind
 	private _eval(node: Ast.Node, scope: Scope, callStack: readonly CallInfo[]): Promise<Value> {
 		return this.__eval(node, scope, callStack).catch(e => {
 			if (e.pos) throw e;
@@ -326,17 +331,17 @@ export class Interpreter {
 				const cond = await this._eval(node.cond, scope, callStack);
 				assertBoolean(cond);
 				if (cond.value) {
-					return this._eval(node.then, scope, callStack);
+					return this._evalClause(node.then, scope, callStack);
 				}
 				for (const elseif of node.elseif) {
 					const cond = await this._eval(elseif.cond, scope, callStack);
 					assertBoolean(cond);
 					if (cond.value) {
-						return this._eval(elseif.then, scope, callStack);
+						return this._evalClause(elseif.then, scope, callStack);
 					}
 				}
 				if (node.else) {
-					return this._eval(node.else, scope, callStack);
+					return this._evalClause(node.else, scope, callStack);
 				}
 				return NULL;
 			}
@@ -346,11 +351,11 @@ export class Interpreter {
 				for (const qa of node.qs) {
 					const q = await this._eval(qa.q, scope, callStack);
 					if (eq(about, q)) {
-						return await this._eval(qa.a, scope, callStack);
+						return await this._evalClause(qa.a, scope, callStack);
 					}
 				}
 				if (node.default) {
-					return await this._eval(node.default, scope, callStack);
+					return await this._evalClause(node.default, scope, callStack);
 				}
 				return NULL;
 			}
@@ -373,7 +378,7 @@ export class Interpreter {
 					const times = await this._eval(node.times, scope, callStack);
 					assertNumber(times);
 					for (let i = 0; i < times.value; i++) {
-						const v = await this._eval(node.for, scope, callStack);
+						const v = await this._evalClause(node.for, scope, callStack);
 						if (v.type === 'break') {
 							break;
 						} else if (v.type === 'return') {
