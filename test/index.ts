@@ -816,6 +816,22 @@ describe('type declaration', () => {
 		`);
 		eq(res, ARR([NUM(1), NUM(2), NUM(3), NUM(0), NUM(5)]));
 	});
+
+	test.concurrent('def (null)', async () => {
+		const res = await exe(`
+		let a: null = null
+		<: a
+		`);
+		eq(res, NULL);
+	});
+
+	test.concurrent('fn def (null)', async () => {
+		const res = await exe(`
+		@f(): null {}
+		<: f()
+		`);
+		eq(res, NULL);
+	});
 });
 
 describe('Attribute', () => {
