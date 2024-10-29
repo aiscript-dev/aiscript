@@ -29,8 +29,8 @@ export function parseDest(s: ITokenStream): Ast.Expression {
  * Params = "(" [Dest [":" Type] *(SEP Dest [":" Type])] ")"
  * ```
 */
-export function parseParams(s: ITokenStream): Ast.Fn['args'] {
-	const items: Ast.Fn['args'] = [];
+export function parseParams(s: ITokenStream): Ast.Fn['params'] {
+	const items: Ast.Fn['params'] = [];
 
 	s.expect(TokenKind.OpenParen);
 	s.next();
@@ -200,7 +200,7 @@ function parseFnType(s: ITokenStream): Ast.TypeSource {
 
 	const resultType = parseType(s);
 
-	return NODE('fnTypeSource', { args: params, result: resultType }, startPos, s.getPos());
+	return NODE('fnTypeSource', { params, result: resultType }, startPos, s.getPos());
 }
 
 /**

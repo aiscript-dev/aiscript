@@ -399,7 +399,7 @@ function parseFnExpr(s: ITokenStream): Ast.Fn {
 
 	const body = parseBlock(s);
 
-	return NODE('fn', { args: params, retType: type, children: body }, startPos, s.getPos());
+	return NODE('fn', { params: params, retType: type, children: body }, startPos, s.getPos());
 }
 
 /**

@@ -195,7 +195,7 @@ export function reprValue(value: Value, literalLike = false, processedObjects = 
 			// そのうちネイティブ関数の引数も表示できるようにしたいが、ホスト向けの破壊的変更を伴うと思われる
 			return '@( ?? ) { native code }';
 		} else {
-			return `@( ${(value.args.map(v => v.dest.type === 'identifier' ? v.dest.name : '?')).join(', ')} ) { ... }`;
+			return `@( ${(value.params.map(v => v.dest.type === 'identifier' ? v.dest.name : '?')).join(', ')} ) { ... }`;
 		}
 	}
 

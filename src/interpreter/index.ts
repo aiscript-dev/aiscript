@@ -270,10 +270,10 @@ export class Interpreter {
 			return result ?? NULL;
 		} else {
 			const fnScope = fn.scope!.createChildScope();
-			for (const i of fn.args.keys()) {
-				const argdef = fn.args[i]!;
-				if (!argdef.default) expectAny(args[i]);
-				this.define(fnScope, argdef.dest, args[i] ?? argdef.default!, true);
+			for (const [i, param] of fn.params.entries()) {
+				const arg = args[i];
+				if (!param.default) expectAny(arg);
+				this.define(fnScope, param.dest, arg ?? param.default!, true);
 			}
 
 			const info: CallInfo = { name: fn.name ?? '<anonymous>', pos };
@@ -542,12 +542,12 @@ export class Interpreter {
 
 			case 'fn': {
 				return FN(
-					await Promise.all(node.args.map(async (arg) => {
+					await Promise.all(node.params.map(async (param) => {
 						return {
-							dest: arg.dest,
+							dest: param.dest,
 							default:
-								arg.default ? await this._eval(arg.default, scope, callStack) :
-								arg.optional ? NULL :
+								param.default ? await this._eval(param.default, scope, callStack) :
+								param.optional ? NULL :
 								undefined,
 							// type: (TODO)
 						};
