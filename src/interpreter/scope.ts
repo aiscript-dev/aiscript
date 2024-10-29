@@ -71,6 +71,15 @@ export class Scope {
 	}
 
 	/**
+	 * 名前空間名を取得します。
+	 */
+	@autobind
+	public getNsPrefix(): string {
+		if (this.parent == null || this.nsName == null) return '';
+		return this.parent.getNsPrefix() + this.nsName + ':';
+	}
+
+	/**
 	 * 指定した名前の変数が存在するか判定します
 	 * @param name - 変数名
 	 */
