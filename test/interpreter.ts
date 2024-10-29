@@ -115,6 +115,56 @@ describe('error location', () => {
 	});
 });
 
+describe('callstack', () => {
+	const exeAndGetErrMessage = (src: string): Promise<string> => new Promise((ok, ng) => {
+		const aiscript = new Interpreter({
+			emitError: FN_NATIVE((_args, _opts) => {
+				throw Error('emitError');
+			}),
+		}, {
+			err(e) { ok(e.message) },
+		});
+		aiscript.exec(Parser.parse(src)).then(() => ng('error has not occurred.'));
+	});
+
+	test('error in function', async () => {
+		const result = await exeAndGetErrMessage(`
+			@function1() { emitError() }
+			@function2() { function1() }
+			function2()
+		`);
+		expect(result).toMatchInlineSnapshot(`
+			"emitError
+			  at function1 (Line 2, Column 28)
+			  at function2 (Line 3, Column 28)
+			  at <root> (Line 4, Column 13)"
+		`);
+	});
+	test('error in function in namespace', async () => {
+		const result = await exeAndGetErrMessage(`
+			:: Ai {
+				@function() { emitError() }
+			}
+			Ai:function()
+		`);
+		expect(result).toMatchInlineSnapshot(`
+			"emitError
+			  at Ai:function (Line 3, Column 28)
+			  at <root> (Line 5, Column 15)"
+		`);
+	});
+	test('error in anonymous function', async () => {
+		const result = await exeAndGetErrMessage(`
+			(@() { emitError() })()
+		`);
+		expect(result).toMatchInlineSnapshot(`
+			"emitError
+			  at <anonymous> (Line 2, Column 20)
+			  at <root> (Line 2, Column 25)"
+		`);
+	});
+});
+
 describe('IRQ', () => {
 	describe('irqSleep is function', () => {
 		async function countSleeps(irqRate: number): Promise<number> {

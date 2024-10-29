@@ -2,7 +2,7 @@ import { AiScriptSyntaxError } from '../../error.js';
 import { NODE } from '../utils.js';
 import { TokenStream } from '../streams/token-stream.js';
 import { TokenKind } from '../token.js';
-import { parseBlock, parseParams, parseType } from './common.js';
+import { parseBlock, parseOptionalSeparator, parseParams, parseType } from './common.js';
 import { parseBlockOrStatement } from './statements.js';
 
 import type * as Ast from '../../node.js';
@@ -404,9 +404,7 @@ function parseFnExpr(s: ITokenStream): Ast.Fn {
 
 /**
  * ```abnf
- * Match = "match" Expr "{" [MatchCases] [defaultCase] "}"
- * MatchCases = "case" Expr "=>" BlockOrStatement *(SEP "case" Expr "=>" BlockOrStatement) [SEP]
- * DefaultCase = "default" "=>" BlockOrStatement [SEP]
+ * Match = "match" Expr "{" [(MatchCase *(SEP MatchCase) [SEP DefaultCase] [SEP]) / DefaultCase [SEP]] "}"
  * ```
 */
 function parseMatch(s: ITokenStream): Ast.Match {
@@ -424,71 +422,61 @@ function parseMatch(s: ITokenStream): Ast.Match {
 	}
 
 	const qs: Ast.Match['qs'] = [];
-	while (!s.is(TokenKind.DefaultKeyword) && !s.is(TokenKind.CloseBrace)) {
-		s.expect(TokenKind.CaseKeyword);
-		s.next();
-		const q = parseExpr(s, false);
-		s.expect(TokenKind.Arrow);
-		s.next();
-		const a = parseBlockOrStatement(s);
-		qs.push({ q, a });
-
-		// separator
-		switch (s.getTokenKind()) {
-			case TokenKind.NewLine: {
-				s.next();
-				break;
-			}
-			case TokenKind.Comma: {
-				s.next();
-				if (s.is(TokenKind.NewLine)) {
-					s.next();
-				}
-				break;
-			}
-			case TokenKind.DefaultKeyword:
-			case TokenKind.CloseBrace: {
-				break;
-			}
-			default: {
-				throw new AiScriptSyntaxError('separator expected', s.getPos());
-			}
-		}
-	}
-
 	let x: Ast.Match['default'];
-	if (s.is(TokenKind.DefaultKeyword)) {
-		s.next();
-		s.expect(TokenKind.Arrow);
-		s.next();
-		x = parseBlockOrStatement(s);
-
-		// separator
-		switch (s.getTokenKind()) {
-			case TokenKind.NewLine: {
-				s.next();
-				break;
-			}
-			case TokenKind.Comma: {
-				s.next();
-				if (s.is(TokenKind.NewLine)) {
-					s.next();
-				}
-				break;
-			}
-			case TokenKind.CloseBrace: {
-				break;
-			}
-			default: {
+	if (s.is(TokenKind.CaseKeyword)) {
+		qs.push(parseMatchCase(s));
+		let sep = parseOptionalSeparator(s);
+		while (s.is(TokenKind.CaseKeyword)) {
+			if (!sep) {
 				throw new AiScriptSyntaxError('separator expected', s.getPos());
 			}
+			qs.push(parseMatchCase(s));
+			sep = parseOptionalSeparator(s);
 		}
+		if (s.is(TokenKind.DefaultKeyword)) {
+			if (!sep) {
+				throw new AiScriptSyntaxError('separator expected', s.getPos());
+			}
+			x = parseDefaultCase(s);
+			parseOptionalSeparator(s);
+		}
+	} else if (s.is(TokenKind.DefaultKeyword)) {
+		x = parseDefaultCase(s);
+		parseOptionalSeparator(s);
 	}
 
 	s.expect(TokenKind.CloseBrace);
 	s.next();
 
 	return NODE('match', { about, qs, default: x }, startPos, s.getPos());
+}
+
+/**
+ * ```abnf
+ * MatchCase = "case" Expr "=>" BlockOrStatement
+ * ```
+*/
+function parseMatchCase(s: ITokenStream): Ast.Match['qs'][number] {
+	s.expect(TokenKind.CaseKeyword);
+	s.next();
+	const q = parseExpr(s, false);
+	s.expect(TokenKind.Arrow);
+	s.next();
+	const a = parseBlockOrStatement(s);
+	return { q, a };
+}
+
+/**
+ * ```abnf
+ * DefaultCase = "default" "=>" BlockOrStatement
+ * ```
+*/
+function parseDefaultCase(s: ITokenStream): Ast.Match['default'] {
+	s.expect(TokenKind.DefaultKeyword);
+	s.next();
+	s.expect(TokenKind.Arrow);
+	s.next();
+	return parseBlockOrStatement(s);
 }
 
 /**

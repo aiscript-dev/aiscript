@@ -140,6 +140,30 @@ export function parseType(s: ITokenStream): Ast.TypeSource {
 
 /**
  * ```abnf
+ * OptionalSeparator = [SEP]
+ * ```
+*/
+export function parseOptionalSeparator(s: ITokenStream): boolean {
+	switch (s.getTokenKind()) {
+		case TokenKind.NewLine: {
+			s.next();
+			return true;
+		}
+		case TokenKind.Comma: {
+			s.next();
+			if (s.is(TokenKind.NewLine)) {
+				s.next();
+			}
+			return true;
+		}
+		default: {
+			return false;
+		}
+	}
+}
+
+/**
+ * ```abnf
  * FnType = "@" "(" ParamTypes ")" "=>" Type
  * ParamTypes = [Type *(SEP Type)]
  * ```

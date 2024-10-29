@@ -37,6 +37,7 @@ type VFnBase = {
 };
 export type VUserFn = VFnBase & {
 	native?: undefined; // if (vfn.native) で型アサーション出来るように
+	name?: string;
 	params: VFnParam[];
 	statements: Node[];
 	scope: Scope;
