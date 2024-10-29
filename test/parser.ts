@@ -144,4 +144,14 @@ describe('Scanner', () => {
 		next(stream, TokenKind.Identifier, { line: 1, column: 2 }, { value: 'abc' });
 		next(stream, TokenKind.OpenParen, { line: 1, column: 5 }, { });
 	});
+	test.concurrent('empty lines', async () => {
+		const source = "match 1{\n// comment\n}";
+		const stream = init(source);
+		next(stream, TokenKind.MatchKeyword, { line: 1, column: 1 }, { });
+		next(stream, TokenKind.NumberLiteral, { line: 1, column: 7 }, { hasLeftSpacing: true, value: '1' });
+		next(stream, TokenKind.OpenBrace, { line: 1, column: 8 }, { });
+		next(stream, TokenKind.NewLine, { line: 1, column: 9 }, { });
+		next(stream, TokenKind.CloseBrace, { line: 3, column: 1 }, { });
+		next(stream, TokenKind.EOF, { line: 3, column: 2 }, { });
+	});
 });

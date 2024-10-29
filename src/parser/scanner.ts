@@ -118,7 +118,7 @@ export class Scanner implements ITokenStream {
 			const pos = this.stream.getPos();
 
 			if (lineBreakChars.includes(this.stream.char)) {
-				this.stream.next();
+				this.skipEmptyLines();
 				return TOKEN(TokenKind.NewLine, pos, { hasLeftSpacing });
 			}
 
@@ -576,6 +576,33 @@ export class Scanner implements ITokenStream {
 		}
 
 		return TOKEN(TokenKind.Template, pos, { hasLeftSpacing, children: elements });
+	}
+
+	private skipEmptyLines(): void {
+		while (!this.stream.eof) {
+			// skip spacing
+			if (spaceChars.includes(this.stream.char) || lineBreakChars.includes(this.stream.char)) {
+				this.stream.next();
+				continue;
+			}
+
+			if (this.stream.char === '/') {
+				this.stream.next();
+				if (!this.stream.eof && (this.stream.char as string) === '*') {
+					this.stream.next();
+					this.skipCommentRange();
+					continue;
+				} else if (!this.stream.eof && (this.stream.char as string) === '/') {
+					this.stream.next();
+					this.skipCommentLine();
+					continue;
+				} else {
+					this.stream.prev();
+					break;
+				}
+			}
+			break;
+		}
 	}
 
 	private skipCommentLine(): void {
