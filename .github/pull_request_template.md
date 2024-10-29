@@ -4,7 +4,7 @@ PRありがとうございます！ PRを作成する前に、以下をご確認
   - fix / refactor / feat / enhance / perf / chore
   - また、PRの粒度が適切であることを確認してください。ひとつのPRに複数の種類の変更や関心を含めることは避けてください。
 - このPRによって解決されるIssueがある場合は、そのIssueへの参照を本文内に含めてください。
-- unreleasedディレクトリ以下にファイルを新規に作成し、変更点を追記してください。リファクタリングなど、利用者に影響を与えない変更についてはこの限りではありません。
+- unreleasedディレクトリ以下にファイルを新規に作成し、変更点を記してください。リファクタリングなど、利用者に影響を与えない変更についてはこの限りではありません。
 - この変更により新たに作成、もしくは更新すべきドキュメントがないか確認してください。
 - 機能追加やバグ修正をした場合は、可能であればテストケースを追加してください。
 - テスト、Lintが通っていることを予め確認してください。
@@ -18,7 +18,7 @@ Thank you for your PR! Before creating a PR, please check the following:
   - fix / refactor / feat / enhance / perf / chore
   - Also, make sure that the granularity of this PR is appropriate. Please do not include more than one type of change or interest in a single PR.
 - If there is an Issue which will be resolved by this PR, please include a reference to the Issue in the text.
-- Please add the summary of the changes to CHANGELOG.md. However, this is not necessary for changes that do not affect the users, such as refactoring.
+- Please create a new file under the `unreleased` directory and write down the summary of your changes. However, this is not necessary for changes that do not affect the users, such as refactoring.
 - Check if there are any documents that need to be created or updated due to this change.
 - If you have added a feature or fixed a bug, please add a test case if possible.
 - Please make sure that tests and Lint are passed in advance.
