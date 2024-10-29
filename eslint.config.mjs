@@ -3,6 +3,9 @@ import js from "@eslint/js";
 import ts from 'typescript-eslint';
 
 export default ts.config({
+	// https://stackoverflow.com/a/79115209/22200513
+	ignores: ["**/*.js"]
+}, {
 	files: ["src/**/*.ts"],
 	extends: [
 		js.configs.recommended,
