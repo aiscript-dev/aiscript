@@ -211,9 +211,15 @@ function parseFnType(s: ITokenStream): Ast.TypeSource {
 function parseNamedType(s: ITokenStream): Ast.TypeSource {
 	const startPos = s.getPos();
 
-	s.expect(TokenKind.Identifier);
-	const name = s.getTokenValue();
-	s.next();
+	let name: string;
+	if (s.is(TokenKind.Identifier)) {
+		name = s.getTokenValue();
+		s.next();
+	} else {
+		s.expect(TokenKind.NullKeyword);
+		s.next();
+		name = "null";
+	}
 
 	// inner type
 	let inner: Ast.TypeSource | undefined;
