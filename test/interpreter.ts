@@ -254,3 +254,73 @@ describe('IRQ', () => {
 		});
 	});
 });
+
+describe('pause', () => {
+	async function exePausable() {
+		let count = 0;
+		
+		const interpreter = new Interpreter({
+			count: values.FN_NATIVE(() => { count++; }),
+		}, {});
+
+		// await to catch errors
+		await interpreter.exec(Parser.parse(
+			`Async:interval(100, @() { count() })`
+		));
+
+		return {
+			pause: interpreter.pause,
+			unpause: interpreter.unpause,
+			getCount: () => count,
+			resetCount: () => count = 0,
+		};
+	}
+
+	beforeEach(() => {
+		vi.useFakeTimers();
+	})
+
+	afterEach(() => {
+		vi.restoreAllMocks();
+	})
+
+	test('basic', async () => {
+		const p = await exePausable();
+		await vi.advanceTimersByTimeAsync(500);
+		p.pause();
+		await vi.advanceTimersByTimeAsync(400);
+		return expect(p.getCount()).toEqual(5);
+	});
+
+	test('unpause', async () => {
+		const p = await exePausable();
+		await vi.advanceTimersByTimeAsync(500);
+		p.pause();
+		await vi.advanceTimersByTimeAsync(400);
+		p.unpause();
+		await vi.advanceTimersByTimeAsync(300);
+		return expect(p.getCount()).toEqual(8);
+	});
+
+	describe('randomly scheduled pausing', () => {
+		function rnd(min: number, max: number): number {
+			return Math.floor(min + (Math.random() * (max - min + 1)));
+		}
+		const schedule = Array(rnd(2, 10)).fill(0).map(() => rnd(1, 10) * 100);
+		const title = schedule.map((v, i) => `${i % 2 ? 'un' : ''}pause ${v}`).join(', ');
+
+		test(title, async () => {
+			const p = await exePausable();
+			let answer = 0;
+			for ([i, v] in schedule.entries()) {
+				if (i % 2) {
+					p.unpause();
+					answer += v / 100;
+				}
+				else p.pause();
+				await vi.advanceTimersByTimeAsync(i);
+			}
+			return expect(p.getCount()).toEqual(answer);
+		});
+	});
+});

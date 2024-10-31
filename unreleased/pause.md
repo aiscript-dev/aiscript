@@ -1,0 +1,3 @@
+- For Hosts: `interpreter.pause()`で実行の一時停止ができるように
+  - `interpreter.unpause()`で再開
+  - 再開後に`Async:`系の待ち時間がリセットされる不具合がありますが、修正の目処は立っていません
