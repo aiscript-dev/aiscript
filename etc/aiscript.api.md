@@ -411,13 +411,25 @@ export class Interpreter {
     execFn(fn: VFn, args: Value[]): Promise<Value>;
     execFnSimple(fn: VFn, args: Value[]): Promise<Value>;
     // (undocumented)
+    pause(): void;
+    // (undocumented)
     registerAbortHandler(handler: () => void): void;
+    // (undocumented)
+    registerPauseHandler(handler: () => void): void;
+    // (undocumented)
+    registerUnpauseHandler(handler: () => void): void;
     // (undocumented)
     scope: Scope;
     // (undocumented)
     stepCount: number;
     // (undocumented)
+    unpause(): void;
+    // (undocumented)
     unregisterAbortHandler(handler: () => void): void;
+    // (undocumented)
+    unregisterPauseHandler(handler: () => void): void;
+    // (undocumented)
+    unregisterUnpauseHandler(handler: () => void): void;
 }
 
 // @public (undocumented)
@@ -820,7 +832,11 @@ type VNativeFn = VFnBase & {
         call: (fn: VFn, args: Value[]) => Promise<Value>;
         topCall: (fn: VFn, args: Value[]) => Promise<Value>;
         registerAbortHandler: (handler: () => void) => void;
+        registerPauseHandler: (handler: () => void) => void;
+        registerUnpauseHandler: (handler: () => void) => void;
         unregisterAbortHandler: (handler: () => void) => void;
+        unregisterPauseHandler: (handler: () => void) => void;
+        unregisterUnpauseHandler: (handler: () => void) => void;
     }) => Value | Promise<Value> | void;
 };
 
@@ -866,7 +882,7 @@ type VUserFn = VFnBase & {
 
 // Warnings were encountered during analysis:
 //
-// src/interpreter/index.ts:43:4 - (ae-forgotten-export) The symbol "LogObject" needs to be exported by the entry point index.d.ts
+// src/interpreter/index.ts:46:4 - (ae-forgotten-export) The symbol "LogObject" needs to be exported by the entry point index.d.ts
 // src/interpreter/value.ts:47:2 - (ae-forgotten-export) The symbol "Type" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
