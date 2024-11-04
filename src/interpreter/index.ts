@@ -8,7 +8,7 @@ import * as Ast from '../node.js';
 import { Scope } from './scope.js';
 import { std } from './lib/std.js';
 import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray, eq, isObject, isArray, expectAny, reprValue, isFunction } from './util.js';
-import { NULL, RETURN, unWrapRet, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, BREAK, CONTINUE, ERROR, assertValue, isControl, extractControl } from './value.js';
+import { NULL, RETURN, unWrapRet, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, BREAK, CONTINUE, ERROR, assertValue, isControl } from './value.js';
 import { getPrimProp } from './primitive-props.js';
 import { Variable } from './variable.js';
 import type { JsValue } from './util.js';
@@ -343,11 +343,15 @@ export class Interpreter {
 					return callee;
 				}
 				assertFunction(callee);
-				const args = extractControl(await Promise.all(node.args.map(expr => this._eval(expr, scope, callStack))));
-				if (args.type === 'control') {
-					return args.control;
+				const args = [];
+				for (const expr of node.args) {
+					const arg = await this._eval(expr, scope, callStack);
+					if (isControl(arg)) {
+						return arg;
+					}
+					args.push(arg);
 				}
-				return this._fn(callee, args.values, callStack, node.loc.start);
+				return this._fn(callee, args, callStack, node.loc.start);
 			}
 
 			case 'if': {
@@ -569,13 +573,15 @@ export class Interpreter {
 			case 'str': return STR(node.value);
 
 			case 'arr': {
-				const value = extractControl(await Promise.all(
-					node.value.map(item => this._eval(item, scope, callStack))
-				));
-				if (value.type === 'control') {
-					return value.control;
+				const value = [];
+				for (const item of node.value) {
+					const valueItem = await this._eval(item, scope, callStack);
+					if (isControl(valueItem)) {
+						return valueItem;
+					}
+					value.push(valueItem);
 				}
-				return ARR(value.values);
+				return ARR(value);
 			}
 
 			case 'obj': {

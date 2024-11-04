@@ -230,25 +230,3 @@ export function isControl(v: Value | Control): v is Control {
 	v satisfies never;
 	throw new TypeError('expected value or control');
 }
-
-export function extractControl(v: (Value | Control)[]): {
-	type: 'values',
-	values: Value[]
-} | {
-	type: 'control',
-	control: Control
-} {
-	const control = v.find(isControl);
-	if (control != null) {
-		return {
-			type: 'control',
-			control,
-		};
-	} else {
-		// vの中にControlが見つからなかったのでvの要素は全てValueであるはず
-		return {
-			type: 'values',
-			values: v as Value[],
-		};
-	}
-}
