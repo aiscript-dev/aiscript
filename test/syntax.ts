@@ -884,6 +884,188 @@ describe('loop', () => {
 	});
 });
 
+describe('return', () => {
+	test.concurrent('as statement', async () => {
+		const res = await exe(`
+		@f() {
+			return 1
+		}
+		<: f()
+		`);
+		eq(res, NUM(1));
+		assert.rejects(() => exe('return 1'));
+	});
+
+	test.concurrent('in eval', async () => {
+		const res = await exe(`
+		@f() {
+			let a = eval {
+				return 1
+				2
+			}
+			return 3
+		}
+		<: f()
+		`);
+		eq(res, NUM(1));
+		assert.rejects(() => exe('<: eval { return 1 }'));
+	});
+
+	test.concurrent('in if', async () => {
+		const res = await exe(`
+		@f() {
+			let a = if true {
+				return 1
+				2
+			}
+			return 3
+		}
+		<: f()
+		`);
+		eq(res, NUM(1));
+		assert.rejects(() => exe('<: if true { return 1 }'));
+	});
+
+	test.concurrent('in match', async () => {
+		const res = await exe(`
+		@f() {
+			let a = match 0 {
+				default => {
+					return 1
+					2
+				}
+			}
+			return 3
+		}
+		<: f()
+		`);
+		eq(res, NUM(1));
+		assert.rejects(() => exe('<: match 0 { default => { return 1 } }'))
+	});
+});
+
+describe('break', () => {
+	test.concurrent('as statement', async () => {
+		const res = await exe(`
+		var x = 0
+		for 1 {
+			break
+			x += 1
+		}
+		<: x
+		`);
+		eq(res, NUM(0));
+		assert.rejects(() => exe('break'));
+		assert.rejects(() => exe('@() { break }()'));
+	});
+
+	test.concurrent('in eval', async () => {
+		const res = await exe(`
+		var x = 0
+		for 1 {
+			let a = eval {
+				break
+			}
+			x += 1
+		}
+		<: x
+		`);
+		eq(res, NUM(0));
+		assert.rejects(() => exe('<: eval { break }'));
+	});
+
+	test.concurrent('in if', async () => {
+		const res = await exe(`
+		var x = 0
+		for 1 {
+			let a = if true {
+				break
+			}
+			x += 1
+		}
+		<: x
+		`);
+		eq(res, NUM(0));
+		assert.rejects(() => exe('<: if true { break }'));
+	});
+
+	test.concurrent('in match', async () => {
+		const res = await exe(`
+		var x = 0
+		for 1 {
+			let a = match 0 {
+				default => break
+			}
+			x += 1
+		}
+		<: x
+		`);
+		eq(res, NUM(0));
+		assert.rejects(() => exe('<: if true { break }'));
+	});
+});
+
+describe('continue', () => {
+	test.concurrent('as statement', async () => {
+		const res = await exe(`
+		var x = 0
+		for 1 {
+			continue
+			x += 1
+		}
+		<: x
+		`);
+		eq(res, NUM(0));
+		assert.rejects(() => exe('continue'));
+		assert.rejects(() => exe('@() { continue }()'));
+	});
+
+	test.concurrent('in eval', async () => {
+		const res = await exe(`
+		var x = 0
+		for 1 {
+			let a = eval {
+				continue
+			}
+			x += 1
+		}
+		<: x
+		`);
+		eq(res, NUM(0));
+		assert.rejects(() => exe('<: eval { continue }'));
+	});
+
+	test.concurrent('in if', async () => {
+		const res = await exe(`
+		var x = 0
+		for 1 {
+			let a = if true {
+				continue
+			}
+			x += 1
+		}
+		<: x
+		`);
+		eq(res, NUM(0));
+		assert.rejects(() => exe('<: if true { continue }'));
+	});
+
+	test.concurrent('in match', async () => {
+		const res = await exe(`
+		var x = 0
+		for 1 {
+			let a = match 0 {
+				default => continue
+			}
+			x += 1
+		}
+		<: x
+		`);
+		eq(res, NUM(0));
+		assert.rejects(() => exe('<: if true { continue }'));
+	});
+});
+
 /*
  * Global statements
  */

@@ -122,6 +122,9 @@ function assertObject(val: Value | null | undefined): asserts val is VObj;
 function assertString(val: Value | null | undefined): asserts val is VStr;
 
 // @public (undocumented)
+function assertValue(v: Value | Control): asserts v is Value;
+
+// @public (undocumented)
 type Assign = NodeBase & {
     type: 'assign';
     dest: Expression;
@@ -219,7 +222,7 @@ type Bool = NodeBase & {
 };
 
 // @public (undocumented)
-const BREAK: () => Value;
+const BREAK: () => VBreak;
 
 // @public (undocumented)
 type Break = NodeBase & {
@@ -234,12 +237,15 @@ type Call = NodeBase & {
 };
 
 // @public (undocumented)
-const CONTINUE: () => Value;
+const CONTINUE: () => VContinue;
 
 // @public (undocumented)
 type Continue = NodeBase & {
     type: 'continue';
 };
+
+// @public (undocumented)
+type Control = VReturn | VBreak | VContinue;
 
 // @public (undocumented)
 type Definition = NodeBase & {
@@ -305,6 +311,15 @@ function expectAny(val: Value | null | undefined): asserts val is Value;
 
 // @public (undocumented)
 type Expression = If | Fn | Match | Block | Exists | Tmpl | Str | Num | Bool | Null | Obj | Arr | Not | Pow | Mul | Div | Rem | Add | Sub | Lt | Lteq | Gt | Gteq | Eq | Neq | And | Or | Identifier | Call | Index | Prop;
+
+// @public (undocumented)
+function extractControl(v: (Value | Control)[]): {
+    type: 'values';
+    values: Value[];
+} | {
+    type: 'control';
+    control: Control;
+};
 
 // @public (undocumented)
 const FALSE: {
@@ -427,6 +442,9 @@ function isArray(val: Value): val is VArr;
 function isBoolean(val: Value): val is VBool;
 
 // @public (undocumented)
+function isControl(v: Value | Control): v is Control;
+
+// @public (undocumented)
 function isExpression(x: Node_2): x is Expression;
 
 // @public (undocumented)
@@ -443,6 +461,9 @@ function isStatement(x: Node_2): x is Statement;
 
 // @public (undocumented)
 function isString(val: Value): val is VStr;
+
+// @public (undocumented)
+function isValue(v: Value | Control): v is Value;
 
 // @public (undocumented)
 function jsToVal(val: unknown): Value;
@@ -623,7 +644,7 @@ type Rem = NodeBase & {
 function reprValue(value: Value, literalLike?: boolean, processedObjects?: Set<object>): string;
 
 // @public (undocumented)
-const RETURN: (v: VReturn["value"]) => Value;
+const RETURN: (v: VReturn["value"]) => VReturn;
 
 // @public (undocumented)
 type Return = NodeBase & {
@@ -699,7 +720,7 @@ const TRUE: {
 type TypeSource = NamedTypeSource | FnTypeSource;
 
 // @public (undocumented)
-const unWrapRet: (v: Value) => Value;
+function unWrapRet(v: Value | Control): Value;
 
 declare namespace utils {
     export {
@@ -734,10 +755,15 @@ function valToJs(val: Value): JsValue;
 function valToString(val: Value, simple?: boolean): string;
 
 // @public (undocumented)
-type Value = (VNull | VBool | VNum | VStr | VArr | VObj | VFn | VReturn | VBreak | VContinue | VError) & Attr_2;
+type Value = (VNull | VBool | VNum | VStr | VArr | VObj | VFn | VError) & Attr_2;
 
 declare namespace values {
     export {
+        unWrapRet,
+        assertValue,
+        isValue,
+        isControl,
+        extractControl,
         VNull,
         VBool,
         VNum,
@@ -754,6 +780,7 @@ declare namespace values {
         VError,
         Attr_2 as Attr,
         Value,
+        Control,
         NULL,
         TRUE,
         FALSE,
@@ -767,7 +794,6 @@ declare namespace values {
         RETURN,
         BREAK,
         CONTINUE,
-        unWrapRet,
         ERROR
     }
 }
@@ -867,7 +893,7 @@ type VUserFn = VFnBase & {
 // Warnings were encountered during analysis:
 //
 // src/interpreter/index.ts:43:4 - (ae-forgotten-export) The symbol "LogObject" needs to be exported by the entry point index.d.ts
-// src/interpreter/value.ts:47:2 - (ae-forgotten-export) The symbol "Type" needs to be exported by the entry point index.d.ts
+// src/interpreter/value.ts:48:2 - (ae-forgotten-export) The symbol "Type" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 
