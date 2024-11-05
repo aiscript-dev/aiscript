@@ -616,6 +616,16 @@ describe('break', () => {
 		eq(res, NUM(0));
 		assert.rejects(() => exe('<: if true { break }'));
 	});
+
+    test.concurrent('in function', async () => {
+        assert.rejects(() => exe(`
+        for 1 {
+            @f() {
+                break;
+            }
+        }
+        `));
+    });
 });
 
 describe('continue', () => {
@@ -677,4 +687,14 @@ describe('continue', () => {
 		eq(res, NUM(0));
 		assert.rejects(() => exe('<: if true { continue }'));
 	});
+
+    test.concurrent('in function', async () => {
+        assert.rejects(() => exe(`
+        for 1 {
+            @f() {
+                continue;
+            }
+        }
+        `));
+    });
 });

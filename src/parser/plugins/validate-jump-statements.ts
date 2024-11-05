@@ -3,6 +3,20 @@ import { AiScriptSyntaxError } from '../../error.js';
 
 import type * as Ast from '../../node.js';
 
+function isInLoopScope(ancestors: Ast.Node[]): boolean {
+	for (let i = ancestors.length - 1; i >= 0; i--) {
+		switch (ancestors[i]!.type) {
+			case 'loop':
+			case 'for':
+			case 'each':
+				return true;
+			case 'fn':
+				return false;
+		}
+	}
+	return false;
+}
+
 function validateNode(node: Ast.Node, ancestors: Ast.Node[]): Ast.Node {
 	switch (node.type) {
 		case 'return': {
@@ -12,14 +26,14 @@ function validateNode(node: Ast.Node, ancestors: Ast.Node[]): Ast.Node {
 			break;
 		}
 		case 'break': {
-			if (!ancestors.some(({ type }) => type === 'loop' || type === 'for' || type === 'each')) {
-				throw new AiScriptSyntaxError('break must be inside loop / for / each', node.loc.start);
+			if (!isInLoopScope(ancestors)) {
+				throw new AiScriptSyntaxError('break must be inside for / each / while / do-while / loop', node.loc.start);
 			}
 			break;
 		}
 		case 'continue': {
-			if (!ancestors.some(({ type }) => type === 'loop' || type === 'for' || type === 'each')) {
-				throw new AiScriptSyntaxError('continue must be inside loop / for / each', node.loc.start);
+			if (!isInLoopScope(ancestors)) {
+				throw new AiScriptSyntaxError('continue must be inside for / each / while / do-while / loop', node.loc.start);
 			}
 			break;
 		}
