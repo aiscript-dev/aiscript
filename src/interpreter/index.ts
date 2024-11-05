@@ -483,9 +483,7 @@ export class Interpreter {
 					const attrs: Value['attr'] = [];
 					for (const nAttr of node.attr) {
 						const value = await this._eval(nAttr.value, scope, callStack);
-						if (isControl(value)) {
-							return value;
-						}
+						assertValue(value);
 						attrs.push({
 							name: nAttr.name,
 							value,
@@ -534,9 +532,6 @@ export class Interpreter {
 					return v;
 				}
 				assertNumber(v);
-				if (isControl(v)) {
-					return v;
-				}
 
 				const control = await this.assign(scope, node.dest, NUM(target.value + v.value), callStack);
 				if (control != null) {
@@ -936,21 +931,21 @@ export class Interpreter {
 			}
 			case 'arr': {
 				assertArray(value);
-				const control = (await Promise.all(dest.value.map(
-					(item, index) => this.assign(scope, item, value.value[index] ?? NULL, callStack),
-				))).find((control) => control != null);
-				if (control != null) {
-					return control;
+				for (const [index, item] of dest.value.entries()) {
+					const control = await this.assign(scope, item, value.value[index] ?? NULL, callStack);
+					if (control != null) {
+						return control;
+					}
 				}
 				break;
 			}
 			case 'obj': {
 				assertObject(value);
-				const control = (await Promise.all([...dest.value].map(
-					([key, item]) => this.assign(scope, item, value.value.get(key) ?? NULL, callStack),
-				))).find((control) => control != null);
-				if (control != null) {
-					return control;
+				for (const [key, item] of dest.value.entries()) {
+					const control = await this.assign(scope, item, value.value.get(key) ?? NULL, callStack);
+					if (control != null) {
+						return control;
+					}
 				}
 				break;
 			}
