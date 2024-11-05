@@ -313,15 +313,6 @@ function expectAny(val: Value | null | undefined): asserts val is Value;
 type Expression = If | Fn | Match | Block | Exists | Tmpl | Str | Num | Bool | Null | Obj | Arr | Not | Pow | Mul | Div | Rem | Add | Sub | Lt | Lteq | Gt | Gteq | Eq | Neq | And | Or | Identifier | Call | Index | Prop;
 
 // @public (undocumented)
-function extractControl(v: (Value | Control)[]): {
-    type: 'values';
-    values: Value[];
-} | {
-    type: 'control';
-    control: Control;
-};
-
-// @public (undocumented)
 const FALSE: {
     type: "bool";
     value: boolean;
@@ -763,7 +754,6 @@ declare namespace values {
         assertValue,
         isValue,
         isControl,
-        extractControl,
         VNull,
         VBool,
         VNum,
