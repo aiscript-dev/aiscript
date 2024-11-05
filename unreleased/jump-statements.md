@@ -1,0 +1,6 @@
+- **Breaking Change** return文、break文、continue文の挙動が変更されました。
+  - return文は関数スコープ内でないと文法エラーになります。
+  - break文およびcontinue文は反復処理文(for, each, while, do-while, loop)のスコープ内でないと文法エラーになります。
+  - return文は常に関数から脱出します。
+  - break文は常に最も内側の反復処理文の処理を中断し、ループから脱出します。
+  - continue文は常に最も内側の反復処理文の処理を中断し、ループの先頭に戻ります。
