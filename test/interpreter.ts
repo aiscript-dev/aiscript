@@ -312,7 +312,7 @@ describe('pause', () => {
 		test(title, async () => {
 			const p = await exePausable();
 			let answer = 0;
-			for ([i, v] in schedule.entries()) {
+			for (const [i, v] in schedule.entries()) {
 				if (i % 2) {
 					p.unpause();
 					answer += v / 100;
