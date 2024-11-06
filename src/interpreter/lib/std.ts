@@ -673,6 +673,8 @@ export const std: Record<string, Value> = {
 		const start = (): void => {
 			id = setTimeout(() => {
 				opts.topCall(callback, []);
+				opts.unregisterAbortHandler(stop);
+				opts.unregisterPauseHandler(stop);
 			}, delay.value);
 			opts.registerAbortHandler(stop);
 			opts.registerPauseHandler(stop);

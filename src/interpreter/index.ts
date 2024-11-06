@@ -28,7 +28,7 @@ type CallInfo = {
 export class Interpreter {
 	public stepCount = 0;
 	private stop = false;
-	private pausing = null as null | { promise: Promise<void>, resolve: () => void };
+	private pausing: { promise: Promise<void>, resolve: () => void } | null = null;
 	public scope: Scope;
 	private abortHandlers: (() => void)[] = [];
 	private pauseHandlers: (() => void)[] = [];
