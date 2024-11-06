@@ -456,28 +456,30 @@ export class Interpreter {
 				const target = await this.getReference(node.dest, scope, callStack);
 				const v = await this._eval(node.expr, scope, callStack);
 
-				target.value = v;
+				target.set(v);
 
 				return NULL;
 			}
 
 			case 'addAssign': {
 				const target = await this.getReference(node.dest, scope, callStack);
-				assertNumber(target.value);
 				const v = await this._eval(node.expr, scope, callStack);
 				assertNumber(v);
+				const targetValue = target.get();
+				assertNumber(targetValue);
 
-				target.value = NUM(target.value.value + v.value);
+				target.set(NUM(targetValue.value + v.value));
 				return NULL;
 			}
 
 			case 'subAssign': {
 				const target = await this.getReference(node.dest, scope, callStack);
-				assertNumber(target.value);
 				const v = await this._eval(node.expr, scope, callStack);
 				assertNumber(v);
+				const targetValue = target.get();
+				assertNumber(targetValue);
 
-				target.value = NUM(target.value.value - v.value);
+				target.set(NUM(targetValue.value - v.value));
 				return NULL;
 			}
 

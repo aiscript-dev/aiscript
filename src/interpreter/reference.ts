@@ -5,9 +5,9 @@ import type { VArr, VObj, Value } from './value.js';
 import type { Scope } from './scope.js';
 
 export interface Reference {
-	get value(): Value;
+	get(): Value;
 
-	set value(value: Value);
+	set(value: Value): void;
 }
 
 export const Reference = {
@@ -35,11 +35,11 @@ export const Reference = {
 class VariableReference implements Reference {
 	constructor(private name: string, private scope: Scope) {}
 
-	get value(): Value {
+	get(): Value {
 		return this.scope.get(this.name);
 	}
 
-	set value(value: Value) {
+	set(value: Value): void {
 		this.scope.assign(this.name, value);
 	}
 }
@@ -47,12 +47,12 @@ class VariableReference implements Reference {
 class IndexReference implements Reference {
 	constructor(private target: Value[], private index: number) {}
 
-	get value(): Value {
+	get(): Value {
 		this.assertIndexInRange();
 		return this.target[this.index]!;
 	}
 
-	set value(value: Value) {
+	set(value: Value): void {
 		this.assertIndexInRange();
 		this.target[this.index] = value;
 	}
@@ -68,11 +68,11 @@ class IndexReference implements Reference {
 class PropReference implements Reference {
 	constructor(private target: Map<string, Value>, private index: string) {}
 
-	get value(): Value {
+	get(): Value {
 		return this.target.get(this.index) ?? NULL;
 	}
 
-	set value(value: Value) {
+	set(value: Value): void {
 		this.target.set(this.index, value);
 	}
 }
@@ -80,14 +80,14 @@ class PropReference implements Reference {
 class ArrReference implements Reference {
 	constructor(private items: readonly Reference[]) {}
 
-	get value(): Value {
-		return ARR(this.items.map((item) => item.value));
+	get(): Value {
+		return ARR(this.items.map((item) => item.get()));
 	}
 
-	set value(value: Value) {
+	set(value: Value): void {
 		assertArray(value);
 		for (const [index, item] of this.items.entries()) {
-			item.value = value.value[index] ?? NULL;
+			item.set(value.value[index] ?? NULL);
 		}
 	}
 }
@@ -95,14 +95,14 @@ class ArrReference implements Reference {
 class ObjReference implements Reference {
 	constructor(private entries: ReadonlyMap<string, Reference>) {}
 
-	get value(): Value {
-		return OBJ(new Map([...this.entries].map(([key, item]) => [key, item.value])));
+	get(): Value {
+		return OBJ(new Map([...this.entries].map(([key, item]) => [key, item.get()])));
 	}
 
-	set value(value: Value) {
+	set(value: Value): void {
 		assertObject(value);
 		for (const [key, item] of this.entries.entries()) {
-			item.value = value.value.get(key) ?? NULL;
+			item.set(value.value.get(key) ?? NULL);
 		}
 	}
 }
