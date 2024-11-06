@@ -312,13 +312,13 @@ describe('pause', () => {
 		test(title, async () => {
 			const p = await exePausable();
 			let answer = 0;
-			for (const [i, v] in schedule.entries()) {
+			for (const [i, v] of schedule.entries()) {
 				if (i % 2) {
 					p.unpause();
 					answer += v / 100;
 				}
 				else p.pause();
-				await vi.advanceTimersByTimeAsync(i);
+				await vi.advanceTimersByTimeAsync(v);
 			}
 			return expect(p.getCount()).toEqual(answer);
 		});
