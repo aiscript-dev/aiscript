@@ -484,7 +484,6 @@ describe('return', () => {
         assert.rejects(() => exe('<: @(x = eval { return 1 }){}'));
     });
 
-    /* TODO: #843が解決したらコメントアウト
     test.concurrent('in template', async () => {
         const res = await exe(`
         @f() {
@@ -495,7 +494,6 @@ describe('return', () => {
         eq(res, NUM(1));
         assert.rejects(() => exe('<: `{eval {return 1}}`'));
     });
-    */
 
     test.concurrent('in return', async () => {
         const res = await exe(`
