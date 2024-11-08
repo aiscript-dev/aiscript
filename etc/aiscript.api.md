@@ -122,9 +122,6 @@ function assertObject(val: Value | null | undefined): asserts val is VObj;
 function assertString(val: Value | null | undefined): asserts val is VStr;
 
 // @public (undocumented)
-function assertValue(v: Value | Control): asserts v is Value;
-
-// @public (undocumented)
 type Assign = NodeBase & {
     type: 'assign';
     dest: Expression;
@@ -222,9 +219,6 @@ type Bool = NodeBase & {
 };
 
 // @public (undocumented)
-const BREAK: () => VBreak;
-
-// @public (undocumented)
 type Break = NodeBase & {
     type: 'break';
 };
@@ -237,15 +231,9 @@ type Call = NodeBase & {
 };
 
 // @public (undocumented)
-const CONTINUE: () => VContinue;
-
-// @public (undocumented)
 type Continue = NodeBase & {
     type: 'continue';
 };
-
-// @public (undocumented)
-type Control = VReturn | VBreak | VContinue;
 
 // @public (undocumented)
 type Definition = NodeBase & {
@@ -433,9 +421,6 @@ function isArray(val: Value): val is VArr;
 function isBoolean(val: Value): val is VBool;
 
 // @public (undocumented)
-function isControl(v: Value | Control): v is Control;
-
-// @public (undocumented)
 function isExpression(x: Node_2): x is Expression;
 
 // @public (undocumented)
@@ -452,9 +437,6 @@ function isStatement(x: Node_2): x is Statement;
 
 // @public (undocumented)
 function isString(val: Value): val is VStr;
-
-// @public (undocumented)
-function isValue(v: Value | Control): v is Value;
 
 // @public (undocumented)
 function jsToVal(val: unknown): Value;
@@ -635,9 +617,6 @@ type Rem = NodeBase & {
 function reprValue(value: Value, literalLike?: boolean, processedObjects?: Set<object>): string;
 
 // @public (undocumented)
-const RETURN: (v: VReturn["value"]) => VReturn;
-
-// @public (undocumented)
 type Return = NodeBase & {
     type: 'return';
     expr: Expression;
@@ -710,9 +689,6 @@ const TRUE: {
 // @public (undocumented)
 type TypeSource = NamedTypeSource | FnTypeSource;
 
-// @public (undocumented)
-function unWrapRet(v: Value | Control): Value;
-
 declare namespace utils {
     export {
         expectAny,
@@ -750,10 +726,6 @@ type Value = (VNull | VBool | VNum | VStr | VArr | VObj | VFn | VError) & Attr_2
 
 declare namespace values {
     export {
-        unWrapRet,
-        assertValue,
-        isValue,
-        isControl,
         VNull,
         VBool,
         VNum,
@@ -764,13 +736,9 @@ declare namespace values {
         VUserFn,
         VFnParam,
         VNativeFn,
-        VReturn,
-        VBreak,
-        VContinue,
         VError,
         Attr_2 as Attr,
         Value,
-        Control,
         NULL,
         TRUE,
         FALSE,
@@ -781,9 +749,6 @@ declare namespace values {
         ARR,
         FN,
         FN_NATIVE,
-        RETURN,
-        BREAK,
-        CONTINUE,
         ERROR
     }
 }
@@ -799,18 +764,6 @@ type VArr = {
 type VBool = {
     type: 'bool';
     value: boolean;
-};
-
-// @public (undocumented)
-type VBreak = {
-    type: 'break';
-    value: null;
-};
-
-// @public (undocumented)
-type VContinue = {
-    type: 'continue';
-    value: null;
 };
 
 // @public (undocumented)
@@ -858,12 +811,6 @@ type VObj = {
 };
 
 // @public (undocumented)
-type VReturn = {
-    type: 'return';
-    value: Value;
-};
-
-// @public (undocumented)
 type VStr = {
     type: 'str';
     value: string;
@@ -882,8 +829,8 @@ type VUserFn = VFnBase & {
 
 // Warnings were encountered during analysis:
 //
-// src/interpreter/index.ts:43:4 - (ae-forgotten-export) The symbol "LogObject" needs to be exported by the entry point index.d.ts
-// src/interpreter/value.ts:48:2 - (ae-forgotten-export) The symbol "Type" needs to be exported by the entry point index.d.ts
+// src/interpreter/index.ts:44:4 - (ae-forgotten-export) The symbol "LogObject" needs to be exported by the entry point index.d.ts
+// src/interpreter/value.ts:47:2 - (ae-forgotten-export) The symbol "Type" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

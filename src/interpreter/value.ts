@@ -1,4 +1,3 @@
-import { AiScriptRuntimeError } from '../error.js';
 import type { Expression, Node } from '../node.js';
 import type { Type } from '../type.js';
 import type { Scope } from './scope.js';
@@ -60,21 +59,6 @@ export type VNativeFn = VFnBase & {
 	}) => Value | Promise<Value> | void;
 };
 
-export type VReturn = {
-	type: 'return';
-	value: Value;
-};
-
-export type VBreak = {
-	type: 'break';
-	value: null;
-};
-
-export type VContinue = {
-	type: 'continue';
-	value: null;
-};
-
 export type VError = {
 	type: 'error';
 	value: string;
@@ -89,8 +73,6 @@ export type Attr = {
 };
 
 export type Value = (VNull | VBool | VNum | VStr | VArr | VObj | VFn | VError) & Attr;
-
-export type Control = VReturn | VBreak | VContinue;
 
 export const NULL = {
 	type: 'null' as const,
@@ -143,90 +125,8 @@ export const FN_NATIVE = (fn: VNativeFn['native']): VNativeFn => ({
 	native: fn,
 });
 
-// Return文で値が返されたことを示すためのラッパー
-export const RETURN = (v: VReturn['value']): VReturn => ({
-	type: 'return' as const,
-	value: v,
-});
-
-export const BREAK = (): VBreak => ({
-	type: 'break' as const,
-	value: null,
-});
-
-export const CONTINUE = (): VContinue => ({
-	type: 'continue' as const,
-	value: null,
-});
-
 export const ERROR = (name: string, info?: Value): Value => ({
 	type: 'error' as const,
 	value: name,
 	info: info,
 });
-
-export function unWrapRet(v: Value | Control): Value {
-	switch (v.type) {
-		case 'return':
-			return v.value;
-		default: {
-			assertValue(v);
-			return v;
-		}
-	}
-}
-
-export function assertValue(v: Value | Control): asserts v is Value {
-	switch (v.type) {
-		case 'return':
-			throw new AiScriptRuntimeError('Invalid return');
-		case 'break':
-			throw new AiScriptRuntimeError('Invalid break');
-		case 'continue':
-			throw new AiScriptRuntimeError('Invalid continue');
-		default:
-			v satisfies Value;
-	}
-}
-
-export function isValue(v: Value | Control): v is Value {
-	switch (v.type) {
-		case 'null':
-		case 'bool':
-		case 'num':
-		case 'str':
-		case 'arr':
-		case 'obj':
-		case 'fn':
-		case 'error':
-			return true;
-		case 'return':
-		case 'break':
-		case 'continue':
-			return false;
-	}
-	// exhaustive check
-	v satisfies never;
-	throw new TypeError('expected value or control');
-}
-
-export function isControl(v: Value | Control): v is Control {
-	switch (v.type) {
-		case 'null':
-		case 'bool':
-		case 'num':
-		case 'str':
-		case 'arr':
-		case 'obj':
-		case 'fn':
-		case 'error':
-			return false;
-		case 'return':
-		case 'break':
-		case 'continue':
-			return true;
-	}
-	// exhaustive check
-	v satisfies never;
-	throw new TypeError('expected value or control');
-}

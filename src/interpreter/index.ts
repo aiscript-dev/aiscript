@@ -7,12 +7,13 @@ import { AiScriptError, NonAiScriptError, AiScriptNamespaceError, AiScriptIndexO
 import * as Ast from '../node.js';
 import { Scope } from './scope.js';
 import { std } from './lib/std.js';
+import { RETURN, unWrapRet, BREAK, CONTINUE, assertValue, isControl, type Control } from './control.js';
 import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray, eq, isObject, isArray, expectAny, reprValue, isFunction } from './util.js';
-import { NULL, RETURN, unWrapRet, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, BREAK, CONTINUE, ERROR, assertValue, isControl } from './value.js';
+import { NULL, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, ERROR } from './value.js';
 import { getPrimProp } from './primitive-props.js';
 import { Variable } from './variable.js';
 import type { JsValue } from './util.js';
-import type { Control, Value, VFn, VUserFn } from './value.js';
+import type { Value, VFn, VUserFn } from './value.js';
 
 export type LogObject = {
 	scope?: string;
