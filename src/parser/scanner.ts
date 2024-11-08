@@ -491,6 +491,7 @@ export class Scanner implements ITokenStream {
 		let buf = '';
 		let tokenBuf: Token[] = [];
 		let state: 'string' | 'escape' | 'expr' | 'finish' = 'string';
+		let exprBracketDepth = 0;
 
 		const pos = this.stream.getPos();
 		let elementPos = pos;
@@ -556,17 +557,23 @@ export class Scanner implements ITokenStream {
 						this.stream.next();
 						continue;
 					}
-					// 埋め込み式の終了
+					if (this.stream.char === '{') {
+						exprBracketDepth++;
+					}
 					if ((this.stream.char as string) === '}') {
-						elements.push(TOKEN(TokenKind.TemplateExprElement, elementPos, { hasLeftSpacing, children: tokenBuf }));
-						// ここから文字列エレメントになるので位置を更新
-						elementPos = this.stream.getPos();
-						// TemplateExprElementトークンの終了位置をTokenStreamが取得するためのEOFトークンを追加
-						tokenBuf.push(TOKEN(TokenKind.EOF, elementPos));
-						tokenBuf = [];
-						state = 'string';
-						this.stream.next();
-						break;
+						// 埋め込み式の終了
+						if (exprBracketDepth === 0) {
+							elements.push(TOKEN(TokenKind.TemplateExprElement, elementPos, { hasLeftSpacing, children: tokenBuf }));
+							// ここから文字列エレメントになるので位置を更新
+							elementPos = this.stream.getPos();
+							// TemplateExprElementトークンの終了位置をTokenStreamが取得するためのEOFトークンを追加
+							tokenBuf.push(TOKEN(TokenKind.EOF, elementPos));
+							tokenBuf = [];
+							state = 'string';
+							this.stream.next();
+							break;
+						}
+						exprBracketDepth--;
 					}
 					const token = this.readToken();
 					tokenBuf.push(token);
