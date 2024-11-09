@@ -1,4 +1,5 @@
 import { AiScriptRuntimeError } from '../error.js';
+import type { Reference } from './reference.js';
 import type { Value } from './value.js';
 
 export type CReturn = {
@@ -79,7 +80,7 @@ export function isValue(v: Value | Control): v is Value {
 	throw new TypeError('expected value or control');
 }
 
-export function isControl(v: Value | Control): v is Control {
+export function isControl(v: Value | Control | Reference): v is Control {
 	switch (v.type) {
 		case 'null':
 		case 'bool':
@@ -89,6 +90,7 @@ export function isControl(v: Value | Control): v is Control {
 		case 'obj':
 		case 'fn':
 		case 'error':
+		case 'reference':
 			return false;
 		case 'return':
 		case 'break':
