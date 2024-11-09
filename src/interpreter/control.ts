@@ -59,27 +59,6 @@ export function assertValue(v: Value | Control): asserts v is Value {
 	}
 }
 
-export function isValue(v: Value | Control): v is Value {
-	switch (v.type) {
-		case 'null':
-		case 'bool':
-		case 'num':
-		case 'str':
-		case 'arr':
-		case 'obj':
-		case 'fn':
-		case 'error':
-			return true;
-		case 'return':
-		case 'break':
-		case 'continue':
-			return false;
-	}
-	// exhaustive check
-	v satisfies never;
-	throw new TypeError('expected value or control');
-}
-
 export function isControl(v: Value | Control | Reference): v is Control {
 	switch (v.type) {
 		case 'null':
