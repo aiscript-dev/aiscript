@@ -11,6 +11,7 @@ import { assertNumber, assertString, assertFunction, assertBoolean, assertObject
 import { NULL, RETURN, unWrapRet, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, BREAK, CONTINUE, ERROR } from './value.js';
 import { getPrimProp } from './primitive-props.js';
 import { Variable } from './variable.js';
+import { Reference } from './reference.js';
 import type { JsValue } from './util.js';
 import type { Value, VFn } from './value.js';
 
@@ -452,30 +453,33 @@ export class Interpreter {
 			}
 
 			case 'assign': {
+				const target = await this.getReference(node.dest, scope, callStack);
 				const v = await this._eval(node.expr, scope, callStack);
 
-				await this.assign(scope, node.dest, v, callStack);
+				target.set(v);
 
 				return NULL;
 			}
 
 			case 'addAssign': {
-				const target = await this._eval(node.dest, scope, callStack);
-				assertNumber(target);
+				const target = await this.getReference(node.dest, scope, callStack);
 				const v = await this._eval(node.expr, scope, callStack);
 				assertNumber(v);
+				const targetValue = target.get();
+				assertNumber(targetValue);
 
-				await this.assign(scope, node.dest, NUM(target.value + v.value), callStack);
+				target.set(NUM(targetValue.value + v.value));
 				return NULL;
 			}
 
 			case 'subAssign': {
-				const target = await this._eval(node.dest, scope, callStack);
-				assertNumber(target);
+				const target = await this.getReference(node.dest, scope, callStack);
 				const v = await this._eval(node.expr, scope, callStack);
 				assertNumber(v);
+				const targetValue = target.get();
+				assertNumber(targetValue);
 
-				await this.assign(scope, node.dest, NUM(target.value - v.value), callStack);
+				target.set(NUM(targetValue.value - v.value));
 				return NULL;
 			}
 
@@ -803,54 +807,39 @@ export class Interpreter {
 	}
 
 	@autobind
-	private async assign(
-		scope: Scope,
-		dest: Ast.Expression,
-		value: Value,
-		callStack: readonly CallInfo[],
-	): Promise<void> {
+	private async getReference(dest: Ast.Expression, scope: Scope, callStack: readonly CallInfo[]): Promise<Reference> {
 		switch (dest.type) {
 			case 'identifier': {
-				scope.assign(dest.name, value);
-				break;
+				return Reference.variable(dest.name, scope);
 			}
 			case 'index': {
 				const assignee = await this._eval(dest.target, scope, callStack);
 				const i = await this._eval(dest.index, scope, callStack);
 				if (isArray(assignee)) {
 					assertNumber(i);
-					if (assignee.value[i.value] === undefined) {
-						throw new AiScriptIndexOutOfRangeError(`Index out of range. index: ${i.value} max: ${assignee.value.length - 1}`);
-					}
-					assignee.value[i.value] = value;
+					return Reference.index(assignee, i.value);
 				} else if (isObject(assignee)) {
 					assertString(i);
-					assignee.value.set(i.value, value);
+					return Reference.prop(assignee, i.value);
 				} else {
 					throw new AiScriptRuntimeError(`Cannot read prop (${reprValue(i)}) of ${assignee.type}.`);
 				}
-				break;
 			}
 			case 'prop': {
 				const assignee = await this._eval(dest.target, scope, callStack);
 				assertObject(assignee);
 
-				assignee.value.set(dest.name, value);
-				break;
+				return Reference.prop(assignee, dest.name);
 			}
 			case 'arr': {
-				assertArray(value);
-				await Promise.all(dest.value.map(
-					(item, index) => this.assign(scope, item, value.value[index] ?? NULL, callStack),
-				));
-				break;
+				const items = await Promise.all(dest.value.map((item) => this.getReference(item, scope, callStack)));
+				return Reference.arr(items);
 			}
 			case 'obj': {
-				assertObject(value);
-				await Promise.all([...dest.value].map(
-					([key, item]) => this.assign(scope, item, value.value.get(key) ?? NULL, callStack),
-				));
-				break;
+				const entries = new Map(await Promise.all([...dest.value].map(
+					async ([key, item]) => [key, await this.getReference(item, scope, callStack)] as const
+				)));
+				return Reference.obj(entries);
 			}
 			default: {
 				throw new AiScriptRuntimeError('The left-hand side of an assignment expression must be a variable or a property/index access.');
