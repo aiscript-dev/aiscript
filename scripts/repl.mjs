@@ -36,14 +36,12 @@ const getInterpreter = () => new Interpreter({}, {
 	}
 });
 
-let interpreter;
+const interpreter = getInterpreter();
 async function main(){
 	let a = await i.question('> ');
-	interpreter?.abort();
 	if (a === 'exit') return false;
 	try {
 		let ast = Parser.parse(a);
-		interpreter = getInterpreter();
 		await interpreter.exec(ast);
 	} catch(e) {
 		console.log(chalk.red(`${e}`));
