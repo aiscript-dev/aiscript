@@ -192,5 +192,23 @@ describe('Template syntax', () => {
 		`);
 		eq(res, STR('1'));
 	});
+
+	test.concurrent('new line before', async () => {
+		const res = await exe(`
+		<: \`{"Hello"
+		// comment
+		}\`
+		`);
+		eq(res, STR('Hello'));
+	});
+
+	test.concurrent('new line after', async () => {
+		const res = await exe(`
+		<: \`{
+		// comment
+		"Hello"}\`
+		`);
+		eq(res, STR('Hello'));
+	});
 });
 
