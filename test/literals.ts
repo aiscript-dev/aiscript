@@ -185,5 +185,12 @@ describe('Template syntax', () => {
 		`);
 		eq(res, STR('`a{b}c`'));
 	});
+
+	test.concurrent('nested brackets', async () => {
+		const res = await exe(`
+		<: \`{if true {1} else {2}}\`
+		`);
+		eq(res, STR('1'));
+	});
 });
 

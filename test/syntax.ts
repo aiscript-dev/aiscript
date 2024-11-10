@@ -650,6 +650,28 @@ describe('Variable assignment', () => {
 			<: [hoge, fuga]
 		`), ARR([STR('bar'), STR('foo')]));
 	});
+
+	describe('eval left hand once', () => {
+		test.concurrent('add', async () => {
+			const res = await exe(`
+			var index = -1
+			let array = [0, 0]
+			array[eval { index += 1; index }] += 1
+			<: array
+			`);
+			eq(res, ARR([NUM(1), NUM(0)]));
+		});
+
+		test.concurrent('sub', async () => {
+			const res = await exe(`
+			var index = -1
+			let array = [0, 0]
+			array[eval { index += 1; index }] -= 1
+			<: array
+			`);
+			eq(res, ARR([NUM(-1), NUM(0)]));
+		});
+	});
 });
 
 describe('for', () => {
