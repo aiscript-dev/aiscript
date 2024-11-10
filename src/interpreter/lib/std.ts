@@ -638,20 +638,29 @@ export const std: Record<string, Value> = {
 			if (immediate.value) opts.call(callback, []);
 		}
 
-		const id = setInterval(() => {
-			opts.topCall(callback, []);
-		}, interval.value);
+		let id: ReturnType<typeof setInterval>;
 
-		const abortHandler = (): void => {
+		const start = (): void => {
+			id = setInterval(() => {
+				opts.topCall(callback, []);
+			}, interval.value);
+			opts.registerAbortHandler(stop);
+			opts.registerPauseHandler(stop);
+			opts.unregisterUnpauseHandler(start);
+		};
+		const stop = (): void => {
 			clearInterval(id);
+			opts.unregisterAbortHandler(stop);
+			opts.unregisterPauseHandler(stop);
+			opts.registerUnpauseHandler(start);
 		};
 
-		opts.registerAbortHandler(abortHandler);
+		start();
 
 		// stopper
 		return FN_NATIVE(([], opts) => {
-			clearInterval(id);
-			opts.unregisterAbortHandler(abortHandler);
+			stop();
+			opts.unregisterUnpauseHandler(start);
 		});
 	}),
 
@@ -659,20 +668,31 @@ export const std: Record<string, Value> = {
 		assertNumber(delay);
 		assertFunction(callback);
 
-		const id = setTimeout(() => {
-			opts.topCall(callback, []);
-		}, delay.value);
+		let id: ReturnType<typeof setInterval>;
 
-		const abortHandler = (): void => {
+		const start = (): void => {
+			id = setTimeout(() => {
+				opts.topCall(callback, []);
+				opts.unregisterAbortHandler(stop);
+				opts.unregisterPauseHandler(stop);
+			}, delay.value);
+			opts.registerAbortHandler(stop);
+			opts.registerPauseHandler(stop);
+			opts.unregisterUnpauseHandler(start);
+		};
+		const stop = (): void => {
 			clearTimeout(id);
+			opts.unregisterAbortHandler(stop);
+			opts.unregisterPauseHandler(stop);
+			opts.registerUnpauseHandler(start);
 		};
 
-		opts.registerAbortHandler(abortHandler);
+		start();
 
 		// stopper
 		return FN_NATIVE(([], opts) => {
-			clearTimeout(id);
-			opts.unregisterAbortHandler(abortHandler);
+			stop();
+			opts.unregisterUnpauseHandler(start);
 		});
 	}),
 	//#endregion

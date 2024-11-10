@@ -14,7 +14,11 @@
 			</footer>
 		</div>
 		<div id="logs" class="container">
-			<header>Output</header>
+			<header>
+				Output
+				<div v-if="paused" class="actions"><button @click="interpreter.unpause(), paused = false">Unpause</button></div>
+				<div v-else class="actions"><button @click="interpreter.pause(), paused = true">Pause</button></div>
+			</header>
 			<div>
 				<div v-for="log in logs" class="log" :key="log.id" :class="[{ print: log.print }, log.type]"><span class="type">{{ log.type }}</span> {{ log.text }}</div>
 			</div>
@@ -66,6 +70,7 @@ const ast = ref(null);
 const logs = ref([]);
 const syntaxErrorMessage = ref(null);
 const showSettings = ref(false);
+const paused = ref(false);
 
 watch(script, () => {
 	window.localStorage.setItem('script', script.value);
@@ -95,6 +100,7 @@ const run = async () => {
 	logs.value = [];
 
 	interpreter?.abort();
+	paused.value = false;
 	interpreter = new Interpreter({}, {
 		in: (q) => {
 			return new Promise(ok => {
