@@ -55,7 +55,11 @@ export type VNativeFn = VFnBase & {
 		call: (fn: VFn, args: Value[]) => Promise<Value>;
 		topCall: (fn: VFn, args: Value[]) => Promise<Value>;
 		registerAbortHandler: (handler: () => void) => void;
+		registerPauseHandler: (handler: () => void) => void;
+		registerUnpauseHandler: (handler: () => void) => void;
 		unregisterAbortHandler: (handler: () => void) => void;
+		unregisterPauseHandler: (handler: () => void) => void;
+		unregisterUnpauseHandler: (handler: () => void) => void;
 	}) => Value | Promise<Value> | void;
 };
 

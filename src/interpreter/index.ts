@@ -30,8 +30,11 @@ type CallInfo = {
 export class Interpreter {
 	public stepCount = 0;
 	private stop = false;
+	private pausing: { promise: Promise<void>, resolve: () => void } | null = null;
 	public scope: Scope;
 	private abortHandlers: (() => void)[] = [];
+	private pauseHandlers: (() => void)[] = [];
+	private unpauseHandlers: (() => void)[] = [];
 	private vars: Record<string, Variable> = {};
 	private irqRate: number;
 	private irqSleep: () => Promise<void>;
@@ -268,7 +271,11 @@ export class Interpreter {
 				call: (fn, args) => this._fn(fn, args, [...callStack, info]),
 				topCall: this.execFn,
 				registerAbortHandler: this.registerAbortHandler,
+				registerPauseHandler: this.registerPauseHandler,
+				registerUnpauseHandler: this.registerUnpauseHandler,
 				unregisterAbortHandler: this.unregisterAbortHandler,
+				unregisterPauseHandler: this.unregisterPauseHandler,
+				unregisterUnpauseHandler: this.unregisterUnpauseHandler,
 			});
 			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 			return result ?? NULL;
@@ -329,6 +336,7 @@ export class Interpreter {
 	@autobind
 	private async __eval(node: Ast.Node, scope: Scope, callStack: readonly CallInfo[]): Promise<Value | Control> {
 		if (this.stop) return NULL;
+		if (this.pausing) await this.pausing.promise;
 		// irqRateが小数の場合は不等間隔になる
 		if (this.irqRate !== 0 && this.stepCount % this.irqRate >= this.irqRate - 1) {
 			await this.irqSleep();
@@ -841,10 +849,26 @@ export class Interpreter {
 	public registerAbortHandler(handler: () => void): void {
 		this.abortHandlers.push(handler);
 	}
+	@autobind
+	public registerPauseHandler(handler: () => void): void {
+		this.pauseHandlers.push(handler);
+	}
+	@autobind
+	public registerUnpauseHandler(handler: () => void): void {
+		this.unpauseHandlers.push(handler);
+	}
 
 	@autobind
 	public unregisterAbortHandler(handler: () => void): void {
 		this.abortHandlers = this.abortHandlers.filter(h => h !== handler);
+	}
+	@autobind
+	public unregisterPauseHandler(handler: () => void): void {
+		this.pauseHandlers = this.pauseHandlers.filter(h => h !== handler);
+	}
+	@autobind
+	public unregisterUnpauseHandler(handler: () => void): void {
+		this.unpauseHandlers = this.unpauseHandlers.filter(h => h !== handler);
 	}
 
 	@autobind
@@ -854,6 +878,29 @@ export class Interpreter {
 			handler();
 		}
 		this.abortHandlers = [];
+	}
+
+	@autobind
+	public pause(): void {
+		if (this.pausing) return;
+		let resolve: () => void;
+		const promise = new Promise<void>(r => { resolve = () => r(); });
+		this.pausing = { promise, resolve: resolve! };
+		for (const handler of this.pauseHandlers) {
+			handler();
+		}
+		this.pauseHandlers = [];
+	}
+
+	@autobind
+	public unpause(): void {
+		if (!this.pausing) return;
+		this.pausing.resolve();
+		this.pausing = null;
+		for (const handler of this.unpauseHandlers) {
+			handler();
+		}
+		this.unpauseHandlers = [];
 	}
 
 	@autobind
