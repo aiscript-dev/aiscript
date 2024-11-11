@@ -12,7 +12,7 @@ console.log(
 `Welcome to AiScript!
 https://github.com/syuilo/aiscript
 
-Type 'exit' to end this session.`);
+Type '.exit' to end this session.`);
 
 const interpreter = new Interpreter({}, {
 	in(q) {
@@ -41,7 +41,7 @@ async function getAst() {
 	let a = await i.question('> ');
 	while (true) {
 		try {
-			if (a === 'exit') return null;
+			if (a === '.exit') return null;
 			script += a;
 			let ast = Parser.parse(script);
 			script = '';
