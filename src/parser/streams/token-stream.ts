@@ -1,5 +1,5 @@
-import { AiScriptSyntaxError } from '../../error.js';
 import { TOKEN, TokenKind } from '../token.js';
+import { unexpectedTokenError } from '../utils.js';
 import type { Token, TokenPosition } from '../token.js';
 
 /**
@@ -131,7 +131,7 @@ export class TokenStream implements ITokenStream {
 	*/
 	public expect(kind: TokenKind): void {
 		if (!this.is(kind)) {
-			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[this.getTokenKind()]}`, this.getPos());
+			throw unexpectedTokenError(this.getTokenKind(), this.getPos());
 		}
 	}
 

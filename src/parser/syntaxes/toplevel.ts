@@ -1,6 +1,6 @@
 import { NODE } from '../utils.js';
 import { TokenKind } from '../token.js';
-import { AiScriptSyntaxError } from '../../error.js';
+import { AiScriptSyntaxError, AiScriptUnexpectedEOFError } from '../../error.js';
 import { parseDefStatement, parseStatement } from './statements.js';
 import { parseExpr } from './expressions.js';
 
@@ -104,6 +104,9 @@ export function parseNamespace(s: ITokenStream): Ast.Namespace {
 			}
 			case TokenKind.CloseBrace: {
 				break;
+			}
+			case TokenKind.EOF: {
+				throw new AiScriptUnexpectedEOFError(s.getPos());
 			}
 			default: {
 				throw new AiScriptSyntaxError('Multiple statements cannot be placed on a single line.', s.getPos());

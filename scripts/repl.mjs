@@ -1,6 +1,6 @@
 import * as readline from 'readline/promises';
 import chalk from 'chalk';
-import { Parser, Interpreter, utils } from '@syuilo/aiscript';
+import { errors, Parser, Interpreter, utils } from '@syuilo/aiscript';
 const { valToString } = utils;
 
 const i = readline.createInterface({
@@ -14,7 +14,7 @@ https://github.com/syuilo/aiscript
 
 Type 'exit' to end this session.`);
 
-const getInterpreter = () => new Interpreter({}, {
+const interpreter = new Interpreter({}, {
 	in(q) {
 		return i.question(q + ': ');
 	},
@@ -36,12 +36,34 @@ const getInterpreter = () => new Interpreter({}, {
 	}
 });
 
-const interpreter = getInterpreter();
-async function main(){
+async function getAst() {
+	let script = '';
 	let a = await i.question('> ');
-	if (a === 'exit') return false;
+	while (true) {
+		try {
+			if (a === 'exit') return null;
+			script += a;
+			let ast = Parser.parse(script);
+			script = '';
+			return ast;
+		} catch(e) {
+			if (e instanceof errors.AiScriptUnexpectedEOFError) {
+				script += '\n';
+				a = await i.question('... ');
+			} else {
+				script = '';
+				throw e;
+			}
+		}
+	}
+}
+
+async function main(){
 	try {
-		let ast = Parser.parse(a);
+		let ast = await getAst();
+		if (ast == null) {
+			return false;
+		}
 		await interpreter.exec(ast);
 	} catch(e) {
 		console.log(chalk.red(`${e}`));

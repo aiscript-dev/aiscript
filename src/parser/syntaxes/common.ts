@@ -1,5 +1,5 @@
 import { TokenKind } from '../token.js';
-import { AiScriptSyntaxError } from '../../error.js';
+import { AiScriptSyntaxError, AiScriptUnexpectedEOFError } from '../../error.js';
 import { NODE } from '../utils.js';
 import { parseStatement } from './statements.js';
 import { parseExpr } from './expressions.js';
@@ -75,6 +75,9 @@ export function parseParams(s: ITokenStream): Ast.Fn['params'] {
 			case TokenKind.CloseParen: {
 				break;
 			}
+			case TokenKind.EOF: {
+				throw new AiScriptUnexpectedEOFError(s.getPos());
+			}
 			default: {
 				throw new AiScriptSyntaxError('separator expected', s.getPos());
 			}
@@ -115,6 +118,9 @@ export function parseBlock(s: ITokenStream): (Ast.Statement | Ast.Expression)[] 
 			}
 			case TokenKind.CloseBrace: {
 				break;
+			}
+			case TokenKind.EOF: {
+				throw new AiScriptUnexpectedEOFError(s.getPos());
 			}
 			default: {
 				throw new AiScriptSyntaxError('Multiple statements cannot be placed on a single line.', s.getPos());
@@ -183,6 +189,9 @@ function parseFnType(s: ITokenStream): Ast.TypeSource {
 				case TokenKind.Comma: {
 					s.next();
 					break;
+				}
+				case TokenKind.EOF: {
+					throw new AiScriptUnexpectedEOFError(s.getPos());
 				}
 				default: {
 					throw new AiScriptSyntaxError('separator expected', s.getPos());

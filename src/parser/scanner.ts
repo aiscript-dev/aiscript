@@ -1,6 +1,7 @@
-import { AiScriptSyntaxError } from '../error.js';
+import { AiScriptSyntaxError, AiScriptUnexpectedEOFError } from '../error.js';
 import { CharStream } from './streams/char-stream.js';
 import { TOKEN, TokenKind } from './token.js';
+import { unexpectedTokenError } from './utils.js';
 
 import type { ITokenStream } from './streams/token-stream.js';
 import type { Token, TokenPosition } from './token.js';
@@ -96,7 +97,7 @@ export class Scanner implements ITokenStream {
 	*/
 	public expect(kind: TokenKind): void {
 		if (!this.is(kind)) {
-			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[this.getTokenKind()]}`, this.getPos());
+			throw unexpectedTokenError(this.getTokenKind(), this.getPos());
 		}
 	}
 
@@ -456,7 +457,7 @@ export class Scanner implements ITokenStream {
 			switch (state) {
 				case 'string': {
 					if (this.stream.eof) {
-						throw new AiScriptSyntaxError('unexpected EOF', pos);
+						throw new AiScriptUnexpectedEOFError(pos);
 					}
 					if (this.stream.char === '\\') {
 						this.stream.next();
@@ -474,7 +475,7 @@ export class Scanner implements ITokenStream {
 				}
 				case 'escape': {
 					if (this.stream.eof) {
-						throw new AiScriptSyntaxError('unexpected EOF', pos);
+						throw new AiScriptUnexpectedEOFError(pos);
 					}
 					value += this.stream.char;
 					this.stream.next();
@@ -502,7 +503,7 @@ export class Scanner implements ITokenStream {
 				case 'string': {
 					// テンプレートの終了が無いままEOFに達した
 					if (this.stream.eof) {
-						throw new AiScriptSyntaxError('unexpected EOF', pos);
+						throw new AiScriptUnexpectedEOFError(pos);
 					}
 					// エスケープ
 					if (this.stream.char === '\\') {
@@ -538,7 +539,7 @@ export class Scanner implements ITokenStream {
 				case 'escape': {
 					// エスケープ対象の文字が無いままEOFに達した
 					if (this.stream.eof) {
-						throw new AiScriptSyntaxError('unexpected EOF', pos);
+						throw new AiScriptUnexpectedEOFError(pos);
 					}
 					// 普通の文字として取り込み
 					buf += this.stream.char;
@@ -550,7 +551,7 @@ export class Scanner implements ITokenStream {
 				case 'expr': {
 					// 埋め込み式の終端記号が無いままEOFに達した
 					if (this.stream.eof) {
-						throw new AiScriptSyntaxError('unexpected EOF', pos);
+						throw new AiScriptUnexpectedEOFError(pos);
 					}
 					// skip spasing
 					if (spaceChars.includes(this.stream.char)) {

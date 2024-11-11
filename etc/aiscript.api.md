@@ -81,6 +81,11 @@ class AiScriptTypeError extends AiScriptError {
 }
 
 // @public
+class AiScriptUnexpectedEOFError extends AiScriptSyntaxError {
+    constructor(pos: Pos, info?: unknown);
+}
+
+// @public
 class AiScriptUserError extends AiScriptRuntimeError {
     constructor(message: string, info?: unknown);
     // (undocumented)
@@ -284,6 +289,7 @@ declare namespace errors {
         AiScriptError,
         NonAiScriptError,
         AiScriptSyntaxError,
+        AiScriptUnexpectedEOFError,
         AiScriptTypeError,
         AiScriptNamespaceError,
         AiScriptRuntimeError,
