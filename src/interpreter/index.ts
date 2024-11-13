@@ -7,13 +7,14 @@ import { AiScriptError, NonAiScriptError, AiScriptNamespaceError, AiScriptIndexO
 import * as Ast from '../node.js';
 import { Scope } from './scope.js';
 import { std } from './lib/std.js';
+import { RETURN, unWrapRet, BREAK, CONTINUE, assertValue, isControl, type Control } from './control.js';
 import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray, eq, isObject, isArray, expectAny, reprValue, isFunction } from './util.js';
-import { NULL, RETURN, unWrapRet, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, BREAK, CONTINUE, ERROR } from './value.js';
+import { NULL, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, ERROR } from './value.js';
 import { getPrimProp } from './primitive-props.js';
 import { Variable } from './variable.js';
 import { Reference } from './reference.js';
 import type { JsValue } from './util.js';
-import type { Value, VFn } from './value.js';
+import type { Value, VFn, VUserFn } from './value.js';
 
 export type LogObject = {
 	scope?: string;
@@ -107,6 +108,7 @@ export class Interpreter {
 		try {
 			await this.collectNs(script);
 			const result = await this._run(script, this.scope, []);
+			assertValue(result);
 			this.log('end', { val: result });
 		} catch (e) {
 			this.handleError(e);
@@ -234,6 +236,7 @@ export class Interpreter {
 					}
 
 					const value = await this._eval(node.expr, nsScope, []);
+					assertValue(value);
 					if (
 						node.expr.type === 'fn'
 						&& isFunction(value)
@@ -290,12 +293,27 @@ export class Interpreter {
 	}
 
 	@autobind
-	private _evalClause(node: Ast.Statement | Ast.Expression, scope: Scope, callStack: readonly CallInfo[]): Promise<Value> {
+	private _evalClause(node: Ast.Statement | Ast.Expression, scope: Scope, callStack: readonly CallInfo[]): Promise<Value | Control> {
 		return this._eval(node, Ast.isStatement(node) ? scope.createChildScope() : scope, callStack);
 	}
 
 	@autobind
-	private _eval(node: Ast.Node, scope: Scope, callStack: readonly CallInfo[]): Promise<Value> {
+	private async _evalBinaryOperation(op: string, leftExpr: Ast.Expression, rightExpr: Ast.Expression, scope: Scope, callStack: readonly CallInfo[]): Promise<Value | Control> {
+		const callee = scope.get(op);
+		assertFunction(callee);
+		const left = await this._eval(leftExpr, scope, callStack);
+		if (isControl(left)) {
+			return left;
+		}
+		const right = await this._eval(rightExpr, scope, callStack);
+		if (isControl(right)) {
+			return right;
+		}
+		return this._fn(callee, [left, right], callStack);
+	}
+
+	@autobind
+	private _eval(node: Ast.Node, scope: Scope, callStack: readonly CallInfo[]): Promise<Value | Control> {
 		return this.__eval(node, scope, callStack).catch(e => {
 			if (e.pos) throw e;
 			else {
@@ -316,7 +334,7 @@ export class Interpreter {
 	}
 
 	@autobind
-	private async __eval(node: Ast.Node, scope: Scope, callStack: readonly CallInfo[]): Promise<Value> {
+	private async __eval(node: Ast.Node, scope: Scope, callStack: readonly CallInfo[]): Promise<Value | Control> {
 		if (this.stop) return NULL;
 		if (this.pausing) await this.pausing.promise;
 		// irqRateが小数の場合は不等間隔になる
@@ -331,19 +349,35 @@ export class Interpreter {
 		switch (node.type) {
 			case 'call': {
 				const callee = await this._eval(node.target, scope, callStack);
+				if (isControl(callee)) {
+					return callee;
+				}
 				assertFunction(callee);
-				const args = await Promise.all(node.args.map(expr => this._eval(expr, scope, callStack)));
+				const args = [];
+				for (const expr of node.args) {
+					const arg = await this._eval(expr, scope, callStack);
+					if (isControl(arg)) {
+						return arg;
+					}
+					args.push(arg);
+				}
 				return this._fn(callee, args, callStack, node.loc.start);
 			}
 
 			case 'if': {
 				const cond = await this._eval(node.cond, scope, callStack);
+				if (isControl(cond)) {
+					return cond;
+				}
 				assertBoolean(cond);
 				if (cond.value) {
 					return this._evalClause(node.then, scope, callStack);
 				}
 				for (const elseif of node.elseif) {
 					const cond = await this._eval(elseif.cond, scope, callStack);
+					if (isControl(cond)) {
+						return cond;
+					}
 					assertBoolean(cond);
 					if (cond.value) {
 						return this._evalClause(elseif.then, scope, callStack);
@@ -357,8 +391,14 @@ export class Interpreter {
 
 			case 'match': {
 				const about = await this._eval(node.about, scope, callStack);
+				if (isControl(about)) {
+					return about;
+				}
 				for (const qa of node.qs) {
 					const q = await this._eval(qa.q, scope, callStack);
+					if (isControl(q)) {
+						return q;
+					}
 					if (eq(about, q)) {
 						return await this._evalClause(qa.a, scope, callStack);
 					}
@@ -385,6 +425,9 @@ export class Interpreter {
 			case 'for': {
 				if (node.times) {
 					const times = await this._eval(node.times, scope, callStack);
+					if (isControl(times)) {
+						return times;
+					}
 					assertNumber(times);
 					for (let i = 0; i < times.value; i++) {
 						const v = await this._evalClause(node.for, scope, callStack);
@@ -396,7 +439,13 @@ export class Interpreter {
 					}
 				} else {
 					const from = await this._eval(node.from!, scope, callStack);
+					if (isControl(from)) {
+						return from;
+					}
 					const to = await this._eval(node.to!, scope, callStack);
+					if (isControl(to)) {
+						return to;
+					}
 					assertNumber(from);
 					assertNumber(to);
 					for (let i = from.value; i < from.value + to.value; i++) {
@@ -418,6 +467,9 @@ export class Interpreter {
 
 			case 'each': {
 				const items = await this._eval(node.items, scope, callStack);
+				if (isControl(items)) {
+					return items;
+				}
 				assertArray(items);
 				for (const item of items.value) {
 					const eachScope = scope.createChildScope();
@@ -434,12 +486,17 @@ export class Interpreter {
 
 			case 'def': {
 				const value = await this._eval(node.expr, scope, callStack);
+				if (isControl(value)) {
+					return value;
+				}
 				if (node.attr.length > 0) {
 					const attrs: Value['attr'] = [];
 					for (const nAttr of node.attr) {
+						const value = await this._eval(nAttr.value, scope, callStack);
+						assertValue(value);
 						attrs.push({
 							name: nAttr.name,
-							value: await this._eval(nAttr.value, scope, callStack),
+							value,
 						});
 					}
 					value.attr = attrs;
@@ -462,7 +519,13 @@ export class Interpreter {
 
 			case 'assign': {
 				const target = await this.getReference(node.dest, scope, callStack);
+				if (isControl(target)) {
+					return target;
+				}
 				const v = await this._eval(node.expr, scope, callStack);
+				if (isControl(v)) {
+					return v;
+				}
 
 				target.set(v);
 
@@ -471,7 +534,13 @@ export class Interpreter {
 
 			case 'addAssign': {
 				const target = await this.getReference(node.dest, scope, callStack);
+				if (isControl(target)) {
+					return target;
+				}
 				const v = await this._eval(node.expr, scope, callStack);
+				if (isControl(v)) {
+					return v;
+				}
 				assertNumber(v);
 				const targetValue = target.get();
 				assertNumber(targetValue);
@@ -482,7 +551,13 @@ export class Interpreter {
 
 			case 'subAssign': {
 				const target = await this.getReference(node.dest, scope, callStack);
+				if (isControl(target)) {
+					return target;
+				}
 				const v = await this._eval(node.expr, scope, callStack);
+				if (isControl(v)) {
+					return v;
+				}
 				assertNumber(v);
 				const targetValue = target.get();
 				assertNumber(targetValue);
@@ -499,20 +574,35 @@ export class Interpreter {
 
 			case 'str': return STR(node.value);
 
-			case 'arr': return ARR(await Promise.all(
-				node.value.map(item => this._eval(item, scope, callStack))
-			));
+			case 'arr': {
+				const value = [];
+				for (const item of node.value) {
+					const valueItem = await this._eval(item, scope, callStack);
+					if (isControl(valueItem)) {
+						return valueItem;
+					}
+					value.push(valueItem);
+				}
+				return ARR(value);
+			}
 
 			case 'obj': {
 				const obj = new Map<string, Value>();
-				for (const [key, value] of node.value) {
-					obj.set(key, await this._eval(value, scope, callStack));
+				for (const [key, valueExpr] of node.value) {
+					const value = await this._eval(valueExpr, scope, callStack);
+					if (isControl(value)) {
+						return value;
+					}
+					obj.set(key, value);
 				}
 				return OBJ(obj);
 			}
 
 			case 'prop': {
 				const target = await this._eval(node.target, scope, callStack);
+				if (isControl(target)) {
+					return target;
+				}
 				if (isObject(target)) {
 					if (target.value.has(node.name)) {
 						return target.value.get(node.name)!;
@@ -526,7 +616,13 @@ export class Interpreter {
 
 			case 'index': {
 				const target = await this._eval(node.target, scope, callStack);
+				if (isControl(target)) {
+					return target;
+				}
 				const i = await this._eval(node.index, scope, callStack);
+				if (isControl(i)) {
+					return i;
+				}
 				if (isArray(target)) {
 					assertNumber(i);
 					const item = target.value[i.value];
@@ -548,22 +644,33 @@ export class Interpreter {
 
 			case 'not': {
 				const v = await this._eval(node.expr, scope, callStack);
+				if (isControl(v)) {
+					return v;
+				}
 				assertBoolean(v);
 				return BOOL(!v.value);
 			}
 
 			case 'fn': {
+				const params = await Promise.all(node.params.map(async (param) => {
+					return {
+						dest: param.dest,
+						default:
+							param.default ? await this._eval(param.default, scope, callStack) :
+							param.optional ? NULL :
+							undefined,
+						// type: (TODO)
+					};
+				}));
+				const control = params
+					.map((param) => param.default)
+					.filter((value) => value != null)
+					.find(isControl);
+				if (control != null) {
+					return control;
+				}
 				return FN(
-					await Promise.all(node.params.map(async (param) => {
-						return {
-							dest: param.dest,
-							default:
-								param.default ? await this._eval(param.default, scope, callStack) :
-								param.optional ? NULL :
-								undefined,
-							// type: (TODO)
-						};
-					})),
+					params as VUserFn['params'],
 					node.children,
 					scope,
 				);
@@ -584,6 +691,9 @@ export class Interpreter {
 						str += x;
 					} else {
 						const v = await this._eval(x, scope, callStack);
+						if (isControl(v)) {
+							return v;
+						}
 						str += reprValue(v);
 					}
 				}
@@ -592,6 +702,9 @@ export class Interpreter {
 
 			case 'return': {
 				const val = await this._eval(node.expr, scope, callStack);
+				if (isControl(val)) {
+					return val;
+				}
 				this.log('block:return', { scope: scope.name, val: val });
 				return RETURN(val);
 			}
@@ -615,109 +728,67 @@ export class Interpreter {
 			}
 
 			case 'pow': {
-				const callee = scope.get('Core:pow');
-				assertFunction(callee);
-				const left = await this._eval(node.left, scope, callStack);
-				const right = await this._eval(node.right, scope, callStack);
-				return this._fn(callee, [left, right], callStack);
+				return this._evalBinaryOperation('Core:pow', node.left, node.right, scope, callStack);
 			}
 
 			case 'mul': {
-				const callee = scope.get('Core:mul');
-				assertFunction(callee);
-				const left = await this._eval(node.left, scope, callStack);
-				const right = await this._eval(node.right, scope, callStack);
-				return this._fn(callee, [left, right], callStack);
+				return this._evalBinaryOperation('Core:mul', node.left, node.right, scope, callStack);
 			}
 
 			case 'div': {
-				const callee = scope.get('Core:div');
-				assertFunction(callee);
-				const left = await this._eval(node.left, scope, callStack);
-				const right = await this._eval(node.right, scope, callStack);
-				return this._fn(callee, [left, right], callStack);
+				return this._evalBinaryOperation('Core:div', node.left, node.right, scope, callStack);
 			}
 
 			case 'rem': {
-				const callee = scope.get('Core:mod');
-				assertFunction(callee);
-				const left = await this._eval(node.left, scope, callStack);
-				const right = await this._eval(node.right, scope, callStack);
-				return this._fn(callee, [left, right], callStack);
+				return this._evalBinaryOperation('Core:mod', node.left, node.right, scope, callStack);
 			}
 
 			case 'add': {
-				const callee = scope.get('Core:add');
-				assertFunction(callee);
-				const left = await this._eval(node.left, scope, callStack);
-				const right = await this._eval(node.right, scope, callStack);
-				return this._fn(callee, [left, right], callStack);
+				return this._evalBinaryOperation('Core:add', node.left, node.right, scope, callStack);
 			}
 
 			case 'sub': {
-				const callee = scope.get('Core:sub');
-				assertFunction(callee);
-				const left = await this._eval(node.left, scope, callStack);
-				const right = await this._eval(node.right, scope, callStack);
-				return this._fn(callee, [left, right], callStack);
+				return this._evalBinaryOperation('Core:sub', node.left, node.right, scope, callStack);
 			}
 
 			case 'lt': {
-				const callee = scope.get('Core:lt');
-				assertFunction(callee);
-				const left = await this._eval(node.left, scope, callStack);
-				const right = await this._eval(node.right, scope, callStack);
-				return this._fn(callee, [left, right], callStack);
+				return this._evalBinaryOperation('Core:lt', node.left, node.right, scope, callStack);
 			}
 
 			case 'lteq': {
-				const callee = scope.get('Core:lteq');
-				assertFunction(callee);
-				const left = await this._eval(node.left, scope, callStack);
-				const right = await this._eval(node.right, scope, callStack);
-				return this._fn(callee, [left, right], callStack);
+				return this._evalBinaryOperation('Core:lteq', node.left, node.right, scope, callStack);
 			}
 
 			case 'gt': {
-				const callee = scope.get('Core:gt');
-				assertFunction(callee);
-				const left = await this._eval(node.left, scope, callStack);
-				const right = await this._eval(node.right, scope, callStack);
-				return this._fn(callee, [left, right], callStack);
+				return this._evalBinaryOperation('Core:gt', node.left, node.right, scope, callStack);
 			}
 
 			case 'gteq': {
-				const callee = scope.get('Core:gteq');
-				assertFunction(callee);
-				const left = await this._eval(node.left, scope, callStack);
-				const right = await this._eval(node.right, scope, callStack);
-				return this._fn(callee, [left, right], callStack);
+				return this._evalBinaryOperation('Core:gteq', node.left, node.right, scope, callStack);
 			}
 
 			case 'eq': {
-				const callee = scope.get('Core:eq');
-				assertFunction(callee);
-				const left = await this._eval(node.left, scope, callStack);
-				const right = await this._eval(node.right, scope, callStack);
-				return this._fn(callee, [left, right], callStack);
+				return this._evalBinaryOperation('Core:eq', node.left, node.right, scope, callStack);
 			}
 
 			case 'neq': {
-				const callee = scope.get('Core:neq');
-				assertFunction(callee);
-				const left = await this._eval(node.left, scope, callStack);
-				const right = await this._eval(node.right, scope, callStack);
-				return this._fn(callee, [left, right], callStack);
+				return this._evalBinaryOperation('Core:neq', node.left, node.right, scope, callStack);
 			}
 
 			case 'and': {
 				const leftValue = await this._eval(node.left, scope, callStack);
+				if (isControl(leftValue)) {
+					return leftValue;
+				}
 				assertBoolean(leftValue);
 
 				if (!leftValue.value) {
 					return leftValue;
 				} else {
 					const rightValue = await this._eval(node.right, scope, callStack);
+					if (isControl(rightValue)) {
+						return rightValue;
+					}
 					assertBoolean(rightValue);
 					return rightValue;
 				}
@@ -725,12 +796,18 @@ export class Interpreter {
 
 			case 'or': {
 				const leftValue = await this._eval(node.left, scope, callStack);
+				if (isControl(leftValue)) {
+					return leftValue;
+				}
 				assertBoolean(leftValue);
 
 				if (leftValue.value) {
 					return leftValue;
 				} else {
 					const rightValue = await this._eval(node.right, scope, callStack);
+					if (isControl(rightValue)) {
+						return rightValue;
+					}
 					assertBoolean(rightValue);
 					return rightValue;
 				}
@@ -743,10 +820,10 @@ export class Interpreter {
 	}
 
 	@autobind
-	private async _run(program: Ast.Node[], scope: Scope, callStack: readonly CallInfo[]): Promise<Value> {
+	private async _run(program: Ast.Node[], scope: Scope, callStack: readonly CallInfo[]): Promise<Value | Control> {
 		this.log('block:enter', { scope: scope.name });
 
-		let v: Value = NULL;
+		let v: Value | Control = NULL;
 
 		for (let i = 0; i < program.length; i++) {
 			const node = program[i]!;
@@ -854,14 +931,20 @@ export class Interpreter {
 	}
 
 	@autobind
-	private async getReference(dest: Ast.Expression, scope: Scope, callStack: readonly CallInfo[]): Promise<Reference> {
+	private async getReference(dest: Ast.Expression, scope: Scope, callStack: readonly CallInfo[]): Promise<Reference | Control> {
 		switch (dest.type) {
 			case 'identifier': {
 				return Reference.variable(dest.name, scope);
 			}
 			case 'index': {
 				const assignee = await this._eval(dest.target, scope, callStack);
+				if (isControl(assignee)) {
+					return assignee;
+				}
 				const i = await this._eval(dest.index, scope, callStack);
+				if (isControl(i)) {
+					return i;
+				}
 				if (isArray(assignee)) {
 					assertNumber(i);
 					return Reference.index(assignee, i.value);
@@ -874,18 +957,33 @@ export class Interpreter {
 			}
 			case 'prop': {
 				const assignee = await this._eval(dest.target, scope, callStack);
+				if (isControl(assignee)) {
+					return assignee;
+				}
 				assertObject(assignee);
 
 				return Reference.prop(assignee, dest.name);
 			}
 			case 'arr': {
-				const items = await Promise.all(dest.value.map((item) => this.getReference(item, scope, callStack)));
+				const items: Reference[] = [];
+				for (const item of dest.value) {
+					const ref = await this.getReference(item, scope, callStack);
+					if (isControl(ref)) {
+						return ref;
+					}
+					items.push(ref);
+				}
 				return Reference.arr(items);
 			}
 			case 'obj': {
-				const entries = new Map(await Promise.all([...dest.value].map(
-					async ([key, item]) => [key, await this.getReference(item, scope, callStack)] as const
-				)));
+				const entries = new Map<string, Reference>();
+				for (const [key, item] of dest.value.entries()) {
+					const ref = await this.getReference(item, scope, callStack);
+					if (isControl(ref)) {
+						return ref;
+					}
+					entries.set(key, ref);
+				}
 				return Reference.obj(entries);
 			}
 			default: {

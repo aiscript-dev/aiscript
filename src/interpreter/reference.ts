@@ -5,6 +5,8 @@ import type { VArr, VObj, Value } from './value.js';
 import type { Scope } from './scope.js';
 
 export interface Reference {
+	type: 'reference';
+
 	get(): Value;
 
 	set(value: Value): void;
@@ -33,7 +35,11 @@ export const Reference = {
 };
 
 class VariableReference implements Reference {
-	constructor(private name: string, private scope: Scope) {}
+	constructor(private name: string, private scope: Scope) {
+		this.type = 'reference';
+	}
+
+	type: 'reference';
 
 	get(): Value {
 		return this.scope.get(this.name);
@@ -45,7 +51,11 @@ class VariableReference implements Reference {
 }
 
 class IndexReference implements Reference {
-	constructor(private target: Value[], private index: number) {}
+	constructor(private target: Value[], private index: number) {
+		this.type = 'reference';
+	}
+
+	type: 'reference';
 
 	get(): Value {
 		this.assertIndexInRange();
@@ -66,7 +76,11 @@ class IndexReference implements Reference {
 }
 
 class PropReference implements Reference {
-	constructor(private target: Map<string, Value>, private index: string) {}
+	constructor(private target: Map<string, Value>, private index: string) {
+		this.type = 'reference';
+	}
+
+	type: 'reference';
 
 	get(): Value {
 		return this.target.get(this.index) ?? NULL;
@@ -78,7 +92,11 @@ class PropReference implements Reference {
 }
 
 class ArrReference implements Reference {
-	constructor(private items: readonly Reference[]) {}
+	constructor(private items: readonly Reference[]) {
+		this.type = 'reference';
+	}
+
+	type: 'reference';
 
 	get(): Value {
 		return ARR(this.items.map((item) => item.get()));
@@ -93,7 +111,11 @@ class ArrReference implements Reference {
 }
 
 class ObjReference implements Reference {
-	constructor(private entries: ReadonlyMap<string, Reference>) {}
+	constructor(private entries: ReadonlyMap<string, Reference>) {
+		this.type = 'reference';
+	}
+
+	type: 'reference';
 
 	get(): Value {
 		return OBJ(new Map([...this.entries].map(([key, item]) => [key, item.get()])));

@@ -219,9 +219,6 @@ type Bool = NodeBase & {
 };
 
 // @public (undocumented)
-const BREAK: () => Value;
-
-// @public (undocumented)
 type Break = NodeBase & {
     type: 'break';
 };
@@ -232,9 +229,6 @@ type Call = NodeBase & {
     target: Expression;
     args: Expression[];
 };
-
-// @public (undocumented)
-const CONTINUE: () => Value;
 
 // @public (undocumented)
 type Continue = NodeBase & {
@@ -635,9 +629,6 @@ type Rem = NodeBase & {
 function reprValue(value: Value, literalLike?: boolean, processedObjects?: Set<object>): string;
 
 // @public (undocumented)
-const RETURN: (v: VReturn["value"]) => Value;
-
-// @public (undocumented)
 type Return = NodeBase & {
     type: 'return';
     expr: Expression;
@@ -710,9 +701,6 @@ const TRUE: {
 // @public (undocumented)
 type TypeSource = NamedTypeSource | FnTypeSource;
 
-// @public (undocumented)
-const unWrapRet: (v: Value) => Value;
-
 declare namespace utils {
     export {
         expectAny,
@@ -746,7 +734,7 @@ function valToJs(val: Value): JsValue;
 function valToString(val: Value, simple?: boolean): string;
 
 // @public (undocumented)
-type Value = (VNull | VBool | VNum | VStr | VArr | VObj | VFn | VReturn | VBreak | VContinue | VError) & Attr_2;
+type Value = (VNull | VBool | VNum | VStr | VArr | VObj | VFn | VError) & Attr_2;
 
 declare namespace values {
     export {
@@ -760,9 +748,6 @@ declare namespace values {
         VUserFn,
         VFnParam,
         VNativeFn,
-        VReturn,
-        VBreak,
-        VContinue,
         VError,
         Attr_2 as Attr,
         Value,
@@ -776,10 +761,6 @@ declare namespace values {
         ARR,
         FN,
         FN_NATIVE,
-        RETURN,
-        BREAK,
-        CONTINUE,
-        unWrapRet,
         ERROR
     }
 }
@@ -795,18 +776,6 @@ type VArr = {
 type VBool = {
     type: 'bool';
     value: boolean;
-};
-
-// @public (undocumented)
-type VBreak = {
-    type: 'break';
-    value: null;
-};
-
-// @public (undocumented)
-type VContinue = {
-    type: 'continue';
-    value: null;
 };
 
 // @public (undocumented)
@@ -858,12 +827,6 @@ type VObj = {
 };
 
 // @public (undocumented)
-type VReturn = {
-    type: 'return';
-    value: Value;
-};
-
-// @public (undocumented)
 type VStr = {
     type: 'str';
     value: string;
@@ -882,7 +845,7 @@ type VUserFn = VFnBase & {
 
 // Warnings were encountered during analysis:
 //
-// src/interpreter/index.ts:47:4 - (ae-forgotten-export) The symbol "LogObject" needs to be exported by the entry point index.d.ts
+// src/interpreter/index.ts:48:4 - (ae-forgotten-export) The symbol "LogObject" needs to be exported by the entry point index.d.ts
 // src/interpreter/value.ts:47:2 - (ae-forgotten-export) The symbol "Type" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)

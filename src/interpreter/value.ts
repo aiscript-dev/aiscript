@@ -63,21 +63,6 @@ export type VNativeFn = VFnBase & {
 	}) => Value | Promise<Value> | void;
 };
 
-export type VReturn = {
-	type: 'return';
-	value: Value;
-};
-
-export type VBreak = {
-	type: 'break';
-	value: null;
-};
-
-export type VContinue = {
-	type: 'continue';
-	value: null;
-};
-
 export type VError = {
 	type: 'error';
 	value: string;
@@ -91,7 +76,7 @@ export type Attr = {
 	}[];
 };
 
-export type Value = (VNull | VBool | VNum | VStr | VArr | VObj | VFn | VReturn | VBreak | VContinue | VError) & Attr;
+export type Value = (VNull | VBool | VNum | VStr | VArr | VObj | VFn | VError) & Attr;
 
 export const NULL = {
 	type: 'null' as const,
@@ -143,24 +128,6 @@ export const FN_NATIVE = (fn: VNativeFn['native']): VNativeFn => ({
 	type: 'fn' as const,
 	native: fn,
 });
-
-// Return文で値が返されたことを示すためのラッパー
-export const RETURN = (v: VReturn['value']): Value => ({
-	type: 'return' as const,
-	value: v,
-});
-
-export const BREAK = (): Value => ({
-	type: 'break' as const,
-	value: null,
-});
-
-export const CONTINUE = (): Value => ({
-	type: 'continue' as const,
-	value: null,
-});
-
-export const unWrapRet = (v: Value): Value => v.type === 'return' ? v.value : v;
 
 export const ERROR = (name: string, info?: Value): Value => ({
 	type: 'error' as const,
