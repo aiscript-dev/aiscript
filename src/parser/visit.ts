@@ -49,8 +49,16 @@ function visitNodeInner(node: Ast.Node, fn: (node: Ast.Node, ancestors: Ast.Node
 			result.dest = visitNodeInner(result.dest, fn, ancestors) as Ast.Assign['dest'];
 			break;
 		}
+		case 'plus': {
+			result.expr = visitNodeInner(result.expr, fn, ancestors) as Ast.Plus['expr'];
+			break;
+		}
+		case 'minus': {
+			result.expr = visitNodeInner(result.expr, fn, ancestors) as Ast.Minus['expr'];
+			break;
+		}
 		case 'not': {
-			result.expr = visitNodeInner(result.expr, fn, ancestors) as Ast.Return['expr'];
+			result.expr = visitNodeInner(result.expr, fn, ancestors) as Ast.Not['expr'];
 			break;
 		}
 		case 'if': {

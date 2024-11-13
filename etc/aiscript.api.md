@@ -150,6 +150,8 @@ declare namespace Ast {
         SubAssign,
         Assign,
         Expression,
+        Plus,
+        Minus,
         Not,
         Pow,
         Mul,
@@ -298,7 +300,7 @@ type Exists = NodeBase & {
 function expectAny(val: Value | null | undefined): asserts val is Value;
 
 // @public (undocumented)
-type Expression = If | Fn | Match | Block | Exists | Tmpl | Str | Num | Bool | Null | Obj | Arr | Not | Pow | Mul | Div | Rem | Add | Sub | Lt | Lteq | Gt | Gteq | Eq | Neq | And | Or | Identifier | Call | Index | Prop;
+type Expression = If | Fn | Match | Block | Exists | Tmpl | Str | Num | Bool | Null | Obj | Arr | Plus | Minus | Not | Pow | Mul | Div | Rem | Add | Sub | Lt | Lteq | Gt | Gteq | Eq | Neq | And | Or | Identifier | Call | Index | Prop;
 
 // @public (undocumented)
 const FALSE: {
@@ -503,6 +505,12 @@ type Meta = NodeBase & {
 };
 
 // @public (undocumented)
+type Minus = NodeBase & {
+    type: 'minus';
+    expr: Expression;
+};
+
+// @public (undocumented)
 type Mul = NodeBase & {
     type: 'mul';
     left: Expression;
@@ -597,6 +605,12 @@ export type ParserPlugin = (nodes: Ast.Node[]) => Ast.Node[];
 
 // @public (undocumented)
 export type PluginType = 'validate' | 'transform';
+
+// @public (undocumented)
+type Plus = NodeBase & {
+    type: 'plus';
+    expr: Expression;
+};
 
 // @public
 type Pos = {

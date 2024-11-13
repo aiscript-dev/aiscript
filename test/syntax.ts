@@ -1314,6 +1314,26 @@ describe('operators', () => {
 
 });
 
+describe('plus', () => {
+	test.concurrent('Basic', async () => {
+		const res = await exe(`
+		let a = 1
+		<: +a
+		`);
+		eq(res, NUM(1));
+	})
+})
+
+describe('minus', () => {
+	test.concurrent('Basic', async () => {
+		const res = await exe(`
+		let a = 1
+		<: -a
+		`);
+		eq(res, NUM(-1));
+	})
+})
+
 describe('not', () => {
 	test.concurrent('Basic', async () => {
 		const res = await exe(`
