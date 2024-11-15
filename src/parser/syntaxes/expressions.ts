@@ -237,7 +237,13 @@ function parseAtom(s: ITokenStream, isStatic: boolean): Ast.Expression {
 					case TokenKind.TemplateExprElement: {
 						// スキャナで埋め込み式として事前に読み取っておいたトークン列をパースする
 						const exprStream: ITokenStream = new TokenStream(element.children!);
+						if (exprStream.is(TokenKind.NewLine)) {
+							exprStream.next();
+						}
 						const expr = parseExpr(exprStream, false);
+						if (exprStream.is(TokenKind.NewLine)) {
+							exprStream.next();
+						}
 						exprStream.expect(TokenKind.EOF);
 						values.push(expr);
 						break;
