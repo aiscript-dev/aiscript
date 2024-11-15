@@ -38,7 +38,7 @@ const interpreter = new Interpreter({}, {
 
 async function getAst() {
 	let script = '';
-	let a = await i.question('> ');
+	let a = await i.question('>>> ');
 	while (true) {
 		try {
 			if (a === '.exit') return null;
