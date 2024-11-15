@@ -69,24 +69,16 @@ function parsePrefix(s: ITokenStream, minBp: number): Ast.Expression {
 
 	switch (op) {
 		case TokenKind.Plus: {
-			// 数値リテラル以外は非サポート
 			if (expr.type === 'num') {
 				return NODE('num', { value: expr.value }, startPos, endPos);
-			} else {
-				throw new AiScriptSyntaxError('currently, sign is only supported for number literal.', startPos);
 			}
-			// TODO: 将来的にサポートされる式を拡張
-			// return NODE('plus', { expr }, startPos, endPos);
+			return NODE('plus', { expr }, startPos, endPos);
 		}
 		case TokenKind.Minus: {
-			// 数値リテラル以外は非サポート
 			if (expr.type === 'num') {
 				return NODE('num', { value: -1 * expr.value }, startPos, endPos);
-			} else {
-				throw new AiScriptSyntaxError('currently, sign is only supported for number literal.', startPos);
 			}
-			// TODO: 将来的にサポートされる式を拡張
-			// return NODE('minus', { expr }, startPos, endPos);
+			return NODE('minus', { expr }, startPos, endPos);
 		}
 		case TokenKind.Not: {
 			return NODE('not', { expr }, startPos, endPos);

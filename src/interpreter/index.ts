@@ -642,6 +642,24 @@ export class Interpreter {
 				}
 			}
 
+			case 'plus': {
+				const v = await this._eval(node.expr, scope, callStack);
+				if (isControl(v)) {
+					return v;
+				}
+				assertNumber(v);
+				return v;
+			}
+
+			case 'minus': {
+				const v = await this._eval(node.expr, scope, callStack);
+				if (isControl(v)) {
+					return v;
+				}
+				assertNumber(v);
+				return NUM(-v.value);
+			}
+
 			case 'not': {
 				const v = await this._eval(node.expr, scope, callStack);
 				if (isControl(v)) {
@@ -813,7 +831,14 @@ export class Interpreter {
 				}
 			}
 
+			case 'namedTypeSource':
+			case 'fnTypeSource':
+			case 'attr': {
+				throw new Error('invalid node type');
+			}
+
 			default: {
+				node satisfies never;
 				throw new Error('invalid node type');
 			}
 		}

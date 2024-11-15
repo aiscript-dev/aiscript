@@ -133,6 +133,8 @@ export type Expression =
 	Null |
 	Obj |
 	Arr |
+	Plus |
+	Minus |
 	Not |
 	Pow |
 	Mul |
@@ -161,6 +163,16 @@ const expressionTypes = [
 export function isExpression(x: Node): x is Expression {
 	return expressionTypes.includes(x.type);
 }
+
+export type Plus = NodeBase & {
+	type: 'plus'; // 正号
+	expr: Expression; // 式
+};
+
+export type Minus = NodeBase & {
+	type: 'minus'; // 負号
+	expr: Expression; // 式
+};
 
 export type Not = NodeBase & {
 	type: 'not'; // 否定
