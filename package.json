@@ -20,6 +20,7 @@
 	"scripts": {
 		"start": "node ./scripts/start.mjs",
 		"parse": "node ./scripts/parse.mjs",
+		"repl": "node ./scripts/repl.mjs",
 		"ts": "npm run ts-esm && npm run ts-dts",
 		"ts-esm": "tsc --outDir built/esm",
 		"ts-dts": "tsc --outDir built/dts --declaration true --emitDeclarationOnly true --declarationMap true",

@@ -1,5 +1,5 @@
 import { AiScriptSyntaxError } from '../../error.js';
-import { CALL_NODE, NODE } from '../utils.js';
+import { CALL_NODE, NODE, unexpectedTokenError } from '../utils.js';
 import { TokenKind } from '../token.js';
 import { parseBlock, parseDest, parseParams, parseType } from './common.js';
 import { parseExpr } from './expressions.js';
@@ -78,7 +78,7 @@ export function parseDefStatement(s: ITokenStream): Ast.Definition {
 			return parseFnDef(s);
 		}
 		default: {
-			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[s.getTokenKind()]}`, s.getPos());
+			throw unexpectedTokenError(s.getTokenKind(), s.getPos());
 		}
 	}
 }
@@ -117,7 +117,7 @@ function parseVarDef(s: ITokenStream): Ast.Definition {
 			break;
 		}
 		default: {
-			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[s.getTokenKind()]}`, s.getPos());
+			throw unexpectedTokenError(s.getTokenKind(), s.getPos());
 		}
 	}
 	s.next();

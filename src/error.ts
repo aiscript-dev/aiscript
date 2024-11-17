@@ -1,3 +1,4 @@
+import { TokenKind } from './parser/token.js';
 import type { Pos } from './node.js';
 
 export abstract class AiScriptError extends Error {
@@ -40,6 +41,16 @@ export class AiScriptSyntaxError extends AiScriptError {
 		super(`${message} (Line ${pos.line}, Column ${pos.column})`, info);
 	}
 }
+
+/**
+ * Unexpected EOF errors.
+ */
+export class AiScriptUnexpectedEOFError extends AiScriptSyntaxError {
+	constructor(pos: Pos, info?: unknown) {
+		super('unexpected EOF', pos, info);
+	}
+}
+
 /**
  * Type validation(parser/plugins/validate-type) errors.
  */

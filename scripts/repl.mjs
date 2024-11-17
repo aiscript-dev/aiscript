@@ -1,6 +1,6 @@
 import * as readline from 'readline/promises';
 import chalk from 'chalk';
-import { Parser, Interpreter, utils } from '@syuilo/aiscript';
+import { errors, Parser, Interpreter, utils } from '@syuilo/aiscript';
 const { valToString } = utils;
 
 const i = readline.createInterface({
@@ -12,9 +12,9 @@ console.log(
 `Welcome to AiScript!
 https://github.com/syuilo/aiscript
 
-Type 'exit' to end this session.`);
+Type '.exit' to end this session.`);
 
-const getInterpreter = () => new Interpreter({}, {
+const interpreter = new Interpreter({}, {
 	in(q) {
 		return i.question(q + ': ');
 	},
@@ -36,14 +36,34 @@ const getInterpreter = () => new Interpreter({}, {
 	}
 });
 
-let interpreter;
+async function getAst() {
+	let script = '';
+	let a = await i.question('>>> ');
+	while (true) {
+		try {
+			if (a === '.exit') return null;
+			script += a;
+			let ast = Parser.parse(script);
+			script = '';
+			return ast;
+		} catch(e) {
+			if (e instanceof errors.AiScriptUnexpectedEOFError) {
+				script += '\n';
+				a = await i.question('... ');
+			} else {
+				script = '';
+				throw e;
+			}
+		}
+	}
+}
+
 async function main(){
-	let a = await i.question('> ');
-	interpreter?.abort();
-	if (a === 'exit') return false;
 	try {
-		let ast = Parser.parse(a);
-		interpreter = getInterpreter();
+		let ast = await getAst();
+		if (ast == null) {
+			return false;
+		}
 		await interpreter.exec(ast);
 	} catch(e) {
 		console.log(chalk.red(`${e}`));

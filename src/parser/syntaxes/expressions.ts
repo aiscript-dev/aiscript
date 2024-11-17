@@ -1,5 +1,5 @@
-import { AiScriptSyntaxError } from '../../error.js';
-import { NODE } from '../utils.js';
+import { AiScriptSyntaxError, AiScriptUnexpectedEOFError } from '../../error.js';
+import { NODE, unexpectedTokenError } from '../utils.js';
 import { TokenStream } from '../streams/token-stream.js';
 import { TokenKind } from '../token.js';
 import { parseBlock, parseOptionalSeparator, parseParams, parseType } from './common.js';
@@ -84,7 +84,7 @@ function parsePrefix(s: ITokenStream, minBp: number): Ast.Expression {
 			return NODE('not', { expr }, startPos, endPos);
 		}
 		default: {
-			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[op]}`, startPos);
+			throw unexpectedTokenError(op, startPos);
 		}
 	}
 }
@@ -158,7 +158,7 @@ function parseInfix(s: ITokenStream, left: Ast.Expression, minBp: number): Ast.E
 				return NODE('or', { left, right }, startPos, endPos);
 			}
 			default: {
-				throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[op]}`, startPos);
+				throw unexpectedTokenError(op, startPos);
 			}
 		}
 	}
@@ -184,7 +184,7 @@ function parsePostfix(s: ITokenStream, expr: Ast.Expression): Ast.Expression {
 			}, startPos, s.getPos());
 		}
 		default: {
-			throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[op]}`, startPos);
+			throw unexpectedTokenError(op, startPos);
 		}
 	}
 }
@@ -241,7 +241,7 @@ function parseAtom(s: ITokenStream, isStatic: boolean): Ast.Expression {
 						break;
 					}
 					default: {
-						throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[element.kind]}`, element.pos);
+						throw unexpectedTokenError(element.kind, element.pos);
 					}
 				}
 			}
@@ -288,7 +288,7 @@ function parseAtom(s: ITokenStream, isStatic: boolean): Ast.Expression {
 			return expr;
 		}
 	}
-	throw new AiScriptSyntaxError(`unexpected token: ${TokenKind[s.getTokenKind()]}`, startPos);
+	throw unexpectedTokenError(s.getTokenKind(), startPos);
 }
 
 /**
@@ -323,6 +323,9 @@ function parseCall(s: ITokenStream, target: Ast.Expression): Ast.Call {
 			}
 			case TokenKind.CloseParen: {
 				break;
+			}
+			case TokenKind.EOF: {
+				throw new AiScriptUnexpectedEOFError(s.getPos());
 			}
 			default: {
 				throw new AiScriptSyntaxError('separator expected', s.getPos());
@@ -578,6 +581,9 @@ function parseObject(s: ITokenStream, isStatic: boolean): Ast.Obj {
 			case TokenKind.CloseBrace: {
 				break;
 			}
+			case TokenKind.EOF: {
+				throw new AiScriptUnexpectedEOFError(s.getPos());
+			}
 			default: {
 				throw new AiScriptSyntaxError('separator expected', s.getPos());
 			}
@@ -621,6 +627,9 @@ function parseArray(s: ITokenStream, isStatic: boolean): Ast.Arr {
 			}
 			case TokenKind.CloseBracket: {
 				break;
+			}
+			case TokenKind.EOF: {
+				throw new AiScriptUnexpectedEOFError(s.getPos());
 			}
 			default: {
 				throw new AiScriptSyntaxError('separator expected', s.getPos());
