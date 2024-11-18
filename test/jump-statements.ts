@@ -1017,6 +1017,44 @@ describe('break', () => {
             eq(res, NUM(1));
         });
     });
+
+    describe('labeled if', () => {
+        test.concurrent('simple break', async () => {
+            const res = await exe(`
+            <: #l: if true {
+                break #l
+                2
+            }
+            `);
+            eq(res, NULL);
+        });
+    });
+
+    describe('labeled match', () => {
+        test.concurrent('simple break', async () => {
+            const res = await exe(`
+            <: #l: match 0 {
+                default => {
+                    break #l
+                    2
+                }
+            }
+            `);
+            eq(res, NULL);
+        });
+    });
+
+    describe('labeled eval', () => {
+        test.concurrent('simple break', async () => {
+            const res = await exe(`
+            <: #l: eval {
+                break #l
+                2
+            }
+            `);
+            eq(res, NULL);
+        });
+    });
 });
 
 describe('continue', () => {

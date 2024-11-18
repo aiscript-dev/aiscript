@@ -7,7 +7,7 @@ import { AiScriptError, NonAiScriptError, AiScriptNamespaceError, AiScriptIndexO
 import * as Ast from '../node.js';
 import { Scope } from './scope.js';
 import { std } from './lib/std.js';
-import { RETURN, unWrapRet, BREAK, CONTINUE, assertValue, isControl, type Control } from './control.js';
+import { RETURN, unWrapRet, BREAK, CONTINUE, assertValue, isControl, type Control, unWrapLabeledBreak } from './control.js';
 import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray, eq, isObject, isArray, expectAny, reprValue, isFunction } from './util.js';
 import { NULL, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, ERROR } from './value.js';
 import { getPrimProp } from './primitive-props.js';
@@ -367,24 +367,24 @@ export class Interpreter {
 			case 'if': {
 				const cond = await this._eval(node.cond, scope, callStack);
 				if (isControl(cond)) {
-					return cond;
+					return unWrapLabeledBreak(cond, node.label);
 				}
 				assertBoolean(cond);
 				if (cond.value) {
-					return this._evalClause(node.then, scope, callStack);
+					return unWrapLabeledBreak(await this._evalClause(node.then, scope, callStack), node.label);
 				}
 				for (const elseif of node.elseif) {
 					const cond = await this._eval(elseif.cond, scope, callStack);
 					if (isControl(cond)) {
-						return cond;
+						return unWrapLabeledBreak(cond, node.label);
 					}
 					assertBoolean(cond);
 					if (cond.value) {
-						return this._evalClause(elseif.then, scope, callStack);
+						return unWrapLabeledBreak(await this._evalClause(elseif.then, scope, callStack), node.label);
 					}
 				}
 				if (node.else) {
-					return this._evalClause(node.else, scope, callStack);
+					return unWrapLabeledBreak(await this._evalClause(node.else, scope, callStack), node.label);
 				}
 				return NULL;
 			}
@@ -392,19 +392,19 @@ export class Interpreter {
 			case 'match': {
 				const about = await this._eval(node.about, scope, callStack);
 				if (isControl(about)) {
-					return about;
+					return unWrapLabeledBreak(about, node.label);
 				}
 				for (const qa of node.qs) {
 					const q = await this._eval(qa.q, scope, callStack);
 					if (isControl(q)) {
-						return q;
+						return unWrapLabeledBreak(q, node.label);
 					}
 					if (eq(about, q)) {
-						return await this._evalClause(qa.a, scope, callStack);
+						return unWrapLabeledBreak(await this._evalClause(qa.a, scope, callStack), node.label);
 					}
 				}
 				if (node.default) {
-					return await this._evalClause(node.default, scope, callStack);
+					return unWrapLabeledBreak(await this._evalClause(node.default, scope, callStack), node.label);
 				}
 				return NULL;
 			}
@@ -723,7 +723,7 @@ export class Interpreter {
 			}
 
 			case 'block': {
-				return this._run(node.statements, scope.createChildScope(), callStack);
+				return unWrapLabeledBreak(await this._run(node.statements, scope.createChildScope(), callStack), node.label);
 			}
 
 			case 'exists': {
