@@ -1641,6 +1641,13 @@ describe('if', () => {
 			`);
 		});
 	});
+
+	test.concurrent('expr with label', async () => {
+		const res = await exe(`
+		<: #label: if true { 1 }
+		`);
+		eq(res, NUM(1));
+	});
 });
 
 describe('eval', () => {
@@ -1655,6 +1662,13 @@ describe('eval', () => {
 		<: foo
 		`);
 		eq(res, NUM(3));
+	});
+
+	test.concurrent('expr with label', async () => {
+		const res = await exe(`
+		<: #label: eval { 1 }
+		`);
+		eq(res, NUM(1));
 	});
 });
 
@@ -1736,6 +1750,13 @@ describe('match', () => {
 			<: a
 			`);
 		});
+	});
+
+	test.concurrent('expr with label', async () => {
+		const res = await exe(`
+		<: #label: match 0 { default => 1 }
+		`);
+		eq(res, NUM(1));
 	});
 });
 

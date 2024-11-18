@@ -123,13 +123,8 @@ export type Assign = NodeBase & {
 // expressions
 
 export type Expression =
-	Each |
-	For |
-	Loop |
-	If |
+	ControlFlow |
 	Fn |
-	Match |
-	Block |
 	Exists |
 	Tmpl |
 	Str |
@@ -159,6 +154,14 @@ export type Expression =
 	Call |
 	Index |
 	Prop;
+
+export type ControlFlow = 
+	If |
+	Match |
+	Block |
+	Each |
+	For |
+	Loop;
 
 const expressionTypes = [
 	'if', 'fn', 'match', 'block', 'exists', 'tmpl', 'str', 'num', 'bool', 'null', 'obj', 'arr',
@@ -270,6 +273,7 @@ export type Or = NodeBase & {
 
 export type If = NodeBase & {
 	type: 'if'; // if式
+	label?: string; // ラベル
 	cond: Expression; // 条件式
 	then: Statement | Expression; // then節
 	elseif: {
@@ -293,6 +297,7 @@ export type Fn = NodeBase & {
 
 export type Match = NodeBase & {
 	type: 'match'; // パターンマッチ
+	label?: string; // ラベル
 	about: Expression; // 対象
 	qs: {
 		q: Expression; // 条件
@@ -303,6 +308,7 @@ export type Match = NodeBase & {
 
 export type Block = NodeBase & {
 	type: 'block'; // ブロックまたはeval式
+	label?: string; // ラベル
 	statements: (Statement | Expression)[]; // 処理
 };
 

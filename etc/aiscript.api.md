@@ -155,6 +155,7 @@ declare namespace Ast {
         SubAssign,
         Assign,
         Expression,
+        ControlFlow,
         Plus,
         Minus,
         Not,
@@ -213,6 +214,7 @@ type Attribute = NodeBase & {
 // @public (undocumented)
 type Block = NodeBase & {
     type: 'block';
+    label?: string;
     statements: (Statement | Expression)[];
 };
 
@@ -243,6 +245,9 @@ type Continue = NodeBase & {
     type: 'continue';
     label?: string;
 };
+
+// @public (undocumented)
+type ControlFlow = If | Match | Block | Each | For | Loop;
 
 // @public (undocumented)
 type Definition = NodeBase & {
@@ -309,7 +314,7 @@ type Exists = NodeBase & {
 function expectAny(val: Value | null | undefined): asserts val is Value;
 
 // @public (undocumented)
-type Expression = If | Fn | Match | Block | Exists | Tmpl | Str | Num | Bool | Null | Obj | Arr | Plus | Minus | Not | Pow | Mul | Div | Rem | Add | Sub | Lt | Lteq | Gt | Gteq | Eq | Neq | And | Or | Identifier | Call | Index | Prop;
+type Expression = ControlFlow | Fn | Exists | Tmpl | Str | Num | Bool | Null | Obj | Arr | Plus | Minus | Not | Pow | Mul | Div | Rem | Add | Sub | Lt | Lteq | Gt | Gteq | Eq | Neq | And | Or | Identifier | Call | Index | Prop;
 
 // @public (undocumented)
 const FALSE: {
@@ -380,6 +385,7 @@ type Identifier = NodeBase & {
 // @public (undocumented)
 type If = NodeBase & {
     type: 'if';
+    label?: string;
     cond: Expression;
     then: Statement | Expression;
     elseif: {
@@ -500,6 +506,7 @@ type Lteq = NodeBase & {
 // @public (undocumented)
 type Match = NodeBase & {
     type: 'match';
+    label?: string;
     about: Expression;
     qs: {
         q: Expression;
@@ -686,7 +693,7 @@ export class Scope {
 }
 
 // @public (undocumented)
-type Statement = Definition | Return | Each | For | Loop | Break | Continue | Assign | AddAssign | SubAssign;
+type Statement = Definition | Return | Break | Continue | Assign | AddAssign | SubAssign;
 
 // @public (undocumented)
 const STR: (str: VStr["value"]) => VStr;

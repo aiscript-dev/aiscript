@@ -5,7 +5,7 @@
 import { AiScriptSyntaxError } from '../../../error.js';
 import { TokenKind } from '../../token.js';
 import { unexpectedTokenError, NODE } from '../../utils.js';
-import { parseBlock, parseDest } from '../common.js';
+import { parseBlock, parseDest, parseOptionalSeparator } from '../common.js';
 import { parseBlockOrStatement } from '../statements.js';
 import { parseExpr } from './index.js';
 
@@ -14,28 +14,44 @@ import type { ITokenStream } from '../../streams/token-stream.js';
 
 /**
  * ```abnf
- * ExprWithLabel = "#" IDENT ":" Expression
+ * ControlFlowExpr = ["#" IDENT ":"] ControlFlowExprWithoutLabel
  * ```
 */
-export function parseExprWithLabel(s: ITokenStream): Ast.Each | Ast.For | Ast.Loop {
-	s.expect(TokenKind.Sharp);
-	s.next();
+export function parseControlFlowExpr(s: ITokenStream): Ast.ControlFlow {
+	let label: string | undefined;
+	if (s.is(TokenKind.Sharp)) {
+		s.next();
 
-	s.expect(TokenKind.Identifier);
-	const label = s.getTokenValue();
-	s.next();
+		s.expect(TokenKind.Identifier);
+		label = s.getTokenValue();
+		s.next();
 
-	s.expect(TokenKind.Colon);
-	s.next();
+		s.expect(TokenKind.Colon);
+		s.next();
+	}
 
-	const statement = parseControlFlowExpr(s);
+	const statement = parseControlFlowExprWithoutLabel(s);
 	statement.label = label;
 	return statement;
 }
 
-export function parseControlFlowExpr(s: ITokenStream): Ast.Each | Ast.For | Ast.Loop {
+/**
+ * ```abnf
+ * ControlFlowExprWithoutLabel = If / Match / Eval / Each / For / Loop
+ * ```
+*/
+export function parseControlFlowExprWithoutLabel(s: ITokenStream): Ast.ControlFlow {
 	const tokenKind = s.getTokenKind();
 	switch (tokenKind) {
+		case TokenKind.IfKeyword: {
+			return parseIf(s);
+		}
+		case TokenKind.MatchKeyword: {
+			return parseMatch(s);
+		}
+		case TokenKind.EvalKeyword: {
+			return parseEval(s);
+		}
 		case TokenKind.EachKeyword: {
 			return parseEach(s);
 		}
@@ -51,10 +67,137 @@ export function parseControlFlowExpr(s: ITokenStream): Ast.Each | Ast.For | Ast.
 		case TokenKind.WhileKeyword: {
 			return parseWhile(s);
 		}
-		default: {
-			throw unexpectedTokenError(tokenKind, s.getPos());
-		}
 	}
+	throw unexpectedTokenError(tokenKind, s.getPos());
+}
+
+/**
+ * ```abnf
+ * If = "if" Expr BlockOrStatement *("elif" Expr BlockOrStatement) ["else" BlockOrStatement]
+ * ```
+*/
+function parseIf(s: ITokenStream): Ast.If {
+	const startPos = s.getPos();
+
+	s.expect(TokenKind.IfKeyword);
+	s.next();
+	const cond = parseExpr(s, false);
+	const then = parseBlockOrStatement(s);
+
+	if (s.is(TokenKind.NewLine) && [TokenKind.ElifKeyword, TokenKind.ElseKeyword].includes(s.lookahead(1).kind)) {
+		s.next();
+	}
+
+	const elseif: Ast.If['elseif'] = [];
+	while (s.is(TokenKind.ElifKeyword)) {
+		s.next();
+		const elifCond = parseExpr(s, false);
+		const elifThen = parseBlockOrStatement(s);
+		if (s.is(TokenKind.NewLine) && [TokenKind.ElifKeyword, TokenKind.ElseKeyword].includes(s.lookahead(1).kind)) {
+			s.next();
+		}
+		elseif.push({ cond: elifCond, then: elifThen });
+	}
+
+	let _else = undefined;
+	if (s.is(TokenKind.ElseKeyword)) {
+		s.next();
+		_else = parseBlockOrStatement(s);
+	}
+
+	return NODE('if', { cond, then, elseif, else: _else }, startPos, s.getPos());
+}
+
+/**
+ * ```abnf
+ * Match = "match" Expr "{" [(MatchCase *(SEP MatchCase) [SEP DefaultCase] [SEP]) / DefaultCase [SEP]] "}"
+ * ```
+*/
+function parseMatch(s: ITokenStream): Ast.Match {
+	const startPos = s.getPos();
+
+	s.expect(TokenKind.MatchKeyword);
+	s.next();
+	const about = parseExpr(s, false);
+
+	s.expect(TokenKind.OpenBrace);
+	s.next();
+
+	if (s.is(TokenKind.NewLine)) {
+		s.next();
+	}
+
+	const qs: Ast.Match['qs'] = [];
+	let x: Ast.Match['default'];
+	if (s.is(TokenKind.CaseKeyword)) {
+		qs.push(parseMatchCase(s));
+		let sep = parseOptionalSeparator(s);
+		while (s.is(TokenKind.CaseKeyword)) {
+			if (!sep) {
+				throw new AiScriptSyntaxError('separator expected', s.getPos());
+			}
+			qs.push(parseMatchCase(s));
+			sep = parseOptionalSeparator(s);
+		}
+		if (s.is(TokenKind.DefaultKeyword)) {
+			if (!sep) {
+				throw new AiScriptSyntaxError('separator expected', s.getPos());
+			}
+			x = parseDefaultCase(s);
+			parseOptionalSeparator(s);
+		}
+	} else if (s.is(TokenKind.DefaultKeyword)) {
+		x = parseDefaultCase(s);
+		parseOptionalSeparator(s);
+	}
+
+	s.expect(TokenKind.CloseBrace);
+	s.next();
+
+	return NODE('match', { about, qs, default: x }, startPos, s.getPos());
+}
+
+/**
+ * ```abnf
+ * MatchCase = "case" Expr "=>" BlockOrStatement
+ * ```
+*/
+function parseMatchCase(s: ITokenStream): Ast.Match['qs'][number] {
+	s.expect(TokenKind.CaseKeyword);
+	s.next();
+	const q = parseExpr(s, false);
+	s.expect(TokenKind.Arrow);
+	s.next();
+	const a = parseBlockOrStatement(s);
+	return { q, a };
+}
+
+/**
+ * ```abnf
+ * DefaultCase = "default" "=>" BlockOrStatement
+ * ```
+*/
+function parseDefaultCase(s: ITokenStream): Ast.Match['default'] {
+	s.expect(TokenKind.DefaultKeyword);
+	s.next();
+	s.expect(TokenKind.Arrow);
+	s.next();
+	return parseBlockOrStatement(s);
+}
+
+/**
+ * ```abnf
+ * Eval = "eval" Block
+ * ```
+*/
+function parseEval(s: ITokenStream): Ast.Block {
+	const startPos = s.getPos();
+
+	s.expect(TokenKind.EvalKeyword);
+	s.next();
+	const statements = parseBlock(s);
+
+	return NODE('block', { statements }, startPos, s.getPos());
 }
 
 /**
