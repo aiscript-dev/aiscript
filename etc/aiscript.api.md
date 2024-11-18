@@ -262,6 +262,7 @@ type Div = NodeBase & {
 // @public (undocumented)
 type Each = NodeBase & {
     type: 'each';
+    label?: string;
     var: Expression;
     items: Expression;
     for: Statement | Expression;
@@ -343,6 +344,7 @@ type FnTypeSource = NodeBase & {
 // @public (undocumented)
 type For = NodeBase & {
     type: 'for';
+    label?: string;
     var?: string;
     from?: Expression;
     to?: Expression;
@@ -475,6 +477,7 @@ type Loc = {
 // @public (undocumented)
 type Loop = NodeBase & {
     type: 'loop';
+    label?: string;
     statements: (Statement | Expression)[];
 };
 

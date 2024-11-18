@@ -31,6 +31,9 @@ export function parseStatement(s: ITokenStream): Ast.Statement | Ast.Expression 
 		case TokenKind.OpenSharpBracket: {
 			return parseStatementWithAttr(s);
 		}
+		case TokenKind.Sharp: {
+			return parseStatementWithLabel(s);
+		}
 		case TokenKind.EachKeyword: {
 			return parseEach(s);
 		}
@@ -196,6 +199,51 @@ function parseOut(s: ITokenStream): Ast.Call {
 	const expr = parseExpr(s, false);
 
 	return CALL_NODE('print', [expr], startPos, s.getPos());
+}
+
+/**
+ * ```abnf
+ * StatementWithLabel = "#" IDENT ":" Statement
+ * ```
+*/
+function parseStatementWithLabel(s: ITokenStream): Ast.Each | Ast.For | Ast.Loop {
+	s.expect(TokenKind.Sharp);
+	s.next();
+
+	s.expect(TokenKind.Identifier);
+	const label = s.getTokenValue();
+	s.next();
+
+	s.expect(TokenKind.Colon);
+	s.next();
+
+	const statement = parseLoopStatement(s);
+	statement.label = label;
+	return statement;
+}
+
+function parseLoopStatement(s: ITokenStream): Ast.Each | Ast.For | Ast.Loop {
+	const tokenKind = s.getTokenKind();
+	switch (tokenKind) {
+		case TokenKind.EachKeyword: {
+			return parseEach(s);
+		}
+		case TokenKind.ForKeyword: {
+			return parseFor(s);
+		}
+		case TokenKind.LoopKeyword: {
+			return parseLoop(s);
+		}
+		case TokenKind.DoKeyword: {
+			return parseDoWhile(s);
+		}
+		case TokenKind.WhileKeyword: {
+			return parseWhile(s);
+		}
+		default: {
+			throw unexpectedTokenError(tokenKind, s.getPos());
+		}
+	}
 }
 
 /**
