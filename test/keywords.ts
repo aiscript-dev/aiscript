@@ -110,6 +110,35 @@ const sampleCodes = Object.entries<(word: string) => string>({
 	`
 	### ${word} 1
 	`,
+
+	for: word =>
+	`
+	#${word}: for 1 {}
+	`,
+
+	each: word =>
+	`
+	#${word}: each let v, [0] {}
+	`,
+
+	while: word =>
+	`
+	#${word}: while false {}
+	`,
+
+	break: word =>
+	`
+	#${word}: for 1 {
+		break #${word}
+	}
+	`,
+
+	continue: word =>
+	`
+	#${word}: for 1 {
+		continue #${word}
+	}
+	`,
 });
 
 const parser = new Parser();
