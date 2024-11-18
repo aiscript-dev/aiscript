@@ -97,10 +97,12 @@ export type Loop = NodeBase & {
 
 export type Break = NodeBase & {
 	type: 'break'; // break文
+	label?: string; // ラベル
 };
 
 export type Continue = NodeBase & {
 	type: 'continue'; // continue文
+	label?: string; // ラベル
 };
 
 export type AddAssign = NodeBase & {

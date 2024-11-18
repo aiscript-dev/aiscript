@@ -624,6 +624,399 @@ describe('break', () => {
         }
         `));
     });
+
+    test.concurrent('invalid label', async () => {
+        assert.rejects(() => exe(`
+        for 1 {
+            break #l
+        }
+        `));
+    });
+
+    describe('labeled each', () => {
+        test.concurrent('inner each', async () => {
+            const res = await exe(`
+            var x = 0
+            #l: each let v, [0] {
+                each let v, [0] {
+                    x = 1
+                    break #l
+                }
+                x = 2
+            }
+            <: x
+            `);
+            eq(res, NUM(1));
+        });
+
+        test.concurrent('inner for', async () => {
+            const res = await exe(`
+            var x = 0
+            #l: each let v, [0] {
+                for 1 {
+                    x = 1
+                    break #l
+                }
+                x = 2
+            }
+            <: x
+            `);
+            eq(res, NUM(1));
+        });
+
+        test.concurrent('inner loop', async () => {
+            const res = await exe(`
+            var x = 0
+            #l: each let v, [0] {
+                loop {
+                    x = 1
+                    break #l
+                }
+                x = 2
+            }
+            <: x
+            `);
+            eq(res, NUM(1));
+        });
+
+        test.concurrent('inner do-while', async () => {
+            const res = await exe(`
+            var x = 0
+            #l: each let v, [0] {
+                do {
+                    x = 1
+                    break #l
+                } while false
+                x = 2
+            }
+            <: x
+            `);
+            eq(res, NUM(1));
+        });
+
+        test.concurrent('inner while', async () => {
+            const res = await exe(`
+            var x = 0
+            #l: each let v, [0] {
+                while true {
+                    x = 1
+                    break #l
+                }
+                x = 2
+            }
+            <: x
+            `);
+            eq(res, NUM(1));
+        });
+    });
+
+    describe('labeled for', () => {
+        test.concurrent('inner each', async () => {
+            const res = await exe(`
+            var x = 0
+            #l: for 1 {
+                each let v, [0] {
+                    x = 1
+                    break #l
+                }
+                x = 2
+            }
+            <: x
+            `);
+            eq(res, NUM(1));
+        });
+
+        test.concurrent('inner for', async () => {
+            const res = await exe(`
+            var x = 0
+            #l: for 1 {
+                for 1 {
+                    x = 1
+                    break #l
+                }
+                x = 2
+            }
+            <: x
+            `);
+            eq(res, NUM(1));
+        });
+
+        test.concurrent('inner loop', async () => {
+            const res = await exe(`
+            var x = 0
+            #l: for 1 {
+                loop {
+                    x = 1
+                    break #l
+                }
+                x = 2
+            }
+            <: x
+            `);
+            eq(res, NUM(1));
+        });
+
+        test.concurrent('inner do-while', async () => {
+            const res = await exe(`
+            var x = 0
+            #l: for 1 {
+                do {
+                    x = 1
+                    break #l
+                } while false
+                x = 2
+            }
+            <: x
+            `);
+            eq(res, NUM(1));
+        });
+
+        test.concurrent('inner while', async () => {
+            const res = await exe(`
+            var x = 0
+            #l: for 1 {
+                while true {
+                    x = 1
+                    break #l
+                }
+                x = 2
+            }
+            <: x
+            `);
+            eq(res, NUM(1));
+        });
+    });
+
+    describe('labeled loop', () => {
+        test.concurrent('inner each', async () => {
+            const res = await exe(`
+            var x = 0
+            #l: loop {
+                each let v, [0] {
+                    x = 1
+                    break #l
+                }
+                x = 2
+            }
+            <: x
+            `);
+            eq(res, NUM(1));
+        });
+
+        test.concurrent('inner for', async () => {
+            const res = await exe(`
+            var x = 0
+            #l: loop {
+                for 1 {
+                    x = 1
+                    break #l
+                }
+                x = 2
+            }
+            <: x
+            `);
+            eq(res, NUM(1));
+        });
+
+        test.concurrent('inner loop', async () => {
+            const res = await exe(`
+            var x = 0
+            #l: loop {
+                loop {
+                    x = 1
+                    break #l
+                }
+                x = 2
+            }
+            <: x
+            `);
+            eq(res, NUM(1));
+        });
+
+        test.concurrent('inner do-while', async () => {
+            const res = await exe(`
+            var x = 0
+            #l: loop {
+                do {
+                    x = 1
+                    break #l
+                } while false
+                x = 2
+            }
+            <: x
+            `);
+            eq(res, NUM(1));
+        });
+
+        test.concurrent('inner while', async () => {
+            const res = await exe(`
+            var x = 0
+            #l: loop {
+                while true {
+                    x = 1
+                    break #l
+                }
+                x = 2
+            }
+            <: x
+            `);
+            eq(res, NUM(1));
+        });
+    });
+
+    describe('labeled do-while', () => {
+        test.concurrent('inner each', async () => {
+            const res = await exe(`
+            var x = 0
+            #l: do {
+                each let v, [0] {
+                    x = 1
+                    break #l
+                }
+                x = 2
+            } while false
+            <: x
+            `);
+            eq(res, NUM(1));
+        });
+
+        test.concurrent('inner for', async () => {
+            const res = await exe(`
+            var x = 0
+            #l: do {
+                for 1 {
+                    x = 1
+                    break #l
+                }
+                x = 2
+            } while false
+            <: x
+            `);
+            eq(res, NUM(1));
+        });
+
+        test.concurrent('inner loop', async () => {
+            const res = await exe(`
+            var x = 0
+            #l: do {
+                loop {
+                    x = 1
+                    break #l
+                }
+                x = 2
+            } while false
+            <: x
+            `);
+            eq(res, NUM(1));
+        });
+
+        test.concurrent('inner do-while', async () => {
+            const res = await exe(`
+            var x = 0
+            #l: do {
+                do {
+                    x = 1
+                    break #l
+                } while false
+                x = 2
+            } while false
+            <: x
+            `);
+            eq(res, NUM(1));
+        });
+
+        test.concurrent('inner while', async () => {
+            const res = await exe(`
+            var x = 0
+            #l: do {
+                while true {
+                    x = 1
+                    break #l
+                }
+                x = 2
+            } while false
+            <: x
+            `);
+            eq(res, NUM(1));
+        });
+    });
+
+    describe('labeled while', () => {
+        test.concurrent('inner each', async () => {
+            const res = await exe(`
+            var x = 0
+            #l: while true {
+                each let v, [0] {
+                    x = 1
+                    break #l
+                }
+                x = 2
+            }
+            <: x
+            `);
+            eq(res, NUM(1));
+        });
+
+        test.concurrent('inner for', async () => {
+            const res = await exe(`
+            var x = 0
+            #l: while true {
+                for 1 {
+                    x = 1
+                    break #l
+                }
+                x = 2
+            }
+            <: x
+            `);
+            eq(res, NUM(1));
+        });
+
+        test.concurrent('inner loop', async () => {
+            const res = await exe(`
+            var x = 0
+            #l: while true {
+                loop {
+                    x = 1
+                    break #l
+                }
+                x = 2
+            }
+            <: x
+            `);
+            eq(res, NUM(1));
+        });
+
+        test.concurrent('inner do-while', async () => {
+            const res = await exe(`
+            var x = 0
+            #l: while true {
+                do {
+                    x = 1
+                    break #l
+                } while false
+                x = 2
+            }
+            <: x
+            `);
+            eq(res, NUM(1));
+        });
+
+        test.concurrent('inner while', async () => {
+            const res = await exe(`
+            var x = 0
+            #l: while true {
+                while true {
+                    x = 1
+                    break #l
+                }
+                x = 2
+            }
+            <: x
+            `);
+            eq(res, NUM(1));
+        });
+    });
 });
 
 describe('continue', () => {
@@ -694,5 +1087,244 @@ describe('continue', () => {
             }
         }
         `));
+    });
+
+    test.concurrent('invalid label', async () => {
+        assert.rejects(() => exe(`
+        for 1 {
+            continue #l
+        }
+        `));
+    });
+
+    describe('labeled each', () => {
+        test.concurrent('inner each', async () => {
+            const res = await exe(`
+            var x = 0
+            #l: each let v, [0] {
+                each let v, [0] {
+                    x = 1
+                    continue #l
+                }
+                x = 2
+            }
+            <: x
+            `);
+            eq(res, NUM(1));
+        });
+
+        test.concurrent('inner for', async () => {
+            const res = await exe(`
+            var x = 0
+            #l: each let v, [0] {
+                for 1 {
+                    x = 1
+                    continue #l
+                }
+                x = 2
+            }
+            <: x
+            `);
+            eq(res, NUM(1));
+        });
+
+        test.concurrent('inner loop', async () => {
+            const res = await exe(`
+            var x = 0
+            #l: each let v, [0] {
+                loop {
+                    x = 1
+                    continue #l
+                }
+                x = 2
+            }
+            <: x
+            `);
+            eq(res, NUM(1));
+        });
+
+        test.concurrent('inner do-while', async () => {
+            const res = await exe(`
+            var x = 0
+            #l: each let v, [0] {
+                do {
+                    x = 1
+                    continue #l
+                } while false
+                x = 2
+            }
+            <: x
+            `);
+            eq(res, NUM(1));
+        });
+
+        test.concurrent('inner while', async () => {
+            const res = await exe(`
+            var x = 0
+            #l: each let v, [0] {
+                while true {
+                    x = 1
+                    continue #l
+                }
+                x = 2
+            }
+            <: x
+            `);
+            eq(res, NUM(1));
+        });
+    });
+
+    describe('labeled for', () => {
+        test.concurrent('inner each', async () => {
+            const res = await exe(`
+            var x = 0
+            #l: for 1 {
+                each let v, [0] {
+                    x = 1
+                    continue #l
+                }
+                x = 2
+            }
+            <: x
+            `);
+            eq(res, NUM(1));
+        });
+
+        test.concurrent('inner for', async () => {
+            const res = await exe(`
+            var x = 0
+            #l: for 1 {
+                for 1 {
+                    x = 1
+                    continue #l
+                }
+                x = 2
+            }
+            <: x
+            `);
+            eq(res, NUM(1));
+        });
+
+        test.concurrent('inner loop', async () => {
+            const res = await exe(`
+            var x = 0
+            #l: for 1 {
+                loop {
+                    x = 1
+                    continue #l
+                }
+                x = 2
+            }
+            <: x
+            `);
+            eq(res, NUM(1));
+        });
+
+        test.concurrent('inner do-while', async () => {
+            const res = await exe(`
+            var x = 0
+            #l: for 1 {
+                do {
+                    x = 1
+                    continue #l
+                } while false
+                x = 2
+            }
+            <: x
+            `);
+            eq(res, NUM(1));
+        });
+
+        test.concurrent('inner while', async () => {
+            const res = await exe(`
+            var x = 0
+            #l: for 1 {
+                while true {
+                    x = 1
+                    continue #l
+                }
+                x = 2
+            }
+            <: x
+            `);
+            eq(res, NUM(1));
+        });
+    });
+
+    describe('labeled while', () => {
+        test.concurrent('inner each', async () => {
+            const res = await exe(`
+            var x = 0
+            #l: while x == 0 {
+                each let v, [0] {
+                    x = 1
+                    continue #l
+                }
+                x = 2
+            }
+            <: x
+            `);
+            eq(res, NUM(1));
+        });
+
+        test.concurrent('inner for', async () => {
+            const res = await exe(`
+            var x = 0
+            #l: while x == 0 {
+                for 1 {
+                    x = 1
+                    continue #l
+                }
+                x = 2
+            }
+            <: x
+            `);
+            eq(res, NUM(1));
+        });
+
+        test.concurrent('inner loop', async () => {
+            const res = await exe(`
+            var x = 0
+            #l: while x == 0 {
+                loop {
+                    x = 1
+                    continue #l
+                }
+                x = 2
+            }
+            <: x
+            `);
+            eq(res, NUM(1));
+        });
+
+        test.concurrent('inner do-while', async () => {
+            const res = await exe(`
+            var x = 0
+            #l: while x == 0 {
+                do {
+                    x = 1
+                    continue #l
+                } while false
+                x = 2
+            }
+            <: x
+            `);
+            eq(res, NUM(1));
+        });
+
+        test.concurrent('inner while', async () => {
+            const res = await exe(`
+            var x = 0
+            #l: while x == 0 {
+                while true {
+                    x = 1
+                    continue #l
+                }
+                x = 2
+            }
+            <: x
+            `);
+            eq(res, NUM(1));
+        });
     });
 });

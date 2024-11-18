@@ -414,7 +414,14 @@ export class Interpreter {
 				while (true) {
 					const v = await this._run(node.statements, scope.createChildScope(), callStack);
 					if (v.type === 'break') {
+						if (v.label != null && v.label !== node.label) {
+							return v;
+						}
 						break;
+					} else if (v.type === 'continue') {
+						if (v.label != null && v.label !== node.label) {
+							return v;
+						}
 					} else if (v.type === 'return') {
 						return v;
 					}
@@ -432,7 +439,14 @@ export class Interpreter {
 					for (let i = 0; i < times.value; i++) {
 						const v = await this._evalClause(node.for, scope, callStack);
 						if (v.type === 'break') {
+							if (v.label != null && v.label !== node.label) {
+								return v;
+							}
 							break;
+						} else if (v.type === 'continue') {
+							if (v.label != null && v.label !== node.label) {
+								return v;
+							}
 						} else if (v.type === 'return') {
 							return v;
 						}
@@ -456,7 +470,14 @@ export class Interpreter {
 							}],
 						])), callStack);
 						if (v.type === 'break') {
+							if (v.label != null && v.label !== node.label) {
+								return v;
+							}
 							break;
+						} else if (v.type === 'continue') {
+							if (v.label != null && v.label !== node.label) {
+								return v;
+							}
 						} else if (v.type === 'return') {
 							return v;
 						}
@@ -476,7 +497,14 @@ export class Interpreter {
 					this.define(eachScope, node.var, item, false);
 					const v = await this._eval(node.for, eachScope, callStack);
 					if (v.type === 'break') {
+						if (v.label != null && v.label !== node.label) {
+							return v;
+						}
 						break;
+					} else if (v.type === 'continue') {
+						if (v.label != null && v.label !== node.label) {
+							return v;
+						}
 					} else if (v.type === 'return') {
 						return v;
 					}
@@ -729,12 +757,12 @@ export class Interpreter {
 
 			case 'break': {
 				this.log('block:break', { scope: scope.name });
-				return BREAK();
+				return BREAK(node.label);
 			}
 
 			case 'continue': {
 				this.log('block:continue', { scope: scope.name });
-				return CONTINUE();
+				return CONTINUE(node.label);
 			}
 
 			case 'ns': {
