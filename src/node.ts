@@ -73,6 +73,7 @@ export type Return = NodeBase & {
 
 export type Each = NodeBase & {
 	type: 'each'; // each文
+	label?: string; // ラベル
 	var: Expression; // イテレータ宣言
 	items: Expression; // 配列
 	for: Statement | Expression; // 本体処理
@@ -80,6 +81,7 @@ export type Each = NodeBase & {
 
 export type For = NodeBase & {
 	type: 'for'; // for文
+	label?: string; // ラベル
 	var?: string; // イテレータ変数名
 	from?: Expression; // 開始値
 	to?: Expression; // 終値
@@ -89,6 +91,7 @@ export type For = NodeBase & {
 
 export type Loop = NodeBase & {
 	type: 'loop'; // loop文
+	label?: string; // ラベル
 	statements: (Statement | Expression)[]; // 処理
 };
 
