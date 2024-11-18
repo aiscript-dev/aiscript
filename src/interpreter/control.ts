@@ -9,11 +9,13 @@ export type CReturn = {
 
 export type CBreak = {
 	type: 'break';
+	label?: string;
 	value: null;
 };
 
 export type CContinue = {
 	type: 'continue';
+	label?: string;
 	value: null;
 };
 
@@ -25,13 +27,15 @@ export const RETURN = (v: CReturn['value']): CReturn => ({
 	value: v,
 });
 
-export const BREAK = (): CBreak => ({
+export const BREAK = (label?: string): CBreak => ({
 	type: 'break' as const,
+	label,
 	value: null,
 });
 
-export const CONTINUE = (): CContinue => ({
+export const CONTINUE = (label?: string): CContinue => ({
 	type: 'continue' as const,
+	label,
 	value: null,
 });
 

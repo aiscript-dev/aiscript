@@ -50,12 +50,10 @@ export function parseStatement(s: ITokenStream): Ast.Statement | Ast.Expression 
 			return parseWhile(s);
 		}
 		case TokenKind.BreakKeyword: {
-			s.next();
-			return NODE('break', {}, startPos, s.getPos());
+			return parseBreak(s);
 		}
 		case TokenKind.ContinueKeyword: {
-			s.next();
-			return NODE('continue', {}, startPos, s.getPos());
+			return parseContinue(s);
 		}
 	}
 	const expr = parseExpr(s, false);
@@ -507,6 +505,52 @@ function parseWhile(s: ITokenStream): Ast.Loop {
 			body,
 		],
 	}, startPos, s.getPos());
+}
+
+/**
+ * ```abnf
+ * Break = "break" ["#" IDENT]
+ * ```
+*/
+function parseBreak(s: ITokenStream): Ast.Break {
+	const startPos = s.getPos();
+
+	s.expect(TokenKind.BreakKeyword);
+	s.next();
+
+	let label: string | undefined;
+	if (s.is(TokenKind.Sharp)) {
+		s.next();
+
+		s.expect(TokenKind.Identifier);
+		label = s.getTokenValue();
+		s.next();
+	}
+
+	return NODE('break', { label }, startPos, s.getPos());
+}
+
+/**
+ * ```abnf
+ * Continue = "continue" ["#" IDENT]
+ * ```
+*/
+function parseContinue(s: ITokenStream): Ast.Continue {
+	const startPos = s.getPos();
+
+	s.expect(TokenKind.ContinueKeyword);
+	s.next();
+
+	let label: string | undefined;
+	if (s.is(TokenKind.Sharp)) {
+		s.next();
+
+		s.expect(TokenKind.Identifier);
+		label = s.getTokenValue();
+		s.next();
+	}
+
+	return NODE('continue', { label }, startPos, s.getPos());
 }
 
 /**

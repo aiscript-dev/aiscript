@@ -228,6 +228,7 @@ type Bool = NodeBase & {
 // @public (undocumented)
 type Break = NodeBase & {
     type: 'break';
+    label?: string;
 };
 
 // @public (undocumented)
@@ -240,6 +241,7 @@ type Call = NodeBase & {
 // @public (undocumented)
 type Continue = NodeBase & {
     type: 'continue';
+    label?: string;
 };
 
 // @public (undocumented)
