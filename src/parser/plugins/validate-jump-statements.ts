@@ -3,13 +3,18 @@ import { AiScriptSyntaxError } from '../../error.js';
 
 import type * as Ast from '../../node.js';
 
-function isInLoopScope(ancestors: Ast.Node[]): boolean {
+function isInValidLoopScope(ancestors: Ast.Node[], label?: string): boolean {
 	for (let i = ancestors.length - 1; i >= 0; i--) {
-		switch (ancestors[i]!.type) {
+		const ancestor = ancestors[i]!;
+		switch (ancestor.type) {
 			case 'loop':
 			case 'for':
-			case 'each':
+			case 'each': {
+				if (label != null && label !== ancestor.label) {
+					continue;
+				}
 				return true;
+			}
 			case 'fn':
 				return false;
 		}
@@ -26,13 +31,19 @@ function validateNode(node: Ast.Node, ancestors: Ast.Node[]): Ast.Node {
 			break;
 		}
 		case 'break': {
-			if (!isInLoopScope(ancestors)) {
+			if (!isInValidLoopScope(ancestors, node.label)) {
+				if (node.label != null) {
+					throw new AiScriptSyntaxError(`label "${node.label}" is not defined`, node.loc.start);
+				}
 				throw new AiScriptSyntaxError('break must be inside for / each / while / do-while / loop', node.loc.start);
 			}
 			break;
 		}
 		case 'continue': {
-			if (!isInLoopScope(ancestors)) {
+			if (!isInValidLoopScope(ancestors, node.label)) {
+				if (node.label != null) {
+					throw new AiScriptSyntaxError(`label "${node.label}" is not defined`, node.loc.start);
+				}
 				throw new AiScriptSyntaxError('continue must be inside for / each / while / do-while / loop', node.loc.start);
 			}
 			break;
