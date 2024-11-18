@@ -2,7 +2,7 @@ import { NODE } from '../utils.js';
 import { TokenKind } from '../token.js';
 import { AiScriptSyntaxError, AiScriptUnexpectedEOFError } from '../../error.js';
 import { parseDefStatement, parseStatement } from './statements.js';
-import { parseExpr } from './expressions.js';
+import { parseExpr } from './expression/index.js';
 
 import type * as Ast from '../../node.js';
 import type { ITokenStream } from '../streams/token-stream.js';

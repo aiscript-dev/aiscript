@@ -785,6 +785,13 @@ describe('for', () => {
 		`);
 		eq(res, NUM(55));
 	});
+
+	test.concurrent('expr', async () => {
+		const res = await exe(`
+		<: for 1 { "a" }
+		`);
+		eq(res, NULL);
+	});
 });
 
 describe('each', () => {
@@ -853,6 +860,13 @@ describe('each', () => {
 		`);
 		eq(res, ARR([STR('ai!'), STR('chan!'), STR('kawaii!')]));
 	});
+
+	test.concurrent('expr', async () => {
+		const res = await exe(`
+		<: each let v, [0] { "a" }
+		`);
+		eq(res, NULL);
+	});
 });
 
 describe('while', () => {
@@ -886,6 +900,13 @@ describe('while', () => {
 		`);
 		eq(res, NUM(42));
 	});
+
+	test.concurrent('expr', async () => {
+		const res = await exe(`
+		<: while false { "a" }
+		`);
+		eq(res, NULL);
+	});
 });
 
 describe('do-while', () => {
@@ -918,6 +939,13 @@ describe('do-while', () => {
 		<: count
 		`);
 		eq(res, NUM(42));
+	});
+
+	test.concurrent('expr', async () => {
+		const res = await exe(`
+		<: do { "a" } while false
+		`);
+		eq(res, NULL);
 	});
 });
 
@@ -959,6 +987,13 @@ describe('loop', () => {
 		<: count
 		`);
 		eq(res, NUM(10));
+	});
+
+	test.concurrent('expr', async () => {
+		const res = await exe(`
+		<: loop { break }
+		`);
+		eq(res, NULL);
 	});
 });
 

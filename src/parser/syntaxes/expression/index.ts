@@ -1,12 +1,13 @@
-import { AiScriptSyntaxError, AiScriptUnexpectedEOFError } from '../../error.js';
-import { NODE, unexpectedTokenError } from '../utils.js';
-import { TokenStream } from '../streams/token-stream.js';
-import { TokenKind } from '../token.js';
-import { parseBlock, parseOptionalSeparator, parseParams, parseType } from './common.js';
-import { parseBlockOrStatement } from './statements.js';
+import { AiScriptSyntaxError, AiScriptUnexpectedEOFError } from '../../../error.js';
+import { NODE, unexpectedTokenError } from '../../utils.js';
+import { TokenStream } from '../../streams/token-stream.js';
+import { TokenKind } from '../../token.js';
+import { parseBlock, parseOptionalSeparator, parseParams, parseType } from '../common.js';
+import { parseBlockOrStatement } from '../statements.js';
+import { parseControlFlowExpr, parseExprWithLabel } from './control-flow.js';
 
-import type * as Ast from '../../node.js';
-import type { ITokenStream } from '../streams/token-stream.js';
+import type * as Ast from '../../../node.js';
+import type { ITokenStream } from '../../streams/token-stream.js';
 
 export function parseExpr(s: ITokenStream, isStatic: boolean): Ast.Expression {
 	if (isStatic) {
@@ -193,6 +194,9 @@ function parseAtom(s: ITokenStream, isStatic: boolean): Ast.Expression {
 	const startPos = s.getPos();
 
 	switch (s.getTokenKind()) {
+		case TokenKind.Sharp: {
+			return parseExprWithLabel(s);
+		}
 		case TokenKind.IfKeyword: {
 			if (isStatic) break;
 			return parseIf(s);
@@ -288,7 +292,7 @@ function parseAtom(s: ITokenStream, isStatic: boolean): Ast.Expression {
 			return expr;
 		}
 	}
-	throw unexpectedTokenError(s.getTokenKind(), startPos);
+	return parseControlFlowExpr(s);
 }
 
 /**

@@ -35,9 +35,6 @@ export type Meta = NodeBase & {
 export type Statement =
 	Definition |
 	Return |
-	Each |
-	For |
-	Loop |
 	Break |
 	Continue |
 	Assign |
@@ -126,6 +123,9 @@ export type Assign = NodeBase & {
 // expressions
 
 export type Expression =
+	Each |
+	For |
+	Loop |
 	If |
 	Fn |
 	Match |
