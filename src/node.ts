@@ -34,9 +34,6 @@ export type Meta = NodeBase & {
 
 export type Statement =
 	Definition |
-	Return |
-	Break |
-	Continue |
 	Assign |
 	AddAssign |
 	SubAssign;
@@ -124,6 +121,9 @@ export type Assign = NodeBase & {
 
 export type Expression =
 	ControlFlow |
+	Return |
+	Break |
+	Continue |
 	Fn |
 	Exists |
 	Tmpl |

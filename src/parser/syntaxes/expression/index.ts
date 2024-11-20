@@ -275,6 +275,18 @@ function parseAtom(s: ITokenStream, isStatic: boolean): Ast.Expression {
 			s.next();
 			return expr;
 		}
+		case TokenKind.ReturnKeyword: {
+			if (isStatic) break;
+			return parseReturn(s);
+		}
+		case TokenKind.BreakKeyword: {
+			if (isStatic) break;
+			return parseBreak(s);
+		}
+		case TokenKind.ContinueKeyword: {
+			if (isStatic) break;
+			return parseContinue(s);
+		}
 	}
 	if (isStatic) {
 		throw unexpectedTokenError(s.getTokenKind(), s.getPos());
@@ -503,6 +515,67 @@ function parseArray(s: ITokenStream, isStatic: boolean): Ast.Arr {
 	s.next();
 
 	return NODE('arr', { value }, startPos, s.getPos());
+}
+
+/**
+ * ```abnf
+ * Return = "return" Expr
+ * ```
+*/
+function parseReturn(s: ITokenStream): Ast.Return {
+	const startPos = s.getPos();
+
+	s.expect(TokenKind.ReturnKeyword);
+	s.next();
+	const expr = parseExpr(s, false);
+
+	return NODE('return', { expr }, startPos, s.getPos());
+}
+
+/**
+ * ```abnf
+ * Break = "break" ["#" IDENT]
+ * ```
+*/
+function parseBreak(s: ITokenStream): Ast.Break {
+	const startPos = s.getPos();
+
+	s.expect(TokenKind.BreakKeyword);
+	s.next();
+
+	let label: string | undefined;
+	if (s.is(TokenKind.Sharp)) {
+		s.next();
+
+		s.expect(TokenKind.Identifier);
+		label = s.getTokenValue();
+		s.next();
+	}
+
+	return NODE('break', { label }, startPos, s.getPos());
+}
+
+/**
+ * ```abnf
+ * Continue = "continue" ["#" IDENT]
+ * ```
+*/
+function parseContinue(s: ITokenStream): Ast.Continue {
+	const startPos = s.getPos();
+
+	s.expect(TokenKind.ContinueKeyword);
+	s.next();
+
+	let label: string | undefined;
+	if (s.is(TokenKind.Sharp)) {
+		s.next();
+
+		s.expect(TokenKind.Identifier);
+		label = s.getTokenValue();
+		s.next();
+	}
+
+	return NODE('continue', { label }, startPos, s.getPos());
 }
 
 //#region Pratt parsing

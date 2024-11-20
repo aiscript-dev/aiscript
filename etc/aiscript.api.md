@@ -314,7 +314,7 @@ type Exists = NodeBase & {
 function expectAny(val: Value | null | undefined): asserts val is Value;
 
 // @public (undocumented)
-type Expression = ControlFlow | Fn | Exists | Tmpl | Str | Num | Bool | Null | Obj | Arr | Plus | Minus | Not | Pow | Mul | Div | Rem | Add | Sub | Lt | Lteq | Gt | Gteq | Eq | Neq | And | Or | Identifier | Call | Index | Prop;
+type Expression = ControlFlow | Return | Break | Continue | Fn | Exists | Tmpl | Str | Num | Bool | Null | Obj | Arr | Plus | Minus | Not | Pow | Mul | Div | Rem | Add | Sub | Lt | Lteq | Gt | Gteq | Eq | Neq | And | Or | Identifier | Call | Index | Prop;
 
 // @public (undocumented)
 const FALSE: {
@@ -693,7 +693,7 @@ export class Scope {
 }
 
 // @public (undocumented)
-type Statement = Definition | Return | Break | Continue | Assign | AddAssign | SubAssign;
+type Statement = Definition | Assign | AddAssign | SubAssign;
 
 // @public (undocumented)
 const STR: (str: VStr["value"]) => VStr;
