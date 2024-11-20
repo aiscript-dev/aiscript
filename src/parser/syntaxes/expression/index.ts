@@ -534,7 +534,7 @@ function parseReturn(s: ITokenStream): Ast.Return {
 
 /**
  * ```abnf
- * Break = "break" ["#" IDENT]
+ * Break = "break" ["#" IDENT] [Expr]
  * ```
 */
 function parseBreak(s: ITokenStream): Ast.Break {
@@ -552,7 +552,19 @@ function parseBreak(s: ITokenStream): Ast.Break {
 		s.next();
 	}
 
-	return NODE('break', { label }, startPos, s.getPos());
+	let expr: Ast.Expression | undefined;
+	switch (s.getTokenKind()) {
+		case TokenKind.NewLine:
+		case TokenKind.SemiColon:
+		case TokenKind.Comma:
+		case TokenKind.CloseBrace:
+			break;
+		default: {
+			expr = parseExpr(s, false);
+		}
+	}
+
+	return NODE('break', { label, expr }, startPos, s.getPos());
 }
 
 /**

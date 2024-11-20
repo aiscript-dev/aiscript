@@ -39,7 +39,7 @@ export function parseControlFlowExpr(s: ITokenStream): Ast.ControlFlow {
  * ControlFlowExprWithoutLabel = If / Match / Eval / Each / For / Loop
  * ```
 */
-export function parseControlFlowExprWithoutLabel(s: ITokenStream): Ast.ControlFlow {
+function parseControlFlowExprWithoutLabel(s: ITokenStream): Ast.ControlFlow {
 	const tokenKind = s.getTokenKind();
 	switch (tokenKind) {
 		case TokenKind.IfKeyword: {

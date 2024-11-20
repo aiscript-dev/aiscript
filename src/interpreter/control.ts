@@ -27,10 +27,10 @@ export const RETURN = (v: CReturn['value']): CReturn => ({
 	value: v,
 });
 
-export const BREAK = (label?: string): CBreak => ({
+export const BREAK = (v: CBreak['value'], label?: string): CBreak => ({
 	type: 'break' as const,
 	label,
-	value: NULL,
+	value: v,
 });
 
 export const CONTINUE = (label?: string): CContinue => ({
@@ -48,6 +48,16 @@ export function unWrapRet(v: Value | Control): Value {
 			return v;
 		}
 	}
+}
+
+/**
+ * 値がbreakで、ラベルが指定されていないまたは一致する場合のみ、その中身を取り出します。
+ */
+export function unWrapBreak(v: Value | Control, label: string | undefined): Value | Control {
+	if (v.type === 'break' && (v.label == null || v.label === label)) {
+		return v.value;
+	}
+	return v;
 }
 
 /**

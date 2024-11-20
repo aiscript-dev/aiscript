@@ -4,15 +4,15 @@
 
 import { autobind } from '../utils/mini-autobind.js';
 import { AiScriptError, NonAiScriptError, AiScriptNamespaceError, AiScriptIndexOutOfRangeError, AiScriptRuntimeError, AiScriptHostsideError } from '../error.js';
-import * as Ast from '../node.js';
 import { Scope } from './scope.js';
 import { std } from './lib/std.js';
-import { RETURN, unWrapRet, BREAK, CONTINUE, assertValue, isControl, type Control, unWrapLabeledBreak } from './control.js';
+import { RETURN, unWrapRet, BREAK, CONTINUE, assertValue, isControl, type Control, unWrapLabeledBreak, unWrapBreak } from './control.js';
 import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray, eq, isObject, isArray, expectAny, reprValue, isFunction } from './util.js';
 import { NULL, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, ERROR } from './value.js';
 import { getPrimProp } from './primitive-props.js';
 import { Variable } from './variable.js';
 import { Reference } from './reference.js';
+import type * as Ast from '../node.js';
 import type { JsValue } from './util.js';
 import type { Value, VFn, VUserFn } from './value.js';
 
@@ -293,11 +293,6 @@ export class Interpreter {
 	}
 
 	@autobind
-	private _evalClause(node: Ast.Statement | Ast.Expression, scope: Scope, callStack: readonly CallInfo[]): Promise<Value | Control> {
-		return this._eval(node, Ast.isStatement(node) ? scope.createChildScope() : scope, callStack);
-	}
-
-	@autobind
 	private async _evalBinaryOperation(op: string, leftExpr: Ast.Expression, rightExpr: Ast.Expression, scope: Scope, callStack: readonly CallInfo[]): Promise<Value | Control> {
 		const callee = scope.get(op);
 		assertFunction(callee);
@@ -371,7 +366,7 @@ export class Interpreter {
 				}
 				assertBoolean(cond);
 				if (cond.value) {
-					return unWrapLabeledBreak(await this._evalClause(node.then, scope, callStack), node.label);
+					return unWrapLabeledBreak(await this._eval(node.then, scope, callStack), node.label);
 				}
 				for (const elseif of node.elseif) {
 					const cond = await this._eval(elseif.cond, scope, callStack);
@@ -380,11 +375,11 @@ export class Interpreter {
 					}
 					assertBoolean(cond);
 					if (cond.value) {
-						return unWrapLabeledBreak(await this._evalClause(elseif.then, scope, callStack), node.label);
+						return unWrapLabeledBreak(await this._eval(elseif.then, scope, callStack), node.label);
 					}
 				}
 				if (node.else) {
-					return unWrapLabeledBreak(await this._evalClause(node.else, scope, callStack), node.label);
+					return unWrapLabeledBreak(await this._eval(node.else, scope, callStack), node.label);
 				}
 				return NULL;
 			}
@@ -400,11 +395,11 @@ export class Interpreter {
 						return unWrapLabeledBreak(q, node.label);
 					}
 					if (eq(about, q)) {
-						return unWrapLabeledBreak(await this._evalClause(qa.a, scope, callStack), node.label);
+						return unWrapLabeledBreak(await this._eval(qa.a, scope, callStack), node.label);
 					}
 				}
 				if (node.default) {
-					return unWrapLabeledBreak(await this._evalClause(node.default, scope, callStack), node.label);
+					return unWrapLabeledBreak(await this._eval(node.default, scope, callStack), node.label);
 				}
 				return NULL;
 			}
@@ -414,10 +409,7 @@ export class Interpreter {
 				while (true) {
 					const v = await this._run(node.statements, scope.createChildScope(), callStack);
 					if (v.type === 'break') {
-						if (v.label != null && v.label !== node.label) {
-							return v;
-						}
-						break;
+						return unWrapBreak(v, node.label);
 					} else if (v.type === 'continue') {
 						if (v.label != null && v.label !== node.label) {
 							return v;
@@ -426,7 +418,6 @@ export class Interpreter {
 						return v;
 					}
 				}
-				return NULL;
 			}
 
 			case 'for': {
@@ -437,12 +428,9 @@ export class Interpreter {
 					}
 					assertNumber(times);
 					for (let i = 0; i < times.value; i++) {
-						const v = await this._evalClause(node.for, scope, callStack);
+						const v = await this._eval(node.for, scope, callStack);
 						if (v.type === 'break') {
-							if (v.label != null && v.label !== node.label) {
-								return v;
-							}
-							break;
+							return unWrapBreak(v, node.label);
 						} else if (v.type === 'continue') {
 							if (v.label != null && v.label !== node.label) {
 								return v;
@@ -470,10 +458,7 @@ export class Interpreter {
 							}],
 						])), callStack);
 						if (v.type === 'break') {
-							if (v.label != null && v.label !== node.label) {
-								return v;
-							}
-							break;
+							return unWrapBreak(v, node.label);
 						} else if (v.type === 'continue') {
 							if (v.label != null && v.label !== node.label) {
 								return v;
@@ -497,10 +482,7 @@ export class Interpreter {
 					this.define(eachScope, node.var, item, false);
 					const v = await this._eval(node.for, eachScope, callStack);
 					if (v.type === 'break') {
-						if (v.label != null && v.label !== node.label) {
-							return v;
-						}
-						break;
+						return unWrapBreak(v, node.label);
 					} else if (v.type === 'continue') {
 						if (v.label != null && v.label !== node.label) {
 							return v;
@@ -757,7 +739,15 @@ export class Interpreter {
 
 			case 'break': {
 				this.log('block:break', { scope: scope.name });
-				return BREAK(node.label);
+				if (node.expr != null) {
+					const val = await this._eval(node.expr, scope, callStack);
+					if (isControl(val)) {
+						return val;
+					}
+					return BREAK(val, node.label);
+				} else {
+					return BREAK(NULL, node.label);
+				}
 			}
 
 			case 'continue': {

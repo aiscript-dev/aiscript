@@ -231,6 +231,7 @@ type Bool = NodeBase & {
 type Break = NodeBase & {
     type: 'break';
     label?: string;
+    expr?: Expression;
 };
 
 // @public (undocumented)

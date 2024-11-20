@@ -92,6 +92,7 @@ export type Loop = NodeBase & {
 export type Break = NodeBase & {
 	type: 'break'; // break文
 	label?: string; // ラベル
+	expr?: Expression; // 式
 };
 
 export type Continue = NodeBase & {

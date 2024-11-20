@@ -645,6 +645,39 @@ describe('break', () => {
         `));
     });
 
+    describe('with expr', () => {
+        test.concurrent('in each', async () => {
+            const res = await exe(`
+            <: each let v, [0] {
+                break 1
+            }
+            `);
+            eq(res, NUM(1));
+        });
+
+        test.concurrent('in for', async () => {
+            const res = await exe(`
+            <: for 1 {
+                break 1
+            }
+            `);
+            eq(res, NUM(1));
+        });
+
+        test.concurrent('in loop', async () => {
+            const res = await exe(`
+            <: loop {
+                break 1
+            }
+            `);
+            eq(res, NUM(1));
+        });
+
+        test.concurrent('toplevel', async () => {
+            assert.rejects(() => exe('break 1'));
+        });
+    });
+
     describe('labeled each', () => {
         test.concurrent('inner each', async () => {
             const res = await exe(`
@@ -1039,6 +1072,67 @@ describe('break', () => {
             }
             `);
             eq(res, NULL);
+        });
+
+        describe('with expr', () => {
+            test.concurrent('inner each', async () => {
+                const res = await exe(`
+                <: #l: if true {
+                    each let v, [0] {
+                        break #l 1
+                    }
+                }
+                `);
+                eq(res, NUM(1));
+            });
+
+            test.concurrent('inner for', async () => {
+                const res = await exe(`
+                <: #l: if true {
+                    for 1 {
+                        break #l 1
+                    }
+                }
+                `);
+                eq(res, NUM(1));
+            });
+
+            test.concurrent('inner loop', async () => {
+                const res = await exe(`
+                <: #l: if true {
+                    loop {
+                        break #l 1
+                    }
+                }
+                `);
+                eq(res, NUM(1));
+            });
+
+            test.concurrent('inner if', async () => {
+                const res = await exe(`
+                <: #l: if true {
+                    if true {
+                        break #l 1
+                        2
+                    }
+                }
+                `);
+                eq(res, NUM(1));
+            });
+
+            test.concurrent('inner match', async () => {
+                const res = await exe(`
+                <: #l: if true {
+                    match 0 {
+                        default => {
+                            break #l 1
+                            2
+                        }
+                    }
+                }
+                `);
+                eq(res, NUM(1));
+            });
         });
     });
 

@@ -23,17 +23,8 @@ export function parseStatement(s: ITokenStream): Ast.Statement | Ast.Expression 
 		case TokenKind.Out: {
 			return parseOut(s);
 		}
-		case TokenKind.ReturnKeyword: {
-			return parseReturn(s);
-		}
 		case TokenKind.OpenSharpBracket: {
 			return parseStatementWithAttr(s);
-		}
-		case TokenKind.BreakKeyword: {
-			return parseBreak(s);
-		}
-		case TokenKind.ContinueKeyword: {
-			return parseContinue(s);
 		}
 	}
 	const expr = parseExpr(s, false);
@@ -166,21 +157,6 @@ function parseOut(s: ITokenStream): Ast.Call {
 
 /**
  * ```abnf
- * Return = "return" Expr
- * ```
-*/
-function parseReturn(s: ITokenStream): Ast.Return {
-	const startPos = s.getPos();
-
-	s.expect(TokenKind.ReturnKeyword);
-	s.next();
-	const expr = parseExpr(s, false);
-
-	return NODE('return', { expr }, startPos, s.getPos());
-}
-
-/**
- * ```abnf
  * StatementWithAttr = *Attr Statement
  * ```
 */
@@ -233,52 +209,6 @@ function parseAttr(s: ITokenStream): Ast.Attribute {
 	s.next();
 
 	return NODE('attr', { name, value }, startPos, s.getPos());
-}
-
-/**
- * ```abnf
- * Break = "break" ["#" IDENT]
- * ```
-*/
-function parseBreak(s: ITokenStream): Ast.Break {
-	const startPos = s.getPos();
-
-	s.expect(TokenKind.BreakKeyword);
-	s.next();
-
-	let label: string | undefined;
-	if (s.is(TokenKind.Sharp)) {
-		s.next();
-
-		s.expect(TokenKind.Identifier);
-		label = s.getTokenValue();
-		s.next();
-	}
-
-	return NODE('break', { label }, startPos, s.getPos());
-}
-
-/**
- * ```abnf
- * Continue = "continue" ["#" IDENT]
- * ```
-*/
-function parseContinue(s: ITokenStream): Ast.Continue {
-	const startPos = s.getPos();
-
-	s.expect(TokenKind.ContinueKeyword);
-	s.next();
-
-	let label: string | undefined;
-	if (s.is(TokenKind.Sharp)) {
-		s.next();
-
-		s.expect(TokenKind.Identifier);
-		label = s.getTokenValue();
-		s.next();
-	}
-
-	return NODE('continue', { label }, startPos, s.getPos());
 }
 
 /**
