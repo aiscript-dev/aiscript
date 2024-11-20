@@ -3,7 +3,7 @@ import { AiScriptSyntaxError } from '../../error.js';
 
 import type * as Ast from '../../node.js';
 
-function isInValidLoopScope(ancestors: Ast.Node[], label?: string): boolean {
+function getCorrespondingBlock(ancestors: Ast.Node[], label?: string): Ast.ControlFlow | undefined {
 	for (let i = ancestors.length - 1; i >= 0; i--) {
 		const ancestor = ancestors[i]!;
 		switch (ancestor.type) {
@@ -13,7 +13,7 @@ function isInValidLoopScope(ancestors: Ast.Node[], label?: string): boolean {
 				if (label != null && label !== ancestor.label) {
 					continue;
 				}
-				return true;
+				return ancestor;
 			}
 			case 'if':
 			case 'match':
@@ -21,13 +21,13 @@ function isInValidLoopScope(ancestors: Ast.Node[], label?: string): boolean {
 				if (label == null || label !== ancestor.label) {
 					continue;
 				}
-				return true;
+				return ancestor;
 			}
 			case 'fn':
-				return false;
+				return;
 		}
 	}
-	return false;
+	return;
 }
 
 function validateNode(node: Ast.Node, ancestors: Ast.Node[]): Ast.Node {
@@ -39,7 +39,7 @@ function validateNode(node: Ast.Node, ancestors: Ast.Node[]): Ast.Node {
 			break;
 		}
 		case 'break': {
-			if (!isInValidLoopScope(ancestors, node.label)) {
+			if (getCorrespondingBlock(ancestors, node.label) == null) {
 				if (node.label != null) {
 					throw new AiScriptSyntaxError(`label "${node.label}" is not defined`, node.loc.start);
 				}
@@ -48,11 +48,21 @@ function validateNode(node: Ast.Node, ancestors: Ast.Node[]): Ast.Node {
 			break;
 		}
 		case 'continue': {
-			if (!isInValidLoopScope(ancestors, node.label)) {
+			const block = getCorrespondingBlock(ancestors, node.label);
+			if (block == null) {
 				if (node.label != null) {
 					throw new AiScriptSyntaxError(`label "${node.label}" is not defined`, node.loc.start);
 				}
 				throw new AiScriptSyntaxError('continue must be inside for / each / while / do-while / loop', node.loc.start);
+			} else {
+				switch (block.type) {
+					case 'if':
+						throw new AiScriptSyntaxError('cannot use continue for if', node.loc.start);
+					case 'match':
+						throw new AiScriptSyntaxError('cannot use continue for match', node.loc.start);
+					case 'block':
+						throw new AiScriptSyntaxError('cannot use continue for eval', node.loc.start);
+				}
 			}
 			break;
 		}

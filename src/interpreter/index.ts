@@ -424,7 +424,7 @@ export class Interpreter {
 				if (node.times) {
 					const times = await this._eval(node.times, scope, callStack);
 					if (isControl(times)) {
-						return times;
+						return unWrapBreak(times, node.label);
 					}
 					assertNumber(times);
 					for (let i = 0; i < times.value; i++) {
@@ -442,11 +442,11 @@ export class Interpreter {
 				} else {
 					const from = await this._eval(node.from!, scope, callStack);
 					if (isControl(from)) {
-						return from;
+						return unWrapBreak(from, node.label);
 					}
 					const to = await this._eval(node.to!, scope, callStack);
 					if (isControl(to)) {
-						return to;
+						return unWrapBreak(to, node.label);
 					}
 					assertNumber(from);
 					assertNumber(to);
@@ -474,7 +474,7 @@ export class Interpreter {
 			case 'each': {
 				const items = await this._eval(node.items, scope, callStack);
 				if (isControl(items)) {
-					return items;
+					return unWrapBreak(items, node.label);
 				}
 				assertArray(items);
 				for (const item of items.value) {

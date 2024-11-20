@@ -1311,6 +1311,11 @@ describe('continue', () => {
             continue #l
         }
         `));
+        assert.rejects(() => exe(`
+        #l: eval {
+            continue #l
+        }
+        `));
     });
 
     describe('labeled each', () => {
