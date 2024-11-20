@@ -462,6 +462,28 @@ describe('return', () => {
         });
     });
 
+    test.concurrent('in plus', async () => {
+        const res = await exe(`
+        @f() {
+            let b = +(return true)
+        }
+        <: f()
+        `);
+        eq(res, BOOL(true));
+        assert.rejects(() => exe('<: +(return true)'));
+    });
+
+    test.concurrent('in minus', async () => {
+        const res = await exe(`
+        @f() {
+            let b = -(return true)
+        }
+        <: f()
+        `);
+        eq(res, BOOL(true));
+        assert.rejects(() => exe('<: -(return true)'));
+    });
+
     test.concurrent('in not', async () => {
         const res = await exe(`
         @f() {
@@ -504,6 +526,23 @@ describe('return', () => {
         `);
         eq(res, NUM(1));
         assert.rejects(() => exe('return (return 1) + 2'));
+    });
+
+    test.concurrent('in break', async () => {
+        const res = await exe(`
+        @f() {
+            for 1 {
+                break (return 1) + 2
+            }
+        }
+        <: f()
+        `)
+        eq(res, NUM(1));
+        assert.rejects(() => exe(`
+        for 1 {
+            break (return 1) + 2
+        }
+        `));
     });
 
     describe('in and', async () => {
@@ -655,9 +694,18 @@ describe('break', () => {
             eq(res, NUM(1));
         });
 
-        test.concurrent('in for', async () => {
+        test.concurrent('in for times', async () => {
             const res = await exe(`
             <: for 1 {
+                break 1
+            }
+            `);
+            eq(res, NUM(1));
+        });
+
+        test.concurrent('in for range', async () => {
+            const res = await exe(`
+            <: for let i, 1 {
                 break 1
             }
             `);
@@ -1269,11 +1317,26 @@ describe('continue', () => {
             eq(res, NUM(1));
         });
 
-        test.concurrent('inner for', async () => {
+        test.concurrent('inner for times', async () => {
             const res = await exe(`
             var x = 0
             #l: each let v, [0] {
                 for 1 {
+                    x = 1
+                    continue #l
+                }
+                x = 2
+            }
+            <: x
+            `);
+            eq(res, NUM(1));
+        });
+
+        test.concurrent('inner for range', async () => {
+            const res = await exe(`
+            var x = 0
+            #l: each let v, [0] {
+                for let i, 1 {
                     x = 1
                     continue #l
                 }
@@ -1346,11 +1409,26 @@ describe('continue', () => {
             eq(res, NUM(1));
         });
 
-        test.concurrent('inner for', async () => {
+        test.concurrent('inner for time', async () => {
             const res = await exe(`
             var x = 0
             #l: for 1 {
                 for 1 {
+                    x = 1
+                    continue #l
+                }
+                x = 2
+            }
+            <: x
+            `);
+            eq(res, NUM(1));
+        });
+
+        test.concurrent('inner for range', async () => {
+            const res = await exe(`
+            var x = 0
+            #l: for 1 {
+                for let i, 1 {
                     x = 1
                     continue #l
                 }
@@ -1423,11 +1501,26 @@ describe('continue', () => {
             eq(res, NUM(1));
         });
 
-        test.concurrent('inner for', async () => {
+        test.concurrent('inner for time', async () => {
             const res = await exe(`
             var x = 0
             #l: while x == 0 {
                 for 1 {
+                    x = 1
+                    continue #l
+                }
+                x = 2
+            }
+            <: x
+            `);
+            eq(res, NUM(1));
+        });
+
+        test.concurrent('inner for range', async () => {
+            const res = await exe(`
+            var x = 0
+            #l: while x == 0 {
+                for let i, 1 {
                     x = 1
                     continue #l
                 }
