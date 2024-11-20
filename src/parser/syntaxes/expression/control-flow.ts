@@ -6,7 +6,6 @@ import { AiScriptSyntaxError } from '../../../error.js';
 import { TokenKind } from '../../token.js';
 import { unexpectedTokenError, NODE } from '../../utils.js';
 import { parseBlock, parseDest, parseOptionalSeparator } from '../common.js';
-import { parseBlockOrStatement } from '../statements.js';
 import { parseExpr } from './index.js';
 
 import type * as Ast from '../../../node.js';
@@ -73,7 +72,7 @@ export function parseControlFlowExprWithoutLabel(s: ITokenStream): Ast.ControlFl
 
 /**
  * ```abnf
- * If = "if" Expr BlockOrStatement *("elif" Expr BlockOrStatement) ["else" BlockOrStatement]
+ * If = "if" Expr Block *("elif" Expr Block) ["else" Block]
  * ```
 */
 function parseIf(s: ITokenStream): Ast.If {
@@ -82,7 +81,7 @@ function parseIf(s: ITokenStream): Ast.If {
 	s.expect(TokenKind.IfKeyword);
 	s.next();
 	const cond = parseExpr(s, false);
-	const then = parseBlockOrStatement(s);
+	const then = parseBlockAsExpr(s);
 
 	if (s.is(TokenKind.NewLine) && [TokenKind.ElifKeyword, TokenKind.ElseKeyword].includes(s.lookahead(1).kind)) {
 		s.next();
@@ -92,7 +91,7 @@ function parseIf(s: ITokenStream): Ast.If {
 	while (s.is(TokenKind.ElifKeyword)) {
 		s.next();
 		const elifCond = parseExpr(s, false);
-		const elifThen = parseBlockOrStatement(s);
+		const elifThen = parseBlockAsExpr(s);
 		if (s.is(TokenKind.NewLine) && [TokenKind.ElifKeyword, TokenKind.ElseKeyword].includes(s.lookahead(1).kind)) {
 			s.next();
 		}
@@ -102,7 +101,7 @@ function parseIf(s: ITokenStream): Ast.If {
 	let _else = undefined;
 	if (s.is(TokenKind.ElseKeyword)) {
 		s.next();
-		_else = parseBlockOrStatement(s);
+		_else = parseBlockAsExpr(s);
 	}
 
 	return NODE('if', { cond, then, elseif, else: _else }, startPos, s.getPos());
@@ -159,7 +158,7 @@ function parseMatch(s: ITokenStream): Ast.Match {
 
 /**
  * ```abnf
- * MatchCase = "case" Expr "=>" BlockOrStatement
+ * MatchCase = "case" Expr "=>" Block
  * ```
 */
 function parseMatchCase(s: ITokenStream): Ast.Match['qs'][number] {
@@ -168,13 +167,13 @@ function parseMatchCase(s: ITokenStream): Ast.Match['qs'][number] {
 	const q = parseExpr(s, false);
 	s.expect(TokenKind.Arrow);
 	s.next();
-	const a = parseBlockOrStatement(s);
+	const a = parseBlockOrExpr(s);
 	return { q, a };
 }
 
 /**
  * ```abnf
- * DefaultCase = "default" "=>" BlockOrStatement
+ * DefaultCase = "default" "=>" Block
  * ```
 */
 function parseDefaultCase(s: ITokenStream): Ast.Match['default'] {
@@ -182,7 +181,7 @@ function parseDefaultCase(s: ITokenStream): Ast.Match['default'] {
 	s.next();
 	s.expect(TokenKind.Arrow);
 	s.next();
-	return parseBlockOrStatement(s);
+	return parseBlockOrExpr(s);
 }
 
 /**
@@ -202,8 +201,8 @@ function parseEval(s: ITokenStream): Ast.Block {
 
 /**
  * ```abnf
- * Each = "each" "(" "let" Dest "," Expr ")" BlockOrStatement
- *      / "each"     "let" Dest "," Expr     BlockOrStatement
+ * Each = "each" "(" "let" Dest "," Expr ")" Block
+ *      / "each"     "let" Dest "," Expr     Block
  * ```
 */
 function parseEach(s: ITokenStream): Ast.Each {
@@ -236,7 +235,7 @@ function parseEach(s: ITokenStream): Ast.Each {
 		s.next();
 	}
 
-	const body = parseBlockOrStatement(s);
+	const body = parseBlockAsExpr(s);
 
 	return NODE('each', {
 		var: dest,
@@ -248,10 +247,10 @@ function parseEach(s: ITokenStream): Ast.Each {
 /**
  * ```abnf
  * For = ForRange / ForTimes
- * ForRange = "for" "(" "let" IDENT ["=" Expr] "," Expr ")" BlockOrStatement
- *          / "for"     "let" IDENT ["=" Expr] "," Expr     BlockOrStatement
- * ForTimes = "for" "(" Expr ")" BlockOrStatement
- *          / "for"     Expr     BlockOrStatement
+ * ForRange = "for" "(" "let" IDENT ["=" Expr] "," Expr ")" Block
+ *          / "for"     "let" IDENT ["=" Expr] "," Expr     Block
+ * ForTimes = "for" "(" Expr ")" Block
+ *          / "for"     Expr     Block
  * ```
 */
 function parseFor(s: ITokenStream): Ast.For {
@@ -297,7 +296,7 @@ function parseFor(s: ITokenStream): Ast.For {
 			s.next();
 		}
 
-		const body = parseBlockOrStatement(s);
+		const body = parseBlockAsExpr(s);
 
 		return NODE('for', {
 			var: name,
@@ -315,7 +314,7 @@ function parseFor(s: ITokenStream): Ast.For {
 			s.next();
 		}
 	
-		const body = parseBlockOrStatement(s);
+		const body = parseBlockAsExpr(s);
 
 		return NODE('for', {
 			times,
@@ -341,14 +340,14 @@ function parseLoop(s: ITokenStream): Ast.Loop {
 
 /**
  * ```abnf
- * Loop = "do" BlockOrStatement "while" Expr
+ * Loop = "do" Block "while" Expr
  * ```
 */
 function parseDoWhile(s: ITokenStream): Ast.Loop {
 	const doStartPos = s.getPos();
 	s.expect(TokenKind.DoKeyword);
 	s.next();
-	const body = parseBlockOrStatement(s);
+	const body = parseBlockAsExpr(s);
 	const whilePos = s.getPos();
 	s.expect(TokenKind.WhileKeyword);
 	s.next();
@@ -360,7 +359,9 @@ function parseDoWhile(s: ITokenStream): Ast.Loop {
 			body,
 			NODE('if', {
 				cond: NODE('not', { expr: cond }, whilePos, endPos),
-				then: NODE('break', {}, endPos, endPos),
+				then: NODE('block', {
+					statements: [NODE('break', {}, endPos, endPos)],
+				}, endPos, endPos),
 				elseif: [],
 			}, whilePos, endPos),
 		],
@@ -369,7 +370,7 @@ function parseDoWhile(s: ITokenStream): Ast.Loop {
 
 /**
  * ```abnf
- * Loop = "while" Expr BlockOrStatement
+ * Loop = "while" Expr Block
  * ```
 */
 function parseWhile(s: ITokenStream): Ast.Loop {
@@ -378,16 +379,37 @@ function parseWhile(s: ITokenStream): Ast.Loop {
 	s.next();
 	const cond = parseExpr(s, false);
 	const condEndPos = s.getPos();
-	const body = parseBlockOrStatement(s);
+	const body = parseBlockAsExpr(s);
 
 	return NODE('loop', {
 		statements: [
 			NODE('if', {
 				cond: NODE('not', { expr: cond }, startPos, condEndPos),
-				then: NODE('break', {}, condEndPos, condEndPos),
+				then: NODE('block', {
+					statements: [NODE('break', {}, condEndPos, condEndPos)],
+				}, condEndPos, condEndPos),
 				elseif: [],
 			}, startPos, condEndPos),
 			body,
 		],
 	}, startPos, s.getPos());
+}
+
+/**
+ * ```abnf
+ * BlockOrExpr = Block / Expr
+ * ```
+*/
+function parseBlockOrExpr(s: ITokenStream): Ast.Expression {
+	if (s.is(TokenKind.OpenBrace)) {
+		return parseBlockAsExpr(s);
+	} else {
+		return parseExpr(s, false);
+	}
+}
+
+function parseBlockAsExpr(s: ITokenStream): Ast.Block {
+	const startPos = s.getPos();
+	const statements = parseBlock(s);
+	return NODE('block', { statements }, startPos, s.getPos());
 }

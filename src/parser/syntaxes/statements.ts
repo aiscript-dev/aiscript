@@ -66,21 +66,6 @@ export function parseDefStatement(s: ITokenStream): Ast.Definition {
 
 /**
  * ```abnf
- * BlockOrStatement = Block / Statement
- * ```
-*/
-export function parseBlockOrStatement(s: ITokenStream): Ast.Statement | Ast.Expression {
-	if (s.is(TokenKind.OpenBrace)) {
-		const startPos = s.getPos();
-		const statements = parseBlock(s);
-		return NODE('block', { statements }, startPos, s.getPos());
-	} else {
-		return parseStatement(s);
-	}
-}
-
-/**
- * ```abnf
  * VarDef = ("let" / "var") Dest [":" Type] "=" Expr
  * ```
 */

@@ -70,7 +70,7 @@ export type Each = NodeBase & {
 	label?: string; // ラベル
 	var: Expression; // イテレータ宣言
 	items: Expression; // 配列
-	for: Statement | Expression; // 本体処理
+	for: Block; // 本体処理
 };
 
 export type For = NodeBase & {
@@ -80,7 +80,7 @@ export type For = NodeBase & {
 	from?: Expression; // 開始値
 	to?: Expression; // 終値
 	times?: Expression; // 回数
-	for: Statement | Expression; // 本体処理
+	for: Block; // 本体処理
 };
 
 export type Loop = NodeBase & {
@@ -275,12 +275,12 @@ export type If = NodeBase & {
 	type: 'if'; // if式
 	label?: string; // ラベル
 	cond: Expression; // 条件式
-	then: Statement | Expression; // then節
+	then: Block; // then節
 	elseif: {
 		cond: Expression; // elifの条件式
-		then: Statement | Expression;// elif節
+		then: Block;// elif節
 	}[];
-	else?: Statement | Expression; // else節
+	else?: Block; // else節
 };
 
 export type Fn = NodeBase & {
@@ -301,9 +301,9 @@ export type Match = NodeBase & {
 	about: Expression; // 対象
 	qs: {
 		q: Expression; // 条件
-		a: Statement | Expression; // 結果
+		a: Expression; // 結果
 	}[];
-	default?: Statement | Expression; // デフォルト値
+	default?: Expression; // デフォルト値
 };
 
 export type Block = NodeBase & {

@@ -272,7 +272,7 @@ type Each = NodeBase & {
     label?: string;
     var: Expression;
     items: Expression;
-    for: Statement | Expression;
+    for: Block;
 };
 
 // @public (undocumented)
@@ -356,7 +356,7 @@ type For = NodeBase & {
     from?: Expression;
     to?: Expression;
     times?: Expression;
-    for: Statement | Expression;
+    for: Block;
 };
 
 // @public (undocumented)
@@ -387,12 +387,12 @@ type If = NodeBase & {
     type: 'if';
     label?: string;
     cond: Expression;
-    then: Statement | Expression;
+    then: Block;
     elseif: {
         cond: Expression;
-        then: Statement | Expression;
+        then: Block;
     }[];
-    else?: Statement | Expression;
+    else?: Block;
 };
 
 // @public (undocumented)
@@ -510,9 +510,9 @@ type Match = NodeBase & {
     about: Expression;
     qs: {
         q: Expression;
-        a: Statement | Expression;
+        a: Expression;
     }[];
-    default?: Statement | Expression;
+    default?: Expression;
 };
 
 // @public (undocumented)
