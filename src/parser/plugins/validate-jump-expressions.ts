@@ -60,7 +60,7 @@ function validateNode(node: Ast.Node, ancestors: Ast.Node[]): Ast.Node {
 	return node;
 }
 
-export function validateJumpStatements(nodes: Ast.Node[]): Ast.Node[] {
+export function validateJumpExpressions(nodes: Ast.Node[]): Ast.Node[] {
 	for (const node of nodes) {
 		visitNode(node, validateNode);
 	}
