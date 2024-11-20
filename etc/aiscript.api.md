@@ -664,7 +664,7 @@ function reprValue(value: Value, literalLike?: boolean, processedObjects?: Set<o
 // @public (undocumented)
 type Return = NodeBase & {
     type: 'return';
-    expr: Expression;
+    expr?: Expression;
 };
 
 // @public (undocumented)
