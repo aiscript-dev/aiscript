@@ -519,7 +519,7 @@ function parseArray(s: ITokenStream, isStatic: boolean): Ast.Arr {
 
 /**
  * ```abnf
- * Return = "return" Expr
+ * Return = "return" [Expr]
  * ```
 */
 function parseReturn(s: ITokenStream): Ast.Return {
@@ -527,7 +527,7 @@ function parseReturn(s: ITokenStream): Ast.Return {
 
 	s.expect(TokenKind.ReturnKeyword);
 	s.next();
-	const expr = parseExpr(s, false);
+	const expr = tryParseExpr(s);
 
 	return NODE('return', { expr }, startPos, s.getPos());
 }
@@ -552,17 +552,7 @@ function parseBreak(s: ITokenStream): Ast.Break {
 		s.next();
 	}
 
-	let expr: Ast.Expression | undefined;
-	switch (s.getTokenKind()) {
-		case TokenKind.NewLine:
-		case TokenKind.SemiColon:
-		case TokenKind.Comma:
-		case TokenKind.CloseBrace:
-			break;
-		default: {
-			expr = parseExpr(s, false);
-		}
-	}
+	const expr = tryParseExpr(s);
 
 	return NODE('break', { label, expr }, startPos, s.getPos());
 }
@@ -588,6 +578,21 @@ function parseContinue(s: ITokenStream): Ast.Continue {
 	}
 
 	return NODE('continue', { label }, startPos, s.getPos());
+}
+
+function tryParseExpr(s: ITokenStream): Ast.Expression | undefined {
+	switch (s.getTokenKind()) {
+		case TokenKind.NewLine:
+		case TokenKind.SemiColon:
+		case TokenKind.Comma:
+		case TokenKind.CloseParen:
+		case TokenKind.CloseBracket:
+		case TokenKind.CloseBrace:
+			return;
+		default: {
+			return parseExpr(s, false);
+		}
+	}
 }
 
 //#region Pratt parsing

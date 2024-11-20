@@ -729,9 +729,13 @@ export class Interpreter {
 			}
 
 			case 'return': {
-				const val = await this._eval(node.expr, scope, callStack);
-				if (isControl(val)) {
-					return val;
+				let val: Value = NULL;
+				if (node.expr != null) {
+					const valOrControl = await this._eval(node.expr, scope, callStack);
+					if (isControl(valOrControl)) {
+						return valOrControl;
+					}
+					val = valOrControl;
 				}
 				this.log('block:return', { scope: scope.name, val: val });
 				return RETURN(val);

@@ -17,6 +17,18 @@ describe('return', () => {
 		assert.rejects(() => exe('return 1'));
 	});
 
+    test.concurrent('without expr', async () => {
+        const res = await exe(`
+        @f() {
+            return
+            1
+        }
+        <: f()
+        `);
+        eq(res, NULL);
+        assert.rejects(() => exe('return'));
+    });
+
 	test.concurrent('in eval', async () => {
 		const res = await exe(`
 		@f() {

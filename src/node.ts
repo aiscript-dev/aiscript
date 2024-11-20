@@ -62,7 +62,7 @@ export type Attribute = NodeBase & {
 
 export type Return = NodeBase & {
 	type: 'return'; // return文
-	expr: Expression; // 式
+	expr?: Expression; // 式
 };
 
 export type Each = NodeBase & {
