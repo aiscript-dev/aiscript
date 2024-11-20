@@ -6,7 +6,7 @@ import { AiScriptSyntaxError } from '../../error.js';
 import { TokenKind } from '../token.js';
 import { unexpectedTokenError, NODE } from '../utils.js';
 import { parseBlock, parseDest, parseOptionalSeparator } from './common.js';
-import { parseExpr } from './expression.js';
+import { parseExpr } from './expressions.js';
 
 import type * as Ast from '../../node.js';
 import type { ITokenStream } from '../streams/token-stream.js';
