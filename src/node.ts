@@ -38,11 +38,20 @@ export type Statement =
 	AddAssign |
 	SubAssign;
 
-const statementTypes = [
-	'def', 'return', 'each', 'for', 'loop', 'break', 'continue', 'assign', 'addAssign', 'subAssign',
-];
 export function isStatement(x: Node): x is Statement {
-	return statementTypes.includes(x.type);
+	switch (x.type) {
+		case 'def':
+		case 'assign':
+		case 'addAssign':
+		case 'subAssign': {
+			x satisfies Statement;
+			return true;
+		}
+		default: {
+			x satisfies Exclude<Node, Statement>;
+			return false;
+		}
+	}
 }
 
 export type Definition = NodeBase & {
@@ -58,46 +67,6 @@ export type Attribute = NodeBase & {
 	type: 'attr'; // 属性
 	name: string; // 属性名
 	value: Expression; // 値
-};
-
-export type Return = NodeBase & {
-	type: 'return'; // return文
-	expr?: Expression; // 式
-};
-
-export type Each = NodeBase & {
-	type: 'each'; // each文
-	label?: string; // ラベル
-	var: Expression; // イテレータ宣言
-	items: Expression; // 配列
-	for: Block; // 本体処理
-};
-
-export type For = NodeBase & {
-	type: 'for'; // for文
-	label?: string; // ラベル
-	var?: string; // イテレータ変数名
-	from?: Expression; // 開始値
-	to?: Expression; // 終値
-	times?: Expression; // 回数
-	for: Block; // 本体処理
-};
-
-export type Loop = NodeBase & {
-	type: 'loop'; // loop文
-	label?: string; // ラベル
-	statements: (Statement | Expression)[]; // 処理
-};
-
-export type Break = NodeBase & {
-	type: 'break'; // break文
-	label?: string; // ラベル
-	expr?: Expression; // 式
-};
-
-export type Continue = NodeBase & {
-	type: 'continue'; // continue文
-	label?: string; // ラベル
 };
 
 export type AddAssign = NodeBase & {
@@ -156,6 +125,57 @@ export type Expression =
 	Index |
 	Prop;
 
+export function isExpression(x: Node): x is Expression {
+	switch (x.type) {
+		case 'if':
+		case 'match':
+		case 'block':
+		case 'each':
+		case 'for':
+		case 'loop':
+		case 'return':
+		case 'break':
+		case 'continue':
+		case 'fn':
+		case 'exists':
+		case 'tmpl':
+		case 'str':
+		case 'num':
+		case 'bool':
+		case 'null':
+		case 'obj':
+		case 'arr':
+		case 'plus':
+		case 'minus':
+		case 'not':
+		case 'pow':
+		case 'mul':
+		case 'div':
+		case 'rem':
+		case 'add':
+		case 'sub':
+		case 'lt':
+		case 'lteq':
+		case 'gt':
+		case 'gteq':
+		case 'eq':
+		case 'neq':
+		case 'and':
+		case 'or':
+		case 'identifier':
+		case 'call':
+		case 'index':
+		case 'prop': {
+			x satisfies Expression;
+			return true;
+		}
+		default: {
+			x satisfies Exclude<Node, Expression>;
+			return false;
+		}
+	}
+}
+
 export type ControlFlow = 
 	If |
 	Match |
@@ -164,14 +184,74 @@ export type ControlFlow =
 	For |
 	Loop;
 
-const expressionTypes = [
-	'if', 'fn', 'match', 'block', 'exists', 'tmpl', 'str', 'num', 'bool', 'null', 'obj', 'arr',
-	'not', 'pow', 'mul', 'div', 'rem', 'add', 'sub', 'lt', 'lteq', 'gt', 'gteq', 'eq', 'neq', 'and', 'or',
-	'identifier', 'call', 'index', 'prop',
-];
-export function isExpression(x: Node): x is Expression {
-	return expressionTypes.includes(x.type);
-}
+export type If = NodeBase & {
+	type: 'if'; // if式
+	label?: string; // ラベル
+	cond: Expression; // 条件式
+	then: Block; // then節
+	elseif: {
+		cond: Expression; // elifの条件式
+		then: Block;// elif節
+	}[];
+	else?: Block; // else節
+};
+
+export type Match = NodeBase & {
+	type: 'match'; // パターンマッチ
+	label?: string; // ラベル
+	about: Expression; // 対象
+	qs: {
+		q: Expression; // 条件
+		a: Expression; // 結果
+	}[];
+	default?: Expression; // デフォルト値
+};
+
+export type Block = NodeBase & {
+	type: 'block'; // ブロックまたはeval式
+	label?: string; // ラベル
+	statements: (Statement | Expression)[]; // 処理
+};
+
+export type Each = NodeBase & {
+	type: 'each'; // each文
+	label?: string; // ラベル
+	var: Expression; // イテレータ宣言
+	items: Expression; // 配列
+	for: Block; // 本体処理
+};
+
+export type For = NodeBase & {
+	type: 'for'; // for文
+	label?: string; // ラベル
+	var?: string; // イテレータ変数名
+	from?: Expression; // 開始値
+	to?: Expression; // 終値
+	times?: Expression; // 回数
+	for: Block; // 本体処理
+};
+
+export type Loop = NodeBase & {
+	type: 'loop'; // loop文
+	label?: string; // ラベル
+	statements: (Statement | Expression)[]; // 処理
+};
+
+export type Break = NodeBase & {
+	type: 'break'; // break文
+	label?: string; // ラベル
+	expr?: Expression; // 式
+};
+
+export type Continue = NodeBase & {
+	type: 'continue'; // continue文
+	label?: string; // ラベル
+};
+
+export type Return = NodeBase & {
+	type: 'return'; // return文
+	expr?: Expression; // 式
+};
 
 export type Plus = NodeBase & {
 	type: 'plus'; // 正号
@@ -272,18 +352,6 @@ export type Or = NodeBase & {
 	right: Expression;
 }
 
-export type If = NodeBase & {
-	type: 'if'; // if式
-	label?: string; // ラベル
-	cond: Expression; // 条件式
-	then: Block; // then節
-	elseif: {
-		cond: Expression; // elifの条件式
-		then: Block;// elif節
-	}[];
-	else?: Block; // else節
-};
-
 export type Fn = NodeBase & {
 	type: 'fn'; // 関数
 	params: {
@@ -294,23 +362,6 @@ export type Fn = NodeBase & {
 	}[];
 	retType?: TypeSource; // 戻り値の型
 	children: (Statement | Expression)[]; // 本体処理
-};
-
-export type Match = NodeBase & {
-	type: 'match'; // パターンマッチ
-	label?: string; // ラベル
-	about: Expression; // 対象
-	qs: {
-		q: Expression; // 条件
-		a: Expression; // 結果
-	}[];
-	default?: Expression; // デフォルト値
-};
-
-export type Block = NodeBase & {
-	type: 'block'; // ブロックまたはeval式
-	label?: string; // ラベル
-	statements: (Statement | Expression)[]; // 処理
 };
 
 export type Exists = NodeBase & {
