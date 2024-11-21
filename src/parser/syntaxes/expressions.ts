@@ -2,8 +2,9 @@ import { AiScriptSyntaxError, AiScriptUnexpectedEOFError } from '../../error.js'
 import { NODE, unexpectedTokenError } from '../utils.js';
 import { TokenStream } from '../streams/token-stream.js';
 import { TokenKind } from '../token.js';
-import { parseBlock, parseOptionalSeparator, parseParams, parseType } from './common.js';
+import { parseBlock, parseOptionalSeparator, parseParams } from './common.js';
 import { parseBlockOrStatement } from './statements.js';
+import { parseType } from './types.js';
 
 import type * as Ast from '../../node.js';
 import type { ITokenStream } from '../streams/token-stream.js';

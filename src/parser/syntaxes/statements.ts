@@ -1,8 +1,9 @@
 import { AiScriptSyntaxError } from '../../error.js';
 import { CALL_NODE, NODE, unexpectedTokenError } from '../utils.js';
 import { TokenKind } from '../token.js';
-import { parseBlock, parseDest, parseParams, parseType } from './common.js';
+import { parseBlock, parseDest, parseParams } from './common.js';
 import { parseExpr } from './expressions.js';
+import { parseType } from './types.js';
 
 import type * as Ast from '../../node.js';
 import type { ITokenStream } from '../streams/token-stream.js';
