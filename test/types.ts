@@ -40,5 +40,15 @@ describe('generics', () => {
             `);
             eq(res, ARR([NUM(1), NUM(2), NUM(3)]));
         });
+
+        test.concurrent('use as variable type', async () => {
+            const res = await exe(`
+            @f<T>(v: T): void {
+                let v2: T = v
+            }
+            <: f(1)
+            `);
+            eq(res, NULL);
+        });
     });
 });
