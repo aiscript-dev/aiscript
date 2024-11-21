@@ -50,5 +50,28 @@ describe('generics', () => {
             `);
             eq(res, NULL);
         });
+
+        test.concurrent('use as function type', async () => {
+            const res = await exe(`
+            @f<T>(v: T): @() => T {
+                let g: @() => T = @() { v }
+                g
+            }
+            <: f(1)()
+            `);
+            eq(res, NUM(1))
+        });
+
+        test.concurrent('curried', async () => {
+            const res = await exe(`
+            @concat<A>(a: A): @<B>(B) => str {
+                @<B>(b: B) {
+                    \`{a}{b}\`
+                }
+            }
+            <: concat("abc")(123)
+            `);
+            eq(res, STR('abc123'));
+        });
     });
 });

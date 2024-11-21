@@ -177,7 +177,11 @@ export function getTypeBySource(typeSource: Ast.TypeSource, typeParams?: readonl
 		}
 		throw new AiScriptSyntaxError(`Unknown type: '${getTypeNameBySource(typeSource)}'`, typeSource.loc.start);
 	} else {
-		const paramTypes = typeSource.params.map(param => getTypeBySource(param));
-		return T_FN(paramTypes, getTypeBySource(typeSource.result));
+		let fnTypeParams = typeSource.typeParams;
+		if (typeParams != null) {
+			fnTypeParams = fnTypeParams.concat(typeParams);
+		}
+		const paramTypes = typeSource.params.map(param => getTypeBySource(param, fnTypeParams));
+		return T_FN(paramTypes, getTypeBySource(typeSource.result, fnTypeParams));
 	}
 }
