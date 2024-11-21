@@ -1,9 +1,11 @@
 import { AiScriptSyntaxError, AiScriptUnexpectedEOFError } from '../../error.js';
 import { TokenKind } from '../token.js';
 import { NODE } from '../utils.js';
+import { parseOptionalSeparator } from './common.js';
 
 import type { Ast } from '../../index.js';
 import type { ITokenStream } from '../streams/token-stream.js';
+import type { TypeParam } from '../../node.js';
 
 export function parseType(s: ITokenStream): Ast.TypeSource {
 	if (s.is(TokenKind.At)) {
@@ -15,7 +17,52 @@ export function parseType(s: ITokenStream): Ast.TypeSource {
 
 /**
  * ```abnf
- * FnType = "@" "(" ParamTypes ")" "=>" Type
+ * TypeParams = "<" TypeParam *(SEP TypeParam) [SEP] ">"
+ * ```
+*/
+export function parseTypeParams(s: ITokenStream): TypeParam[] {
+	s.expect(TokenKind.Lt);
+	s.next();
+
+	if (s.is(TokenKind.NewLine)) {
+		s.next();
+	}
+
+	const items: TypeParam[] = [parseTypeParam(s)];
+
+	while (parseOptionalSeparator(s)) {
+		const item = parseTypeParam(s);
+		items.push(item);
+	}
+
+	s.expect(TokenKind.Gt);
+
+	if (s.is(TokenKind.NewLine)) {
+		s.next();
+	}
+
+	s.expect(TokenKind.Gt);
+	s.next();
+
+	return items;
+}
+
+/**
+ * ```abnf
+ * TypeParam = IDENT
+ * ```
+*/
+function parseTypeParam(s: ITokenStream): TypeParam {
+	s.expect(TokenKind.Identifier);
+	const name = s.getTokenValue();
+	s.next();
+
+	return { name };
+}
+
+/**
+ * ```abnf
+ * FnType = "@" [TypeParams] "(" ParamTypes ")" "=>" Type
  * ParamTypes = [Type *(SEP Type)]
  * ```
 */
@@ -24,6 +71,14 @@ function parseFnType(s: ITokenStream): Ast.TypeSource {
 
 	s.expect(TokenKind.At);
 	s.next();
+
+	let typeParams: Ast.TypeParam[];
+	if (s.is(TokenKind.Lt)) {
+		typeParams = parseTypeParams(s);
+	} else {
+		typeParams = [];
+	}
+
 	s.expect(TokenKind.OpenParen);
 	s.next();
 
@@ -54,7 +109,7 @@ function parseFnType(s: ITokenStream): Ast.TypeSource {
 
 	const resultType = parseType(s);
 
-	return NODE('fnTypeSource', { params, result: resultType }, startPos, s.getPos());
+	return NODE('fnTypeSource', { typeParams, params, result: resultType }, startPos, s.getPos());
 }
 
 /**

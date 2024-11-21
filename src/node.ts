@@ -276,6 +276,7 @@ export type If = NodeBase & {
 
 export type Fn = NodeBase & {
 	type: 'fn'; // 関数
+	typeParams: TypeParam[]; // 型パラメータ
 	params: {
 		dest: Expression; // 引数名
 		optional: boolean;
@@ -375,6 +376,14 @@ export type NamedTypeSource = NodeBase & {
 
 export type FnTypeSource = NodeBase & {
 	type: 'fnTypeSource'; // 関数の型
+	typeParams: TypeParam[]; // 型パラメータ
 	params: TypeSource[]; // 引数の型
 	result: TypeSource; // 戻り値の型
 };
+
+/**
+ * 型パラメータ
+ */
+export type TypeParam = {
+	name: string; // パラメータ名
+}

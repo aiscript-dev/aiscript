@@ -3,7 +3,7 @@ import { CALL_NODE, NODE, unexpectedTokenError } from '../utils.js';
 import { TokenKind } from '../token.js';
 import { parseBlock, parseDest, parseParams } from './common.js';
 import { parseExpr } from './expressions.js';
-import { parseType } from './types.js';
+import { parseType, parseTypeParams } from './types.js';
 
 import type * as Ast from '../../node.js';
 import type { ITokenStream } from '../streams/token-stream.js';
@@ -145,7 +145,7 @@ function parseVarDef(s: ITokenStream): Ast.Definition {
 
 /**
  * ```abnf
- * FnDef = "@" IDENT Params [":" Type] Block
+ * FnDef = "@" IDENT [TypeParams] Params [":" Type] Block
  * ```
 */
 function parseFnDef(s: ITokenStream): Ast.Definition {
@@ -159,6 +159,13 @@ function parseFnDef(s: ITokenStream): Ast.Definition {
 	const name = s.getTokenValue();
 	s.next();
 	const dest = NODE('identifier', { name }, nameStartPos, s.getPos());
+
+	let typeParams: Ast.TypeParam[];
+	if (s.is(TokenKind.Lt)) {
+		typeParams = parseTypeParams(s);
+	} else {
+		typeParams = [];
+	}
 
 	const params = parseParams(s);
 
@@ -175,6 +182,7 @@ function parseFnDef(s: ITokenStream): Ast.Definition {
 	return NODE('def', {
 		dest,
 		expr: NODE('fn', {
+			typeParams,
 			params: params,
 			retType: type,
 			children: body,

@@ -13,11 +13,11 @@ function validateNode(node: Ast.Node): Ast.Node {
 		case 'fn': {
 			for (const param of node.params) {
 				if (param.argType != null) {
-					getTypeBySource(param.argType);
+					getTypeBySource(param.argType, node.typeParams);
 				}
 			}
 			if (node.retType != null) {
-				getTypeBySource(node.retType);
+				getTypeBySource(node.retType, node.typeParams);
 			}
 			break;
 		}
