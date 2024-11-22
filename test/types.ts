@@ -119,6 +119,14 @@ describe('union', () => {
 		eq(res, NUM(1));
 	});
 
+    test.concurrent('type parameter', async () => {
+        const res = await exe(`
+        @f<T>(v: T): T | null { null }
+        <: f(1)
+        `);
+        eq(res, NULL);
+    });
+
 	test.concurrent('function type', async () => {
 		const res = await exe(`
 		let f: @(num | str) => str = @(x) { \`{x}\` }
