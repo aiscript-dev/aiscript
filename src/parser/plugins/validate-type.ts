@@ -5,6 +5,13 @@ import type * as Ast from '../../node.js';
 function collectTypeParams(node: Ast.Node, ancestors: Ast.Node[]): Ast.TypeParam[] {
 	const items = [];
 	if (node.type === 'fn') {
+		const typeParamNames = new Set<string>();
+		for (const typeParam of node.typeParams) {
+			if (typeParamNames.has(typeParam.name)) {
+				throw new Error(`type parameter name ${typeParam.name} is duplicate`);
+			}
+			typeParamNames.add(typeParam.name);
+		}
 		items.push(...node.typeParams);
 	}
 	for (let i = ancestors.length - 1; i >= 0; i--) {

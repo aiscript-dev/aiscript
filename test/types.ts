@@ -73,6 +73,12 @@ describe('generics', () => {
 			`);
 			eq(res, STR('abc123'));
 		});
+
+		test.concurrent('duplicate', async () => {
+			assert.rejects(() => exe(`
+			@f<T, T>(v: T) {}
+			`));
+		})
 	});
 });
 
