@@ -1,7 +1,7 @@
 import { Scanner } from './scanner.js';
 import { parseTopLevel } from './syntaxes/toplevel.js';
 
-import { validateJumpExpressions } from './plugins/validate-jump-expressions.js';
+import { validateJumpStatements } from './plugins/validate-jump-statements.js';
 import { validateKeyword } from './plugins/validate-keyword.js';
 import { validateType } from './plugins/validate-type.js';
 
@@ -22,7 +22,7 @@ export class Parser {
 			validate: [
 				validateKeyword,
 				validateType,
-				validateJumpExpressions,
+				validateJumpStatements,
 			],
 			transform: [
 			],
