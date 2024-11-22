@@ -59,7 +59,19 @@ export function T_PARAM(name: string): TParam {
 	};
 }
 
-export type Type = TSimple | TGeneric | TFn | TParam;
+export type TUnion = {
+	type: 'union';
+	inners: Type[];
+}
+
+export function T_UNION(inners: Type[]): TUnion {
+	return {
+		type: 'union',
+		inners,
+	};
+}
+
+export type Type = TSimple | TGeneric | TFn | TParam | TUnion;
 
 function assertTSimple(t: Type): asserts t is TSimple { if (t.type !== 'simple') { throw new TypeError('assertTSimple failed.'); } }
 function assertTGeneric(t: Type): asserts t is TGeneric { if (t.type !== 'generic') { throw new TypeError('assertTGeneric failed.'); } }
@@ -103,6 +115,10 @@ export function isCompatibleType(a: Type, b: Type): boolean {
 			// TODO
 			break;
 		}
+		case 'union': {
+			// TODO
+			break;
+		}
 	}
 
 	return true;
@@ -122,6 +138,9 @@ export function getTypeName(type: Type): string {
 		case 'param': {
 			return type.name;
 		}
+		case 'union': {
+			return type.inners.join(' | ');
+		}
 	}
 }
 
@@ -139,6 +158,9 @@ export function getTypeNameBySource(typeSource: Ast.TypeSource): string {
 			const params = typeSource.params.map(param => getTypeNameBySource(param)).join(', ');
 			const result = getTypeNameBySource(typeSource.result);
 			return `@(${params}) { ${result} }`;
+		}
+		case 'unionTypeSource': {
+			return typeSource.inners.map(inner => getTypeBySource(inner)).join(' | ');
 		}
 	}
 }
@@ -176,12 +198,15 @@ export function getTypeBySource(typeSource: Ast.TypeSource, typeParams?: readonl
 			}
 		}
 		throw new AiScriptSyntaxError(`Unknown type: '${getTypeNameBySource(typeSource)}'`, typeSource.loc.start);
-	} else {
+	} else if (typeSource.type === 'fnTypeSource') {
 		let fnTypeParams = typeSource.typeParams;
 		if (typeParams != null) {
 			fnTypeParams = fnTypeParams.concat(typeParams);
 		}
 		const paramTypes = typeSource.params.map(param => getTypeBySource(param, fnTypeParams));
 		return T_FN(paramTypes, getTypeBySource(typeSource.result, fnTypeParams));
+	} else {
+		const innerTypes = typeSource.inners.map(inner => getTypeBySource(inner, typeParams));
+		return T_UNION(innerTypes);
 	}
 }

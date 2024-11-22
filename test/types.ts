@@ -75,3 +75,61 @@ describe('generics', () => {
         });
     });
 });
+
+describe('union', () => {
+    test.concurrent('variable type', async () => {
+        const res = await exe(`
+        let a: num | null = null
+        <: a
+        `);
+        eq(res, NULL);
+    });
+
+    test.concurrent('more inners', async () => {
+        const res = await exe(`
+        let a: str | num | null = null
+        <: a
+        `);
+        eq(res, NULL);
+    });
+
+    test.concurrent('inner type', async () => {
+        const res = await exe(`
+        let a: arr<num | str> = ["abc", 123]
+        <: a
+        `);
+        eq(res, ARR([STR('abc'), NUM(123)]));
+    });
+
+    test.concurrent('param type', async () => {
+        const res = await exe(`
+        @f(x: num | str): str {
+            \`{x}\`
+        }
+        <: f(1)
+        `);
+        eq(res, STR('1'));
+    });
+
+    test.concurrent('return type', async () => {
+        const res = await exe(`
+        @f(): num | str { 1 }
+        <: f()
+        `);
+        eq(res, NUM(1));
+    });
+
+    test.concurrent('function type', async () => {
+        const res = await exe(`
+        let f: @(num | str) => str = @(x) { \`{x}\` }
+        <: f(1)
+        `);
+        eq(res, STR('1'));
+    });
+
+    test.concurrent('invalid inner', async () => {
+        assert.rejects(() => exe(`
+        let a: ThisIsAnInvalidTypeName | null = null
+        `));
+    });
+});

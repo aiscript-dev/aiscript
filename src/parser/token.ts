@@ -103,6 +103,8 @@ export enum TokenKind {
 	Hat,
 	/** "{" */
 	OpenBrace,
+	/** "|" */
+	Or,
 	/** "||" */
 	Or2,
 	/** "}" */

@@ -366,7 +366,7 @@ export type Prop = NodeBase & {
 
 // Type source
 
-export type TypeSource = NamedTypeSource | FnTypeSource;
+export type TypeSource = NamedTypeSource | FnTypeSource | UnionTypeSource;
 
 export type NamedTypeSource = NodeBase & {
 	type: 'namedTypeSource'; // 名前付き型
@@ -379,6 +379,11 @@ export type FnTypeSource = NodeBase & {
 	typeParams: TypeParam[]; // 型パラメータ
 	params: TypeSource[]; // 引数の型
 	result: TypeSource; // 戻り値の型
+};
+
+export type UnionTypeSource = NodeBase & {
+	type: 'unionTypeSource'; // ユニオン型
+	inners: TypeSource[]; // 含まれる型
 };
 
 /**

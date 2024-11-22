@@ -7,12 +7,13 @@ import type { Ast } from '../../index.js';
 import type { ITokenStream } from '../streams/token-stream.js';
 import type { TypeParam } from '../../node.js';
 
+/**
+ * ```abnf
+ * Type = FnType / NamedType
+ * ```
+*/
 export function parseType(s: ITokenStream): Ast.TypeSource {
-	if (s.is(TokenKind.At)) {
-		return parseFnType(s);
-	} else {
-		return parseNamedType(s);
-	}
+	return parseUnionType(s);
 }
 
 /**
@@ -58,6 +59,41 @@ function parseTypeParam(s: ITokenStream): TypeParam {
 	s.next();
 
 	return { name };
+}
+
+/**
+ * ```abnf
+ * UnionType = UnionTypeInner *("|" UnionTypeInner)
+ * ```
+*/
+function parseUnionType(s: ITokenStream): Ast.TypeSource {
+	const startPos = s.getPos();
+
+	const first = parseUnionTypeInner(s);
+	if (!s.is(TokenKind.Or)) {
+		return first;
+	}
+
+	const inners = [first];
+	do {
+		s.next();
+		inners.push(parseUnionTypeInner(s));
+	} while (s.is(TokenKind.Or));
+
+	return NODE('unionTypeSource', { inners }, startPos, s.getPos());
+}
+
+/**
+ * ```abnf
+ * UnionTypeTerm = FnType / NamedType
+ * ```
+*/
+function parseUnionTypeInner(s: ITokenStream): Ast.TypeSource {
+	if (s.is(TokenKind.At)) {
+		return parseFnType(s);
+	} else {
+		return parseNamedType(s);
+	}
 }
 
 /**
