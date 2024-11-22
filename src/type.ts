@@ -178,6 +178,8 @@ export function getTypeBySource(typeSource: Ast.TypeSource, typeParams?: readonl
 			case 'bool':
 			case 'num':
 			case 'str':
+			case 'error':
+			case 'never':
 			case 'any':
 			case 'void': {
 				if (typeSource.inner == null) {

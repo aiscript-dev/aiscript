@@ -147,3 +147,25 @@ describe('union', () => {
 		`));
 	});
 });
+
+describe('simple', () => {
+	test.concurrent('error', async () => {
+		const res = await exe(`
+		let a: error = Error:create("Ai")
+		<: a
+		`);
+		eq(res, ERROR('Ai'));
+	});
+
+	test.concurrent('never', async () => {
+		const res = await exe(`
+		@f() {
+			let a: never = eval {
+				return 1
+			}
+		}
+		<: f()
+		`);
+		eq(res, NUM(1));
+	});
+});
