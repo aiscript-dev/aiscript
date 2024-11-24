@@ -11,6 +11,7 @@ function visitNodeInner(node: Ast.Node, fn: (node: Ast.Node, ancestors: Ast.Node
 	// nested nodes
 	switch (result.type) {
 		case 'def': {
+			result.attr = result.attr.map((attr) => visitNodeInner(attr, fn, ancestors) as Ast.Attribute);
 			result.expr = visitNodeInner(result.expr, fn, ancestors) as Ast.Definition['expr'];
 			break;
 		}
