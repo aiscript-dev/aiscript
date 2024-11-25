@@ -191,6 +191,7 @@ declare namespace Ast {
         TypeSource,
         NamedTypeSource,
         FnTypeSource,
+        UnionTypeSource,
         TypeParam
     }
 }
@@ -727,7 +728,13 @@ type TypeParam = {
 };
 
 // @public (undocumented)
-type TypeSource = NamedTypeSource | FnTypeSource;
+type TypeSource = NamedTypeSource | FnTypeSource | UnionTypeSource;
+
+// @public (undocumented)
+type UnionTypeSource = NodeBase & {
+    type: 'unionTypeSource';
+    inners: TypeSource[];
+};
 
 declare namespace utils {
     export {
