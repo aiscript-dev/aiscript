@@ -78,7 +78,13 @@ describe('generics', () => {
 			assert.rejects(() => exe(`
 			@f<T, T>(v: T) {}
 			`));
-		})
+		});
+
+		test.concurrent('empty', async () => {
+			assert.rejects(() => exe(`
+			@f<>() {}
+			`));
+		});
 	});
 });
 
