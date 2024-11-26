@@ -89,7 +89,7 @@ describe('str', () => {
 			str.index_of('3', -2) == 8,
 			str.index_of('3', -7) == 3,
 			str.index_of('3', 10) == -1,
-		].map(@(v){if (v) '1' else '0'}).join()
+		].map(@(v){if v { '1' } else { '0' }}).join()
 		`);
 		eq(res, STR('11111111'));
 	});
@@ -485,7 +485,7 @@ describe('arr', () => {
 			arr.index_of(3, -2) == 8,
 			arr.index_of(3, -7) == 3,
 			arr.index_of(3, 10) == -1,
-		].map(@(v){if (v) '1' else '0'}).join()
+		].map(@(v){if v { '1' } else { '0' }}).join()
 		`);
 		eq(res, STR('11111111'));
 	});

@@ -690,18 +690,6 @@ describe('Return', () => {
 		eq(res, STR('kawaii'));
 	});
 
-	test.concurrent('Early return without block', async () => {
-		const res = await exe(`
-		@f() {
-			if true return "ai"
-
-			"pope"
-		}
-		<: f()
-		`);
-		eq(res, STR('ai'));
-	});
-
 	test.concurrent('return inside for', async () => {
 		const res = await exe(`
 		@f() {
@@ -808,7 +796,7 @@ describe('type declaration', () => {
 			x.push(0)
 			y = "abc"
 			var r: bool = z(x[0])
-			x.push(if r 5 else 10)
+			x.push(if r { 5 } else { 10 })
 			x
 		}
 
@@ -1100,10 +1088,10 @@ describe('extra', () => {
 		let res = []
 		for (let i = 1, 15) {
 			let msg =
-				if (i % 15 == 0) "FizzBuzz"
-				elif (i % 3 == 0) "Fizz"
-				elif (i % 5 == 0) "Buzz"
-				else i
+				if i % 15 == 0 { "FizzBuzz" }
+				elif i % 3 == 0 { "Fizz" }
+				elif i % 5 == 0 { "Buzz" }
+				else { i }
 			res.push(msg)
 		}
 		<: res

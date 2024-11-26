@@ -101,12 +101,36 @@ function validateNode(node: Ast.Node): Ast.Node {
 			break;
 		}
 		case 'each': {
+			if (node.label != null && reservedWord.includes(node.label)) {
+				throwReservedWordError(node.label, node.loc);
+			}
 			validateDest(node.var);
 			break;
 		}
 		case 'for': {
+			if (node.label != null && reservedWord.includes(node.label)) {
+				throwReservedWordError(node.label, node.loc);
+			}
 			if (node.var != null && reservedWord.includes(node.var)) {
 				throwReservedWordError(node.var, node.loc);
+			}
+			break;
+		}
+		case 'loop': {
+			if (node.label != null && reservedWord.includes(node.label)) {
+				throwReservedWordError(node.label, node.loc);
+			}
+			break;
+		}
+		case 'break': {
+			if (node.label != null && reservedWord.includes(node.label)) {
+				throwReservedWordError(node.label, node.loc);
+			}
+			break;
+		}
+		case 'continue': {
+			if (node.label != null && reservedWord.includes(node.label)) {
+				throwReservedWordError(node.label, node.loc);
 			}
 			break;
 		}

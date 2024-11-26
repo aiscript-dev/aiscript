@@ -2,8 +2,8 @@ import { AiScriptSyntaxError, AiScriptUnexpectedEOFError } from '../../error.js'
 import { NODE, unexpectedTokenError } from '../utils.js';
 import { TokenStream } from '../streams/token-stream.js';
 import { TokenKind } from '../token.js';
-import { parseBlock, parseOptionalSeparator, parseParams, parseType } from './common.js';
-import { parseBlockOrStatement } from './statements.js';
+import { parseBlock, parseParams, parseType } from './common.js';
+import { parseControlFlowExpr } from './control-flow.js';
 
 import type * as Ast from '../../node.js';
 import type { ITokenStream } from '../streams/token-stream.js';
@@ -193,21 +193,9 @@ function parseAtom(s: ITokenStream, isStatic: boolean): Ast.Expression {
 	const startPos = s.getPos();
 
 	switch (s.getTokenKind()) {
-		case TokenKind.IfKeyword: {
-			if (isStatic) break;
-			return parseIf(s);
-		}
 		case TokenKind.At: {
 			if (isStatic) break;
 			return parseFnExpr(s);
-		}
-		case TokenKind.MatchKeyword: {
-			if (isStatic) break;
-			return parseMatch(s);
-		}
-		case TokenKind.EvalKeyword: {
-			if (isStatic) break;
-			return parseEval(s);
 		}
 		case TokenKind.ExistsKeyword: {
 			if (isStatic) break;
@@ -287,8 +275,23 @@ function parseAtom(s: ITokenStream, isStatic: boolean): Ast.Expression {
 			s.next();
 			return expr;
 		}
+		case TokenKind.ReturnKeyword: {
+			if (isStatic) break;
+			return parseReturn(s);
+		}
+		case TokenKind.BreakKeyword: {
+			if (isStatic) break;
+			return parseBreak(s);
+		}
+		case TokenKind.ContinueKeyword: {
+			if (isStatic) break;
+			return parseContinue(s);
+		}
 	}
-	throw unexpectedTokenError(s.getTokenKind(), startPos);
+	if (isStatic) {
+		throw unexpectedTokenError(s.getTokenKind(), s.getPos());
+	}
+	return parseControlFlowExpr(s);
 }
 
 /**
@@ -344,43 +347,6 @@ function parseCall(s: ITokenStream, target: Ast.Expression): Ast.Call {
 
 /**
  * ```abnf
- * If = "if" Expr BlockOrStatement *("elif" Expr BlockOrStatement) ["else" BlockOrStatement]
- * ```
-*/
-function parseIf(s: ITokenStream): Ast.If {
-	const startPos = s.getPos();
-
-	s.expect(TokenKind.IfKeyword);
-	s.next();
-	const cond = parseExpr(s, false);
-	const then = parseBlockOrStatement(s);
-
-	if (s.is(TokenKind.NewLine) && [TokenKind.ElifKeyword, TokenKind.ElseKeyword].includes(s.lookahead(1).kind)) {
-		s.next();
-	}
-
-	const elseif: Ast.If['elseif'] = [];
-	while (s.is(TokenKind.ElifKeyword)) {
-		s.next();
-		const elifCond = parseExpr(s, false);
-		const elifThen = parseBlockOrStatement(s);
-		if (s.is(TokenKind.NewLine) && [TokenKind.ElifKeyword, TokenKind.ElseKeyword].includes(s.lookahead(1).kind)) {
-			s.next();
-		}
-		elseif.push({ cond: elifCond, then: elifThen });
-	}
-
-	let _else = undefined;
-	if (s.is(TokenKind.ElseKeyword)) {
-		s.next();
-		_else = parseBlockOrStatement(s);
-	}
-
-	return NODE('if', { cond, then, elseif, else: _else }, startPos, s.getPos());
-}
-
-/**
- * ```abnf
  * FnExpr = "@" Params [":" Type] Block
  * ```
 */
@@ -401,98 +367,6 @@ function parseFnExpr(s: ITokenStream): Ast.Fn {
 	const body = parseBlock(s);
 
 	return NODE('fn', { params: params, retType: type, children: body }, startPos, s.getPos());
-}
-
-/**
- * ```abnf
- * Match = "match" Expr "{" [(MatchCase *(SEP MatchCase) [SEP DefaultCase] [SEP]) / DefaultCase [SEP]] "}"
- * ```
-*/
-function parseMatch(s: ITokenStream): Ast.Match {
-	const startPos = s.getPos();
-
-	s.expect(TokenKind.MatchKeyword);
-	s.next();
-	const about = parseExpr(s, false);
-
-	s.expect(TokenKind.OpenBrace);
-	s.next();
-
-	if (s.is(TokenKind.NewLine)) {
-		s.next();
-	}
-
-	const qs: Ast.Match['qs'] = [];
-	let x: Ast.Match['default'];
-	if (s.is(TokenKind.CaseKeyword)) {
-		qs.push(parseMatchCase(s));
-		let sep = parseOptionalSeparator(s);
-		while (s.is(TokenKind.CaseKeyword)) {
-			if (!sep) {
-				throw new AiScriptSyntaxError('separator expected', s.getPos());
-			}
-			qs.push(parseMatchCase(s));
-			sep = parseOptionalSeparator(s);
-		}
-		if (s.is(TokenKind.DefaultKeyword)) {
-			if (!sep) {
-				throw new AiScriptSyntaxError('separator expected', s.getPos());
-			}
-			x = parseDefaultCase(s);
-			parseOptionalSeparator(s);
-		}
-	} else if (s.is(TokenKind.DefaultKeyword)) {
-		x = parseDefaultCase(s);
-		parseOptionalSeparator(s);
-	}
-
-	s.expect(TokenKind.CloseBrace);
-	s.next();
-
-	return NODE('match', { about, qs, default: x }, startPos, s.getPos());
-}
-
-/**
- * ```abnf
- * MatchCase = "case" Expr "=>" BlockOrStatement
- * ```
-*/
-function parseMatchCase(s: ITokenStream): Ast.Match['qs'][number] {
-	s.expect(TokenKind.CaseKeyword);
-	s.next();
-	const q = parseExpr(s, false);
-	s.expect(TokenKind.Arrow);
-	s.next();
-	const a = parseBlockOrStatement(s);
-	return { q, a };
-}
-
-/**
- * ```abnf
- * DefaultCase = "default" "=>" BlockOrStatement
- * ```
-*/
-function parseDefaultCase(s: ITokenStream): Ast.Match['default'] {
-	s.expect(TokenKind.DefaultKeyword);
-	s.next();
-	s.expect(TokenKind.Arrow);
-	s.next();
-	return parseBlockOrStatement(s);
-}
-
-/**
- * ```abnf
- * Eval = "eval" Block
- * ```
-*/
-function parseEval(s: ITokenStream): Ast.Block {
-	const startPos = s.getPos();
-
-	s.expect(TokenKind.EvalKeyword);
-	s.next();
-	const statements = parseBlock(s);
-
-	return NODE('block', { statements }, startPos, s.getPos());
 }
 
 /**
@@ -641,6 +515,84 @@ function parseArray(s: ITokenStream, isStatic: boolean): Ast.Arr {
 	s.next();
 
 	return NODE('arr', { value }, startPos, s.getPos());
+}
+
+/**
+ * ```abnf
+ * Return = "return" [Expr]
+ * ```
+*/
+function parseReturn(s: ITokenStream): Ast.Return {
+	const startPos = s.getPos();
+
+	s.expect(TokenKind.ReturnKeyword);
+	s.next();
+	const expr = tryParseExpr(s);
+
+	return NODE('return', { expr }, startPos, s.getPos());
+}
+
+/**
+ * ```abnf
+ * Break = "break" ["#" IDENT] [Expr]
+ * ```
+*/
+function parseBreak(s: ITokenStream): Ast.Break {
+	const startPos = s.getPos();
+
+	s.expect(TokenKind.BreakKeyword);
+	s.next();
+
+	let label: string | undefined;
+	if (s.is(TokenKind.Sharp)) {
+		s.next();
+
+		s.expect(TokenKind.Identifier);
+		label = s.getTokenValue();
+		s.next();
+	}
+
+	const expr = tryParseExpr(s);
+
+	return NODE('break', { label, expr }, startPos, s.getPos());
+}
+
+/**
+ * ```abnf
+ * Continue = "continue" ["#" IDENT]
+ * ```
+*/
+function parseContinue(s: ITokenStream): Ast.Continue {
+	const startPos = s.getPos();
+
+	s.expect(TokenKind.ContinueKeyword);
+	s.next();
+
+	let label: string | undefined;
+	if (s.is(TokenKind.Sharp)) {
+		s.next();
+
+		s.expect(TokenKind.Identifier);
+		label = s.getTokenValue();
+		s.next();
+	}
+
+	return NODE('continue', { label }, startPos, s.getPos());
+}
+
+function tryParseExpr(s: ITokenStream): Ast.Expression | undefined {
+	switch (s.getTokenKind()) {
+		case TokenKind.NewLine:
+		case TokenKind.SemiColon:
+		case TokenKind.Comma:
+		case TokenKind.CloseParen:
+		case TokenKind.CloseBracket:
+		case TokenKind.CloseBrace:
+			return;
+		default: {
+			return parseExpr(s, false);
+		}
+	}
 }
 
 //#region Pratt parsing

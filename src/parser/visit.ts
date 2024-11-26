@@ -15,7 +15,9 @@ function visitNodeInner(node: Ast.Node, fn: (node: Ast.Node, ancestors: Ast.Node
 			break;
 		}
 		case 'return': {
-			result.expr = visitNodeInner(result.expr, fn, ancestors) as Ast.Return['expr'];
+			if (result.expr != null) {
+				result.expr = visitNodeInner(result.expr, fn, ancestors) as Ast.Return['expr'];
+			}
 			break;
 		}
 		case 'each': {

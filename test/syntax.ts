@@ -723,7 +723,7 @@ describe('for', () => {
 		const res = await exe(`
 		var count = 0
 		for (let i, 20) {
-			if (i == 11) break
+			if i == 11 { break }
 			count += i
 		}
 		<: count
@@ -735,21 +735,12 @@ describe('for', () => {
 		const res = await exe(`
 		var count = 0
 		for (let i, 10) {
-			if (i == 5) continue
+			if i == 5 { continue }
 			count = (count + 1)
 		}
 		<: count
 		`);
 		eq(res, NUM(9));
-	});
-
-	test.concurrent('single statement', async () => {
-		const res = await exe(`
-		var count = 0
-		for 10 count += 1
-		<: count
-		`);
-		eq(res, NUM(10));
 	});
 
 	test.concurrent('var name without space', async () => {
@@ -773,6 +764,24 @@ describe('for', () => {
 			<: a
 			`);
 		});
+	});
+
+	test.concurrent('with label', async () => {
+		const res = await exe(`
+		var count = 0
+		#label: for (let i, 10) {
+			count += i + 1
+		}
+		<: count
+		`);
+		eq(res, NUM(55));
+	});
+
+	test.concurrent('expr', async () => {
+		const res = await exe(`
+		<: for 1 { "a" }
+		`);
+		eq(res, NULL);
 	});
 });
 
@@ -801,21 +810,12 @@ describe('each', () => {
 		const res = await exe(`
 		let msgs = []
 		each let item, ["ai", "chan", "kawaii", "yo"] {
-			if (item == "kawaii") break
+			if item == "kawaii" { break }
 			msgs.push([item, "!"].join())
 		}
 		<: msgs
 		`);
 		eq(res, ARR([STR('ai!'), STR('chan!')]));
-	});
-
-	test.concurrent('single statement', async () => {
-		const res = await exe(`
-		let msgs = []
-		each let item, ["ai", "chan", "kawaii"] msgs.push([item, "!"].join())
-		<: msgs
-		`);
-		eq(res, ARR([STR('ai!'), STR('chan!'), STR('kawaii!')]));
 	});
 
 	test.concurrent('var name without space', async () => {
@@ -830,6 +830,24 @@ describe('each', () => {
 			return;
 		}
 		assert.fail();
+	});
+
+	test.concurrent('with label', async () => {
+		const res = await exe(`
+		let msgs = []
+		#label: each let item, ["ai", "chan", "kawaii"] {
+			msgs.push([item, "!"].join())
+		}
+		<: msgs
+		`);
+		eq(res, ARR([STR('ai!'), STR('chan!'), STR('kawaii!')]));
+	});
+
+	test.concurrent('expr', async () => {
+		const res = await exe(`
+		<: each let v, [0] { "a" }
+		`);
+		eq(res, NULL);
 	});
 });
 
@@ -850,6 +868,24 @@ describe('while', () => {
 		while false {
 			<: 'hoge'
 		}
+		`);
+		eq(res, NULL);
+	});
+
+	test.concurrent('with label', async () => {
+		const res = await exe(`
+		var count = 0
+		#label: while count < 42 {
+			count += 1
+		}
+		<: count
+		`);
+		eq(res, NUM(42));
+	});
+
+	test.concurrent('expr', async () => {
+		const res = await exe(`
+		<: while false { "a" }
 		`);
 		eq(res, NULL);
 	});
@@ -875,6 +911,24 @@ describe('do-while', () => {
 		`);
 		eq(res, STR('hoge'));
 	});
+
+	test.concurrent('with label', async () => {
+		const res = await exe(`
+		var count = 0
+		do {
+			count += 1
+		} while count < 42
+		<: count
+		`);
+		eq(res, NUM(42));
+	});
+
+	test.concurrent('expr', async () => {
+		const res = await exe(`
+		<: do { "a" } while false
+		`);
+		eq(res, NULL);
+	});
 });
 
 describe('loop', () => {
@@ -882,7 +936,7 @@ describe('loop', () => {
 		const res = await exe(`
 		var count = 0
 		loop {
-			if (count == 10) break
+			if count == 10 { break }
 			count = (count + 1)
 		}
 		<: count
@@ -896,13 +950,32 @@ describe('loop', () => {
 		var b = []
 		loop {
 			var x = a.shift()
-			if (x == "chan") continue
-			if (x == "yo") break
+			if x == "chan" { continue }
+			if x == "yo" { break }
 			b.push(x)
 		}
 		<: b
 		`);
 		eq(res, ARR([STR('ai'), STR('kawaii')]));
+	});
+
+	test.concurrent('with label', async () => {
+		const res = await exe(`
+		var count = 0
+		#label: loop {
+			if count == 10 { break }
+			count = (count + 1)
+		}
+		<: count
+		`);
+		eq(res, NUM(10));
+	});
+
+	test.concurrent('expr', async () => {
+		const res = await exe(`
+		<: loop { break }
+		`);
+		eq(res, NULL);
 	});
 });
 
@@ -1369,7 +1442,7 @@ describe('Infix expression', () => {
 	});
 
 	test.concurrent('number + if expression', async () => {
-		eq(await exe('<: 1 + if true 1 else 2'), NUM(2));
+		eq(await exe('<: 1 + if true { 1 } else { 2 }'), NUM(2));
 	});
 
 	test.concurrent('number + match expression', async () => {
@@ -1520,12 +1593,12 @@ describe('if', () => {
 
 	test.concurrent('expr', async () => {
 		const res1 = await exe(`
-		<: if true "ai" else "kawaii"
+		<: if true { "ai" } else { "kawaii" }
 		`);
 		eq(res1, STR('ai'));
 
 		const res2 = await exe(`
-		<: if false "ai" else "kawaii"
+		<: if false { "ai" } else { "kawaii" }
 		`);
 		eq(res2, STR('kawaii'));
 	});
@@ -1550,6 +1623,13 @@ describe('if', () => {
 			`);
 		});
 	});
+
+	test.concurrent('expr with label', async () => {
+		const res = await exe(`
+		<: #label: if true { 1 }
+		`);
+		eq(res, NUM(1));
+	});
 });
 
 describe('eval', () => {
@@ -1564,6 +1644,13 @@ describe('eval', () => {
 		<: foo
 		`);
 		eq(res, NUM(3));
+	});
+
+	test.concurrent('expr with label', async () => {
+		const res = await exe(`
+		<: #label: eval { 1 }
+		`);
+		eq(res, NUM(1));
 	});
 });
 
@@ -1645,6 +1732,13 @@ describe('match', () => {
 			<: a
 			`);
 		});
+	});
+
+	test.concurrent('expr with label', async () => {
+		const res = await exe(`
+		<: #label: match 0 { default => 1 }
+		`);
+		eq(res, NUM(1));
 	});
 });
 

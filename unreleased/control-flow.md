@@ -1,0 +1,25 @@
+- 制御構文の変更
+  - each, for, loop, do-while, while, return, break, continueは式になりました。
+    - each式、for式、loop式、do-while式、while式の評価値はnullまたはbreakで返された値になります。
+    - return式、break式、continue式は評価するとブロックから脱出するため、値はありません。
+  - **Breaking Change** 内部に文や式を記述できる以下の構文に波括弧が必須になりました。
+    - if式において、then節、elif節、else節
+    - match式のcase節、default節の右辺において、文を指定する場合 (式を指定する場合、波括弧は不要)
+    - each式、for式、loop式、do-while式、while式の処理内容
+  - **Breaking Change** return式、break式、continue式の挙動が変更されました。
+    - return式は関数スコープ内でないと文法エラーになります。
+    - ラベルが指定されていないbreak式およびcontinue式は反復処理式(for式、each式、loop式、while式、do-while式)のスコープ内でないと文法エラーになります。
+    - return式は常に関数から脱出します。
+    - ラベルが指定されていないbreak式は常に最も内側の反復処理文の処理を中断し、ループから脱出します。
+    - ラベルが指定されていないcontinue式は常に最も内側の反復処理文の処理を中断し、ループの先頭に戻ります。
+  - break式、continue式にラベルを付けて処理を中断するブロックを指定できるようになりました。
+    - 処理を中断したいif式、match式、each式、for式、loop式、do-while式、while式にラベルをつけることができます。
+    - break式、continue式に処理を中断したい式につけたラベルを指定することができます。
+    - ラベルが指定されているbreak式およびcontinue式は同一ラベルが付与された式内にないとエラーになります。
+    - if式、match式はbreak式で脱出された場合、その評価値はbreakで返された値になります。
+    - if式、match式にcontinue式を用いることはできません。(ラベルを対応させると文法エラー)
+  - break式に値を指定できるようになりました。
+    - 指定された値は脱出した式の評価値になります。
+    - 値を省略した場合、nullが指定されたものとみなします。
+  - return式の値を省略できるようになりました。
+    - 値を省略した場合、nullが指定されたものとみなします。

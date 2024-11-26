@@ -1,6 +1,6 @@
 import { AiScriptRuntimeError } from '../error.js';
+import { NULL, type Value } from './value.js';
 import type { Reference } from './reference.js';
-import type { Value } from './value.js';
 
 export type CReturn = {
 	type: 'return';
@@ -9,11 +9,13 @@ export type CReturn = {
 
 export type CBreak = {
 	type: 'break';
-	value: null;
+	label?: string;
+	value: Value;
 };
 
 export type CContinue = {
 	type: 'continue';
+	label?: string;
 	value: null;
 };
 
@@ -25,13 +27,15 @@ export const RETURN = (v: CReturn['value']): CReturn => ({
 	value: v,
 });
 
-export const BREAK = (): CBreak => ({
+export const BREAK = (v: CBreak['value'], label?: string): CBreak => ({
 	type: 'break' as const,
-	value: null,
+	label,
+	value: v,
 });
 
-export const CONTINUE = (): CContinue => ({
+export const CONTINUE = (label?: string): CContinue => ({
 	type: 'continue' as const,
+	label,
 	value: null,
 });
 
@@ -44,6 +48,26 @@ export function unWrapRet(v: Value | Control): Value {
 			return v;
 		}
 	}
+}
+
+/**
+ * 値がbreakで、ラベルが指定されていないまたは一致する場合のみ、その中身を取り出します。
+ */
+export function unWrapBreak(v: Value | Control, label: string | undefined): Value | Control {
+	if (v.type === 'break' && (v.label == null || v.label === label)) {
+		return v.value;
+	}
+	return v;
+}
+
+/**
+ * 値がbreakで、ラベルが一致する場合のみ、その中身を取り出します。
+ */
+export function unWrapLabeledBreak(v: Value | Control, label: string | undefined): Value | Control {
+	if (v.type === 'break' && v.label != null && v.label === label) {
+		return v.value;
+	}
+	return v;
 }
 
 export function assertValue(v: Value | Control): asserts v is Value {

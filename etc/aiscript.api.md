@@ -145,16 +145,20 @@ declare namespace Ast {
         Statement,
         Definition,
         Attribute,
-        Return,
+        AddAssign,
+        SubAssign,
+        Assign,
+        Expression,
+        ControlFlow,
+        If,
+        Match,
+        Block,
         Each,
         For,
         Loop,
         Break,
         Continue,
-        AddAssign,
-        SubAssign,
-        Assign,
-        Expression,
+        Return,
         Plus,
         Minus,
         Not,
@@ -172,10 +176,7 @@ declare namespace Ast {
         Neq,
         And,
         Or,
-        If,
         Fn,
-        Match,
-        Block,
         Exists,
         Tmpl,
         Str,
@@ -213,6 +214,7 @@ type Attribute = NodeBase & {
 // @public (undocumented)
 type Block = NodeBase & {
     type: 'block';
+    label?: string;
     statements: (Statement | Expression)[];
 };
 
@@ -228,6 +230,8 @@ type Bool = NodeBase & {
 // @public (undocumented)
 type Break = NodeBase & {
     type: 'break';
+    label?: string;
+    expr?: Expression;
 };
 
 // @public (undocumented)
@@ -240,7 +244,11 @@ type Call = NodeBase & {
 // @public (undocumented)
 type Continue = NodeBase & {
     type: 'continue';
+    label?: string;
 };
+
+// @public (undocumented)
+type ControlFlow = If | Match | Block | Each | For | Loop;
 
 // @public (undocumented)
 type Definition = NodeBase & {
@@ -262,9 +270,10 @@ type Div = NodeBase & {
 // @public (undocumented)
 type Each = NodeBase & {
     type: 'each';
+    label?: string;
     var: Expression;
     items: Expression;
-    for: Statement | Expression;
+    for: Block;
 };
 
 // @public (undocumented)
@@ -306,7 +315,7 @@ type Exists = NodeBase & {
 function expectAny(val: Value | null | undefined): asserts val is Value;
 
 // @public (undocumented)
-type Expression = If | Fn | Match | Block | Exists | Tmpl | Str | Num | Bool | Null | Obj | Arr | Plus | Minus | Not | Pow | Mul | Div | Rem | Add | Sub | Lt | Lteq | Gt | Gteq | Eq | Neq | And | Or | Identifier | Call | Index | Prop;
+type Expression = ControlFlow | Return | Break | Continue | Fn | Exists | Tmpl | Str | Num | Bool | Null | Obj | Arr | Plus | Minus | Not | Pow | Mul | Div | Rem | Add | Sub | Lt | Lteq | Gt | Gteq | Eq | Neq | And | Or | Identifier | Call | Index | Prop;
 
 // @public (undocumented)
 const FALSE: {
@@ -343,11 +352,12 @@ type FnTypeSource = NodeBase & {
 // @public (undocumented)
 type For = NodeBase & {
     type: 'for';
+    label?: string;
     var?: string;
     from?: Expression;
     to?: Expression;
     times?: Expression;
-    for: Statement | Expression;
+    for: Block;
 };
 
 // @public (undocumented)
@@ -376,13 +386,14 @@ type Identifier = NodeBase & {
 // @public (undocumented)
 type If = NodeBase & {
     type: 'if';
+    label?: string;
     cond: Expression;
-    then: Statement | Expression;
+    then: Block;
     elseif: {
         cond: Expression;
-        then: Statement | Expression;
+        then: Block;
     }[];
-    else?: Statement | Expression;
+    else?: Block;
 };
 
 // @public (undocumented)
@@ -475,6 +486,7 @@ type Loc = {
 // @public (undocumented)
 type Loop = NodeBase & {
     type: 'loop';
+    label?: string;
     statements: (Statement | Expression)[];
 };
 
@@ -495,12 +507,13 @@ type Lteq = NodeBase & {
 // @public (undocumented)
 type Match = NodeBase & {
     type: 'match';
+    label?: string;
     about: Expression;
     qs: {
         q: Expression;
-        a: Statement | Expression;
+        a: Expression;
     }[];
-    default?: Statement | Expression;
+    default?: Expression;
 };
 
 // @public (undocumented)
@@ -651,7 +664,7 @@ function reprValue(value: Value, literalLike?: boolean, processedObjects?: Set<o
 // @public (undocumented)
 type Return = NodeBase & {
     type: 'return';
-    expr: Expression;
+    expr?: Expression;
 };
 
 // @public (undocumented)
@@ -681,7 +694,7 @@ export class Scope {
 }
 
 // @public (undocumented)
-type Statement = Definition | Return | Each | For | Loop | Break | Continue | Assign | AddAssign | SubAssign;
+type Statement = Definition | Assign | AddAssign | SubAssign;
 
 // @public (undocumented)
 const STR: (str: VStr["value"]) => VStr;
