@@ -1,5 +1,5 @@
 # Documents moved
-The documents that was under this directory has been moved to the new web page.
+The documents that were under this directory have been moved to the new web page.
 
 [issue](https://github.com/aiscript-dev/aiscript/issues/804)
 
