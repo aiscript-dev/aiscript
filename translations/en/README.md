@@ -30,7 +30,7 @@ Note: AiScript and [Misskey](https://github.com/syuilo/misskey) are completely i
 [See here](https://aiscript-dev.github.io/en/guides/get-started.html)
 
 ## Getting started (host implementation)
-[See here](https://aiscript-dev.github.io/en/guides/get-started.html)
+[See here](https://aiscript-dev.github.io/en/guides/implementation.html)
 
 ## Example programs
 ### Hello world
