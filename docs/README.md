@@ -5,4 +5,4 @@
 
 [移行先サイト](https://aiscript-dev.github.io/ja/)
 
-[移行先サイトのリポジトリ](https://github.com/aiscript-dev/aiscript-dev.github.iohttps://aiscript-dev.github.io/ja/)
+[移行先サイトのリポジトリ](https://github.com/aiscript-dev/aiscript-dev.github.io)
