@@ -1,9 +1,9 @@
 import { describe, expect, test } from 'vitest';
-import { Parser, Interpreter } from '../src';
+import { Parser } from '../src';
 import { AiScriptSyntaxError } from '../src/error';
-import { exe } from './testutils';
 
 const reservedWords = [
+	// 使用中の語
 	'null',
 	'true',
 	'false',
@@ -25,9 +25,55 @@ const reservedWords = [
 	'var',
 	'let',
 	'exists',
+
+	// 使用予定の語
+	// 文脈キーワードは識別子に利用できるため除外
+	'as',
+	'async',
+	'attr',
+	'attribute',
+	'await',
+	'catch',
+	'class',
+	// 'const',
+	'component',
+	'constructor',
+	// 'def',
+	'dictionary',
+	'enum',
+	'export',
+	'finally',
+	'fn',
+	// 'func',
+	// 'function',
+	'hash',
+	'in',
+	'interface',
+	'out',
+	'private',
+	'public',
+	'ref',
+	'static',
+	'struct',
+	'table',
+	'this',
+	'throw',
+	'trait',
+	'try',
+	'undefined',
+	'use',
+	'using',
+	'when',
+	'yield',
+	'import',
+	'is',
+	'meta',
+	'module',
+	'namespace',
+	'new',
 ] as const;
 
-const sampleCodes = Object.entries({
+const sampleCodes = Object.entries<(word: string) => string>({
 	variable: word =>
 	`
 	let ${word} = "ai"
@@ -66,24 +112,22 @@ const sampleCodes = Object.entries({
 	`,
 });
 
-function pickRandom<T>(arr: T[]): T {
-	return arr[Math.floor(Math.random() * arr.length)];
-}
+const parser = new Parser();
 
 describe.each(
 	sampleCodes
 )('reserved word validation on %s', (_, sampleCode) => {
 
 	test.concurrent.each(
-		[pickRandom(reservedWords)]
+		reservedWords
 	)('%s must be rejected', (word) => {
-		return expect(exe(sampleCode(word))).rejects.toThrow(AiScriptSyntaxError);
+		expect(() => parser.parse(sampleCode(word))).toThrow(AiScriptSyntaxError);
 	});
 
 	test.concurrent.each(
-		[pickRandom(reservedWords)]
+		reservedWords
 	)('%scat must be allowed', (word) => {
-		return exe(sampleCode(word+'cat'));
+		parser.parse(sampleCode(word+'cat'));
 	});
 
 });
