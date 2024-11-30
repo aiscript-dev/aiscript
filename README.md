@@ -31,6 +31,7 @@ AiScriptは、JavaScript上で動作する軽量スクリプト言語です。
 
 ## Getting started (host implementation)
 [アプリに組み込む（日本語）](https://aiscript-dev.github.io/ja/guides/implementation.html)
+
 [Embedding into Your Application (en)](https://aiscript-dev.github.io/en/guides/get-started.html)
 
 ## Example programs
