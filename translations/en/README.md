@@ -27,10 +27,10 @@ This repository contains parsers and processors implemented in JavaScript.
 Note: AiScript and [Misskey](https://github.com/syuilo/misskey) are completely independent projects. AiScript does not prescribe any specific host, but Misskey is the largest user of AiScript (today!)
 
 ## Getting started (language)
-[See here](./docs/get-started.md)
+[See here](https://aiscript-dev.github.io/en/guides/get-started.html)
 
 ## Getting started (host implementation)
-todo
+[See here](https://aiscript-dev.github.io/en/guides/get-started.html)
 
 ## Example programs
 ### Hello world
