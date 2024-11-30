@@ -21,10 +21,12 @@ AiScriptは、JavaScript上で動作する軽量スクリプト言語です。
 このリポジトリには、JavaScriptで実装されたパーサーと処理系が含まれます。
 
 [ドキュメントはこちらをご覧ください](https://aiscript-dev.github.io/ja/)
+
 [Read translated document](https://aiscript-dev.github.io/en/)
 
 ## Getting started (language)
 [はじめに（日本語）](https://aiscript-dev.github.io/ja/guides/get-started.html)
+
 [Get Started (en)](https://aiscript-dev.github.io/en/guides/get-started.html)
 
 ## Getting started (host implementation)
