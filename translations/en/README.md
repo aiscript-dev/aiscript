@@ -1,4 +1,4 @@
-<h1><img src="../../aiscript.svg" alt="AiScript" width="300"></h1>
+<h1><img src="../../aiscript.png" alt="AiScript" width="300"></h1>
 
 [![](https://img.shields.io/npm/v/@syuilo/aiscript.svg?style=flat-square)](https://www.npmjs.com/package/@syuilo/aiscript)
 ![](https://github.com/syuilo/aiscript/workflows/ci/badge.svg)
