@@ -5,6 +5,16 @@ import { NUM, STR, NULL, ARR, OBJ, BOOL, TRUE, FALSE, ERROR ,FN_NATIVE } from '.
 import { AiScriptRuntimeError } from '../src/error';
 import { exe, getMeta, eq } from './testutils';
 
+describe('function types', () => {
+	test.concurrent('multiple params', async () => {
+		const res = await exe(`
+		let f: @(str, num) => bool = @() { true }
+		<: f('abc', 123)
+		`);
+		eq(res, TRUE);
+	});
+});
+
 describe('generics', () => {
 	describe('function', () => {
 		test.concurrent('expr', async () => {
@@ -74,14 +84,27 @@ describe('generics', () => {
 			eq(res, STR('abc123'));
 		});
 
+		test.concurrent('new lines', async () => {
+			const res = await exe(`
+			@f<
+				T
+				U
+			>(x: T, y: U): arr<T | U> {
+				[x, y]
+			}
+			<: f("abc", 123)
+			`);
+			eq(res, ARR([STR('abc'), NUM(123)]));
+		});
+
 		test.concurrent('duplicate', async () => {
-			assert.rejects(() => exe(`
+			await assert.rejects(() => exe(`
 			@f<T, T>(v: T) {}
 			`));
 		});
 
 		test.concurrent('empty', async () => {
-			assert.rejects(() => exe(`
+			await assert.rejects(() => exe(`
 			@f<>() {}
 			`));
 		});
@@ -148,7 +171,7 @@ describe('union', () => {
 	});
 
 	test.concurrent('invalid inner', async () => {
-		assert.rejects(() => exe(`
+		await assert.rejects(() => exe(`
 		let a: ThisIsAnInvalidTypeName | null = null
 		`));
 	});

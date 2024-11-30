@@ -32,14 +32,11 @@ export function parseTypeParams(s: ITokenStream): TypeParam[] {
 	const items: TypeParam[] = [parseTypeParam(s)];
 
 	while (parseOptionalSeparator(s)) {
+		if (s.is(TokenKind.Gt)) {
+			break;
+		}
 		const item = parseTypeParam(s);
 		items.push(item);
-	}
-
-	s.expect(TokenKind.Gt);
-
-	if (s.is(TokenKind.NewLine)) {
-		s.next();
 	}
 
 	s.expect(TokenKind.Gt);
