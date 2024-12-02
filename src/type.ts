@@ -47,7 +47,31 @@ export function T_FN(params: Type[], result: Type): TFn {
 	};
 }
 
-export type Type = TSimple | TGeneric | TFn;
+export type TParam = {
+	type: 'param';
+	name: string;
+}
+
+export function T_PARAM(name: string): TParam {
+	return {
+		type: 'param',
+		name,
+	};
+}
+
+export type TUnion = {
+	type: 'union';
+	inners: Type[];
+}
+
+export function T_UNION(inners: Type[]): TUnion {
+	return {
+		type: 'union',
+		inners,
+	};
+}
+
+export type Type = TSimple | TGeneric | TFn | TParam | TUnion;
 
 function assertTSimple(t: Type): asserts t is TSimple { if (t.type !== 'simple') { throw new TypeError('assertTSimple failed.'); } }
 function assertTGeneric(t: Type): asserts t is TGeneric { if (t.type !== 'generic') { throw new TypeError('assertTGeneric failed.'); } }
@@ -87,6 +111,14 @@ export function isCompatibleType(a: Type, b: Type): boolean {
 			}
 			break;
 		}
+		case 'param': {
+			// TODO
+			break;
+		}
+		case 'union': {
+			// TODO
+			break;
+		}
 	}
 
 	return true;
@@ -102,6 +134,12 @@ export function getTypeName(type: Type): string {
 		}
 		case 'fn': {
 			return `@(${type.params.map(param => getTypeName(param)).join(', ')}) { ${getTypeName(type.result)} }`;
+		}
+		case 'param': {
+			return type.name;
+		}
+		case 'union': {
+			return type.inners.join(' | ');
 		}
 	}
 }
@@ -121,17 +159,27 @@ export function getTypeNameBySource(typeSource: Ast.TypeSource): string {
 			const result = getTypeNameBySource(typeSource.result);
 			return `@(${params}) { ${result} }`;
 		}
+		case 'unionTypeSource': {
+			return typeSource.inners.map(inner => getTypeBySource(inner)).join(' | ');
+		}
 	}
 }
 
-export function getTypeBySource(typeSource: Ast.TypeSource): Type {
+export function getTypeBySource(typeSource: Ast.TypeSource, typeParams?: readonly Ast.TypeParam[]): Type {
 	if (typeSource.type === 'namedTypeSource') {
+		const typeParam = typeParams?.find((param) => param.name === typeSource.name);
+		if (typeParam != null) {
+			return T_PARAM(typeParam.name);
+		}
+
 		switch (typeSource.name) {
 			// simple types
 			case 'null':
 			case 'bool':
 			case 'num':
 			case 'str':
+			case 'error':
+			case 'never':
 			case 'any':
 			case 'void': {
 				if (typeSource.inner == null) {
@@ -144,7 +192,7 @@ export function getTypeBySource(typeSource: Ast.TypeSource): Type {
 			case 'obj': {
 				let innerType: Type;
 				if (typeSource.inner != null) {
-					innerType = getTypeBySource(typeSource.inner);
+					innerType = getTypeBySource(typeSource.inner, typeParams);
 				} else {
 					innerType = T_SIMPLE('any');
 				}
@@ -152,8 +200,15 @@ export function getTypeBySource(typeSource: Ast.TypeSource): Type {
 			}
 		}
 		throw new AiScriptSyntaxError(`Unknown type: '${getTypeNameBySource(typeSource)}'`, typeSource.loc.start);
+	} else if (typeSource.type === 'fnTypeSource') {
+		let fnTypeParams = typeSource.typeParams;
+		if (typeParams != null) {
+			fnTypeParams = fnTypeParams.concat(typeParams);
+		}
+		const paramTypes = typeSource.params.map(param => getTypeBySource(param, fnTypeParams));
+		return T_FN(paramTypes, getTypeBySource(typeSource.result, fnTypeParams));
 	} else {
-		const paramTypes = typeSource.params.map(param => getTypeBySource(param));
-		return T_FN(paramTypes, getTypeBySource(typeSource.result));
+		const innerTypes = typeSource.inners.map(inner => getTypeBySource(inner, typeParams));
+		return T_UNION(innerTypes);
 	}
 }

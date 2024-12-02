@@ -110,6 +110,11 @@ const sampleCodes = Object.entries<(word: string) => string>({
 	`
 	### ${word} 1
 	`,
+
+	typeParam: word =>
+	`
+	@f<${word}>(x): ${word} { x }
+	`,
 });
 
 const parser = new Parser();
