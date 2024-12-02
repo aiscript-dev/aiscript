@@ -10,8 +10,6 @@
 
 [Play online ▶](https://aiscript-dev.github.io/aiscript/)
 
-[Read translated version (en)](./translations/en/README.md)
-
 AiScriptは、JavaScript上で動作する軽量スクリプト言語です。
 
 * 配列、オブジェクト、関数等をファーストクラスでサポート
@@ -22,11 +20,19 @@ AiScriptは、JavaScript上で動作する軽量スクリプト言語です。
 
 このリポジトリには、JavaScriptで実装されたパーサーと処理系が含まれます。
 
+[ドキュメントはこちらをご覧ください](https://aiscript-dev.github.io/ja/)
+
+[Read translated document](https://aiscript-dev.github.io/en/)
+
 ## Getting started (language)
-[See here](./docs/get-started.md)
+[はじめに（日本語）](https://aiscript-dev.github.io/ja/guides/get-started.html)
+
+[Get Started (en)](https://aiscript-dev.github.io/en/guides/get-started.html)
 
 ## Getting started (host implementation)
-todo
+[アプリに組み込む（日本語）](https://aiscript-dev.github.io/ja/guides/implementation.html)
+
+[Embedding into Your Application (en)](https://aiscript-dev.github.io/en/guides/implementation.html)
 
 ## Example programs
 ### Hello world

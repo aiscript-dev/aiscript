@@ -1,4 +1,4 @@
-<h1><img src="../../aiscript.svg" alt="AiScript" width="300"></h1>
+<h1><img src="../../aiscript.png" alt="AiScript" width="300"></h1>
 
 [![](https://img.shields.io/npm/v/@syuilo/aiscript.svg?style=flat-square)](https://www.npmjs.com/package/@syuilo/aiscript)
 ![](https://github.com/syuilo/aiscript/workflows/ci/badge.svg)
@@ -27,10 +27,10 @@ This repository contains parsers and processors implemented in JavaScript.
 Note: AiScript and [Misskey](https://github.com/syuilo/misskey) are completely independent projects. AiScript does not prescribe any specific host, but Misskey is the largest user of AiScript (today!)
 
 ## Getting started (language)
-[See here](./docs/get-started.md)
+[See here](https://aiscript-dev.github.io/en/guides/get-started.html)
 
 ## Getting started (host implementation)
-todo
+[See here](https://aiscript-dev.github.io/en/guides/implementation.html)
 
 ## Example programs
 ### Hello world
