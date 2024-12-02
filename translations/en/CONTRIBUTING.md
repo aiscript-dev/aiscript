@@ -8,6 +8,8 @@ When you want to add a feature or fix a bug, first have the design and policy re
 Also, when you start implementation, please assign yourself to the issue in question (if you cannot do it yourself, please ask another member to assign you).
 By indicating that you are going to implement it, you can avoid conflicts.
 
+If your request has changes of language behavior, please update the tests and [documents](https://github.com/aiscript-dev/aiscript-dev.github.io) simultaneously.
+
 ## Tools
 ### Vitest
 In this project, we have introduced [Vitest](https://vitest.dev) as a testing framework.
