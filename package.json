@@ -33,21 +33,21 @@
 		"prepublishOnly": "node scripts/check-release.mjs"
 	},
 	"devDependencies": {
-		"@eslint/js": "9.15.0",
+		"@eslint/js": "9.16.0",
 		"@microsoft/api-extractor": "7.48.0",
 		"@types/eslint__js": "8.42.3",
 		"@types/node": "22.10.1",
 		"@types/seedrandom": "3.0.8",
 		"@types/uuid": "10.0.0",
-		"@vitest/coverage-v8": "2.1.6",
+		"@vitest/coverage-v8": "2.1.8",
 		"chalk": "5.3.0",
-		"eslint": "9.15.0",
+		"eslint": "9.16.0",
 		"eslint-plugin-import": "2.31.0",
 		"semver": "7.6.3",
 		"ts-node": "10.9.2",
 		"typescript": "5.7.2",
-		"typescript-eslint": "8.16.0",
-		"vitest": "2.1.6"
+		"typescript-eslint": "8.17.0",
+		"vitest": "2.1.8"
 	},
 	"dependencies": {
 		"seedrandom": "3.0.5",
