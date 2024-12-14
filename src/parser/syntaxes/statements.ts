@@ -204,7 +204,7 @@ function parseOut(s: ITokenStream): Ast.Call {
  * StatementWithLabel = "#" IDENT ":" Statement
  * ```
 */
-function parseStatementWithLabel(s: ITokenStream): Ast.Each | Ast.For | Ast.Loop {
+function parseStatementWithLabel(s: ITokenStream): Ast.Each | Ast.For | Ast.Loop | Ast.If | Ast.Match | Ast.Block {
 	s.expect(TokenKind.Sharp);
 	s.next();
 
@@ -215,31 +215,19 @@ function parseStatementWithLabel(s: ITokenStream): Ast.Each | Ast.For | Ast.Loop
 	s.expect(TokenKind.Colon);
 	s.next();
 
-	const statement = parseLoopStatement(s);
-	statement.label = label;
-	return statement;
-}
-
-function parseLoopStatement(s: ITokenStream): Ast.Each | Ast.For | Ast.Loop {
-	const tokenKind = s.getTokenKind();
-	switch (tokenKind) {
-		case TokenKind.EachKeyword: {
-			return parseEach(s);
-		}
-		case TokenKind.ForKeyword: {
-			return parseFor(s);
-		}
-		case TokenKind.LoopKeyword: {
-			return parseLoop(s);
-		}
-		case TokenKind.DoKeyword: {
-			return parseDoWhile(s);
-		}
-		case TokenKind.WhileKeyword: {
-			return parseWhile(s);
+	const statement = parseStatement(s);
+	switch (statement.type) {
+		case 'if':
+		case 'match':
+		case 'block':
+		case 'each':
+		case 'for':
+		case 'loop': {
+			statement.label = label;
+			return statement;
 		}
 		default: {
-			throw unexpectedTokenError(tokenKind, s.getPos());
+			throw new AiScriptSyntaxError('cannot use label for statement other than eval / if / match / for / each / while / do-while / loop', s.getPos());
 		}
 	}
 }

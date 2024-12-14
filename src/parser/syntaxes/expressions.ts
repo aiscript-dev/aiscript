@@ -287,6 +287,9 @@ function parseAtom(s: ITokenStream, isStatic: boolean): Ast.Expression {
 			s.next();
 			return expr;
 		}
+		case TokenKind.Sharp: {
+			return parseExprWithLabel(s);
+		}
 	}
 	throw unexpectedTokenError(s.getTokenKind(), startPos);
 }
@@ -340,6 +343,36 @@ function parseCall(s: ITokenStream, target: Ast.Expression): Ast.Call {
 		target,
 		args: items,
 	}, startPos, s.getPos());
+}
+
+/**
+ * ```abnf
+ * ExprWithLabel = "#" IDENT ":" Expr
+ * ```
+*/
+function parseExprWithLabel(s: ITokenStream): Ast.If | Ast.Match | Ast.Block {
+	s.expect(TokenKind.Sharp);
+	s.next();
+
+	s.expect(TokenKind.Identifier);
+	const label = s.getTokenValue();
+	s.next();
+
+	s.expect(TokenKind.Colon);
+	s.next();
+
+	const expr = parseExpr(s, false);
+	switch (expr.type) {
+		case 'if':
+		case 'match':
+		case 'block': {
+			expr.label = label;
+			return expr;
+		}
+		default: {
+			throw new AiScriptSyntaxError('cannot use label for expression other than eval / if / match', s.getPos());
+		}
+	}
 }
 
 /**

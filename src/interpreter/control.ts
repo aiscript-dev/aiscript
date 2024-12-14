@@ -1,6 +1,6 @@
 import { AiScriptRuntimeError } from '../error.js';
 import type { Reference } from './reference.js';
-import type { Value } from './value.js';
+import { NULL, type Value } from './value.js';
 
 export type CReturn = {
 	type: 'return';
@@ -38,6 +38,26 @@ export const CONTINUE = (label?: string): CContinue => ({
 	label,
 	value: null,
 });
+
+/**
+ * 値がbreakで、ラベルが指定されていないまたは一致する場合のみ、その中身を取り出します。
+ */
+export function unWrapBreak(v: Value | Control, label: string | undefined): Value | Control {
+	if (v.type === 'break' && (v.label == null || v.label === label)) {
+		return NULL;
+	}
+	return v;
+}
+
+/**
+ * 値がbreakで、ラベルが一致する場合のみ、その中身を取り出します。
+ */
+export function unWrapLabeledBreak(v: Value | Control, label: string | undefined): Value | Control {
+	if (v.type === 'break' && v.label != null && v.label === label) {
+		return NULL;
+	}
+	return v;
+}
 
 export function unWrapRet(v: Value | Control): Value {
 	switch (v.type) {
