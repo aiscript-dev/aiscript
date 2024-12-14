@@ -2,7 +2,7 @@ import * as assert from 'assert';
 import { describe, test } from 'vitest';
 import { utils } from '../src';
 import { NUM, STR, NULL, ARR, OBJ, BOOL, TRUE, FALSE, ERROR ,FN_NATIVE } from '../src/interpreter/value';
-import { AiScriptRuntimeError } from '../src/error';
+import { AiScriptRuntimeError, AiScriptSyntaxError } from '../src/error';
 import { exe, getMeta, eq } from './testutils';
 
 describe('return', () => {
@@ -631,6 +631,14 @@ describe('break', () => {
 			break #l
 		}
 		`));
+	});
+
+	test.concurrent('invalid value', async () => {
+		assert.rejects(() => exe(`
+		#l: for 1 {
+			break #l 1
+		}
+		`), new AiScriptSyntaxError('break corresponding to statement cannot include value', { line: 3, column: 4 }));
 	});
 
 	describe('labeled each', () => {

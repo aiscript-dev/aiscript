@@ -39,11 +39,21 @@ function validateNode(node: Ast.Node, ancestors: Ast.Node[]): Ast.Node {
 			break;
 		}
 		case 'break': {
-			if (getCorrespondingBlock(ancestors, node.label) == null) {
+			const block = getCorrespondingBlock(ancestors, node.label);
+			if (block == null) {
 				if (node.label != null) {
 					throw new AiScriptSyntaxError(`label "${node.label}" is not defined`, node.loc.start);
 				}
 				throw new AiScriptSyntaxError('unlabeled break must be inside for / each / while / do-while / loop', node.loc.start);
+			} else if (node.expr != null) {
+				switch (block.type) {
+					case 'if':
+					case 'match':
+					case 'block':
+						break;
+					default:
+						throw new AiScriptSyntaxError('break corresponding to statement cannot include value', node.loc.start);
+				}
 			}
 			break;
 		}
