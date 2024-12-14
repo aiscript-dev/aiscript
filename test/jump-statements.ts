@@ -1449,4 +1449,15 @@ describe('label', () => {
 			new AiScriptSyntaxError('cannot use label for expression other than eval / if / match', { line: 1, column: 13 }),
 		);
 	});
+
+	test.concurrent('invalid space', async () => {
+		await assert.rejects(
+			() => exe('# l: eval { null }'),
+			new AiScriptSyntaxError('cannot use spaces in a label', { line: 1, column: 3 }),
+		);
+		await assert.rejects(
+			() => exe('#l: eval { break # l }'),
+			new AiScriptSyntaxError('cannot use spaces in a label', { line: 1, column: 20 }),
+		);
+	});
 });

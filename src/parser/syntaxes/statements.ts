@@ -1,7 +1,7 @@
 import { AiScriptSyntaxError } from '../../error.js';
 import { CALL_NODE, NODE, unexpectedTokenError } from '../utils.js';
 import { TokenKind } from '../token.js';
-import { parseBlock, parseDest, parseParams, parseType } from './common.js';
+import { parseBlock, parseDest, parseLabel, parseParams, parseType } from './common.js';
 import { parseExpr } from './expressions.js';
 
 import type * as Ast from '../../node.js';
@@ -205,13 +205,7 @@ function parseOut(s: ITokenStream): Ast.Call {
  * ```
 */
 function parseStatementWithLabel(s: ITokenStream): Ast.Each | Ast.For | Ast.Loop | Ast.If | Ast.Match | Ast.Block {
-	s.expect(TokenKind.Sharp);
-	s.next();
-
-	s.expect(TokenKind.Identifier);
-	const label = s.getTokenValue();
-	s.next();
-
+	const label = parseLabel(s);
 	s.expect(TokenKind.Colon);
 	s.next();
 
@@ -509,11 +503,7 @@ function parseBreak(s: ITokenStream): Ast.Break {
 	let label: string | undefined;
 	let expr: Ast.Expression | undefined;
 	if (s.is(TokenKind.Sharp)) {
-		s.next();
-
-		s.expect(TokenKind.Identifier);
-		label = s.getTokenValue();
-		s.next();
+		label = parseLabel(s);
 
 		if (!isStatementTerminator(s)) {
 			expr = parseExpr(s, false);
@@ -536,11 +526,7 @@ function parseContinue(s: ITokenStream): Ast.Continue {
 
 	let label: string | undefined;
 	if (s.is(TokenKind.Sharp)) {
-		s.next();
-
-		s.expect(TokenKind.Identifier);
-		label = s.getTokenValue();
-		s.next();
+		label = parseLabel(s);
 	}
 
 	return NODE('continue', { label }, startPos, s.getPos());

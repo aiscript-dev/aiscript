@@ -2,7 +2,7 @@ import { AiScriptSyntaxError, AiScriptUnexpectedEOFError } from '../../error.js'
 import { NODE, unexpectedTokenError } from '../utils.js';
 import { TokenStream } from '../streams/token-stream.js';
 import { TokenKind } from '../token.js';
-import { parseBlock, parseOptionalSeparator, parseParams, parseType } from './common.js';
+import { parseBlock, parseLabel, parseOptionalSeparator, parseParams, parseType } from './common.js';
 import { parseBlockOrStatement } from './statements.js';
 
 import type * as Ast from '../../node.js';
@@ -351,13 +351,7 @@ function parseCall(s: ITokenStream, target: Ast.Expression): Ast.Call {
  * ```
 */
 function parseExprWithLabel(s: ITokenStream): Ast.If | Ast.Match | Ast.Block {
-	s.expect(TokenKind.Sharp);
-	s.next();
-
-	s.expect(TokenKind.Identifier);
-	const label = s.getTokenValue();
-	s.next();
-
+	const label = parseLabel(s);
 	s.expect(TokenKind.Colon);
 	s.next();
 

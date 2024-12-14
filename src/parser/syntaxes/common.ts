@@ -134,6 +134,25 @@ export function parseBlock(s: ITokenStream): (Ast.Statement | Ast.Expression)[] 
 	return steps;
 }
 
+/**
+ * ```abnf
+ * Label = "#" IDENT
+ * ```
+*/
+export function parseLabel(s: ITokenStream): string {
+	s.expect(TokenKind.Sharp);
+	s.next();
+
+	if (s.getToken().hasLeftSpacing) {
+		throw new AiScriptSyntaxError('cannot use spaces in a label', s.getPos());
+	}
+	s.expect(TokenKind.Identifier);
+	const label = s.getTokenValue();
+	s.next();
+
+	return label;
+}
+
 //#region Type
 
 export function parseType(s: ITokenStream): Ast.TypeSource {
