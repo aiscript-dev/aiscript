@@ -1018,43 +1018,75 @@ describe('break', () => {
 		});
 	});
 
-describe('labeled if', () => {
-	test.concurrent('simple break', async () => {
-		const res = await exe(`
-		<: #l: if true {
-			break #l
-			2
-		}
-		`);
-		eq(res, NULL);
-	});
-});
-
-describe('labeled match', () => {
-	test.concurrent('simple break', async () => {
-		const res = await exe(`
-		<: #l: match 0 {
-			default => {
+	describe('labeled if', () => {
+		test.concurrent('simple break', async () => {
+			const res = await exe(`
+			<: #l: if true {
 				break #l
 				2
 			}
-		}
-		`);
-		eq(res, NULL);
-	});
-});
+			`);
+			eq(res, NULL);
+		});
 
-describe('labeled eval', () => {
-	test.concurrent('simple break', async () => {
-		const res = await exe(`
-		<: #l: eval {
-			break #l
-			2
-		}
-		`);
-		eq(res, NULL);
+		test.concurrent('break with value', async () => {
+			const res = await exe(`
+			<: #l: if true {
+				break #l 1
+				2
+			}
+			`);
+			eq(res, NUM(1));
+		});
 	});
-});
+
+	describe('labeled match', () => {
+		test.concurrent('simple break', async () => {
+			const res = await exe(`
+			<: #l: match 0 {
+				default => {
+					break #l
+					2
+				}
+			}
+			`);
+			eq(res, NULL);
+		});
+
+		test.concurrent('break with value', async () => {
+			const res = await exe(`
+			<: #l: match 0 {
+				default => {
+					break #l 1
+					2
+				}
+			}
+			`);
+			eq(res, NUM(1));
+		});
+	});
+
+	describe('labeled eval', () => {
+		test.concurrent('simple break', async () => {
+			const res = await exe(`
+			<: #l: eval {
+				break #l
+				2
+			}
+			`);
+			eq(res, NULL);
+		});
+
+		test.concurrent('break with value', async () => {
+			const res = await exe(`
+			<: #l: eval {
+				break #l 1
+				2
+			}
+			`);
+			eq(res, NUM(1));
+		});
+	});
 });
 
 describe('continue', () => {

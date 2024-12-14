@@ -756,8 +756,16 @@ export class Interpreter {
 			}
 
 			case 'break': {
+				let val: Value | undefined;
+				if (node.expr != null) {
+					const valueOrControl = await this._eval(node.expr, scope, callStack);
+					if (isControl(valueOrControl)) {
+						return valueOrControl;
+					}
+					val = valueOrControl;
+				}
 				this.log('block:break', { scope: scope.name });
-				return BREAK(node.label);
+				return BREAK(node.label, val);
 			}
 
 			case 'continue': {

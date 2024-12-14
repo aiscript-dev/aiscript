@@ -497,7 +497,7 @@ function parseWhile(s: ITokenStream): Ast.Loop {
 
 /**
  * ```abnf
- * Break = "break" ["#" IDENT]
+ * Break = "break" ["#" IDENT [Expr]]
  * ```
 */
 function parseBreak(s: ITokenStream): Ast.Break {
@@ -507,15 +507,20 @@ function parseBreak(s: ITokenStream): Ast.Break {
 	s.next();
 
 	let label: string | undefined;
+	let expr: Ast.Expression | undefined;
 	if (s.is(TokenKind.Sharp)) {
 		s.next();
 
 		s.expect(TokenKind.Identifier);
 		label = s.getTokenValue();
 		s.next();
+
+		if (!isStatementTerminator(s)) {
+			expr = parseExpr(s, false);
+		}
 	}
 
-	return NODE('break', { label }, startPos, s.getPos());
+	return NODE('break', { label, expr }, startPos, s.getPos());
 }
 
 /**
@@ -569,5 +574,21 @@ function tryParseAssign(s: ITokenStream, dest: Ast.Expression): Ast.Statement | 
 		default: {
 			return;
 		}
+	}
+}
+
+function isStatementTerminator(s: ITokenStream): boolean {
+	switch (s.getTokenKind()) {
+		case TokenKind.EOF:
+		case TokenKind.NewLine:
+		case TokenKind.WhileKeyword:
+		case TokenKind.ElifKeyword:
+		case TokenKind.ElseKeyword:
+		case TokenKind.Comma:
+		case TokenKind.SemiColon:
+		case TokenKind.CloseBrace:
+			return true;
+		default:
+			return false;
 	}
 }

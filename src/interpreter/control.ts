@@ -1,6 +1,7 @@
 import { AiScriptRuntimeError } from '../error.js';
+import { NULL } from './value.js';
 import type { Reference } from './reference.js';
-import { NULL, type Value } from './value.js';
+import type { Value } from './value.js';
 
 export type CReturn = {
 	type: 'return';
@@ -10,7 +11,7 @@ export type CReturn = {
 export type CBreak = {
 	type: 'break';
 	label?: string;
-	value: null;
+	value?: Value;
 };
 
 export type CContinue = {
@@ -27,10 +28,10 @@ export const RETURN = (v: CReturn['value']): CReturn => ({
 	value: v,
 });
 
-export const BREAK = (label?: string): CBreak => ({
+export const BREAK = (label?: string, value?: CBreak['value']): CBreak => ({
 	type: 'break' as const,
 	label,
-	value: null,
+	value: value,
 });
 
 export const CONTINUE = (label?: string): CContinue => ({
@@ -44,7 +45,7 @@ export const CONTINUE = (label?: string): CContinue => ({
  */
 export function unWrapBreak(v: Value | Control, label: string | undefined): Value | Control {
 	if (v.type === 'break' && (v.label == null || v.label === label)) {
-		return NULL;
+		return v.value ?? NULL;
 	}
 	return v;
 }
@@ -54,7 +55,7 @@ export function unWrapBreak(v: Value | Control, label: string | undefined): Valu
  */
 export function unWrapLabeledBreak(v: Value | Control, label: string | undefined): Value | Control {
 	if (v.type === 'break' && v.label != null && v.label === label) {
-		return NULL;
+		return v.value ?? NULL;
 	}
 	return v;
 }
