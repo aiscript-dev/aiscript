@@ -227,7 +227,7 @@ function parseStatementWithLabel(s: ITokenStream): Ast.Each | Ast.For | Ast.Loop
 			return statement;
 		}
 		default: {
-			throw new AiScriptSyntaxError('cannot use label for statement other than eval / if / match / for / each / while / do-while / loop', s.getPos());
+			throw new AiScriptSyntaxError('cannot use label for statement other than eval / if / match / for / each / while / do-while / loop', statement.loc.start);
 		}
 	}
 }

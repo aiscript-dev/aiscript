@@ -14,7 +14,7 @@ describe('return', () => {
 		<: f()
 		`);
 		eq(res, NUM(1));
-		assert.rejects(() => exe('return 1'));
+		await assert.rejects(() => exe('return 1'));
 	});
 
 	test.concurrent('in eval', async () => {
@@ -27,7 +27,7 @@ describe('return', () => {
 		<: f()
 		`);
 		eq(res, NUM(1));
-		assert.rejects(() => exe('<: eval { return 1 }'));
+		await assert.rejects(() => exe('<: eval { return 1 }'));
 	});
 
 	describe('in if', () => {
@@ -39,7 +39,7 @@ describe('return', () => {
 			<: f()
 			`);
 			eq(res, BOOL(true));
-			assert.rejects(() => exe('<: if eval { return true } {}'));
+			await assert.rejects(() => exe('<: if eval { return true } {}'));
 		});
 
 		test.concurrent('then', async () => {
@@ -52,7 +52,7 @@ describe('return', () => {
 			<: f()
 			`);
 			eq(res, NUM(1));
-			assert.rejects(() => exe('<: if true { return 1 }'));
+			await assert.rejects(() => exe('<: if true { return 1 }'));
 		});
 
 		test.concurrent('elif cond', async () => {
@@ -63,7 +63,7 @@ describe('return', () => {
 			<: f()
 			`);
 			eq(res, BOOL(true));
-			assert.rejects(() => exe('<: if false {} elif eval { return true } {}'));
+			await assert.rejects(() => exe('<: if false {} elif eval { return true } {}'));
 		});
 
 		test.concurrent('elif then', async () => {
@@ -77,7 +77,7 @@ describe('return', () => {
 			<: f()
 			`);
 			eq(res, NUM(1));
-			assert.rejects(() => exe('<: if false {} elif true eval { return true }'));
+			await assert.rejects(() => exe('<: if false {} elif true eval { return true }'));
 		});
 
 		test.concurrent('else', async () => {
@@ -91,7 +91,7 @@ describe('return', () => {
 			<: f()
 			`);
 			eq(res, NUM(1));
-			assert.rejects(() => exe('<: if false {} else eval { return true }'));
+			await assert.rejects(() => exe('<: if false {} else eval { return true }'));
 		});
 	});
 
@@ -104,7 +104,7 @@ describe('return', () => {
 			<: f()
 			`);
 			eq(res, NUM(1));
-			assert.rejects(() => exe('<: match eval { return 1 } {}'));
+			await assert.rejects(() => exe('<: match eval { return 1 } {}'));
 		});
 
 		test.concurrent('case q', async () => {
@@ -119,7 +119,7 @@ describe('return', () => {
 			<: f()
 			`);
 			eq(res, NUM(0));
-			assert.rejects(() => exe('<: match 0 { case eval { return 0 } => {} }'))
+			await assert.rejects(() => exe('<: match 0 { case eval { return 0 } => {} }'))
 		});
 
 		test.concurrent('case a', async () => {
@@ -134,7 +134,7 @@ describe('return', () => {
 			<: f()
 			`);
 			eq(res, NUM(1));
-			assert.rejects(() => exe('<: match 0 { case 0 => { return 1 } }'))
+			await assert.rejects(() => exe('<: match 0 { case 0 => { return 1 } }'))
 		});
 
 		test.concurrent('default', async () => {
@@ -149,7 +149,7 @@ describe('return', () => {
 			<: f()
 			`);
 			eq(res, NUM(1));
-			assert.rejects(() => exe('<: match 0 { default => { return 1 } }'))
+			await assert.rejects(() => exe('<: match 0 { default => { return 1 } }'))
 		});
 	});
 
@@ -162,7 +162,7 @@ describe('return', () => {
 			<: f()
 			`);
 			eq(res, NUM(1));
-			assert.rejects(() => exe('<: eval { return 1 } + 2'));
+			await assert.rejects(() => exe('<: eval { return 1 } + 2'));
 		});
 
 		test.concurrent('right', async () => {
@@ -173,7 +173,7 @@ describe('return', () => {
 			<: f()
 			`);
 			eq(res, NUM(2));
-			assert.rejects(() => exe('<: 1 + eval { return 2 }'));
+			await assert.rejects(() => exe('<: 1 + eval { return 2 }'));
 		});
 	});
 
@@ -186,7 +186,7 @@ describe('return', () => {
 			f()('Hi')
 			`);
 			eq(res, STR('Hi'));
-			assert.rejects(() => exe(`eval { return print }('Hello, world!')`));
+			await assert.rejects(() => exe(`eval { return print }('Hello, world!')`));
 		});
 
 		test.concurrent('arg', async () => {
@@ -197,7 +197,7 @@ describe('return', () => {
 			<: f()
 			`);
 			eq(res, STR('Hello, world!'));
-			assert.rejects(() => exe(`print(eval { return 'Hello, world' })`))
+			await assert.rejects(() => exe(`print(eval { return 'Hello, world' })`))
 		});
 	});
 
@@ -210,7 +210,7 @@ describe('return', () => {
 			<: f()
 			`);
 			eq(res, NUM(1));
-			assert.rejects(() => exe('for eval { return 1 } {}'));
+			await assert.rejects(() => exe('for eval { return 1 } {}'));
 		});
 
 		test.concurrent('from', async () => {
@@ -221,7 +221,7 @@ describe('return', () => {
 			<: f()
 			`);
 			eq(res, NUM(1));
-			assert.rejects(() => exe('for let i = eval { return 1 }, 2 {}'));
+			await assert.rejects(() => exe('for let i = eval { return 1 }, 2 {}'));
 		});
 
 		test.concurrent('to', async () => {
@@ -232,7 +232,7 @@ describe('return', () => {
 			<: f()
 			`);
 			eq(res, NUM(1));
-			assert.rejects(() => exe('for let i = 0, eval { return 1 } {}'));
+			await assert.rejects(() => exe('for let i = 0, eval { return 1 } {}'));
 		});
 
 		test.concurrent('for', async () => {
@@ -245,7 +245,7 @@ describe('return', () => {
 			<: f()
 			`);
 			eq(res, NUM(1));
-			assert.rejects(() => exe('for 1 { return 1 }'));
+			await assert.rejects(() => exe('for 1 { return 1 }'));
 		})
 	});
 
@@ -258,7 +258,7 @@ describe('return', () => {
 			<: f()
 			`);
 			eq(res, NUM(1));
-			assert.rejects(() => exe('each let v, [eval { return 1 }] {}'));
+			await assert.rejects(() => exe('each let v, [eval { return 1 }] {}'));
 		});
 
 		test.concurrent('for', async () => {
@@ -271,7 +271,7 @@ describe('return', () => {
 			<: f()
 			`);
 			eq(res, NUM(1));
-			assert.rejects(() => exe('each let v, [0] { return 1 }'));
+			await assert.rejects(() => exe('each let v, [0] { return 1 }'));
 		});
 	});
 
@@ -285,7 +285,7 @@ describe('return', () => {
 			<: f()
 			`);
 			eq(res, NUM(1));
-			assert.rejects(() => exe('let a = null; a = eval { return 1 }'));
+			await assert.rejects(() => exe('let a = null; a = eval { return 1 }'));
 		});
 
 		test.concurrent('index target', async () => {
@@ -297,7 +297,7 @@ describe('return', () => {
 			<: f()
 			`);
 			eq(res, ARR([NULL]));
-			assert.rejects(() => exe('let a = [null]; eval { return a }[0] = 1'));
+			await assert.rejects(() => exe('let a = [null]; eval { return a }[0] = 1'));
 		});
 
 		test.concurrent('index', async () => {
@@ -309,7 +309,7 @@ describe('return', () => {
 			<: f()
 			`);
 			eq(res, NUM(0));
-			assert.rejects(() => exe('let a = [null]; a[eval { return 0 }] = 1'));
+			await assert.rejects(() => exe('let a = [null]; a[eval { return 0 }] = 1'));
 		});
 
 		test.concurrent('prop target', async () => {
@@ -321,7 +321,7 @@ describe('return', () => {
 			<: f()
 			`);
 			eq(res, OBJ(new Map()));
-			assert.rejects(() => exe('let o = {}; eval { return o }.p = 1'));
+			await assert.rejects(() => exe('let o = {}; eval { return o }.p = 1'));
 		});
 
 		test.concurrent('arr', async () => {
@@ -333,7 +333,7 @@ describe('return', () => {
 			<: f()
 			`);
 			eq(res, OBJ(new Map()));
-			assert.rejects(() => exe('let o = {}; [eval { return o }.p] = [1]'));
+			await assert.rejects(() => exe('let o = {}; [eval { return o }.p] = [1]'));
 		});
 
 		test.concurrent('obj', async () => {
@@ -345,7 +345,7 @@ describe('return', () => {
 			<: f()
 			`);
 			eq(res, OBJ(new Map()));
-			assert.rejects(() => exe('let o = {}; { a: eval { return o }.p } = { a: 1 }'));
+			await assert.rejects(() => exe('let o = {}; { a: eval { return o }.p } = { a: 1 }'));
 		});
 	});
 
@@ -359,7 +359,7 @@ describe('return', () => {
 			<: f()
 			`);
 			eq(res, NUM(0));
-			assert.rejects(() => exe('let a = [0]; a[eval { return 0 }] += 1'));
+			await assert.rejects(() => exe('let a = [0]; a[eval { return 0 }] += 1'));
 		});
 
 		test.concurrent('expr', async () => {
@@ -371,7 +371,7 @@ describe('return', () => {
 			<: f()
 			`);
 			eq(res, NUM(1));
-			assert.rejects(() => exe('let a = 0; a += eval { return 1 }'));
+			await assert.rejects(() => exe('let a = 0; a += eval { return 1 }'));
 		});
 	});
 
@@ -385,7 +385,7 @@ describe('return', () => {
 			<: f()
 			`);
 			eq(res, NUM(0));
-			assert.rejects(() => exe('let a = [0]; a[eval { return 0 }] -= 1'));
+			await assert.rejects(() => exe('let a = [0]; a[eval { return 0 }] -= 1'));
 		});
 
 		test.concurrent('expr', async () => {
@@ -397,7 +397,7 @@ describe('return', () => {
 			<: f()
 			`);
 			eq(res, NUM(1));
-			assert.rejects(() => exe('let a = 0; a -= eval { return 1 }'));
+			await assert.rejects(() => exe('let a = 0; a -= eval { return 1 }'));
 		});
 	});
 
@@ -409,7 +409,7 @@ describe('return', () => {
 		<: f()
 		`);
 		eq(res, NUM(1));
-		assert.rejects(() => exe('<: [eval { return 1 }]'));
+		await assert.rejects(() => exe('<: [eval { return 1 }]'));
 	});
 
 	test.concurrent('in object', async () => {
@@ -422,7 +422,7 @@ describe('return', () => {
 		<: f()
 		`);
 		eq(res, NUM(1));
-		assert.rejects(() => exe('<: { p: eval { return 1 } }'));
+		await assert.rejects(() => exe('<: { p: eval { return 1 } }'));
 	});
 
 	test.concurrent('in prop', async () => {
@@ -435,7 +435,7 @@ describe('return', () => {
 		<: f()
 		`);
 		eq(res, NUM(1));
-		assert.rejects(() => exe('<: { p: eval { return 1 } }.p'));
+		await assert.rejects(() => exe('<: { p: eval { return 1 } }.p'));
 	});
 
 	describe('in index', () => {
@@ -447,7 +447,7 @@ describe('return', () => {
 			<: f()
 			`);
 			eq(res, NUM(1));
-			assert.rejects(() => exe('<: [eval { return 1 }][0]'));
+			await assert.rejects(() => exe('<: [eval { return 1 }][0]'));
 		});
 
 		test.concurrent('index', async () => {
@@ -458,7 +458,7 @@ describe('return', () => {
 			<: f()
 			`);
 			eq(res, NUM(0));
-			assert.rejects(() => exe('<: [0][eval { return 1 }]'));
+			await assert.rejects(() => exe('<: [0][eval { return 1 }]'));
 		});
 	});
 
@@ -470,7 +470,7 @@ describe('return', () => {
 		<: f()
 		`);
 		eq(res, BOOL(true));
-		assert.rejects(() => exe('<: !eval { return true }'));
+		await assert.rejects(() => exe('<: !eval { return true }'));
 	});
 
 	test.concurrent('in function default param', async () => {
@@ -481,7 +481,7 @@ describe('return', () => {
 		<: f()
 		`);
 		eq(res, NUM(1));
-		assert.rejects(() => exe('<: @(x = eval { return 1 }){}'));
+		await assert.rejects(() => exe('<: @(x = eval { return 1 }){}'));
 	});
 
 	test.concurrent('in template', async () => {
@@ -492,7 +492,7 @@ describe('return', () => {
 		<: f()
 		`);
 		eq(res, NUM(1));
-		assert.rejects(() => exe('<: `{eval {return 1}}`'));
+		await assert.rejects(() => exe('<: `{eval {return 1}}`'));
 	});
 
 	test.concurrent('in return', async () => {
@@ -503,7 +503,24 @@ describe('return', () => {
 		<: f()
 		`);
 		eq(res, NUM(1));
-		assert.rejects(() => exe('return eval { return 1 } + 2'));
+		await assert.rejects(() => exe('return eval { return 1 } + 2'));
+	});
+
+	test.concurrent('in break', async () => {
+		const res = await exe(`
+		@f() {
+			#l: eval {
+				break #l eval { return 1 }
+			}
+		}
+		<: f()
+		`);
+		eq(res, NUM(1));
+		await assert.rejects(() => exe(`
+		#l: eval {
+			break #l eval { return 1 }
+		}
+		`));
 	});
 
 	describe('in and', async () => {
@@ -515,7 +532,7 @@ describe('return', () => {
 			<: f()
 			`);
 			eq(res, NUM(1));
-			assert.rejects(() => exe('eval { return 1 } && false'));
+			await assert.rejects(() => exe('eval { return 1 } && false'));
 		});
 
 		test.concurrent('right', async () => {
@@ -526,7 +543,7 @@ describe('return', () => {
 			<: f()
 			`);
 			eq(res, NUM(1));
-			assert.rejects(() => exe('true && eval { return 1 }'));
+			await assert.rejects(() => exe('true && eval { return 1 }'));
 		});
 	});
 
@@ -539,7 +556,7 @@ describe('return', () => {
 			<: f()
 			`);
 			eq(res, NUM(1));
-			assert.rejects(() => exe('eval { return 1 } || false'));
+			await assert.rejects(() => exe('eval { return 1 } || false'));
 		});
 
 		test.concurrent('right', async () => {
@@ -550,7 +567,7 @@ describe('return', () => {
 			<: f()
 			`);
 			eq(res, NUM(1));
-			assert.rejects(() => exe('false || eval { return 1 }'));
+			await assert.rejects(() => exe('false || eval { return 1 }'));
 		});
 	});
 });
@@ -566,8 +583,8 @@ describe('break', () => {
 		<: x
 		`);
 		eq(res, NUM(0));
-		assert.rejects(() => exe('break'));
-		assert.rejects(() => exe('@() { break }()'));
+		await assert.rejects(() => exe('break'));
+		await assert.rejects(() => exe('@() { break }()'));
 	});
 
 	test.concurrent('in eval', async () => {
@@ -582,7 +599,7 @@ describe('break', () => {
 		<: x
 		`);
 		eq(res, NUM(0));
-		assert.rejects(() => exe('<: eval { break }'));
+		await assert.rejects(() => exe('<: eval { break }'));
 	});
 
 	test.concurrent('in if', async () => {
@@ -597,7 +614,7 @@ describe('break', () => {
 		<: x
 		`);
 		eq(res, NUM(0));
-		assert.rejects(() => exe('<: if true { break }'));
+		await assert.rejects(() => exe('<: if true { break }'));
 	});
 
 	test.concurrent('in match', async () => {
@@ -612,11 +629,11 @@ describe('break', () => {
 		<: x
 		`);
 		eq(res, NUM(0));
-		assert.rejects(() => exe('<: if true { break }'));
+		await assert.rejects(() => exe('<: if true { break }'));
 	});
 
 	test.concurrent('in function', async () => {
-		assert.rejects(() => exe(`
+		await assert.rejects(() => exe(`
 		for 1 {
 			@f() {
 				break;
@@ -626,7 +643,7 @@ describe('break', () => {
 	});
 
 	test.concurrent('invalid label', async () => {
-		assert.rejects(() => exe(`
+		await assert.rejects(() => exe(`
 		for 1 {
 			break #l
 		}
@@ -634,7 +651,7 @@ describe('break', () => {
 	});
 
 	test.concurrent('invalid value', async () => {
-		assert.rejects(() => exe(`
+		await assert.rejects(() => exe(`
 		#l: for 1 {
 			break #l 1
 		}
@@ -1094,6 +1111,17 @@ describe('break', () => {
 			`);
 			eq(res, NUM(1));
 		});
+
+		test.concurrent('inner while', async () => {
+			const res = await exe(`
+			<: #l: eval {
+					while true {
+							if true break #l 1
+					}
+			}
+			`);
+			eq(res, NUM(1));
+		});
 	});
 });
 
@@ -1108,8 +1136,8 @@ describe('continue', () => {
 		<: x
 		`);
 		eq(res, NUM(0));
-		assert.rejects(() => exe('continue'));
-		assert.rejects(() => exe('@() { continue }()'));
+		await assert.rejects(() => exe('continue'));
+		await assert.rejects(() => exe('@() { continue }()'));
 	});
 
 	test.concurrent('in eval', async () => {
@@ -1124,7 +1152,7 @@ describe('continue', () => {
 		<: x
 		`);
 		eq(res, NUM(0));
-		assert.rejects(() => exe('<: eval { continue }'));
+		await assert.rejects(() => exe('<: eval { continue }'));
 	});
 
 	test.concurrent('in if', async () => {
@@ -1139,7 +1167,7 @@ describe('continue', () => {
 		<: x
 		`);
 		eq(res, NUM(0));
-		assert.rejects(() => exe('<: if true { continue }'));
+		await assert.rejects(() => exe('<: if true { continue }'));
 	});
 
 	test.concurrent('in match', async () => {
@@ -1154,11 +1182,11 @@ describe('continue', () => {
 		<: x
 		`);
 		eq(res, NUM(0));
-		assert.rejects(() => exe('<: if true { continue }'));
+		await assert.rejects(() => exe('<: if true { continue }'));
 	});
 
 	test.concurrent('in function', async () => {
-		assert.rejects(() => exe(`
+		await assert.rejects(() => exe(`
 		for 1 {
 			@f() {
 				continue;
@@ -1168,7 +1196,7 @@ describe('continue', () => {
 	});
 
 	test.concurrent('invalid label', async () => {
-		assert.rejects(() => exe(`
+		await assert.rejects(() => exe(`
 		for 1 {
 			continue #l
 		}
@@ -1404,5 +1432,21 @@ describe('continue', () => {
 			`);
 			eq(res, NUM(1));
 		});
+	});
+});
+
+describe('label', () => {
+	test.concurrent('invalid statement', async () => {
+		await assert.rejects(
+			() => exe('#l: null'),
+			new AiScriptSyntaxError('cannot use label for statement other than eval / if / match / for / each / while / do-while / loop', { line: 1, column: 5 }),
+		);
+	});
+
+	test.concurrent('invalid expression', async () => {
+		await assert.rejects(
+			() => exe('let a = #l: null'),
+			new AiScriptSyntaxError('cannot use label for expression other than eval / if / match', { line: 1, column: 13 }),
+		);
 	});
 });

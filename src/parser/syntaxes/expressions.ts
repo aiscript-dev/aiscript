@@ -370,7 +370,7 @@ function parseExprWithLabel(s: ITokenStream): Ast.If | Ast.Match | Ast.Block {
 			return expr;
 		}
 		default: {
-			throw new AiScriptSyntaxError('cannot use label for expression other than eval / if / match', s.getPos());
+			throw new AiScriptSyntaxError('cannot use label for expression other than eval / if / match', expr.loc.start);
 		}
 	}
 }

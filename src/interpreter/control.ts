@@ -41,16 +41,6 @@ export const CONTINUE = (label?: string): CContinue => ({
 });
 
 /**
- * 値がbreakで、ラベルが指定されていないまたは一致する場合のみ、その中身を取り出します。
- */
-export function unWrapBreak(v: Value | Control, label: string | undefined): Value | Control {
-	if (v.type === 'break' && (v.label == null || v.label === label)) {
-		return v.value ?? NULL;
-	}
-	return v;
-}
-
-/**
  * 値がbreakで、ラベルが一致する場合のみ、その中身を取り出します。
  */
 export function unWrapLabeledBreak(v: Value | Control, label: string | undefined): Value | Control {
