@@ -190,7 +190,9 @@ declare namespace Ast {
         Prop,
         TypeSource,
         NamedTypeSource,
-        FnTypeSource
+        FnTypeSource,
+        UnionTypeSource,
+        TypeParam
     }
 }
 export { Ast }
@@ -320,6 +322,7 @@ const FN: (params: VUserFn["params"], statements: VUserFn["statements"], scope: 
 // @public (undocumented)
 type Fn = NodeBase & {
     type: 'fn';
+    typeParams: TypeParam[];
     params: {
         dest: Expression;
         optional: boolean;
@@ -336,6 +339,7 @@ const FN_NATIVE: (fn: VNativeFn["native"]) => VNativeFn;
 // @public (undocumented)
 type FnTypeSource = NodeBase & {
     type: 'fnTypeSource';
+    typeParams: TypeParam[];
     params: TypeSource[];
     result: TypeSource;
 };
@@ -718,8 +722,19 @@ const TRUE: {
     value: boolean;
 };
 
+// @public
+type TypeParam = {
+    name: string;
+};
+
 // @public (undocumented)
-type TypeSource = NamedTypeSource | FnTypeSource;
+type TypeSource = NamedTypeSource | FnTypeSource | UnionTypeSource;
+
+// @public (undocumented)
+type UnionTypeSource = NodeBase & {
+    type: 'unionTypeSource';
+    inners: TypeSource[];
+};
 
 declare namespace utils {
     export {

@@ -276,6 +276,7 @@ export type If = NodeBase & {
 
 export type Fn = NodeBase & {
 	type: 'fn'; // 関数
+	typeParams: TypeParam[]; // 型パラメータ
 	params: {
 		dest: Expression; // 引数名
 		optional: boolean;
@@ -365,7 +366,7 @@ export type Prop = NodeBase & {
 
 // Type source
 
-export type TypeSource = NamedTypeSource | FnTypeSource;
+export type TypeSource = NamedTypeSource | FnTypeSource | UnionTypeSource;
 
 export type NamedTypeSource = NodeBase & {
 	type: 'namedTypeSource'; // 名前付き型
@@ -375,6 +376,19 @@ export type NamedTypeSource = NodeBase & {
 
 export type FnTypeSource = NodeBase & {
 	type: 'fnTypeSource'; // 関数の型
+	typeParams: TypeParam[]; // 型パラメータ
 	params: TypeSource[]; // 引数の型
 	result: TypeSource; // 戻り値の型
 };
+
+export type UnionTypeSource = NodeBase & {
+	type: 'unionTypeSource'; // ユニオン型
+	inners: TypeSource[]; // 含まれる型
+};
+
+/**
+ * 型パラメータ
+ */
+export type TypeParam = {
+	name: string; // パラメータ名
+}

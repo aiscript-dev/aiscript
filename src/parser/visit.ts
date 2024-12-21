@@ -11,6 +11,9 @@ function visitNodeInner(node: Ast.Node, fn: (node: Ast.Node, ancestors: Ast.Node
 	// nested nodes
 	switch (result.type) {
 		case 'def': {
+			if (result.varType != null) {
+				result.varType = visitNodeInner(result.varType, fn, ancestors) as Ast.Definition['varType'];
+			}
 			result.attr = result.attr.map((attr) => visitNodeInner(attr, fn, ancestors) as Ast.Attribute);
 			result.expr = visitNodeInner(result.expr, fn, ancestors) as Ast.Definition['expr'];
 			break;
@@ -79,6 +82,12 @@ function visitNodeInner(node: Ast.Node, fn: (node: Ast.Node, ancestors: Ast.Node
 				if (param.default) {
 					param.default = visitNodeInner(param.default!, fn, ancestors) as Ast.Fn['params'][number]['default'];
 				}
+				if (param.argType != null) {
+					param.argType = visitNodeInner(param.argType, fn, ancestors) as Ast.Fn['params'][number]['argType'];
+				}
+			}
+			if (result.retType != null) {
+				result.retType = visitNodeInner(result.retType, fn, ancestors) as Ast.Fn['retType'];
 			}
 			for (let i = 0; i < result.children.length; i++) {
 				result.children[i] = visitNodeInner(result.children[i]!, fn, ancestors) as Ast.Fn['children'][number];
@@ -196,6 +205,19 @@ function visitNodeInner(node: Ast.Node, fn: (node: Ast.Node, ancestors: Ast.Node
 				Ast.And |
 				Ast.Or
 			)['right'];
+			break;
+		}
+
+		case 'fnTypeSource': {
+			for (let i = 0; i < result.params.length; i++) {
+				result.params[i] = visitNodeInner(result.params[i]!, fn, ancestors) as Ast.FnTypeSource['params'][number];
+			}
+			break;
+		}
+		case 'unionTypeSource': {
+			for (let i = 0; i < result.inners.length; i++) {
+				result.inners[i] = visitNodeInner(result.inners[i]!, fn, ancestors) as Ast.UnionTypeSource['inners'][number];
+			}
 			break;
 		}
 	}

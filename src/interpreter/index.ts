@@ -833,6 +833,7 @@ export class Interpreter {
 
 			case 'namedTypeSource':
 			case 'fnTypeSource':
+			case 'unionTypeSource':
 			case 'attr': {
 				throw new Error('invalid node type');
 			}

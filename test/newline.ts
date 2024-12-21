@@ -95,6 +95,64 @@ describe('empty lines', () => {
 		});
     });
 
+    describe('type params', () => {
+        describe('function', () => {
+            test.concurrent('empty line before', async () => {
+                const res = await exe(`
+                @f<
+                    // comment
+                    T
+                >(v: T): T {
+                    v
+                }
+                <: f(1)
+                `);
+                eq(res, NUM(1));
+            });
+
+            test.concurrent('empty line after', async () => {
+                const res = await exe(`
+                @f<
+                    T
+                    // comment
+                >(v: T): T {
+                    v
+                }
+                <: f(1)
+                `);
+                eq(res, NUM(1));
+            });
+        });
+
+        describe('function type', () => {
+            test.concurrent('empty line before', async () => {
+                const res = await exe(`
+                let f: @<
+                    // comment
+                    T
+                >(T) => T = @(v) {
+                    v
+                }
+                <: f(1)
+                `);
+                eq(res, NUM(1));
+            });
+
+            test.concurrent('empty line after', async () => {
+                const res = await exe(`
+                let f: @<
+                    T
+                    // comment
+                >(T) => T = @(v) {
+                    v
+                }
+                <: f(1)
+                `);
+                eq(res, NUM(1));
+            });
+        });
+    });
+
     describe('function params', () => {
 		test.concurrent('empty line', async () => {
 			const res = await exe(`
