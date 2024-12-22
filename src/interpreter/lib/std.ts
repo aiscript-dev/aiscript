@@ -621,23 +621,13 @@ export const std: Record<string, Value> = {
 		return OBJ(new Map([...a.value, ...b.value]));
 	}),
 
-	'Obj:extract': FN_NATIVE(([obj, keys]) => {
+	'Obj:pick': FN_NATIVE(([obj, keys]) => {
 		assertObject(obj);
 		assertArray(keys);
 		return OBJ(new Map(
 			keys.value.map(key => {
 				assertString(key);
 				return [key.value, obj.value.get(key.value) ?? NULL];
-			})
-		));
-	}),
-
-	'Obj:extract_with_default': FN_NATIVE(([obj, defaults]) => {
-		assertObject(obj);
-		assertObject(defaults);
-		return OBJ(new Map(
-			[...defaults.value].map(([key, def]) => {
-				return [key, obj.value.get(key) ?? def];
 			})
 		));
 	}),

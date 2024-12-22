@@ -200,23 +200,13 @@ describe('Obj', () => {
 		eq(res, utils.jsToVal({ a: 1, b: 3, c: 4}));
 	});
 
-	test.concurrent('extract', async () => {
+	test.concurrent('pick', async () => {
 		const res = await exe(`
 		let o = { a: 1, b: 2, c: 3 }
 
-		<: Obj:extract(o, ['b', 'd'])
+		<: Obj:pick(o, ['b', 'd'])
 		`);
 		eq(res, utils.jsToVal({ b: 2, d: null }));
-	});
-
-	test.concurrent('extract_with_default', async () => {
-		const res = await exe(`
-		let o = { a: 1, b: 2, c: 3 }
-		let d = { b: 4, d: 5 }
-
-		<: Obj:extract_with_default(o, d)
-		`);
-		eq(res, utils.jsToVal({ b: 2, d: 5 }));
 	});
 });
 

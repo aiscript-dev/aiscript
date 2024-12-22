@@ -1,1 +1,1 @@
-- `Obj:extract`と`Obj:extract_with_default`を追加
+- 関数`Obj:extract`を追加
