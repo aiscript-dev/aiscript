@@ -215,6 +215,7 @@ type Attribute = NodeBase & {
 // @public (undocumented)
 type Block = NodeBase & {
     type: 'block';
+    label?: string;
     statements: (Statement | Expression)[];
 };
 
@@ -231,6 +232,7 @@ type Bool = NodeBase & {
 type Break = NodeBase & {
     type: 'break';
     label?: string;
+    expr?: Expression;
 };
 
 // @public (undocumented)
@@ -384,6 +386,7 @@ type Identifier = NodeBase & {
 // @public (undocumented)
 type If = NodeBase & {
     type: 'if';
+    label?: string;
     cond: Expression;
     then: Statement | Expression;
     elseif: {
@@ -504,6 +507,7 @@ type Lteq = NodeBase & {
 // @public (undocumented)
 type Match = NodeBase & {
     type: 'match';
+    label?: string;
     about: Expression;
     qs: {
         q: Expression;
