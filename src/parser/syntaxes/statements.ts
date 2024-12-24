@@ -514,7 +514,9 @@ function parseBreak(s: ITokenStream): Ast.Break {
 	if (s.is(TokenKind.Sharp)) {
 		label = parseLabel(s);
 
-		if (!isStatementTerminator(s)) {
+		if (s.is(TokenKind.Colon)) {
+			throw new AiScriptSyntaxError('cannot omit label from break if expression is given', startPos);
+		} else if (!isStatementTerminator(s)) {
 			expr = parseExpr(s, false);
 		}
 	}
