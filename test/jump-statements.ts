@@ -658,6 +658,21 @@ describe('break', () => {
 		`), new AiScriptSyntaxError('break corresponding to statement cannot include value', { line: 3, column: 4 }));
 	});
 
+	test.concurrent('invalid block', async () => {
+		await assert.rejects(
+			() => exe('#l: if true { continue #l }'),
+			new AiScriptSyntaxError('cannot use continue for if', { line: 1, column: 15 }),
+		);
+		await assert.rejects(
+			() => exe('#l: match 0 { default => continue #l }'),
+			new AiScriptSyntaxError('cannot use continue for match', { line: 1, column: 26 }),
+		);
+		await assert.rejects(
+			() => exe('#l: eval { continue #l }'),
+			new AiScriptSyntaxError('cannot use continue for eval', { line: 1, column: 12 }),
+		);
+	});
+
 	describe('labeled each', () => {
 		test.concurrent('inner each', async () => {
 			const res = await exe(`
