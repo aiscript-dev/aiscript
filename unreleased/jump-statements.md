@@ -1,6 +1,7 @@
-- **Breaking Change** return文、break文、continue文の挙動が変更されました。
+- return文、break文、continue文の挙動が変更されました。
   - return文は関数スコープ内でないと文法エラーになります。
-  - break文およびcontinue文は反復処理文(for, each, while, do-while, loop)のスコープ内でないと文法エラーになります。
+  - ラベルが省略されたbreak文およびcontinue文は反復処理文(for, each, while, do-while, loop)のスコープ内でないと文法エラーになります。
   - return文は常に関数から脱出します。
-  - break文は常に最も内側の反復処理文の処理を中断し、ループから脱出します。
-  - continue文は常に最も内側の反復処理文の処理を中断し、ループの先頭に戻ります。
+  - ラベルが省略されたbreak文は必ず最も内側の反復処理文の処理を中断し、ループから脱出します。
+  - continue文は必ず最も内側の反復処理文の処理を中断し、ループの先頭に戻ります。
+	- eval, if, match, loop, while, do-while, for, eachにラベルを付けてbreak文やcontinue文で指定したブロックから脱出できるようになります。eval, if, matchから脱出するbreak文には値を指定することができます。
