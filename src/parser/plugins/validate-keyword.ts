@@ -79,6 +79,14 @@ function validateDest(node: Ast.Node): Ast.Node {
 	});
 }
 
+function validateTypeParams(node: Ast.Fn | Ast.FnTypeSource): void {
+	for (const typeParam of node.typeParams) {
+		if (reservedWord.includes(typeParam.name)) {
+			throwReservedWordError(typeParam.name, node.loc);
+		}
+	}
+}
+
 function validateNode(node: Ast.Node): Ast.Node {
 	switch (node.type) {
 		case 'def': {
@@ -135,6 +143,7 @@ function validateNode(node: Ast.Node): Ast.Node {
 			break;
 		}
 		case 'fn': {
+			validateTypeParams(node);
 			for (const param of node.params) {
 				validateDest(param.dest);
 			}
@@ -146,6 +155,16 @@ function validateNode(node: Ast.Node): Ast.Node {
 					throwReservedWordError(name, node.loc);
 				}
 			}
+			break;
+		}
+		case 'namedTypeSource': {
+			if (reservedWord.includes(node.name)) {
+				throwReservedWordError(node.name, node.loc);
+			}
+			break;
+		}
+		case 'fnTypeSource': {
+			validateTypeParams(node);
 			break;
 		}
 	}

@@ -139,6 +139,11 @@ const sampleCodes = Object.entries<(word: string) => string>({
 		continue #${word}
 	}
 	`,
+
+	typeParam: word =>
+	`
+	@f<${word}>(x): ${word} { x }
+	`,
 });
 
 const parser = new Parser();
