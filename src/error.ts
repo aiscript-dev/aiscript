@@ -1,4 +1,3 @@
-import { TokenKind } from './parser/token.js';
 import type { Pos } from './node.js';
 
 export abstract class AiScriptError extends Error {
@@ -25,9 +24,12 @@ export abstract class AiScriptError extends Error {
 export class NonAiScriptError extends AiScriptError {
 	public name = 'Internal';
 	constructor(error: unknown) {
-		const message = String(
-			(error as { message?: unknown } | null | undefined)?.message ?? error,
-		);
+		let message: string;
+		if (error != null && typeof error === 'object' && 'message' in error) {
+			message = String(error.message);
+		} else {
+			message = String(error);
+		}
 		super(message, error);
 	}
 }
