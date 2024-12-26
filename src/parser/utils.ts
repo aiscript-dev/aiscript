@@ -9,15 +9,7 @@ export function NODE<T extends Ast.Node['type']>(
 	start: Ast.Pos,
 	end: Ast.Pos,
 ): Extract<Ast.Node, { type: T }> {
-	const node: Record<string, unknown> = { type };
-	for (const key of Object.keys(params)) {
-		type Key = keyof typeof params;
-		if (params[key as Key] !== undefined) {
-			node[key] = params[key as Key];
-		}
-	}
-	node.loc = { start, end };
-	return node as Extract<Ast.Node, { type: T }>;
+	return { type, ...params, loc: { start, end } } as Extract<Ast.Node, { type: T }>;
 }
 
 export function CALL_NODE(
