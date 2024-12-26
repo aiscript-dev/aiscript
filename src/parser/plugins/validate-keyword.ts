@@ -87,7 +87,7 @@ function validateTypeParams(node: Ast.Fn | Ast.FnTypeSource): void {
 	}
 }
 
-function validateNode(node: Ast.Node): Ast.Node {
+function validateNode<T extends Ast.Node>(node: T): T {
 	switch (node.type) {
 		case 'def': {
 			validateDest(node.dest);

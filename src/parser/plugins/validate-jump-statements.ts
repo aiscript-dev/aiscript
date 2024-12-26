@@ -17,7 +17,7 @@ function isInLoopScope(ancestors: Ast.Node[]): boolean {
 	return false;
 }
 
-function validateNode(node: Ast.Node, ancestors: Ast.Node[]): Ast.Node {
+function validateNode<T extends Ast.Node>(node: T, ancestors: Ast.Node[]): T {
 	switch (node.type) {
 		case 'return': {
 			if (!ancestors.some(({ type }) => type === 'fn')) {
