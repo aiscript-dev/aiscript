@@ -10,6 +10,8 @@ type VWithPP = VNum|VStr|VArr|VError;
 
 const PRIMITIVE_PROPS: {
 	[key in VWithPP['type']]: { [key: string]: (target: Value) => Value }
+} & {
+	[key in (Exclude<Value, VWithPP>)['type']]?: never
 } = {
 	num: {
 		to_str: (target: VNum): VFn => FN_NATIVE(async (_, _opts) => {
@@ -433,8 +435,8 @@ const PRIMITIVE_PROPS: {
 } as const;
 
 export function getPrimProp(target: Value, name: string): Value {
-	if (Object.hasOwn(PRIMITIVE_PROPS, target.type)) {
-		const props = PRIMITIVE_PROPS[target.type as VWithPP['type']];
+	const props = PRIMITIVE_PROPS[target.type];
+	if (props != null) {
 		if (Object.hasOwn(props, name)) {
 			return props[name]!(target);
 		} else {
