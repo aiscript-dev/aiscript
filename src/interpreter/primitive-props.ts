@@ -221,7 +221,7 @@ const PRIMITIVE_PROPS: {
 
 		filter: (target: VArr): VFn => FN_NATIVE(async ([fn], opts) => {
 			assertFunction(fn);
-			const vals = [] as Value[];
+			const vals: Value[] = [];
 			for (let i = 0; i < target.value.length; i++) {
 				const item = target.value[i]!;
 				const res = await opts.call(fn, [item, NUM(i)]);
