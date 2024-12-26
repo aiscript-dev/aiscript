@@ -12,6 +12,10 @@ export function NODE<T extends Ast.Node['type']>(
 	return { type, ...params, loc: { start, end } } as Extract<Ast.Node, { type: T }>;
 }
 
+export function LOC(start: Ast.Pos, end: Ast.Pos): Ast.Loc {
+	return { start, end };
+}
+
 export function CALL_NODE(
 	name: string,
 	args: Ast.Expression[],

@@ -80,12 +80,14 @@ export type Each = NodeBase & {
 
 export type For = NodeBase & {
 	type: 'for'; // for文
-	var?: string; // イテレータ変数名
-	from?: Expression; // 開始値
-	to?: Expression; // 終値
-	times?: Expression; // 回数
 	for: Statement | Expression; // 本体処理
-};
+} & ({
+	var: string; // イテレータ変数名
+	from: Expression; // 開始値
+	to: Expression; // 終値
+} | {
+	times: Expression; // 回数
+});
 
 export type Loop = NodeBase & {
 	type: 'loop'; // loop文

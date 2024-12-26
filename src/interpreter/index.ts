@@ -423,7 +423,7 @@ export class Interpreter {
 			}
 
 			case 'for': {
-				if (node.times) {
+				if ('times' in node) {
 					const times = await this._eval(node.times, scope, callStack);
 					if (isControl(times)) {
 						return times;
@@ -438,11 +438,11 @@ export class Interpreter {
 						}
 					}
 				} else {
-					const from = await this._eval(node.from!, scope, callStack);
+					const from = await this._eval(node.from, scope, callStack);
 					if (isControl(from)) {
 						return from;
 					}
-					const to = await this._eval(node.to!, scope, callStack);
+					const to = await this._eval(node.to, scope, callStack);
 					if (isControl(to)) {
 						return to;
 					}
@@ -450,7 +450,7 @@ export class Interpreter {
 					assertNumber(to);
 					for (let i = from.value; i < from.value + to.value; i++) {
 						const v = await this._eval(node.for, scope.createChildScope(new Map([
-							[node.var!, {
+							[node.var, {
 								isMutable: false,
 								value: NUM(i),
 							}],

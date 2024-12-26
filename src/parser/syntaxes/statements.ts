@@ -1,5 +1,5 @@
 import { AiScriptSyntaxError } from '../../error.js';
-import { CALL_NODE, NODE, unexpectedTokenError } from '../utils.js';
+import { CALL_NODE, LOC, NODE, unexpectedTokenError } from '../utils.js';
 import { TokenKind } from '../token.js';
 import { parseBlock, parseDest, parseParams } from './common.js';
 import { parseExpr } from './expressions.js';
@@ -306,12 +306,14 @@ function parseFor(s: ITokenStream): Ast.For {
 
 		const body = parseBlockOrStatement(s);
 
-		return NODE('for', {
+		return {
+			type: 'for',
 			var: name,
 			from: _from,
 			to,
 			for: body,
-		}, startPos, s.getPos());
+			loc: LOC(startPos, s.getPos()),
+		};
 	} else {
 		// times syntax
 
@@ -324,10 +326,12 @@ function parseFor(s: ITokenStream): Ast.For {
 	
 		const body = parseBlockOrStatement(s);
 
-		return NODE('for', {
+		return {
+			type: 'for',
 			times,
 			for: body,
-		}, startPos, s.getPos());
+			loc: LOC(startPos, s.getPos()),
+		};
 	}
 }
 

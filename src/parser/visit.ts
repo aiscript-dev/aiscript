@@ -28,13 +28,10 @@ function visitNodeInner<T extends Ast.Node>(node: T, fn: <T extends Ast.Node>(no
 			break;
 		}
 		case 'for': {
-			if (result.from != null) {
+			if ('from' in result) {
 				result.from = visitNodeInner(result.from, fn, ancestors);
-			}
-			if (result.to != null) {
 				result.to = visitNodeInner(result.to, fn, ancestors);
-			}
-			if (result.times != null) {
+			} else {
 				result.times = visitNodeInner(result.times, fn, ancestors);
 			}
 			result.for = visitNodeInner(result.for, fn, ancestors);

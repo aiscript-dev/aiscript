@@ -113,7 +113,7 @@ function validateNode<T extends Ast.Node>(node: T): T {
 			break;
 		}
 		case 'for': {
-			if (node.var != null && reservedWord.includes(node.var)) {
+			if ('var' in node && reservedWord.includes(node.var)) {
 				throwReservedWordError(node.var, node.loc);
 			}
 			break;
