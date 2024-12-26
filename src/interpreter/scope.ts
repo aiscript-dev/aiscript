@@ -4,9 +4,11 @@ import type { Value } from './value.js';
 import type { Variable } from './variable.js';
 import type { LogObject } from './index.js';
 
+export type LayerdStates = [Map<string, Variable>, ...Map<string, Variable>[]]
+
 export class Scope {
 	private parent?: Scope;
-	private layerdStates: Map<string, Variable>[];
+	private layerdStates: LayerdStates;
 	public name: string;
 	public opts: {
 		log?(type: string, params: LogObject): void;
@@ -14,7 +16,7 @@ export class Scope {
 	} = {};
 	public nsName?: string;
 
-	constructor(layerdStates: Scope['layerdStates'] = [], parent?: Scope, name?: Scope['name'], nsName?: string) {
+	constructor(layerdStates: Scope['layerdStates'] = [new Map()], parent?: Scope, name?: Scope['name'], nsName?: string) {
 		this.layerdStates = layerdStates;
 		this.parent = parent;
 		this.name = name || (layerdStates.length === 1 ? '<root>' : '<anonymous>');
@@ -41,13 +43,13 @@ export class Scope {
 
 	@autobind
 	public createChildScope(states: Map<string, Variable> = new Map(), name?: Scope['name']): Scope {
-		const layer = [states, ...this.layerdStates];
+		const layer: LayerdStates = [states, ...this.layerdStates];
 		return new Scope(layer, this, name);
 	}
 
 	@autobind
 	public createChildNamespaceScope(nsName: string, states: Map<string, Variable> = new Map(), name?: Scope['name']): Scope {
-		const layer = [states, ...this.layerdStates];
+		const layer: LayerdStates = [states, ...this.layerdStates];
 		return new Scope(layer, this, name, nsName);
 	}
 
@@ -58,8 +60,9 @@ export class Scope {
 	@autobind
 	public get(name: string): Value {
 		for (const layer of this.layerdStates) {
-			if (layer.has(name)) {
-				const state = layer.get(name)!.value;
+			const value = layer.get(name);
+			if (value) {
+				const state = value.value;
 				this.log('read', { var: name, val: state });
 				return state;
 			}
@@ -115,7 +118,7 @@ export class Scope {
 	@autobind
 	public add(name: string, variable: Variable): void {
 		this.log('add', { var: name, val: variable });
-		const states = this.layerdStates[0]!;
+		const states = this.layerdStates[0];
 		if (states.has(name)) {
 			throw new AiScriptRuntimeError(
 				`Variable '${name}' already exists in scope '${this.name}'`,
@@ -135,8 +138,8 @@ export class Scope {
 	public assign(name: string, val: Value): void {
 		let i = 1;
 		for (const layer of this.layerdStates) {
-			if (layer.has(name)) {
-				const variable = layer.get(name)!;
+			const variable = layer.get(name);
+			if (variable != null) {
 				if (!variable.isMutable) {
 					throw new AiScriptRuntimeError(`Cannot assign to an immutable variable ${name}.`);
 				}

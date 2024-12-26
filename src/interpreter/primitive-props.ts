@@ -222,8 +222,7 @@ const PRIMITIVE_PROPS: {
 		filter: (target: VArr): VFn => FN_NATIVE(async ([fn], opts) => {
 			assertFunction(fn);
 			const vals: Value[] = [];
-			for (let i = 0; i < target.value.length; i++) {
-				const item = target.value[i]!;
+			for (const [i, item] of target.value.entries()) {
 				const res = await opts.call(fn, [item, NUM(i)]);
 				assertBoolean(res);
 				if (res.value) vals.push(item);
@@ -245,8 +244,7 @@ const PRIMITIVE_PROPS: {
 
 		find: (target: VArr): VFn => FN_NATIVE(async ([fn], opts) => {
 			assertFunction(fn);
-			for (let i = 0; i < target.value.length; i++) {
-				const item = target.value[i]!;
+			for (const [i, item] of target.value.entries()) {
 				const res = await opts.call(fn, [item, NUM(i)]);
 				assertBoolean(res);
 				if (res.value) return item;
@@ -384,8 +382,7 @@ const PRIMITIVE_PROPS: {
 
 		every: (target: VArr): VFn => FN_NATIVE(async ([fn], opts) => {
 			assertFunction(fn);
-			for (let i = 0; i < target.value.length; i++) {
-				const item = target.value[i]!;
+			for (const [i, item] of target.value.entries()) {
 				const res = await opts.call(fn, [item, NUM(i)]);
 				assertBoolean(res);
 				if (!res.value) return FALSE;
@@ -395,8 +392,7 @@ const PRIMITIVE_PROPS: {
 
 		some: (target: VArr): VFn => FN_NATIVE(async ([fn], opts) => {
 			assertFunction(fn);
-			for (let i = 0; i < target.value.length; i++) {
-				const item = target.value[i]!;
+			for (const [i, item] of target.value.entries()) {
 				const res = await opts.call(fn, [item, NUM(i)]);
 				assertBoolean(res);
 				if (res.value) return TRUE;

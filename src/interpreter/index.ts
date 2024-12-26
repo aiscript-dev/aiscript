@@ -61,7 +61,7 @@ export class Interpreter {
 				const q = args[0];
 				assertString(q);
 				if (this.opts.in == null) return NULL;
-				const a = await this.opts.in!(q.value);
+				const a = await this.opts.in(q.value);
 				return STR(a);
 			}),
 		};
@@ -280,15 +280,19 @@ export class Interpreter {
 			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 			return result ?? NULL;
 		} else {
-			const fnScope = fn.scope!.createChildScope();
+			const fnScope = fn.scope.createChildScope();
 			for (const [i, param] of fn.params.entries()) {
-				const arg = args[i];
-				if (!param.default) expectAny(arg);
-				this.define(fnScope, param.dest, arg ?? param.default!, true);
+				let arg = args[i];
+				if (!param.default) {
+					expectAny(arg);
+				} else if (!arg) {
+					arg = param.default;
+				}
+				this.define(fnScope, param.dest, arg, true);
 			}
 
 			const info: CallInfo = { name: fn.name ?? '<anonymous>', pos };
-			return unWrapRet(await this._run(fn.statements!, fnScope, [...callStack, info]));
+			return unWrapRet(await this._run(fn.statements, fnScope, [...callStack, info]));
 		}
 	}
 
@@ -604,8 +608,9 @@ export class Interpreter {
 					return target;
 				}
 				if (isObject(target)) {
-					if (target.value.has(node.name)) {
-						return target.value.get(node.name)!;
+					const value = target.value.get(node.name);
+					if (value != null) {
+						return value;
 					} else {
 						return NULL;
 					}
@@ -632,8 +637,9 @@ export class Interpreter {
 					return item;
 				} else if (isObject(target)) {
 					assertString(i);
-					if (target.value.has(i.value)) {
-						return target.value.get(i.value)!;
+					const value = target.value.get(i.value);
+					if (value != null) {
+						return value;
 					} else {
 						return NULL;
 					}
@@ -844,9 +850,7 @@ export class Interpreter {
 
 		let v: Value | Control = NULL;
 
-		for (let i = 0; i < program.length; i++) {
-			const node = program[i]!;
-
+		for (const node of program) {
 			v = await this._eval(node, scope, callStack);
 			if (v.type === 'return') {
 				this.log('block:return', { scope: scope.name, val: v.value });
