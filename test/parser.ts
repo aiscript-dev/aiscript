@@ -8,14 +8,14 @@ describe('CharStream', () => {
 	test.concurrent('char', async () => {
 		const source = 'abc';
 		const stream = new CharStream(source);
-		assert.strictEqual('a', stream.char);
+		assert.strictEqual('a', stream.char());
 	});
 
 	test.concurrent('next', async () => {
 		const source = 'abc';
 		const stream = new CharStream(source);
 		stream.next();
-		assert.strictEqual('b', stream.char);
+		assert.strictEqual('b', stream.char());
 	});
 
 	describe('prev', () => {
@@ -23,37 +23,37 @@ describe('CharStream', () => {
 			const source = 'abc';
 			const stream = new CharStream(source);
 			stream.next();
-			assert.strictEqual('b', stream.char);
+			assert.strictEqual('b', stream.char());
 			stream.prev();
-			assert.strictEqual('a', stream.char);
+			assert.strictEqual('a', stream.char());
 		});
 
 		test.concurrent('境界外には移動しない', async () => {
 			const source = 'abc';
 			const stream = new CharStream(source);
 			stream.prev();
-			assert.strictEqual('a', stream.char);
+			assert.strictEqual('a', stream.char());
 		});
 	});
 
 	test.concurrent('eof', async () => {
 		const source = 'abc';
 		const stream = new CharStream(source);
-		assert.strictEqual(false, stream.eof);
+		assert.strictEqual(false, stream.eof());
 		stream.next();
-		assert.strictEqual(false, stream.eof);
+		assert.strictEqual(false, stream.eof());
 		stream.next();
-		assert.strictEqual(false, stream.eof);
+		assert.strictEqual(false, stream.eof());
 		stream.next();
-		assert.strictEqual(true, stream.eof);
+		assert.strictEqual(true, stream.eof());
 	});
 
 	test.concurrent('EOFでcharを参照するとエラー', async () => {
 		const source = '';
 		const stream = new CharStream(source);
-		assert.strictEqual(true, stream.eof);
+		assert.strictEqual(true, stream.eof());
 		try {
-			stream.char;
+			stream.char();
 		} catch (e) {
 			return;
 		}
@@ -63,13 +63,13 @@ describe('CharStream', () => {
 	test.concurrent('CRは読み飛ばされる', async () => {
 		const source = 'a\r\nb';
 		const stream = new CharStream(source);
-		assert.strictEqual('a', stream.char);
+		assert.strictEqual('a', stream.char());
 		stream.next();
-		assert.strictEqual('\n', stream.char);
+		assert.strictEqual('\n', stream.char());
 		stream.next();
-		assert.strictEqual('b', stream.char);
+		assert.strictEqual('b', stream.char());
 		stream.next();
-		assert.strictEqual(true, stream.eof);
+		assert.strictEqual(true, stream.eof());
 	});
 });
 

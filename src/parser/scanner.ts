@@ -105,11 +105,11 @@ export class Scanner implements ITokenStream {
 		let hasLeftSpacing = false;
 
 		while (true) {
-			if (this.stream.eof) {
+			if (this.stream.eof()) {
 				return TOKEN(TokenKind.EOF, this.stream.getPos(), { hasLeftSpacing });
 			}
 			// skip spasing
-			if (spaceChars.includes(this.stream.char)) {
+			if (spaceChars.includes(this.stream.char())) {
 				this.stream.next();
 				hasLeftSpacing = true;
 				continue;
@@ -118,17 +118,17 @@ export class Scanner implements ITokenStream {
 			// トークン位置を記憶
 			const pos = this.stream.getPos();
 
-			if (lineBreakChars.includes(this.stream.char)) {
+			if (lineBreakChars.includes(this.stream.char())) {
 				this.skipEmptyLines();
 				return TOKEN(TokenKind.NewLine, pos, { hasLeftSpacing });
 			}
 
 			// noFallthroughCasesInSwitchと関数の返り値の型を利用し、全ての場合分けがreturnかcontinueで適切に処理されることを強制している
 			// その都合上、break文の使用ないしこのswitch文の後に処理を書くことは極力避けてほしい
-			switch (this.stream.char) {
+			switch (this.stream.char()) {
 				case '!': {
 					this.stream.next();
-					if (!this.stream.eof && (this.stream.char as string) === '=') {
+					if (!this.stream.eof() && (this.stream.char()) === '=') {
 						this.stream.next();
 						return TOKEN(TokenKind.NotEq, pos, { hasLeftSpacing });
 					} else {
@@ -141,15 +141,15 @@ export class Scanner implements ITokenStream {
 				}
 				case '#': {
 					this.stream.next();
-					if (!this.stream.eof && (this.stream.char as string) === '#') {
+					if (!this.stream.eof() && (this.stream.char()) === '#') {
 						this.stream.next();
-						if (!this.stream.eof && (this.stream.char as string) === '#') {
+						if (!this.stream.eof() && (this.stream.char()) === '#') {
 							this.stream.next();
 							return TOKEN(TokenKind.Sharp3, pos, { hasLeftSpacing });
 						} else {
 							throw new AiScriptSyntaxError('invalid sequence of characters: "##"', pos);
 						}
-					} else if (!this.stream.eof && (this.stream.char as string) === '[') {
+					} else if (!this.stream.eof() && (this.stream.char()) === '[') {
 						this.stream.next();
 						return TOKEN(TokenKind.OpenSharpBracket, pos, { hasLeftSpacing });
 					} else {
@@ -162,7 +162,7 @@ export class Scanner implements ITokenStream {
 				}
 				case '&': {
 					this.stream.next();
-					if (!this.stream.eof && (this.stream.char as string) === '&') {
+					if (!this.stream.eof() && (this.stream.char()) === '&') {
 						this.stream.next();
 						return TOKEN(TokenKind.And2, pos, { hasLeftSpacing });
 					} else {
@@ -183,7 +183,7 @@ export class Scanner implements ITokenStream {
 				}
 				case '+': {
 					this.stream.next();
-					if (!this.stream.eof && (this.stream.char as string) === '=') {
+					if (!this.stream.eof() && (this.stream.char()) === '=') {
 						this.stream.next();
 						return TOKEN(TokenKind.PlusEq, pos, { hasLeftSpacing });
 					} else {
@@ -196,7 +196,7 @@ export class Scanner implements ITokenStream {
 				}
 				case '-': {
 					this.stream.next();
-					if (!this.stream.eof && (this.stream.char as string) === '=') {
+					if (!this.stream.eof() && (this.stream.char()) === '=') {
 						this.stream.next();
 						return TOKEN(TokenKind.MinusEq, pos, { hasLeftSpacing });
 					} else {
@@ -209,11 +209,11 @@ export class Scanner implements ITokenStream {
 				}
 				case '/': {
 					this.stream.next();
-					if (!this.stream.eof && (this.stream.char as string) === '*') {
+					if (!this.stream.eof() && (this.stream.char()) === '*') {
 						this.stream.next();
 						this.skipCommentRange();
 						continue;
-					} else if (!this.stream.eof && (this.stream.char as string) === '/') {
+					} else if (!this.stream.eof() && (this.stream.char()) === '/') {
 						this.stream.next();
 						this.skipCommentLine();
 						continue;
@@ -223,7 +223,7 @@ export class Scanner implements ITokenStream {
 				}
 				case ':': {
 					this.stream.next();
-					if (!this.stream.eof && (this.stream.char as string) === ':') {
+					if (!this.stream.eof() && (this.stream.char()) === ':') {
 						this.stream.next();
 						return TOKEN(TokenKind.Colon2, pos, { hasLeftSpacing });
 					} else {
@@ -236,10 +236,10 @@ export class Scanner implements ITokenStream {
 				}
 				case '<': {
 					this.stream.next();
-					if (!this.stream.eof && (this.stream.char as string) === '=') {
+					if (!this.stream.eof() && (this.stream.char()) === '=') {
 						this.stream.next();
 						return TOKEN(TokenKind.LtEq, pos, { hasLeftSpacing });
-					} else if (!this.stream.eof && (this.stream.char as string) === ':') {
+					} else if (!this.stream.eof() && (this.stream.char()) === ':') {
 						this.stream.next();
 						return TOKEN(TokenKind.Out, pos, { hasLeftSpacing });
 					} else {
@@ -248,10 +248,10 @@ export class Scanner implements ITokenStream {
 				}
 				case '=': {
 					this.stream.next();
-					if (!this.stream.eof && (this.stream.char as string) === '=') {
+					if (!this.stream.eof() && (this.stream.char()) === '=') {
 						this.stream.next();
 						return TOKEN(TokenKind.Eq2, pos, { hasLeftSpacing });
-					} else if (!this.stream.eof && (this.stream.char as string) === '>') {
+					} else if (!this.stream.eof() && (this.stream.char()) === '>') {
 						this.stream.next();
 						return TOKEN(TokenKind.Arrow, pos, { hasLeftSpacing });
 					} else {
@@ -260,7 +260,7 @@ export class Scanner implements ITokenStream {
 				}
 				case '>': {
 					this.stream.next();
-					if (!this.stream.eof && (this.stream.char as string) === '=') {
+					if (!this.stream.eof() && (this.stream.char()) === '=') {
 						this.stream.next();
 						return TOKEN(TokenKind.GtEq, pos, { hasLeftSpacing });
 					} else {
@@ -300,7 +300,7 @@ export class Scanner implements ITokenStream {
 				}
 				case '|': {
 					this.stream.next();
-					if (!this.stream.eof && (this.stream.char as string) === '|') {
+					if (!this.stream.eof() && (this.stream.char()) === '|') {
 						this.stream.next();
 						return TOKEN(TokenKind.Or2, pos, { hasLeftSpacing });
 					} else {
@@ -318,7 +318,7 @@ export class Scanner implements ITokenStream {
 					const wordToken = this.tryReadWord(hasLeftSpacing);
 					if (wordToken) return wordToken;
 
-					throw new AiScriptSyntaxError(`invalid character: "${this.stream.char}"`, pos);
+					throw new AiScriptSyntaxError(`invalid character: "${this.stream.char()}"`, pos);
 				}
 			}
 			// Use `return` or `continue` before reaching this line.
@@ -335,8 +335,8 @@ export class Scanner implements ITokenStream {
 
 		const pos = this.stream.getPos();
 
-		while (!this.stream.eof && wordChar.test(this.stream.char)) {
-			value += this.stream.char;
+		while (!this.stream.eof() && wordChar.test(this.stream.char())) {
+			value += this.stream.char();
 			this.stream.next();
 		}
 		if (value.length === 0) {
@@ -419,17 +419,17 @@ export class Scanner implements ITokenStream {
 
 		const pos = this.stream.getPos();
 
-		while (!this.stream.eof && digit.test(this.stream.char)) {
-			wholeNumber += this.stream.char;
+		while (!this.stream.eof() && digit.test(this.stream.char())) {
+			wholeNumber += this.stream.char();
 			this.stream.next();
 		}
 		if (wholeNumber.length === 0) {
 			return;
 		}
-		if (!this.stream.eof && this.stream.char === '.') {
+		if (!this.stream.eof() && this.stream.char() === '.') {
 			this.stream.next();
-			while (!this.stream.eof as boolean && digit.test(this.stream.char as string)) {
-				fractional += this.stream.char;
+			while (!this.stream.eof() && digit.test(this.stream.char())) {
+				fractional += this.stream.char();
 				this.stream.next();
 			}
 			if (fractional.length === 0) {
@@ -447,7 +447,7 @@ export class Scanner implements ITokenStream {
 
 	private readStringLiteral(hasLeftSpacing: boolean): Token {
 		let value = '';
-		const literalMark = this.stream.char;
+		const literalMark = this.stream.char();
 		let state: 'string' | 'escape' | 'finish' = 'string';
 
 		const pos = this.stream.getPos();
@@ -456,28 +456,28 @@ export class Scanner implements ITokenStream {
 		while (state !== 'finish') {
 			switch (state) {
 				case 'string': {
-					if (this.stream.eof) {
+					if (this.stream.eof()) {
 						throw new AiScriptUnexpectedEOFError(pos);
 					}
-					if (this.stream.char === '\\') {
+					if (this.stream.char() === '\\') {
 						this.stream.next();
 						state = 'escape';
 						break;
 					}
-					if (this.stream.char === literalMark) {
+					if (this.stream.char() === literalMark) {
 						this.stream.next();
 						state = 'finish';
 						break;
 					}
-					value += this.stream.char;
+					value += this.stream.char();
 					this.stream.next();
 					break;
 				}
 				case 'escape': {
-					if (this.stream.eof) {
+					if (this.stream.eof()) {
 						throw new AiScriptUnexpectedEOFError(pos);
 					}
-					value += this.stream.char;
+					value += this.stream.char();
 					this.stream.next();
 					state = 'string';
 					break;
@@ -502,17 +502,17 @@ export class Scanner implements ITokenStream {
 			switch (state) {
 				case 'string': {
 					// テンプレートの終了が無いままEOFに達した
-					if (this.stream.eof) {
+					if (this.stream.eof()) {
 						throw new AiScriptUnexpectedEOFError(pos);
 					}
 					// エスケープ
-					if (this.stream.char === '\\') {
+					if (this.stream.char() === '\\') {
 						this.stream.next();
 						state = 'escape';
 						break;
 					}
 					// テンプレートの終了
-					if (this.stream.char === '`') {
+					if (this.stream.char() === '`') {
 						this.stream.next();
 						if (buf.length > 0) {
 							elements.push(TOKEN(TokenKind.TemplateStringElement, elementPos, { hasLeftSpacing, value: buf }));
@@ -521,7 +521,7 @@ export class Scanner implements ITokenStream {
 						break;
 					}
 					// 埋め込み式の開始
-					if (this.stream.char === '{') {
+					if (this.stream.char() === '{') {
 						this.stream.next();
 						if (buf.length > 0) {
 							elements.push(TOKEN(TokenKind.TemplateStringElement, elementPos, { hasLeftSpacing, value: buf }));
@@ -532,17 +532,17 @@ export class Scanner implements ITokenStream {
 						state = 'expr';
 						break;
 					}
-					buf += this.stream.char;
+					buf += this.stream.char();
 					this.stream.next();
 					break;
 				}
 				case 'escape': {
 					// エスケープ対象の文字が無いままEOFに達した
-					if (this.stream.eof) {
+					if (this.stream.eof()) {
 						throw new AiScriptUnexpectedEOFError(pos);
 					}
 					// 普通の文字として取り込み
-					buf += this.stream.char;
+					buf += this.stream.char();
 					this.stream.next();
 					// 通常の文字列に戻る
 					state = 'string';
@@ -550,18 +550,18 @@ export class Scanner implements ITokenStream {
 				}
 				case 'expr': {
 					// 埋め込み式の終端記号が無いままEOFに達した
-					if (this.stream.eof) {
+					if (this.stream.eof()) {
 						throw new AiScriptUnexpectedEOFError(pos);
 					}
 					// skip spasing
-					if (spaceChars.includes(this.stream.char)) {
+					if (spaceChars.includes(this.stream.char())) {
 						this.stream.next();
 						continue;
 					}
-					if (this.stream.char === '{') {
+					if (this.stream.char() === '{') {
 						exprBracketDepth++;
 					}
-					if ((this.stream.char as string) === '}') {
+					if ((this.stream.char()) === '}') {
 						// 埋め込み式の終了
 						if (exprBracketDepth === 0) {
 							elements.push(TOKEN(TokenKind.TemplateExprElement, elementPos, { hasLeftSpacing, children: tokenBuf }));
@@ -587,20 +587,20 @@ export class Scanner implements ITokenStream {
 	}
 
 	private skipEmptyLines(): void {
-		while (!this.stream.eof) {
+		while (!this.stream.eof()) {
 			// skip spacing
-			if (spaceChars.includes(this.stream.char) || lineBreakChars.includes(this.stream.char)) {
+			if (spaceChars.includes(this.stream.char()) || lineBreakChars.includes(this.stream.char())) {
 				this.stream.next();
 				continue;
 			}
 
-			if (this.stream.char === '/') {
+			if (this.stream.char() === '/') {
 				this.stream.next();
-				if (!this.stream.eof && (this.stream.char as string) === '*') {
+				if (!this.stream.eof() && (this.stream.char()) === '*') {
 					this.stream.next();
 					this.skipCommentRange();
 					continue;
-				} else if (!this.stream.eof && (this.stream.char as string) === '/') {
+				} else if (!this.stream.eof() && (this.stream.char()) === '/') {
 					this.stream.next();
 					this.skipCommentLine();
 					continue;
@@ -615,10 +615,10 @@ export class Scanner implements ITokenStream {
 
 	private skipCommentLine(): void {
 		while (true) {
-			if (this.stream.eof) {
+			if (this.stream.eof()) {
 				break;
 			}
-			if (this.stream.char === '\n') {
+			if (this.stream.char() === '\n') {
 				break;
 			}
 			this.stream.next();
@@ -627,12 +627,12 @@ export class Scanner implements ITokenStream {
 
 	private skipCommentRange(): void {
 		while (true) {
-			if (this.stream.eof) {
+			if (this.stream.eof()) {
 				break;
 			}
-			if (this.stream.char === '*') {
+			if (this.stream.char() === '*') {
 				this.stream.next();
-				if ((this.stream.char as string) === '/') {
+				if ((this.stream.char()) === '/') {
 					this.stream.next();
 					break;
 				}
