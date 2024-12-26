@@ -103,7 +103,7 @@ export class Scope {
 	public getAll(): Map<string, Variable> {
 		const vars = this.layerdStates.reduce((arr, layer) => {
 			return [...arr, ...layer];
-		}, [] as [string, Variable][]);
+		}, [] satisfies [string, Variable][]);
 		return new Map(vars);
 	}
 
