@@ -14,7 +14,7 @@ import { getPrimProp } from './primitive-props.js';
 import { Variable } from './variable.js';
 import { Reference } from './reference.js';
 import type { JsValue } from './util.js';
-import type { Value, VFn, VUserFn } from './value.js';
+import type { Value, VFn, VFnParam } from './value.js';
 
 export type LogObject = {
 	scope?: string;
@@ -670,28 +670,21 @@ export class Interpreter {
 			}
 
 			case 'fn': {
-				const params = await Promise.all(node.params.map(async (param) => {
-					return {
+				const params: VFnParam[] = [];
+				for (const param of node.params) {
+					const defaultValue = param.default ? await this._eval(param.default, scope, callStack) :
+						param.optional ? NULL :
+						undefined;
+					if (defaultValue != null && isControl(defaultValue)) {
+						return defaultValue;
+					}
+					params.push({
 						dest: param.dest,
-						default:
-							param.default ? await this._eval(param.default, scope, callStack) :
-							param.optional ? NULL :
-							undefined,
+						default: defaultValue,
 						// type: (TODO)
-					};
-				}));
-				const control = params
-					.map((param) => param.default)
-					.filter((value) => value != null)
-					.find(isControl);
-				if (control != null) {
-					return control;
+					});
 				}
-				return FN(
-					params as VUserFn['params'],
-					node.children,
-					scope,
-				);
+				return FN(params, node.children, scope);
 			}
 
 			case 'block': {
