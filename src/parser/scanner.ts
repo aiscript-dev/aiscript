@@ -16,7 +16,7 @@ const wordChar = /^[A-Za-z0-9_]$/;
 */
 export class Scanner implements ITokenStream {
 	private stream: CharStream;
-	private _tokens: Token[] = [];
+	private _tokens: [Token, ...Token[]];
 
 	constructor(source: string)
 	constructor(stream: CharStream)
@@ -26,14 +26,14 @@ export class Scanner implements ITokenStream {
 		} else {
 			this.stream = x;
 		}
-		this._tokens.push(this.readToken());
+		this._tokens = [this.readToken()];
 	}
 
 	/**
 	 * カーソル位置にあるトークンを取得します。
 	*/
 	public getToken(): Token {
-		return this._tokens[0]!;
+		return this._tokens[0];
 	}
 
 	/**
@@ -69,7 +69,7 @@ export class Scanner implements ITokenStream {
 	*/
 	public next(): void {
 		// 現在のトークンがEOFだったら次のトークンに進まない
-		if (this._tokens[0]!.kind === TokenKind.EOF) {
+		if (this._tokens[0].kind === TokenKind.EOF) {
 			return;
 		}
 
