@@ -47,7 +47,7 @@
 		"semver": "7.6.3",
 		"ts-node": "10.9.2",
 		"typescript": "5.7.2",
-		"typescript-eslint": "8.18.2",
+		"typescript-eslint": "8.19.0",
 		"vitest": "2.1.8"
 	},
 	"dependencies": {
