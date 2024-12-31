@@ -1,7 +1,7 @@
 import { NODE } from '../utils.js';
 import { TokenKind } from '../token.js';
 import { AiScriptSyntaxError, AiScriptUnexpectedEOFError } from '../../error.js';
-import { parseDefStatement, parseStatement } from './statements.js';
+import { parseDefStatement, parseStatement, parseStatementWithAttr } from './statements.js';
 import { parseExpr } from './expressions.js';
 
 import type * as Ast from '../../node.js';
@@ -89,6 +89,10 @@ export function parseNamespace(s: ITokenStream): Ast.Namespace {
 			}
 			case TokenKind.Colon2: {
 				members.push(parseNamespace(s));
+				break;
+			}
+			case TokenKind.OpenSharpBracket: {
+				members.push(parseStatementWithAttr(s));
 				break;
 			}
 		}

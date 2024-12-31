@@ -351,7 +351,7 @@ function parseReturn(s: ITokenStream): Ast.Return {
  * StatementWithAttr = *Attr Statement
  * ```
 */
-function parseStatementWithAttr(s: ITokenStream): Ast.Definition {
+export function parseStatementWithAttr(s: ITokenStream): Ast.Definition {
 	const attrs: Ast.Attribute[] = [];
 	while (s.is(TokenKind.OpenSharpBracket)) {
 		attrs.push(parseAttr(s) as Ast.Attribute);
