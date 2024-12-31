@@ -4,4 +4,4 @@
   - return文は常に関数から脱出します。
   - ラベルが省略されたbreak文は必ず最も内側の反復処理文の処理を中断し、ループから脱出します。
   - continue文は必ず最も内側の反復処理文の処理を中断し、ループの先頭に戻ります。
-	- eval, if, match, loop, while, do-while, for, eachにラベルを付けてbreak文やcontinue文で指定したブロックから脱出できるようになります。eval, if, matchから脱出するbreak文には値を指定することができます。
+  - eval, if, match, loop, while, do-while, for, eachにラベルを付けてbreak文やcontinue文で指定したブロックから脱出できるようになります。eval, if, matchから脱出するbreak文には値を指定することができます。
