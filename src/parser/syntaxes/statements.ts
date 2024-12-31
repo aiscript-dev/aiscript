@@ -1,6 +1,6 @@
 import { AiScriptSyntaxError } from '../../error.js';
 import { CALL_NODE, LOC, NODE, unexpectedTokenError } from '../utils.js';
-import { TokenKind } from '../token.js';
+import { expectTokenKind, TokenKind } from '../token.js';
 import { parseBlock, parseDest, parseParams } from './common.js';
 import { parseExpr } from './expressions.js';
 import { parseType, parseTypeParams } from './types.js';
@@ -154,9 +154,10 @@ function parseFnDef(s: ITokenStream): Ast.Definition {
 	s.expect(TokenKind.At);
 	s.next();
 
-	s.expect(TokenKind.Identifier);
+	const token = s.getToken();
+	expectTokenKind(token, TokenKind.Identifier);
 	const nameStartPos = s.getPos();
-	const name = s.getTokenValue();
+	const name = token.value;
 	s.next();
 	const dest = NODE('identifier', { name }, nameStartPos, s.getPos());
 
@@ -279,8 +280,9 @@ function parseFor(s: ITokenStream): Ast.For {
 
 		const identPos = s.getPos();
 
-		s.expect(TokenKind.Identifier);
-		const name = s.getTokenValue();
+		const token = s.getToken();
+		expectTokenKind(token, TokenKind.Identifier);
+		const name = token.value;
 		s.next();
 
 		let _from: Ast.Expression;
@@ -388,8 +390,9 @@ function parseAttr(s: ITokenStream): Ast.Attribute {
 	s.expect(TokenKind.OpenSharpBracket);
 	s.next();
 
-	s.expect(TokenKind.Identifier);
-	const name = s.getTokenValue();
+	const token = s.getToken();
+	expectTokenKind(token, TokenKind.Identifier);
+	const name = token.value;
 	s.next();
 
 	let value: Ast.Expression;

@@ -79,7 +79,10 @@ describe('Scanner', () => {
 		return stream;
 	}
 	function next(stream: Scanner, kind: TokenKind, pos: TokenPosition, opts: { hasLeftSpacing?: boolean, value?: string }) {
-		assert.deepStrictEqual(stream.getToken(), TOKEN(kind, pos, opts));
+		if (opts.hasLeftSpacing == null) {
+			opts.hasLeftSpacing = false;
+		}
+		assert.deepStrictEqual(stream.getToken(), TOKEN(kind as any, pos, opts as any));
 		stream.next();
 	}
 
@@ -139,7 +142,7 @@ describe('Scanner', () => {
 	test.concurrent('lookahead', async () => {
 		const source = '@abc() { }';
 		const stream = init(source);
-		assert.deepStrictEqual(stream.lookahead(1), TOKEN(TokenKind.Identifier, { line: 1, column: 2 }, { value: 'abc' }));
+		assert.deepStrictEqual(stream.lookahead(1), TOKEN(TokenKind.Identifier, { line: 1, column: 2 }, { hasLeftSpacing: false, value: 'abc' }));
 		next(stream, TokenKind.At, { line: 1, column: 1 }, { });
 		next(stream, TokenKind.Identifier, { line: 1, column: 2 }, { value: 'abc' });
 		next(stream, TokenKind.OpenParen, { line: 1, column: 5 }, { });

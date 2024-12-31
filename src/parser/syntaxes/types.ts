@@ -1,5 +1,5 @@
 import { AiScriptSyntaxError, AiScriptUnexpectedEOFError } from '../../error.js';
-import { TokenKind } from '../token.js';
+import { expectTokenKind, TokenKind } from '../token.js';
 import { NODE } from '../utils.js';
 import { parseOptionalSeparator } from './common.js';
 
@@ -51,8 +51,9 @@ export function parseTypeParams(s: ITokenStream): TypeParam[] {
  * ```
 */
 function parseTypeParam(s: ITokenStream): TypeParam {
-	s.expect(TokenKind.Identifier);
-	const name = s.getTokenValue();
+	const token = s.getToken();
+	expectTokenKind(token, TokenKind.Identifier);
+	const name = token.value;
 	s.next();
 
 	return { name };
@@ -154,8 +155,9 @@ function parseNamedType(s: ITokenStream): Ast.TypeSource {
 	const startPos = s.getPos();
 
 	let name: string;
-	if (s.is(TokenKind.Identifier)) {
-		name = s.getTokenValue();
+	const token = s.getToken();
+	if (token.kind === TokenKind.Identifier) {
+		name = token.value;
 		s.next();
 	} else {
 		s.expect(TokenKind.NullKeyword);

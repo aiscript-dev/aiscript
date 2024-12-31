@@ -4,7 +4,7 @@ import { TOKEN, TokenKind } from './token.js';
 import { unexpectedTokenError } from './utils.js';
 
 import type { ITokenStream } from './streams/token-stream.js';
-import type { Token, TokenPosition } from './token.js';
+import type { IdentifierOrLiteralToken, NormalToken, SimpleToken, TemplateExprToken, TemplateToken, TokenPosition } from './token.js';
 
 const spaceChars = [' ', '\t'];
 const lineBreakChars = ['\r', '\n'];
@@ -14,9 +14,9 @@ const wordChar = /^[A-Za-z0-9_]$/;
 /**
  * 入力文字列からトークンを読み取るクラス
 */
-export class Scanner implements ITokenStream {
+export class Scanner implements ITokenStream<NormalToken> {
 	private stream: CharStream;
-	private _tokens: [Token, ...Token[]];
+	private _tokens: [NormalToken, ...NormalToken[]];
 
 	constructor(source: string)
 	constructor(stream: CharStream)
@@ -32,7 +32,7 @@ export class Scanner implements ITokenStream {
 	/**
 	 * カーソル位置にあるトークンを取得します。
 	*/
-	public getToken(): Token {
+	public getToken(): NormalToken {
 		return this._tokens[0];
 	}
 
@@ -46,15 +46,8 @@ export class Scanner implements ITokenStream {
 	/**
 	 * カーソル位置にあるトークンの種類を取得します。
 	*/
-	public getTokenKind(): TokenKind {
+	public getTokenKind(): NormalToken['kind'] {
 		return this.getToken().kind;
-	}
-
-	/**
-	 * カーソル位置にあるトークンに含まれる値を取得します。
-	*/
-	public getTokenValue(): string {
-		return this.getToken().value!;
 	}
 
 	/**
@@ -83,7 +76,7 @@ export class Scanner implements ITokenStream {
 	/**
 	 * トークンの先読みを行います。カーソル位置は移動されません。
 	*/
-	public lookahead(offset: number): Token {
+	public lookahead(offset: number): NormalToken {
 		while (this._tokens.length <= offset) {
 			this._tokens.push(this.readToken());
 		}
@@ -95,13 +88,13 @@ export class Scanner implements ITokenStream {
 	 * カーソル位置にあるトークンの種類が指定したトークンの種類と一致することを確認します。
 	 * 一致しなかった場合には文法エラーを発生させます。
 	*/
-	public expect(kind: TokenKind): void {
+	public expect(kind: NormalToken['kind']): void {
 		if (!this.is(kind)) {
 			throw unexpectedTokenError(this.getTokenKind(), this.getPos());
 		}
 	}
 
-	private readToken(): Token {
+	private readToken(): NormalToken {
 		let hasLeftSpacing = false;
 
 		while (true) {
@@ -329,7 +322,7 @@ export class Scanner implements ITokenStream {
 		// Do not add any more code here. This line should be unreachable.
 	}
 
-	private tryReadWord(hasLeftSpacing: boolean): Token | undefined {
+	private tryReadWord(hasLeftSpacing: boolean): SimpleToken | IdentifierOrLiteralToken | undefined {
 		// read a word
 		let value = '';
 
@@ -413,7 +406,7 @@ export class Scanner implements ITokenStream {
 		}
 	}
 
-	private tryReadDigits(hasLeftSpacing: boolean): Token | undefined {
+	private tryReadDigits(hasLeftSpacing: boolean): IdentifierOrLiteralToken | undefined {
 		let wholeNumber = '';
 		let fractional = '';
 
@@ -445,7 +438,7 @@ export class Scanner implements ITokenStream {
 		return TOKEN(TokenKind.NumberLiteral, pos, { hasLeftSpacing, value });
 	}
 
-	private readStringLiteral(hasLeftSpacing: boolean): Token {
+	private readStringLiteral(hasLeftSpacing: boolean): IdentifierOrLiteralToken {
 		let value = '';
 		const literalMark = this.stream.char();
 		let state: 'string' | 'escape' | 'finish' = 'string';
@@ -487,10 +480,10 @@ export class Scanner implements ITokenStream {
 		return TOKEN(TokenKind.StringLiteral, pos, { hasLeftSpacing, value });
 	}
 
-	private readTemplate(hasLeftSpacing: boolean): Token {
-		const elements: Token[] = [];
+	private readTemplate(hasLeftSpacing: boolean): TemplateToken {
+		const elements: TemplateToken['children'] = [];
 		let buf = '';
-		let tokenBuf: Token[] = [];
+		let tokenBuf: TemplateExprToken['children'] = [];
 		let state: 'string' | 'escape' | 'expr' | 'finish' = 'string';
 		let exprBracketDepth = 0;
 
