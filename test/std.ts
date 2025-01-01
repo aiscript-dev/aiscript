@@ -199,6 +199,15 @@ describe('Obj', () => {
 		`);
 		eq(res, utils.jsToVal({ a: 1, b: 3, c: 4}));
 	});
+
+	test.concurrent('pick', async () => {
+		const res = await exe(`
+		let o = { a: 1, b: 2, c: 3 }
+
+		<: Obj:pick(o, ['b', 'd'])
+		`);
+		eq(res, utils.jsToVal({ b: 2, d: null }));
+	});
 });
 
 describe('Str', () => {
