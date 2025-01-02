@@ -197,7 +197,7 @@ describe('Object', () => {
 		])));
 	});
 
-	/* 未実装
+	/* 未実装 - see also: test/literals.ts > literal > obj (string key)
 	test.concurrent('string key', async () => {
 		const res = await exe(`
 		let obj = {
