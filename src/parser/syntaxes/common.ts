@@ -15,9 +15,10 @@ import type * as Ast from '../../node.js';
 */
 export function parseDest(s: ITokenStream): Ast.Expression {
 	// 全部parseExprに任せるとparseReferenceが型注釈を巻き込んでパースしてしまうためIdentifierのみ個別に処理。
-	if (s.is(TokenKind.Identifier)) {
-		const nameStartPos = s.getPos();
-		const name = s.getTokenValue();
+	const token = s.getToken();
+	if (token.kind === TokenKind.Identifier) {
+		const nameStartPos = token.pos;
+		const name = token.value;
 		s.next();
 		return NODE('identifier', { name }, nameStartPos, s.getPos());
 	} else {

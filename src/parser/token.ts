@@ -1,3 +1,5 @@
+import { unexpectedTokenError } from './utils.js';
+
 export enum TokenKind {
 	EOF,
 	NewLine,
@@ -113,22 +115,99 @@ export enum TokenKind {
 
 export type TokenPosition = { column: number, line: number };
 
-export class Token {
-	constructor(
-		public kind: TokenKind,
-		public pos: TokenPosition,
-		public hasLeftSpacing = false,
-		/** for number literal, string literal */
-		public value?: string,
-		/** for template syntax */
-		public children?: Token[],
-	) { }
+type TokenBase = {
+	kind: TokenKind;
+	pos: TokenPosition;
+	hasLeftSpacing: boolean;
+};
+
+export type EOFToken = TokenBase & {
+	kind: TokenKind.EOF;
+};
+
+export type SimpleToken = TokenBase & {
+	kind: Exclude<
+		TokenKind,
+		TokenKind.EOF
+		| TokenKind.Identifier
+		| TokenKind.NumberLiteral
+		| TokenKind.StringLiteral
+		| TokenKind.Template
+		| TokenKind.TemplateStringElement
+		| TokenKind.TemplateExprElement
+	>;
 }
 
-/**
- * - opts.value: for number literal, string literal
- * - opts.children: for template syntax
-*/
-export function TOKEN(kind: TokenKind, pos: TokenPosition, opts?: { hasLeftSpacing?: boolean, value?: Token['value'], children?: Token['children'] }): Token {
-	return new Token(kind, pos, opts?.hasLeftSpacing, opts?.value, opts?.children);
+/** for number literal, string literal */
+export type IdentifierOrLiteralToken = TokenBase & {
+	kind: TokenKind.Identifier | TokenKind.NumberLiteral | TokenKind.StringLiteral;
+	value: string;
+};
+
+/** for template syntax */
+export type TemplateToken = TokenBase & {
+	kind: TokenKind.Template;
+	children: (EOFToken | TemplateExprToken | TemplateStringToken)[];
+};
+
+export type TemplateStringToken = TokenBase & {
+	kind: TokenKind.TemplateStringElement;
+	value: string;
+};
+
+export type TemplateExprToken = TokenBase & {
+	kind: TokenKind.TemplateExprElement;
+	children: NormalToken[];
+};
+
+export type NormalToken = EOFToken | SimpleToken | IdentifierOrLiteralToken | TemplateToken;
+
+export type Token = NormalToken | TemplateStringToken | TemplateExprToken;
+
+export function TOKEN(
+	kind: EOFToken['kind'],
+	pos: TokenPosition,
+	opts?: Omit<EOFToken, 'kind' | 'pos'>,
+): EOFToken;
+export function TOKEN(
+	kind: SimpleToken['kind'],
+	pos: TokenPosition,
+	opts: Omit<SimpleToken, 'kind' | 'pos'>,
+): SimpleToken;
+export function TOKEN(
+	kind: IdentifierOrLiteralToken['kind'],
+	pos: TokenPosition,
+	opts: Omit<IdentifierOrLiteralToken, 'kind' | 'pos'>,
+): IdentifierOrLiteralToken;
+export function TOKEN(
+	kind: TemplateToken['kind'],
+	pos: TokenPosition,
+	opts: Omit<TemplateToken, 'kind' | 'pos'>,
+): TemplateToken;
+export function TOKEN(
+	kind: TemplateStringToken['kind'],
+	pos: TokenPosition,
+	opts: Omit<TemplateStringToken, 'kind' | 'pos'>,
+): TemplateStringToken;
+export function TOKEN(
+	kind: TemplateExprToken['kind'],
+	pos: TokenPosition,
+	opts: Omit<TemplateExprToken, 'kind' | 'pos'>,
+): TemplateExprToken;
+export function TOKEN(
+	kind: TokenBase['kind'],
+	pos: TokenPosition,
+	opts?: Omit<TokenBase, 'kind' | 'pos'>,
+): TokenBase {
+	if (opts == null) {
+		return { kind, pos, hasLeftSpacing: false };
+	} else {
+		return { kind, pos, ...opts };
+	}
+}
+
+export function expectTokenKind<T extends TokenKind>(token: Token, kind: T): asserts token is Token & { kind: T } {
+	if (token.kind !== kind) {
+		throw unexpectedTokenError(token.kind, token.pos);
+	}
 }

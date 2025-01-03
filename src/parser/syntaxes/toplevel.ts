@@ -1,5 +1,5 @@
 import { NODE } from '../utils.js';
-import { TokenKind } from '../token.js';
+import { expectTokenKind, TokenKind } from '../token.js';
 import { AiScriptSyntaxError, AiScriptUnexpectedEOFError } from '../../error.js';
 import { parseDefStatement, parseStatement } from './statements.js';
 import { parseExpr } from './expressions.js';
@@ -67,8 +67,9 @@ export function parseNamespace(s: ITokenStream): Ast.Namespace {
 	s.expect(TokenKind.Colon2);
 	s.next();
 
-	s.expect(TokenKind.Identifier);
-	const name = s.getTokenValue();
+	const token = s.getToken();
+	expectTokenKind(token, TokenKind.Identifier);
+	const name = token.value;
 	s.next();
 
 	const members: (Ast.Namespace | Ast.Definition)[] = [];
@@ -131,8 +132,9 @@ export function parseMeta(s: ITokenStream): Ast.Meta {
 	s.next();
 
 	let name = null;
-	if (s.is(TokenKind.Identifier)) {
-		name = s.getTokenValue();
+	const token = s.getToken();
+	if (token.kind === TokenKind.Identifier) {
+		name = token.value;
 		s.next();
 	}
 

@@ -1,0 +1,1 @@
+- **Breaking Change** For Hosts: Ast.Forの型がより厳格になりました。

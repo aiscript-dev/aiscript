@@ -347,12 +347,14 @@ type FnTypeSource = NodeBase & {
 // @public (undocumented)
 type For = NodeBase & {
     type: 'for';
-    var?: string;
-    from?: Expression;
-    to?: Expression;
-    times?: Expression;
     for: Statement | Expression;
-};
+} & ({
+    var: string;
+    from: Expression;
+    to: Expression;
+} | {
+    times: Expression;
+});
 
 // @public (undocumented)
 function getLangVersion(input: string): string | null;
