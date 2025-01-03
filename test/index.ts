@@ -198,6 +198,8 @@ describe('Object', () => {
 	});
 
 	/* 未実装
+	 * see also: test/literals.ts > literal > obj (string key)
+	 * issue: https://github.com/aiscript-dev/aiscript/issues/62
 	test.concurrent('string key', async () => {
 		const res = await exe(`
 		let obj = {

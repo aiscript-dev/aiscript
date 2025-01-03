@@ -130,6 +130,15 @@ describe('literal', () => {
 		eq(res, OBJ(new Map([['a', NUM(1)], ['b', NUM(2)], ['c', NUM(3)]])));
 	});
 
+	test.concurrent('obj (string key)', async () => {
+		const res = await exe(`
+		<: {
+			"藍": 42,
+		}
+		`);
+		eq(res, OBJ(new Map([['藍', NUM(42)]])));
+	});
+
 	test.concurrent('obj and arr (separated by line break)', async () => {
 		const res = await exe(`
 		<: {
