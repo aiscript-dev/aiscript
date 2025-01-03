@@ -621,10 +621,13 @@ export class Scanner implements ITokenStream<NormalToken> {
 	private skipCommentRange(): void {
 		while (true) {
 			if (this.stream.eof()) {
-				break;
+				throw new AiScriptUnexpectedEOFError(this.stream.getPos());
 			}
 			if (this.stream.char() === '*') {
 				this.stream.next();
+				if (this.stream.eof()) {
+					throw new AiScriptUnexpectedEOFError(this.stream.getPos());
+				}
 				if ((this.stream.char()) === '/') {
 					this.stream.next();
 					break;
