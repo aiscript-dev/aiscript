@@ -215,6 +215,7 @@ type Attribute = NodeBase & {
 // @public (undocumented)
 type Block = NodeBase & {
     type: 'block';
+    label?: string;
     statements: (Statement | Expression)[];
 };
 
@@ -230,6 +231,8 @@ type Bool = NodeBase & {
 // @public (undocumented)
 type Break = NodeBase & {
     type: 'break';
+    label?: string;
+    expr?: Expression;
 };
 
 // @public (undocumented)
@@ -242,6 +245,7 @@ type Call = NodeBase & {
 // @public (undocumented)
 type Continue = NodeBase & {
     type: 'continue';
+    label?: string;
 };
 
 // @public (undocumented)
@@ -264,6 +268,7 @@ type Div = NodeBase & {
 // @public (undocumented)
 type Each = NodeBase & {
     type: 'each';
+    label?: string;
     var: Expression;
     items: Expression;
     for: Statement | Expression;
@@ -347,6 +352,7 @@ type FnTypeSource = NodeBase & {
 // @public (undocumented)
 type For = NodeBase & {
     type: 'for';
+    label?: string;
     var?: string;
     from?: Expression;
     to?: Expression;
@@ -380,6 +386,7 @@ type Identifier = NodeBase & {
 // @public (undocumented)
 type If = NodeBase & {
     type: 'if';
+    label?: string;
     cond: Expression;
     then: Statement | Expression;
     elseif: {
@@ -479,6 +486,7 @@ type Loc = {
 // @public (undocumented)
 type Loop = NodeBase & {
     type: 'loop';
+    label?: string;
     statements: (Statement | Expression)[];
 };
 
@@ -499,6 +507,7 @@ type Lteq = NodeBase & {
 // @public (undocumented)
 type Match = NodeBase & {
     type: 'match';
+    label?: string;
     about: Expression;
     qs: {
         q: Expression;
