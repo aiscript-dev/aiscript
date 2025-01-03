@@ -927,6 +927,25 @@ describe('Attribute', () => {
 		if (attr.value.type !== 'bool') assert.fail();
 		assert.equal(attr.value.value, true);
 	});
+
+	test.concurrent('attribute with statement under namespace', async () => {
+		const parser = new Parser();
+		const nodes = parser.parse(`
+		:: Tests {
+			#[test]
+			@assert_success() {
+				<: "Hello, world!"
+			}
+		}
+		`);
+		assert.equal(nodes.length, 1);
+		const ns = nodes[0];
+		assert.ok(ns.type === 'ns');
+		const member = ns.members[0];
+		assert.ok(member.type === 'def');
+		const attr = member.attr[0];
+		assert.equal(attr.name, 'test');
+	});
 });
 
 describe('Location', () => {
