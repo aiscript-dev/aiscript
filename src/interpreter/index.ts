@@ -5,6 +5,7 @@
 import { autobind } from '../utils/mini-autobind.js';
 import { AiScriptError, NonAiScriptError, AiScriptNamespaceError, AiScriptIndexOutOfRangeError, AiScriptRuntimeError, AiScriptHostsideError } from '../error.js';
 import * as Ast from '../node.js';
+import { nodeToJs } from '../utils/node-to-js.js';
 import { Scope } from './scope.js';
 import { std } from './lib/std.js';
 import { RETURN, unWrapRet, BREAK, CONTINUE, assertValue, isControl, type Control } from './control.js';
@@ -145,25 +146,6 @@ export class Interpreter {
 	@autobind
 	public static collectMetadata(script?: Ast.Node[]): Map<string | null, JsValue> | undefined {
 		if (script == null || script.length === 0) return;
-
-		function nodeToJs(node: Ast.Node): JsValue {
-			switch (node.type) {
-				case 'arr': return node.value.map(item => nodeToJs(item));
-				case 'bool': return node.value;
-				case 'null': return null;
-				case 'num': return node.value;
-				case 'obj': {
-					const obj: { [keys: string]: JsValue } = {};
-					for (const [k, v] of node.value.entries()) {
-						// TODO: keyが__proto__とかじゃないかチェック
-						obj[k] = nodeToJs(v);
-					}
-					return obj;
-				}
-				case 'str': return node.value;
-				default: return undefined;
-			}
-		}
 
 		const meta = new Map<string | null, JsValue>();
 
