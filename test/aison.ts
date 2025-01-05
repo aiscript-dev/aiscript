@@ -68,6 +68,10 @@ greet()`)).toThrow();
 "hi"`)).toThrow();
     });
 
+    test.concurrent('not allowed: multiple statements in the same line', () => {
+        expect(() => AiSON.parse('"hello" "hi"')).toThrow();
+    });
+
     test.concurrent('not allowed: multiple statements (object)', () => {
         expect(() => AiSON.parse(`{key: "value"}
 
