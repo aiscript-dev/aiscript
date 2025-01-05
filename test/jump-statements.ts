@@ -673,6 +673,57 @@ describe('break', () => {
 		);
 	});
 
+	test.concurrent('break corresponding to each is not allowed in the target', async () => {
+		await assert.rejects(
+			() => exe('#l: each let i, eval { break #l } {}'),
+			new AiScriptSyntaxError('break corresponding to each is not allowed in the target', { line: 1, column: 24 }),
+		);
+	});
+
+	test.concurrent('break corresponding to for is not allowed in the count', async () => {
+		await assert.rejects(
+			() => exe('#l: for eval { break #l } {}'),
+			new AiScriptSyntaxError('break corresponding to for is not allowed in the count', { line: 1, column: 16 }),
+		);
+	});
+
+	describe('break corresponding to for is not allowed in the range', () => {
+		test.concurrent('from', async () => {
+			await assert.rejects(
+				() => exe('#l: for let i = eval { break #l }, 0 {}'),
+				new AiScriptSyntaxError('break corresponding to for is not allowed in the range', { line: 1, column: 24 }),
+			);
+		});
+
+		test.concurrent('to', async () => {
+			await assert.rejects(
+				() => exe('#l: for let i = 0, eval { break #l } {}'),
+				new AiScriptSyntaxError('break corresponding to for is not allowed in the range', { line: 1, column: 27 }),
+			);
+		});
+	});
+
+	test.concurrent('break corresponding to if is not allowed in the condition', async () => {
+		await assert.rejects(
+			() => exe('#l: if eval { break #l } {}'),
+			new AiScriptSyntaxError('break corresponding to if is not allowed in the condition', { line: 1, column: 15 }),
+		);
+	});
+
+	test.concurrent('break corresponding to match is not allowed in the target', async () => {
+		await assert.rejects(
+			() => exe('#l: match eval { break #l } {}'),
+			new AiScriptSyntaxError('break corresponding to match is not allowed in the target', { line: 1, column: 18 }),
+		);
+	});
+
+	test.concurrent('break corresponding to match is not allowed in the pattern', async () => {
+		await assert.rejects(
+			() => exe('#l: match 0 { case eval { break #l } => 1 }'),
+			new AiScriptSyntaxError('break corresponding to match is not allowed in the pattern', { line: 1, column: 27 }),
+		);
+	});
+
 	describe('labeled each', () => {
 		test.concurrent('inner each', async () => {
 			const res = await exe(`

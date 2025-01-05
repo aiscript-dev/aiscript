@@ -45,7 +45,41 @@ function validateNode(node: Ast.Node, ancestors: Ast.Node[]): Ast.Node {
 					throw new AiScriptSyntaxError(`label "${node.label}" is not defined`, node.loc.start);
 				}
 				throw new AiScriptSyntaxError('unlabeled break must be inside for / each / while / do-while / loop', node.loc.start);
-			} else if (node.expr != null) {
+			}
+
+			switch (block.type) {
+				case 'each': {
+					if (ancestors.includes(block.items)) {
+						throw new AiScriptSyntaxError('break corresponding to each is not allowed in the target', node.loc.start);
+					}
+					break;
+				}
+				case 'for': {
+					if (block.times != null && ancestors.includes(block.times)) {
+						throw new AiScriptSyntaxError('break corresponding to for is not allowed in the count', node.loc.start);
+					} else if (ancestors.some((ancestor) => ancestor === block.from || ancestor === block.to)) {
+						throw new AiScriptSyntaxError('break corresponding to for is not allowed in the range', node.loc.start);
+					}
+					break;
+				}
+				case 'if': {
+					if (ancestors.includes(block.cond)) {
+						throw new AiScriptSyntaxError('break corresponding to if is not allowed in the condition', node.loc.start);
+					}
+					break;
+				}
+				case 'match':{
+					if (ancestors.includes(block.about)) {
+						throw new AiScriptSyntaxError('break corresponding to match is not allowed in the target', node.loc.start);
+					}
+					if (block.qs.some(({ q }) => ancestors.includes(q))) {
+						throw new AiScriptSyntaxError('break corresponding to match is not allowed in the pattern', node.loc.start);
+					}
+					break;
+				}
+			}
+
+			if (node.expr != null) {
 				switch (block.type) {
 					case 'if':
 					case 'match':

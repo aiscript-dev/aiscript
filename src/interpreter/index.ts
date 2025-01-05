@@ -367,7 +367,7 @@ export class Interpreter {
 			case 'if': {
 				const cond = await this._eval(node.cond, scope, callStack);
 				if (isControl(cond)) {
-					return unWrapLabeledBreak(cond, node.label);
+					return cond;
 				}
 				assertBoolean(cond);
 				if (cond.value) {
@@ -392,7 +392,7 @@ export class Interpreter {
 			case 'match': {
 				const about = await this._eval(node.about, scope, callStack);
 				if (isControl(about)) {
-					return unWrapLabeledBreak(about, node.label);
+					return about;
 				}
 				for (const qa of node.qs) {
 					const q = await this._eval(qa.q, scope, callStack);
