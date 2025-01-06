@@ -1346,6 +1346,36 @@ describe('continue', () => {
 		});
 	});
 
+	test.concurrent('continue corresponding to each is not allowed in the target', async () => {
+		await assert.rejects(
+			() => exe('#l: each let i, eval { continue #l } {}'),
+			new AiScriptSyntaxError('continue corresponding to each is not allowed in the target', { line: 1, column: 24 }),
+		);
+	});
+
+	test.concurrent('continue corresponding to for is not allowed in the count', async () => {
+		await assert.rejects(
+			() => exe('#l: for eval { continue #l } {}'),
+			new AiScriptSyntaxError('continue corresponding to for is not allowed in the count', { line: 1, column: 16 }),
+		);
+	});
+
+	describe('continue corresponding to for is not allowed in the range', () => {
+		test.concurrent('from', async () => {
+			await assert.rejects(
+				() => exe('#l: for let i = eval { continue #l }, 0 {}'),
+				new AiScriptSyntaxError('continue corresponding to for is not allowed in the range', { line: 1, column: 24 }),
+			);
+		});
+
+		test.concurrent('to', async () => {
+			await assert.rejects(
+				() => exe('#l: for let i = 0, eval { continue #l } {}'),
+				new AiScriptSyntaxError('continue corresponding to for is not allowed in the range', { line: 1, column: 27 }),
+			);
+		});
+	});
+
 	describe('labeled for', () => {
 		test.concurrent('inner each', async () => {
 			const res = await exe(`

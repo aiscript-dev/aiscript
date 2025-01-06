@@ -100,6 +100,20 @@ function validateNode(node: Ast.Node, ancestors: Ast.Node[]): Ast.Node {
 				throw new AiScriptSyntaxError('continue must be inside for / each / while / do-while / loop', node.loc.start);
 			} else {
 				switch (block.type) {
+					case 'each': {
+						if (ancestors.includes(block.items)) {
+							throw new AiScriptSyntaxError('continue corresponding to each is not allowed in the target', node.loc.start);
+						}
+						break;
+					}
+					case 'for': {
+						if (block.times != null && ancestors.includes(block.times)) {
+							throw new AiScriptSyntaxError('continue corresponding to for is not allowed in the count', node.loc.start);
+						} else if (ancestors.some((ancestor) => ancestor === block.from || ancestor === block.to)) {
+							throw new AiScriptSyntaxError('continue corresponding to for is not allowed in the range', node.loc.start);
+						}
+						break;
+					}
 					case 'if':
 						throw new AiScriptSyntaxError('cannot use continue for if', node.loc.start);
 					case 'match':
