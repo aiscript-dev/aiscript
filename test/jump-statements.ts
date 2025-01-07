@@ -703,11 +703,20 @@ describe('break', () => {
 		});
 	});
 
-	test.concurrent('break corresponding to if is not allowed in the condition', async () => {
-		await assert.rejects(
-			() => exe('#l: if eval { break #l } {}'),
-			new AiScriptSyntaxError('break corresponding to if is not allowed in the condition', { line: 1, column: 15 }),
-		);
+	describe('break corresponding to if is not allowed in the condition', () => {
+		test.concurrent('if', async () => {
+			await assert.rejects(
+				() => exe('#l: if eval { break #l } {}'),
+				new AiScriptSyntaxError('break corresponding to if is not allowed in the condition', { line: 1, column: 15 }),
+			);
+		});
+
+		test.concurrent('elif', async () => {
+			await assert.rejects(
+				() => exe('#l: if false {} elif eval { break #l } {}'),
+				new AiScriptSyntaxError('break corresponding to if is not allowed in the condition', { line: 1, column: 29 }),
+			);
+		});
 	});
 
 	test.concurrent('break corresponding to match is not allowed in the target', async () => {

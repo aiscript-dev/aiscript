@@ -63,7 +63,7 @@ function validateNode(node: Ast.Node, ancestors: Ast.Node[]): Ast.Node {
 					break;
 				}
 				case 'if': {
-					if (ancestors.includes(block.cond)) {
+					if (ancestors.includes(block.cond) || block.elseif.some(({ cond }) => ancestors.includes(cond))) {
 						throw new AiScriptSyntaxError('break corresponding to if is not allowed in the condition', node.loc.start);
 					}
 					break;

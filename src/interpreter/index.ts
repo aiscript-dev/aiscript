@@ -376,7 +376,7 @@ export class Interpreter {
 				for (const elseif of node.elseif) {
 					const cond = await this._eval(elseif.cond, scope, callStack);
 					if (isControl(cond)) {
-						return unWrapLabeledBreak(cond, node.label);
+						return cond;
 					}
 					assertBoolean(cond);
 					if (cond.value) {
@@ -397,7 +397,7 @@ export class Interpreter {
 				for (const qa of node.qs) {
 					const q = await this._eval(qa.q, scope, callStack);
 					if (isControl(q)) {
-						return unWrapLabeledBreak(q, node.label);
+						return q;
 					}
 					if (eq(about, q)) {
 						return unWrapLabeledBreak(await this._evalClause(qa.a, scope, callStack), node.label);
