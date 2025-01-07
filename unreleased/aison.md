@@ -1,4 +1,4 @@
-- AiScriptのオブジェクトの表記法を利用したデータ交換用フォーマット「AiScript Object Notation (AiSON)」およびそのパーサーを追加しました。
+- For Hosts: AiScriptのオブジェクトの表記法を利用したデータ交換用フォーマット「AiScript Object Notation (AiSON)」およびそのパーサーを追加しました。
 	- 現在、`AiSON.parse()`（パースしてJavaScriptオブジェクトに変換する）が使用できます。
 	- 通常のAiScriptと異なるのは以下の点です：
 		- リテラルはトップレベルにひとつだけしか許可されません。
