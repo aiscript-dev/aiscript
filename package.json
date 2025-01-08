@@ -35,7 +35,7 @@
 	},
 	"devDependencies": {
 		"@eslint/js": "9.17.0",
-		"@microsoft/api-extractor": "7.48.1",
+		"@microsoft/api-extractor": "7.49.0",
 		"@types/eslint__js": "8.42.3",
 		"@types/node": "22.10.2",
 		"@types/seedrandom": "3.0.8",
@@ -45,13 +45,13 @@
 		"eslint-plugin-import": "2.31.0",
 		"semver": "7.6.3",
 		"ts-node": "10.9.2",
-		"typescript": "5.7.2",
-		"typescript-eslint": "8.18.2",
+		"typescript": "5.7.3",
+		"typescript-eslint": "8.19.1",
 		"vitest": "2.1.8"
 	},
 	"dependencies": {
 		"seedrandom": "3.0.5",
 		"stringz": "2.1.0",
-		"uuid": "11.0.3"
+		"uuid": "11.0.4"
 	}
 }
