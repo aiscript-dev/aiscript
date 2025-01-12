@@ -1,4 +1,4 @@
-import { TokenKind } from '../token.js';
+import { expectTokenKind, TokenKind } from '../token.js';
 import { AiScriptSyntaxError, AiScriptUnexpectedEOFError } from '../../error.js';
 import { NODE } from '../utils.js';
 import { parseStatement } from './statements.js';
@@ -149,7 +149,9 @@ export function parseLabel(s: ITokenStream): string {
 		throw new AiScriptSyntaxError('cannot use spaces in a label', s.getPos());
 	}
 	s.expect(TokenKind.Identifier);
-	const label = s.getTokenValue();
+	const token = s.getToken();
+	expectTokenKind(token, TokenKind.Identifier);
+	const label = token.value;
 	s.next();
 
 	return label;

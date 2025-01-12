@@ -55,8 +55,10 @@ function validateNode<T extends Ast.Node>(node: T, ancestors: Ast.Node[]): T {
 					break;
 				}
 				case 'for': {
-					if (block.times != null && ancestors.includes(block.times)) {
-						throw new AiScriptSyntaxError('break corresponding to for is not allowed in the count', node.loc.start);
+					if ('times' in block) {
+						if (ancestors.includes(block.times)) {
+							throw new AiScriptSyntaxError('break corresponding to for is not allowed in the count', node.loc.start);
+						}
 					} else if (ancestors.some((ancestor) => ancestor === block.from || ancestor === block.to)) {
 						throw new AiScriptSyntaxError('break corresponding to for is not allowed in the range', node.loc.start);
 					}
@@ -107,8 +109,10 @@ function validateNode<T extends Ast.Node>(node: T, ancestors: Ast.Node[]): T {
 						break;
 					}
 					case 'for': {
-						if (block.times != null && ancestors.includes(block.times)) {
-							throw new AiScriptSyntaxError('continue corresponding to for is not allowed in the count', node.loc.start);
+						if ('times' in block) {
+							if (ancestors.includes(block.times)) {
+								throw new AiScriptSyntaxError('continue corresponding to for is not allowed in the count', node.loc.start);
+							}
 						} else if (ancestors.some((ancestor) => ancestor === block.from || ancestor === block.to)) {
 							throw new AiScriptSyntaxError('continue corresponding to for is not allowed in the range', node.loc.start);
 						}
