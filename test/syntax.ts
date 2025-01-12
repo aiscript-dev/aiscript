@@ -2,7 +2,7 @@ import * as assert from 'assert';
 import { describe, test } from 'vitest';
 import { utils } from '../src';
 import { NUM, STR, NULL, ARR, OBJ, BOOL, TRUE, FALSE, ERROR ,FN_NATIVE } from '../src/interpreter/value';
-import { AiScriptRuntimeError } from '../src/error';
+import { AiScriptRuntimeError, AiScriptUnexpectedEOFError } from '../src/error';
 import { exe, getMeta, eq } from './testutils';
 
 /*
@@ -513,6 +513,16 @@ describe('Comment', () => {
 		<: x
 		`);
 		eq(res, STR('a'));
+	});
+
+	test.concurrent('invalid EOF in multi line comment', async () => {
+		await assert.rejects(() => exe(`
+		/* comment
+		`), AiScriptUnexpectedEOFError);
+	});
+
+	test.concurrent('invalid EOF in multi line comment 2', async () => {
+		await assert.rejects(() => exe('/* comment *'), AiScriptUnexpectedEOFError);
 	});
 });
 

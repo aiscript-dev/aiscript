@@ -620,6 +620,17 @@ export const std: Record<string, Value> = {
 		assertObject(b);
 		return OBJ(new Map([...a.value, ...b.value]));
 	}),
+
+	'Obj:pick': FN_NATIVE(([obj, keys]) => {
+		assertObject(obj);
+		assertArray(keys);
+		return OBJ(new Map(
+			keys.value.map(key => {
+				assertString(key);
+				return [key.value, obj.value.get(key.value) ?? NULL];
+			})
+		));
+	}),
 	//#endregion
 	
 	//#region Error
