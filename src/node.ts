@@ -73,6 +73,7 @@ export type Return = NodeBase & {
 
 export type Each = NodeBase & {
 	type: 'each'; // each文
+	label?: string; // ラベル
 	var: Expression; // イテレータ宣言
 	items: Expression; // 配列
 	for: Statement | Expression; // 本体処理
@@ -80,6 +81,7 @@ export type Each = NodeBase & {
 
 export type For = NodeBase & {
 	type: 'for'; // for文
+	label?: string; // ラベル
 	for: Statement | Expression; // 本体処理
 } & ({
 	var: string; // イテレータ変数名
@@ -91,15 +93,19 @@ export type For = NodeBase & {
 
 export type Loop = NodeBase & {
 	type: 'loop'; // loop文
+	label?: string; // ラベル
 	statements: (Statement | Expression)[]; // 処理
 };
 
 export type Break = NodeBase & {
 	type: 'break'; // break文
+	label?: string; // ラベル
+	expr?: Expression; // 式
 };
 
 export type Continue = NodeBase & {
 	type: 'continue'; // continue文
+	label?: string; // ラベル
 };
 
 export type AddAssign = NodeBase & {
@@ -267,6 +273,7 @@ export type Or = NodeBase & {
 
 export type If = NodeBase & {
 	type: 'if'; // if式
+	label?: string; // ラベル
 	cond: Expression; // 条件式
 	then: Statement | Expression; // then節
 	elseif: {
@@ -291,6 +298,7 @@ export type Fn = NodeBase & {
 
 export type Match = NodeBase & {
 	type: 'match'; // パターンマッチ
+	label?: string; // ラベル
 	about: Expression; // 対象
 	qs: {
 		q: Expression; // 条件
@@ -301,6 +309,7 @@ export type Match = NodeBase & {
 
 export type Block = NodeBase & {
 	type: 'block'; // ブロックまたはeval式
+	label?: string; // ラベル
 	statements: (Statement | Expression)[]; // 処理
 };
 

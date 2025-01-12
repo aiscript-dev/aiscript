@@ -784,6 +784,17 @@ describe('for', () => {
 			`);
 		});
 	});
+
+	test.concurrent('with label', async () => {
+		const res = await exe(`
+		var count = 0
+		#label: for (let i, 10) {
+			count += i + 1
+		}
+		<: count
+		`);
+		eq(res, NUM(55));
+	});
 });
 
 describe('each', () => {
@@ -841,6 +852,17 @@ describe('each', () => {
 		}
 		assert.fail();
 	});
+
+	test.concurrent('with label', async () => {
+		const res = await exe(`
+		let msgs = []
+		#label: each let item, ["ai", "chan", "kawaii"] {
+			msgs.push([item, "!"].join())
+		}
+		<: msgs
+		`);
+		eq(res, ARR([STR('ai!'), STR('chan!'), STR('kawaii!')]));
+	});
 });
 
 describe('while', () => {
@@ -863,6 +885,17 @@ describe('while', () => {
 		`);
 		eq(res, NULL);
 	});
+
+	test.concurrent('with label', async () => {
+		const res = await exe(`
+		var count = 0
+		#label: while count < 42 {
+			count += 1
+		}
+		<: count
+		`);
+		eq(res, NUM(42));
+	});
 });
 
 describe('do-while', () => {
@@ -884,6 +917,17 @@ describe('do-while', () => {
 		} while false
 		`);
 		eq(res, STR('hoge'));
+	});
+
+	test.concurrent('with label', async () => {
+		const res = await exe(`
+		var count = 0
+		do {
+			count += 1
+		} while count < 42
+		<: count
+		`);
+		eq(res, NUM(42));
 	});
 });
 
@@ -913,6 +957,18 @@ describe('loop', () => {
 		<: b
 		`);
 		eq(res, ARR([STR('ai'), STR('kawaii')]));
+	});
+
+	test.concurrent('with label', async () => {
+		const res = await exe(`
+		var count = 0
+		#label: loop {
+			if (count == 10) break
+			count = (count + 1)
+		}
+		<: count
+		`);
+		eq(res, NUM(10));
 	});
 });
 

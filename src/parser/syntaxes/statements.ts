@@ -1,7 +1,7 @@
 import { AiScriptSyntaxError } from '../../error.js';
 import { CALL_NODE, LOC, NODE, unexpectedTokenError } from '../utils.js';
 import { expectTokenKind, TokenKind } from '../token.js';
-import { parseBlock, parseDest, parseParams } from './common.js';
+import { parseBlock, parseDest, parseLabel, parseParams } from './common.js';
 import { parseExpr } from './expressions.js';
 import { parseType, parseTypeParams } from './types.js';
 
@@ -32,6 +32,9 @@ export function parseStatement(s: ITokenStream): Ast.Statement | Ast.Expression 
 		case TokenKind.OpenSharpBracket: {
 			return parseStatementWithAttr(s);
 		}
+		case TokenKind.Sharp: {
+			return parseStatementWithLabel(s);
+		}
 		case TokenKind.EachKeyword: {
 			return parseEach(s);
 		}
@@ -48,12 +51,10 @@ export function parseStatement(s: ITokenStream): Ast.Statement | Ast.Expression 
 			return parseWhile(s);
 		}
 		case TokenKind.BreakKeyword: {
-			s.next();
-			return NODE('break', {}, startPos, s.getPos());
+			return parseBreak(s);
 		}
 		case TokenKind.ContinueKeyword: {
-			s.next();
-			return NODE('continue', {}, startPos, s.getPos());
+			return parseContinue(s);
 		}
 	}
 	const expr = parseExpr(s, false);
@@ -206,6 +207,33 @@ function parseOut(s: ITokenStream): Ast.Call {
 	const expr = parseExpr(s, false);
 
 	return CALL_NODE('print', [expr], startPos, s.getPos());
+}
+
+/**
+ * ```abnf
+ * StatementWithLabel = "#" IDENT ":" Statement
+ * ```
+*/
+function parseStatementWithLabel(s: ITokenStream): Ast.Each | Ast.For | Ast.Loop | Ast.If | Ast.Match | Ast.Block {
+	const label = parseLabel(s);
+	s.expect(TokenKind.Colon);
+	s.next();
+
+	const statement = parseStatement(s);
+	switch (statement.type) {
+		case 'if':
+		case 'match':
+		case 'block':
+		case 'each':
+		case 'for':
+		case 'loop': {
+			statement.label = label;
+			return statement;
+		}
+		default: {
+			throw new AiScriptSyntaxError('cannot use label for statement other than eval / if / match / for / each / while / do-while / loop', statement.loc.start);
+		}
+	}
 }
 
 /**
@@ -479,6 +507,51 @@ function parseWhile(s: ITokenStream): Ast.Loop {
 
 /**
  * ```abnf
+ * Break = "break" ["#" IDENT [Expr]]
+ * ```
+*/
+function parseBreak(s: ITokenStream): Ast.Break {
+	const startPos = s.getPos();
+
+	s.expect(TokenKind.BreakKeyword);
+	s.next();
+
+	let label: string | undefined;
+	let expr: Ast.Expression | undefined;
+	if (s.is(TokenKind.Sharp)) {
+		label = parseLabel(s);
+
+		if (s.is(TokenKind.Colon)) {
+			throw new AiScriptSyntaxError('cannot omit label from break if expression is given', startPos);
+		} else if (!isStatementTerminator(s)) {
+			expr = parseExpr(s, false);
+		}
+	}
+
+	return NODE('break', { label, expr }, startPos, s.getPos());
+}
+
+/**
+ * ```abnf
+ * Continue = "continue" ["#" IDENT]
+ * ```
+*/
+function parseContinue(s: ITokenStream): Ast.Continue {
+	const startPos = s.getPos();
+
+	s.expect(TokenKind.ContinueKeyword);
+	s.next();
+
+	let label: string | undefined;
+	if (s.is(TokenKind.Sharp)) {
+		label = parseLabel(s);
+	}
+
+	return NODE('continue', { label }, startPos, s.getPos());
+}
+
+/**
+ * ```abnf
  * Assign = Expr ("=" / "+=" / "-=") Expr
  * ```
 */
@@ -505,5 +578,21 @@ function tryParseAssign(s: ITokenStream, dest: Ast.Expression): Ast.Statement | 
 		default: {
 			return;
 		}
+	}
+}
+
+function isStatementTerminator(s: ITokenStream): boolean {
+	switch (s.getTokenKind()) {
+		case TokenKind.EOF:
+		case TokenKind.NewLine:
+		case TokenKind.WhileKeyword:
+		case TokenKind.ElifKeyword:
+		case TokenKind.ElseKeyword:
+		case TokenKind.Comma:
+		case TokenKind.SemiColon:
+		case TokenKind.CloseBrace:
+			return true;
+		default:
+			return false;
 	}
 }

@@ -146,7 +146,7 @@ export class Scanner implements ITokenStream<NormalToken> {
 						this.stream.next();
 						return TOKEN(TokenKind.OpenSharpBracket, pos, { hasLeftSpacing });
 					} else {
-						throw new AiScriptSyntaxError('invalid character: "#"', pos);
+						return TOKEN(TokenKind.Sharp, pos, { hasLeftSpacing });
 					}
 				}
 				case '%': {

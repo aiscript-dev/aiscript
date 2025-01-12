@@ -109,12 +109,36 @@ function validateNode<T extends Ast.Node>(node: T): T {
 			break;
 		}
 		case 'each': {
+			if (node.label != null && reservedWord.includes(node.label)) {
+				throwReservedWordError(node.label, node.loc);
+			}
 			validateDest(node.var);
 			break;
 		}
 		case 'for': {
+			if (node.label != null && reservedWord.includes(node.label)) {
+				throwReservedWordError(node.label, node.loc);
+			}
 			if ('var' in node && reservedWord.includes(node.var)) {
 				throwReservedWordError(node.var, node.loc);
+			}
+			break;
+		}
+		case 'loop': {
+			if (node.label != null && reservedWord.includes(node.label)) {
+				throwReservedWordError(node.label, node.loc);
+			}
+			break;
+		}
+		case 'break': {
+			if (node.label != null && reservedWord.includes(node.label)) {
+				throwReservedWordError(node.label, node.loc);
+			}
+			break;
+		}
+		case 'continue': {
+			if (node.label != null && reservedWord.includes(node.label)) {
+				throwReservedWordError(node.label, node.loc);
 			}
 			break;
 		}
