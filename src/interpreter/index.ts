@@ -7,7 +7,7 @@ import { AiScriptError, NonAiScriptError, AiScriptNamespaceError, AiScriptIndexO
 import * as Ast from '../node.js';
 import { Scope } from './scope.js';
 import { std } from './lib/std.js';
-import { RETURN, unWrapRet, BREAK, CONTINUE, assertValue, isControl, type Control } from './control.js';
+import { RETURN, unWrapRet, BREAK, CONTINUE, assertValue, isControl, type Control, unWrapLabeledBreak } from './control.js';
 import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray, eq, isObject, isArray, expectAny, reprValue, isFunction } from './util.js';
 import { NULL, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, ERROR } from './value.js';
 import { getPrimProp } from './primitive-props.js';
@@ -371,7 +371,7 @@ export class Interpreter {
 				}
 				assertBoolean(cond);
 				if (cond.value) {
-					return this._evalClause(node.then, scope, callStack);
+					return unWrapLabeledBreak(await this._evalClause(node.then, scope, callStack), node.label);
 				}
 				for (const elseif of node.elseif) {
 					const cond = await this._eval(elseif.cond, scope, callStack);
@@ -380,11 +380,11 @@ export class Interpreter {
 					}
 					assertBoolean(cond);
 					if (cond.value) {
-						return this._evalClause(elseif.then, scope, callStack);
+						return unWrapLabeledBreak(await this._evalClause(elseif.then, scope, callStack), node.label);
 					}
 				}
 				if (node.else) {
-					return this._evalClause(node.else, scope, callStack);
+					return unWrapLabeledBreak(await this._evalClause(node.else, scope, callStack), node.label);
 				}
 				return NULL;
 			}
@@ -400,11 +400,11 @@ export class Interpreter {
 						return q;
 					}
 					if (eq(about, q)) {
-						return await this._evalClause(qa.a, scope, callStack);
+						return unWrapLabeledBreak(await this._evalClause(qa.a, scope, callStack), node.label);
 					}
 				}
 				if (node.default) {
-					return await this._evalClause(node.default, scope, callStack);
+					return unWrapLabeledBreak(await this._evalClause(node.default, scope, callStack), node.label);
 				}
 				return NULL;
 			}
@@ -414,7 +414,14 @@ export class Interpreter {
 				while (true) {
 					const v = await this._run(node.statements, scope.createChildScope(), callStack);
 					if (v.type === 'break') {
+						if (v.label != null && v.label !== node.label) {
+							return v;
+						}
 						break;
+					} else if (v.type === 'continue') {
+						if (v.label != null && v.label !== node.label) {
+							return v;
+						}
 					} else if (v.type === 'return') {
 						return v;
 					}
@@ -432,7 +439,14 @@ export class Interpreter {
 					for (let i = 0; i < times.value; i++) {
 						const v = await this._evalClause(node.for, scope, callStack);
 						if (v.type === 'break') {
+							if (v.label != null && v.label !== node.label) {
+								return v;
+							}
 							break;
+						} else if (v.type === 'continue') {
+							if (v.label != null && v.label !== node.label) {
+								return v;
+							}
 						} else if (v.type === 'return') {
 							return v;
 						}
@@ -456,7 +470,14 @@ export class Interpreter {
 							}],
 						])), callStack);
 						if (v.type === 'break') {
+							if (v.label != null && v.label !== node.label) {
+								return v;
+							}
 							break;
+						} else if (v.type === 'continue') {
+							if (v.label != null && v.label !== node.label) {
+								return v;
+							}
 						} else if (v.type === 'return') {
 							return v;
 						}
@@ -476,7 +497,14 @@ export class Interpreter {
 					this.define(eachScope, node.var, item, false);
 					const v = await this._eval(node.for, eachScope, callStack);
 					if (v.type === 'break') {
+						if (v.label != null && v.label !== node.label) {
+							return v;
+						}
 						break;
+					} else if (v.type === 'continue') {
+						if (v.label != null && v.label !== node.label) {
+							return v;
+						}
 					} else if (v.type === 'return') {
 						return v;
 					}
@@ -695,7 +723,7 @@ export class Interpreter {
 			}
 
 			case 'block': {
-				return this._run(node.statements, scope.createChildScope(), callStack);
+				return unWrapLabeledBreak(await this._run(node.statements, scope.createChildScope(), callStack), node.label);
 			}
 
 			case 'exists': {
@@ -728,13 +756,21 @@ export class Interpreter {
 			}
 
 			case 'break': {
+				let val: Value | undefined;
+				if (node.expr != null) {
+					const valueOrControl = await this._eval(node.expr, scope, callStack);
+					if (isControl(valueOrControl)) {
+						return valueOrControl;
+					}
+					val = valueOrControl;
+				}
 				this.log('block:break', { scope: scope.name });
-				return BREAK();
+				return BREAK(node.label, val);
 			}
 
 			case 'continue': {
 				this.log('block:continue', { scope: scope.name });
-				return CONTINUE();
+				return CONTINUE(node.label);
 			}
 
 			case 'ns': {

@@ -2,7 +2,7 @@ import { AiScriptSyntaxError, AiScriptUnexpectedEOFError } from '../../error.js'
 import { NODE, unexpectedTokenError } from '../utils.js';
 import { TokenStream } from '../streams/token-stream.js';
 import { TokenKind } from '../token.js';
-import { parseBlock, parseOptionalSeparator, parseParams } from './common.js';
+import { parseBlock, parseLabel, parseOptionalSeparator, parseParams } from './common.js';
 import { parseBlockOrStatement } from './statements.js';
 import { parseType, parseTypeParams } from './types.js';
 
@@ -288,6 +288,9 @@ function parseAtom(s: ITokenStream, isStatic: boolean): Ast.Expression {
 			s.next();
 			return expr;
 		}
+		case TokenKind.Sharp: {
+			return parseExprWithLabel(s);
+		}
 	}
 	throw unexpectedTokenError(s.getTokenKind(), startPos);
 }
@@ -341,6 +344,30 @@ function parseCall(s: ITokenStream, target: Ast.Expression): Ast.Call {
 		target,
 		args: items,
 	}, startPos, s.getPos());
+}
+
+/**
+ * ```abnf
+ * ExprWithLabel = "#" IDENT ":" Expr
+ * ```
+*/
+function parseExprWithLabel(s: ITokenStream): Ast.If | Ast.Match | Ast.Block {
+	const label = parseLabel(s);
+	s.expect(TokenKind.Colon);
+	s.next();
+
+	const expr = parseExpr(s, false);
+	switch (expr.type) {
+		case 'if':
+		case 'match':
+		case 'block': {
+			expr.label = label;
+			return expr;
+		}
+		default: {
+			throw new AiScriptSyntaxError('cannot use label for expression other than eval / if / match', expr.loc.start);
+		}
+	}
 }
 
 /**
