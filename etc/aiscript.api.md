@@ -671,7 +671,7 @@ type Return = NodeBase & {
 
 // @public (undocumented)
 export class Scope {
-    constructor(layerdStates?: Scope['layerdStates'], parent?: Scope, name?: Scope['name'], nsName?: string);
+    constructor(layeredStates?: Scope['layeredStates'], parent?: Scope, name?: Scope['name'], nsName?: string);
     add(name: string, variable: Variable): void;
     assign(name: string, val: Value): void;
     // (undocumented)
