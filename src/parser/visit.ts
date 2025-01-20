@@ -1,6 +1,6 @@
 import type * as Ast from '../node.js';
 
-export function visitNode<T extends Ast.Node>(node: T, fn: <T extends Ast.Node>(node: T, ancestors: Ast.Node[]) => T): T {
+export function visitNode<T extends Ast.Node>(node: T, fn: <U extends Ast.Node>(node: U, ancestors: Ast.Node[]) => U): T {
 	return visitNodeInner(node, fn, []);
 }
 
