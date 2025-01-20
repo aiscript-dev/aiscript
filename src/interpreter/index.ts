@@ -14,7 +14,7 @@ import { getPrimProp } from './primitive-props.js';
 import { Variable } from './variable.js';
 import { Reference } from './reference.js';
 import type { JsValue } from './util.js';
-import type { Value, VFn, VUserFn } from './value.js';
+import type { Value, VFn, VFnParam } from './value.js';
 
 export type LogObject = {
 	scope?: string;
@@ -61,7 +61,7 @@ export class Interpreter {
 				const q = args[0];
 				assertString(q);
 				if (this.opts.in == null) return NULL;
-				const a = await this.opts.in!(q.value);
+				const a = await this.opts.in(q.value);
 				return STR(a);
 			}),
 		};
@@ -280,15 +280,19 @@ export class Interpreter {
 			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 			return result ?? NULL;
 		} else {
-			const fnScope = fn.scope!.createChildScope();
+			const fnScope = fn.scope.createChildScope();
 			for (const [i, param] of fn.params.entries()) {
-				const arg = args[i];
-				if (!param.default) expectAny(arg);
-				this.define(fnScope, param.dest, arg ?? param.default!, true);
+				let arg = args[i];
+				if (!param.default) {
+					expectAny(arg);
+				} else if (!arg) {
+					arg = param.default;
+				}
+				this.define(fnScope, param.dest, arg, true);
 			}
 
 			const info: CallInfo = { name: fn.name ?? '<anonymous>', pos };
-			return unWrapRet(await this._run(fn.statements!, fnScope, [...callStack, info]));
+			return unWrapRet(await this._run(fn.statements, fnScope, [...callStack, info]));
 		}
 	}
 
@@ -430,7 +434,7 @@ export class Interpreter {
 			}
 
 			case 'for': {
-				if (node.times) {
+				if ('times' in node) {
 					const times = await this._eval(node.times, scope, callStack);
 					if (isControl(times)) {
 						return times;
@@ -452,11 +456,11 @@ export class Interpreter {
 						}
 					}
 				} else {
-					const from = await this._eval(node.from!, scope, callStack);
+					const from = await this._eval(node.from, scope, callStack);
 					if (isControl(from)) {
 						return from;
 					}
-					const to = await this._eval(node.to!, scope, callStack);
+					const to = await this._eval(node.to, scope, callStack);
 					if (isControl(to)) {
 						return to;
 					}
@@ -464,7 +468,7 @@ export class Interpreter {
 					assertNumber(to);
 					for (let i = from.value; i < from.value + to.value; i++) {
 						const v = await this._eval(node.for, scope.createChildScope(new Map([
-							[node.var!, {
+							[node.var, {
 								isMutable: false,
 								value: NUM(i),
 							}],
@@ -632,8 +636,9 @@ export class Interpreter {
 					return target;
 				}
 				if (isObject(target)) {
-					if (target.value.has(node.name)) {
-						return target.value.get(node.name)!;
+					const value = target.value.get(node.name);
+					if (value != null) {
+						return value;
 					} else {
 						return NULL;
 					}
@@ -660,8 +665,9 @@ export class Interpreter {
 					return item;
 				} else if (isObject(target)) {
 					assertString(i);
-					if (target.value.has(i.value)) {
-						return target.value.get(i.value)!;
+					const value = target.value.get(i.value);
+					if (value != null) {
+						return value;
 					} else {
 						return NULL;
 					}
@@ -698,28 +704,21 @@ export class Interpreter {
 			}
 
 			case 'fn': {
-				const params = await Promise.all(node.params.map(async (param) => {
-					return {
+				const params: VFnParam[] = [];
+				for (const param of node.params) {
+					const defaultValue = param.default ? await this._eval(param.default, scope, callStack) :
+						param.optional ? NULL :
+						undefined;
+					if (defaultValue != null && isControl(defaultValue)) {
+						return defaultValue;
+					}
+					params.push({
 						dest: param.dest,
-						default:
-							param.default ? await this._eval(param.default, scope, callStack) :
-							param.optional ? NULL :
-							undefined,
+						default: defaultValue,
 						// type: (TODO)
-					};
-				}));
-				const control = params
-					.map((param) => param.default)
-					.filter((value) => value != null)
-					.find(isControl);
-				if (control != null) {
-					return control;
+					});
 				}
-				return FN(
-					params as VUserFn['params'],
-					node.children,
-					scope,
-				);
+				return FN(params, node.children, scope);
 			}
 
 			case 'block': {
@@ -887,9 +886,7 @@ export class Interpreter {
 
 		let v: Value | Control = NULL;
 
-		for (let i = 0; i < program.length; i++) {
-			const node = program[i]!;
-
+		for (const node of program) {
 			v = await this._eval(node, scope, callStack);
 			if (v.type === 'return') {
 				this.log('block:return', { scope: scope.name, val: v.value });

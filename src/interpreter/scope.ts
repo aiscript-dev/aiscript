@@ -4,9 +4,11 @@ import type { Value } from './value.js';
 import type { Variable } from './variable.js';
 import type { LogObject } from './index.js';
 
+export type LayeredStates = [Map<string, Variable>, ...Map<string, Variable>[]]
+
 export class Scope {
 	private parent?: Scope;
-	private layerdStates: Map<string, Variable>[];
+	private layeredStates: LayeredStates;
 	public name: string;
 	public opts: {
 		log?(type: string, params: LogObject): void;
@@ -14,10 +16,10 @@ export class Scope {
 	} = {};
 	public nsName?: string;
 
-	constructor(layerdStates: Scope['layerdStates'] = [], parent?: Scope, name?: Scope['name'], nsName?: string) {
-		this.layerdStates = layerdStates;
+	constructor(layeredStates: Scope['layeredStates'] = [new Map()], parent?: Scope, name?: Scope['name'], nsName?: string) {
+		this.layeredStates = layeredStates;
 		this.parent = parent;
-		this.name = name || (layerdStates.length === 1 ? '<root>' : '<anonymous>');
+		this.name = name || (layeredStates.length === 1 ? '<root>' : '<anonymous>');
 		this.nsName = nsName;
 	}
 
@@ -41,13 +43,13 @@ export class Scope {
 
 	@autobind
 	public createChildScope(states: Map<string, Variable> = new Map(), name?: Scope['name']): Scope {
-		const layer = [states, ...this.layerdStates];
+		const layer: LayeredStates = [states, ...this.layeredStates];
 		return new Scope(layer, this, name);
 	}
 
 	@autobind
 	public createChildNamespaceScope(nsName: string, states: Map<string, Variable> = new Map(), name?: Scope['name']): Scope {
-		const layer = [states, ...this.layerdStates];
+		const layer: LayeredStates = [states, ...this.layeredStates];
 		return new Scope(layer, this, name, nsName);
 	}
 
@@ -57,9 +59,10 @@ export class Scope {
 	 */
 	@autobind
 	public get(name: string): Value {
-		for (const layer of this.layerdStates) {
-			if (layer.has(name)) {
-				const state = layer.get(name)!.value;
+		for (const layer of this.layeredStates) {
+			const value = layer.get(name);
+			if (value) {
+				const state = value.value;
 				this.log('read', { var: name, val: state });
 				return state;
 			}
@@ -67,7 +70,7 @@ export class Scope {
 
 		throw new AiScriptRuntimeError(
 			`No such variable '${name}' in scope '${this.name}'`,
-			{ scope: this.layerdStates });
+			{ scope: this.layeredStates });
 	}
 
 	/**
@@ -85,7 +88,7 @@ export class Scope {
 	 */
 	@autobind
 	public exists(name: string): boolean {
-		for (const layer of this.layerdStates) {
+		for (const layer of this.layeredStates) {
 			if (layer.has(name)) {
 				this.log('exists', { var: name });
 				return true;
@@ -101,9 +104,9 @@ export class Scope {
 	 */
 	@autobind
 	public getAll(): Map<string, Variable> {
-		const vars = this.layerdStates.reduce((arr, layer) => {
+		const vars = this.layeredStates.reduce((arr, layer) => {
 			return [...arr, ...layer];
-		}, [] as [string, Variable][]);
+		}, [] satisfies [string, Variable][]);
 		return new Map(vars);
 	}
 
@@ -115,11 +118,11 @@ export class Scope {
 	@autobind
 	public add(name: string, variable: Variable): void {
 		this.log('add', { var: name, val: variable });
-		const states = this.layerdStates[0]!;
+		const states = this.layeredStates[0];
 		if (states.has(name)) {
 			throw new AiScriptRuntimeError(
 				`Variable '${name}' already exists in scope '${this.name}'`,
-				{ scope: this.layerdStates });
+				{ scope: this.layeredStates });
 		}
 		states.set(name, variable);
 		if (this.parent == null) this.onUpdated(name, variable.value);
@@ -134,9 +137,9 @@ export class Scope {
 	@autobind
 	public assign(name: string, val: Value): void {
 		let i = 1;
-		for (const layer of this.layerdStates) {
-			if (layer.has(name)) {
-				const variable = layer.get(name)!;
+		for (const layer of this.layeredStates) {
+			const variable = layer.get(name);
+			if (variable != null) {
 				if (!variable.isMutable) {
 					throw new AiScriptRuntimeError(`Cannot assign to an immutable variable ${name}.`);
 				}
@@ -144,7 +147,7 @@ export class Scope {
 				variable.value = val;
 
 				this.log('assign', { var: name, val: val });
-				if (i === this.layerdStates.length) this.onUpdated(name, val);
+				if (i === this.layeredStates.length) this.onUpdated(name, val);
 				return;
 			}
 			i++;
@@ -152,6 +155,6 @@ export class Scope {
 
 		throw new AiScriptRuntimeError(
 			`No such variable '${name}' in scope '${this.name}'`,
-			{ scope: this.layerdStates });
+			{ scope: this.layeredStates });
 	}
 }

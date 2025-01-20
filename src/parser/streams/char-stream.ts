@@ -28,15 +28,15 @@ export class CharStream {
 	/**
 	 * ストリームの終わりに達しているかどうかを取得します。
 	*/
-	public get eof(): boolean {
+	public eof(): boolean {
 		return this.endOfPage && this.isLastPage;
 	}
 
 	/**
 	 * カーソル位置にある文字を取得します。
 	*/
-	public get char(): string {
-		if (this.eof) {
+	public char(): string {
+		if (this.eof()) {
 			throw new Error('end of stream');
 		}
 		return this._char!;
@@ -56,7 +56,7 @@ export class CharStream {
 	 * カーソル位置を次の文字へ進めます。
 	*/
 	public next(): void {
-		if (!this.eof && this._char === '\n') {
+		if (!this.eof() && this._char === '\n') {
 			this.line++;
 			this.column = 0;
 		} else {
@@ -90,7 +90,7 @@ export class CharStream {
 	private moveNext(): void {
 		this.loadChar();
 		while (true) {
-			if (!this.eof && this._char === '\r') {
+			if (!this.eof() && this._char === '\r') {
 				this.incAddr();
 				this.loadChar();
 				continue;
@@ -111,7 +111,7 @@ export class CharStream {
 	private movePrev(): void {
 		this.loadChar();
 		while (true) {
-			if (!this.eof && this._char === '\r') {
+			if (!this.eof() && this._char === '\r') {
 				this.decAddr();
 				this.loadChar();
 				continue;
@@ -130,7 +130,7 @@ export class CharStream {
 	}
 
 	private loadChar(): void {
-		if (this.eof) {
+		if (this.eof()) {
 			this._char = undefined;
 		} else {
 			this._char = this.pages.get(this.pageIndex)![this.address]!;

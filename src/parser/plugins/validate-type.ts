@@ -23,7 +23,7 @@ function collectTypeParams(node: Ast.Node, ancestors: Ast.Node[]): Ast.TypeParam
 	return items;
 }
 
-function validateNode(node: Ast.Node, ancestors: Ast.Node[]): Ast.Node {
+function validateNode<T extends Ast.Node>(node: T, ancestors: Ast.Node[]): T {
 	switch (node.type) {
 		case 'def': {
 			if (node.varType != null) {

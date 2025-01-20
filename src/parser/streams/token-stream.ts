@@ -5,26 +5,21 @@ import type { Token, TokenPosition } from '../token.js';
 /**
  * トークンの読み取りに関するインターフェース
 */
-export interface ITokenStream {
+export interface ITokenStream<T extends Token = Token> {
 	/**
 	 * カーソル位置にあるトークンを取得します。
 	*/
-	getToken(): Token;
+	getToken(): T;
 
 	/**
 	 * カーソル位置にあるトークンの種類が指定したトークンの種類と一致するかどうかを示す値を取得します。
 	*/
-	is(kind: TokenKind): boolean;
+	is(kind: T['kind']): boolean;
 
 	/**
 	 * カーソル位置にあるトークンの種類を取得します。
 	*/
-	getTokenKind(): TokenKind;
-
-	/**
-	 * カーソル位置にあるトークンに含まれる値を取得します。
-	*/
-	getTokenValue(): string;
+	getTokenKind(): T['kind'];
 
 	/**
 	 * カーソル位置にあるトークンの位置情報を取得します。
@@ -39,13 +34,13 @@ export interface ITokenStream {
 	/**
 	 * トークンの先読みを行います。カーソル位置は移動されません。
 	*/
-	lookahead(offset: number): Token;
+	lookahead(offset: number): T;
 
 	/**
 	 * カーソル位置にあるトークンの種類が指定したトークンの種類と一致することを確認します。
 	 * 一致しなかった場合には文法エラーを発生させます。
 	*/
-	expect(kind: TokenKind): void;
+	expect(kind: T['kind']): void;
 }
 
 /**
@@ -81,13 +76,6 @@ export class TokenStream implements ITokenStream {
 	*/
 	public is(kind: TokenKind): boolean {
 		return this.getTokenKind() === kind;
-	}
-
-	/**
-	 * カーソル位置にあるトークンに含まれる値を取得します。
-	*/
-	public getTokenValue(): string {
-		return this.getToken().value!;
 	}
 
 	/**

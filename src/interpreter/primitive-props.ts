@@ -9,9 +9,11 @@ import type { Value, VArr, VFn, VNum, VStr, VError } from './value.js';
 type VWithPP = VNum|VStr|VArr|VError;
 
 const PRIMITIVE_PROPS: {
-	[key in VWithPP['type']]: { [key: string]: (target: Value) => Value }
+	[key in VWithPP['type']]: Map<string, (target: Value) => Value>;
+} & {
+	[key in (Exclude<Value, VWithPP>)['type']]?: never;
 } = {
-	num: {
+	num: new Map(Object.entries({
 		to_str: (target: VNum): VFn => FN_NATIVE(async (_, _opts) => {
 			return STR(target.value.toString());
 		}),
@@ -19,9 +21,9 @@ const PRIMITIVE_PROPS: {
 		to_hex: (target: VNum): VFn => FN_NATIVE(async (_, _opts) => {
 			return STR(target.value.toString(16));
 		}),
-	},
+	})),
 
-	str: {
+	str: new Map(Object.entries({
 		to_num: (target: VStr): VFn => FN_NATIVE(async (_, _opts) => {
 			const parsed = parseInt(target.value, 10);
 			if (isNaN(parsed)) return NULL;
@@ -168,9 +170,9 @@ const PRIMITIVE_PROPS: {
 
 			return STR(target.value.padEnd(width.value, s));
 		}),
-	},
+	})),
 
-	arr: {
+	arr: new Map(Object.entries({
 		len: (target: VArr): VNum => NUM(target.value.length),
 
 		push: (target: VArr): VFn => FN_NATIVE(async ([val], _opts) => {
@@ -219,9 +221,8 @@ const PRIMITIVE_PROPS: {
 
 		filter: (target: VArr): VFn => FN_NATIVE(async ([fn], opts) => {
 			assertFunction(fn);
-			const vals = [] as Value[];
-			for (let i = 0; i < target.value.length; i++) {
-				const item = target.value[i]!;
+			const vals: Value[] = [];
+			for (const [i, item] of target.value.entries()) {
 				const res = await opts.call(fn, [item, NUM(i)]);
 				assertBoolean(res);
 				if (res.value) vals.push(item);
@@ -243,8 +244,7 @@ const PRIMITIVE_PROPS: {
 
 		find: (target: VArr): VFn => FN_NATIVE(async ([fn], opts) => {
 			assertFunction(fn);
-			for (let i = 0; i < target.value.length; i++) {
-				const item = target.value[i]!;
+			for (const [i, item] of target.value.entries()) {
 				const res = await opts.call(fn, [item, NUM(i)]);
 				assertBoolean(res);
 				if (res.value) return item;
@@ -382,8 +382,7 @@ const PRIMITIVE_PROPS: {
 
 		every: (target: VArr): VFn => FN_NATIVE(async ([fn], opts) => {
 			assertFunction(fn);
-			for (let i = 0; i < target.value.length; i++) {
-				const item = target.value[i]!;
+			for (const [i, item] of target.value.entries()) {
 				const res = await opts.call(fn, [item, NUM(i)]);
 				assertBoolean(res);
 				if (!res.value) return FALSE;
@@ -393,8 +392,7 @@ const PRIMITIVE_PROPS: {
 
 		some: (target: VArr): VFn => FN_NATIVE(async ([fn], opts) => {
 			assertFunction(fn);
-			for (let i = 0; i < target.value.length; i++) {
-				const item = target.value[i]!;
+			for (const [i, item] of target.value.entries()) {
 				const res = await opts.call(fn, [item, NUM(i)]);
 				assertBoolean(res);
 				if (res.value) return TRUE;
@@ -423,20 +421,21 @@ const PRIMITIVE_PROPS: {
 			assertNumber(index);
 			return target.value.at(index.value) ?? otherwise ?? NULL;
 		}),
-	},
+	})),
 
-	error: {
+	error: new Map(Object.entries({
 		name: (target: VError): VStr => STR(target.value), 
 
 		info: (target: VError): Value => target.info ?? NULL,
-	},
+	})),
 } as const;
 
 export function getPrimProp(target: Value, name: string): Value {
-	if (Object.hasOwn(PRIMITIVE_PROPS, target.type)) {
-		const props = PRIMITIVE_PROPS[target.type as VWithPP['type']];
-		if (Object.hasOwn(props, name)) {
-			return props[name]!(target);
+	const props = PRIMITIVE_PROPS[target.type];
+	if (props != null) {
+		const prop = props.get(name);
+		if (prop != null) {
+			return prop(target);
 		} else {
 			throw new AiScriptRuntimeError(`No such prop (${name}) in ${target.type}.`);
 		}
