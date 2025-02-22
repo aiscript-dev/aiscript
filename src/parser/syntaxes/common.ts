@@ -1,4 +1,4 @@
-import { TokenKind } from '../token.js';
+import { expectTokenKind, TokenKind } from '../token.js';
 import { AiScriptSyntaxError, AiScriptUnexpectedEOFError } from '../../error.js';
 import { NODE } from '../utils.js';
 import { parseStatement } from './statements.js';
@@ -15,9 +15,10 @@ import type * as Ast from '../../node.js';
 */
 export function parseDest(s: ITokenStream): Ast.Expression {
 	// 全部parseExprに任せるとparseReferenceが型注釈を巻き込んでパースしてしまうためIdentifierのみ個別に処理。
-	if (s.is(TokenKind.Identifier)) {
-		const nameStartPos = s.getPos();
-		const name = s.getTokenValue();
+	const token = s.getToken();
+	if (token.kind === TokenKind.Identifier) {
+		const nameStartPos = token.pos;
+		const name = token.value;
 		s.next();
 		return NODE('identifier', { name }, nameStartPos, s.getPos());
 	} else {
@@ -148,7 +149,9 @@ export function parseLabel(s: ITokenStream): string {
 		throw new AiScriptSyntaxError('cannot use spaces in a label', s.getPos());
 	}
 	s.expect(TokenKind.Identifier);
-	const label = s.getTokenValue();
+	const token = s.getToken();
+	expectTokenKind(token, TokenKind.Identifier);
+	const label = token.value;
 	s.next();
 
 	return label;

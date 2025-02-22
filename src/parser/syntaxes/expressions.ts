@@ -1,7 +1,7 @@
 import { AiScriptSyntaxError, AiScriptUnexpectedEOFError } from '../../error.js';
 import { NODE, unexpectedTokenError } from '../utils.js';
 import { TokenStream } from '../streams/token-stream.js';
-import { TokenKind } from '../token.js';
+import { expectTokenKind, TokenKind } from '../token.js';
 import { parseBlock, parseLabel, parseOptionalSeparator, parseParams } from './common.js';
 import { parseBlockOrStatement } from './statements.js';
 import { parseType, parseTypeParams } from './types.js';
@@ -103,8 +103,9 @@ function parseInfix(s: ITokenStream, left: Ast.Expression, minBp: number): Ast.E
 	}
 
 	if (op === TokenKind.Dot) {
-		s.expect(TokenKind.Identifier);
-		const name = s.getTokenValue();
+		const token = s.getToken();
+		expectTokenKind(token, TokenKind.Identifier);
+		const name = token.value;
 		s.next();
 
 		return NODE('prop', {
@@ -192,8 +193,9 @@ function parsePostfix(s: ITokenStream, expr: Ast.Expression): Ast.Expression {
 
 function parseAtom(s: ITokenStream, isStatic: boolean): Ast.Expression {
 	const startPos = s.getPos();
+	const token = s.getToken();
 
-	switch (s.getTokenKind()) {
+	switch (token.kind) {
 		case TokenKind.IfKeyword: {
 			if (isStatic) break;
 			return parseIf(s);
@@ -219,12 +221,12 @@ function parseAtom(s: ITokenStream, isStatic: boolean): Ast.Expression {
 
 			if (isStatic) break;
 
-			for (const [i, element] of s.getToken().children!.entries()) {
+			for (const [i, element] of token.children.entries()) {
 				switch (element.kind) {
 					case TokenKind.TemplateStringElement: {
 						// トークンの終了位置を取得するために先読み
-						const nextToken = s.getToken().children![i + 1] ?? s.lookahead(1);
-						values.push(NODE('str', { value: element.value! }, element.pos, nextToken.pos));
+						const nextToken = token.children[i + 1] ?? s.lookahead(1);
+						values.push(NODE('str', { value: element.value }, element.pos, nextToken.pos));
 						break;
 					}
 					case TokenKind.TemplateExprElement: {
@@ -251,13 +253,13 @@ function parseAtom(s: ITokenStream, isStatic: boolean): Ast.Expression {
 			return NODE('tmpl', { tmpl: values }, startPos, s.getPos());
 		}
 		case TokenKind.StringLiteral: {
-			const value = s.getTokenValue();
+			const value = token.value;
 			s.next();
 			return NODE('str', { value }, startPos, s.getPos());
 		}
 		case TokenKind.NumberLiteral: {
 			// TODO: validate number value
-			const value = Number(s.getTokenValue());
+			const value = Number(token.value);
 			s.next();
 			return NODE('num', { value }, startPos, s.getPos());
 		}
@@ -568,8 +570,9 @@ function parseReference(s: ITokenStream): Ast.Identifier {
 				break;
 			}
 		}
-		s.expect(TokenKind.Identifier);
-		segs.push(s.getTokenValue());
+		const token = s.getToken();
+		expectTokenKind(token, TokenKind.Identifier);
+		segs.push(token.value);
 		s.next();
 	}
 	return NODE('identifier', { name: segs.join(':') }, startPos, s.getPos());
@@ -592,11 +595,11 @@ function parseObject(s: ITokenStream, isStatic: boolean): Ast.Obj {
 
 	const map = new Map<string, Ast.Expression>();
 	while (!s.is(TokenKind.CloseBrace)) {
-		const keyTokenKind = s.getTokenKind();
-		if (keyTokenKind !== TokenKind.Identifier && keyTokenKind !== TokenKind.StringLiteral) {
-			throw unexpectedTokenError(keyTokenKind, s.getPos());
+		const token = s.getToken();
+		if (token.kind !== TokenKind.Identifier && token.kind !== TokenKind.StringLiteral) {
+			throw unexpectedTokenError(token.kind, s.getPos());
 		}
-		const k = s.getTokenValue();
+		const k = token.value;
 		s.next();
 
 		s.expect(TokenKind.Colon);

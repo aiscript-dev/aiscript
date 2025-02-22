@@ -87,7 +87,7 @@ function validateTypeParams(node: Ast.Fn | Ast.FnTypeSource): void {
 	}
 }
 
-function validateNode(node: Ast.Node): Ast.Node {
+function validateNode<T extends Ast.Node>(node: T): T {
 	switch (node.type) {
 		case 'def': {
 			validateDest(node.dest);
@@ -119,7 +119,7 @@ function validateNode(node: Ast.Node): Ast.Node {
 			if (node.label != null && reservedWord.includes(node.label)) {
 				throwReservedWordError(node.label, node.loc);
 			}
-			if (node.var != null && reservedWord.includes(node.var)) {
+			if ('var' in node && reservedWord.includes(node.var)) {
 				throwReservedWordError(node.var, node.loc);
 			}
 			break;

@@ -353,12 +353,14 @@ type FnTypeSource = NodeBase & {
 type For = NodeBase & {
     type: 'for';
     label?: string;
-    var?: string;
-    from?: Expression;
-    to?: Expression;
-    times?: Expression;
     for: Statement | Expression;
-};
+} & ({
+    var: string;
+    from: Expression;
+    to: Expression;
+} | {
+    times: Expression;
+});
 
 // @public (undocumented)
 function getLangVersion(input: string): string | null;
@@ -669,7 +671,7 @@ type Return = NodeBase & {
 
 // @public (undocumented)
 export class Scope {
-    constructor(layerdStates?: Scope['layerdStates'], parent?: Scope, name?: Scope['name'], nsName?: string);
+    constructor(layeredStates?: Scope['layeredStates'], parent?: Scope, name?: Scope['name'], nsName?: string);
     add(name: string, variable: Variable): void;
     assign(name: string, val: Value): void;
     // (undocumented)
