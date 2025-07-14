@@ -115,6 +115,15 @@ export class Interpreter {
 		}
 	}
 
+	@autobind
+	public execSync(script?: Ast.Node[]): Value | undefined {
+		if (script == null || script.length === 0) return;
+		this.collectNsSync(script);
+		const result = this._runSync(script, this.scope, []);
+		assertValue(result);
+		return result;
+	}
+
 	/**
 	 * Executes AiScript Function.
 	 * When it fails,
@@ -234,6 +243,22 @@ export class Interpreter {
 	}
 
 	@autobind
+	private collectNsSync(script: Ast.Node[], scope = this.scope): void {
+		for (const node of script) {
+			switch (node.type) {
+				case 'ns': {
+					this.collectNsMemberSync(node, scope);
+					break;
+				}
+
+				default: {
+					// nop
+				}
+			}
+		}
+	}
+
+	@autobind
 	private async collectNsMember(ns: Ast.Namespace, scope = this.scope): Promise<void> {
 		const nsScope = scope.createChildNamespaceScope(ns.name);
 
@@ -259,6 +284,50 @@ export class Interpreter {
 						value.name = nsScope.getNsPrefix() + node.dest.name;
 					}
 					await this.define(nsScope, node.dest, value, node.mut);
+
+					break;
+				}
+
+				case 'ns': {
+					break; // nop
+				}
+
+				default: {
+					// exhaustiveness check
+					const n: never = node;
+					const nd = n as Ast.Node;
+					throw new AiScriptNamespaceError('invalid ns member type: ' + nd.type, nd.loc.start);
+				}
+			}
+		}
+	}
+
+	@autobind
+	private collectNsMemberSync(ns: Ast.Namespace, scope = this.scope): void {
+		const nsScope = scope.createChildNamespaceScope(ns.name);
+
+		this.collectNsSync(ns.members, nsScope);
+
+		for (const node of ns.members) {
+			switch (node.type) {
+				case 'def': {
+					if (node.dest.type !== 'identifier') {
+						throw new AiScriptNamespaceError('Destructuring assignment is invalid in namespace declarations.', node.loc.start);
+					}
+					if (node.mut) {
+						throw new AiScriptNamespaceError('No "var" in namespace declaration: ' + node.dest.name, node.loc.start);
+					}
+
+					const value = this._evalSync(node.expr, nsScope, []);
+					assertValue(value);
+					if (
+						node.expr.type === 'fn'
+						&& isFunction(value)
+						&& !value.native
+					) {
+						value.name = nsScope.getNsPrefix() + node.dest.name;
+					}
+					this.defineSync(nsScope, node.dest, value, node.mut);
 
 					break;
 				}
@@ -329,6 +398,9 @@ export class Interpreter {
 				unregisterPauseHandler: this.unregisterPauseHandler,
 				unregisterUnpauseHandler: this.unregisterUnpauseHandler,
 			});
+			if (result instanceof Promise) {
+				throw new AiScriptHostsideError('Native function must not return a Promise in sync mode.');
+			}
 			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 			return result ?? NULL;
 		} else {
@@ -957,7 +1029,6 @@ export class Interpreter {
 			}
 		}
 	}
-
 	
 	@autobind
 	private __evalSync(node: Ast.Node, scope: Scope, callStack: readonly CallInfo[]): Value | Control {
