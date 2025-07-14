@@ -61,6 +61,16 @@ export type VNativeFn = VFnBase & {
 		unregisterPauseHandler: (handler: () => void) => void;
 		unregisterUnpauseHandler: (handler: () => void) => void;
 	}) => Value | Promise<Value> | void;
+	nativeSync?: (args: (Value | undefined)[], opts: {
+		call: (fn: VFn, args: Value[]) => Value;
+		topCall: (fn: VFn, args: Value[]) => Value;
+		registerAbortHandler: (handler: () => void) => void;
+		registerPauseHandler: (handler: () => void) => void;
+		registerUnpauseHandler: (handler: () => void) => void;
+		unregisterAbortHandler: (handler: () => void) => void;
+		unregisterPauseHandler: (handler: () => void) => void;
+		unregisterUnpauseHandler: (handler: () => void) => void;
+	}) => Value | void;
 };
 
 export type VError = {
@@ -124,9 +134,10 @@ export const FN = (params: VUserFn['params'], statements: VUserFn['statements'],
 	scope: scope,
 });
 
-export const FN_NATIVE = (fn: VNativeFn['native']): VNativeFn => ({
+export const FN_NATIVE = (fn: VNativeFn['native'], fnSync?: VNativeFn['nativeSync']): VNativeFn => ({
 	type: 'fn' as const,
 	native: fn,
+	nativeSync: fnSync,
 });
 
 export const ERROR = (name: string, info?: Value): Value => ({
