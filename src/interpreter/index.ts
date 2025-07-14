@@ -310,7 +310,16 @@ export class Interpreter {
 	private _fnSync(fn: VFn, args: Value[], callStack: readonly CallInfo[], pos?: Ast.Pos): Value {
 		if (fn.native) {
 			const info: CallInfo = { name: '<native>', pos };
-			const result = fn.native(args, {
+			const result = fn.nativeSync ? fn.nativeSync(args, {
+				call: (fn, args) => this._fnSync(fn, args, [...callStack, info]),
+				topCall: this.execFnSync,
+				registerAbortHandler: this.registerAbortHandler,
+				registerPauseHandler: this.registerPauseHandler,
+				registerUnpauseHandler: this.registerUnpauseHandler,
+				unregisterAbortHandler: this.unregisterAbortHandler,
+				unregisterPauseHandler: this.unregisterPauseHandler,
+				unregisterUnpauseHandler: this.unregisterUnpauseHandler,
+			}) : fn.native(args, {
 				call: (fn, args) => this._fn(fn, args, [...callStack, info]),
 				topCall: this.execFn,
 				registerAbortHandler: this.registerAbortHandler,
