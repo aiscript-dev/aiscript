@@ -339,7 +339,7 @@ type Fn = NodeBase & {
 };
 
 // @public (undocumented)
-const FN_NATIVE: (fn: VNativeFn["native"]) => VNativeFn;
+const FN_NATIVE: (fn: VNativeFn["native"], fnSync?: VNativeFn["nativeSync"]) => VNativeFn;
 
 // @public (undocumented)
 type FnTypeSource = NodeBase & {
@@ -423,6 +423,9 @@ export class Interpreter {
     exec(script?: Ast.Node[]): Promise<void>;
     execFn(fn: VFn, args: Value[]): Promise<Value>;
     execFnSimple(fn: VFn, args: Value[]): Promise<Value>;
+    execFnSync(fn: VFn, args: Value[]): Value;
+    // (undocumented)
+    execSync(script?: Ast.Node[]): Value | undefined;
     // (undocumented)
     pause(): void;
     // (undocumented)
@@ -851,6 +854,16 @@ type VNativeFn = VFnBase & {
         unregisterPauseHandler: (handler: () => void) => void;
         unregisterUnpauseHandler: (handler: () => void) => void;
     }) => Value | Promise<Value> | void;
+    nativeSync?: (args: (Value | undefined)[], opts: {
+        call: (fn: VFn, args: Value[]) => Value;
+        topCall: (fn: VFn, args: Value[]) => Value;
+        registerAbortHandler: (handler: () => void) => void;
+        registerPauseHandler: (handler: () => void) => void;
+        registerUnpauseHandler: (handler: () => void) => void;
+        unregisterAbortHandler: (handler: () => void) => void;
+        unregisterPauseHandler: (handler: () => void) => void;
+        unregisterUnpauseHandler: (handler: () => void) => void;
+    }) => Value | void;
 };
 
 // @public (undocumented)
