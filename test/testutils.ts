@@ -20,6 +20,19 @@ export async function exe(script: string): Promise<Value | undefined> {
 	return result;
 };
 
+export function exeSync(script: string): Value | undefined {
+	const parser = new Parser();
+	const interpreter = new Interpreter({}, {
+		out(value) {
+		},
+		log(type, {val}) {
+		},
+		maxStep: 9999,
+	});
+	const ast = parser.parse(script);
+	return interpreter.execSync(ast);
+};
+
 export const getMeta = (script: string) => {
 	const parser = new Parser();
 	const ast = parser.parse(script);
