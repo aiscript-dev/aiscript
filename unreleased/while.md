@@ -1,1 +1,0 @@
-- while文とdo-while文を追加

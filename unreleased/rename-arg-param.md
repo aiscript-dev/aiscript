@@ -1,1 +1,0 @@
-- For Hosts: いくつかの型で args を params にリネームしました。
