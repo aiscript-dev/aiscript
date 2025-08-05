@@ -29,7 +29,7 @@ export class SeedRandomWrapper extends RandomBase {
 		return buffer;
 	}
 	protected generateBigUintByBytes(bytes: number): bigint {
-		let u8a = new Uint8Array(Math.ceil(bytes / 8) * 8);
+		let u8a: Uint8Array<ArrayBufferLike> = new Uint8Array(Math.ceil(bytes / 8) * 8);
 		if (u8a.length < 1 || !Number.isSafeInteger(bytes)) return 0n;
 		u8a = this.generateBytes(u8a.subarray(0, bytes));
 		return readBigUintLittleEndian(u8a.buffer) ?? 0n;
