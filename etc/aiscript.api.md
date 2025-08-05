@@ -93,6 +93,12 @@ class AiScriptUserError extends AiScriptRuntimeError {
 }
 
 // @public (undocumented)
+export class AiSON {
+    // (undocumented)
+    static parse(input: string): JsValue;
+}
+
+// @public (undocumented)
 type And = NodeBase & {
     type: 'and';
     left: Expression;
@@ -902,7 +908,7 @@ type VUserFn = VFnBase & {
 
 // Warnings were encountered during analysis:
 //
-// src/interpreter/index.ts:48:4 - (ae-forgotten-export) The symbol "LogObject" needs to be exported by the entry point index.d.ts
+// src/interpreter/index.ts:49:4 - (ae-forgotten-export) The symbol "LogObject" needs to be exported by the entry point index.d.ts
 // src/interpreter/value.ts:47:2 - (ae-forgotten-export) The symbol "Type" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
