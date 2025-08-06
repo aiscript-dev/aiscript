@@ -156,7 +156,7 @@ const KEYWORDS = [
 	TokenKind.EvalKeyword,
 	TokenKind.VarKeyword,
 	TokenKind.LetKeyword,
-	TokenKind.ExistsKeyword
+	TokenKind.ExistsKeyword,
 ] as const;
 
 export type KeywordTokenKind = (typeof KEYWORDS)[number];
