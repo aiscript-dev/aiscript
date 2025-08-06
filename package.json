@@ -1,7 +1,7 @@
 {
 	"type": "module",
 	"name": "@syuilo/aiscript",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"description": "AiScript implementation",
 	"author": "syuilo <syuilotan@yahoo.co.jp>",
 	"license": "MIT",
