@@ -188,9 +188,10 @@ export function keywordTokenKindToString(token: KeywordTokenKind): string {
 		case TokenKind.VarKeyword: return 'var';
 		case TokenKind.LetKeyword: return 'let';
 		case TokenKind.ExistsKeyword: return 'exists';
-		default:
+		default: {
 			// exhaustiveness check
 			const _token: never = token;
 			throw new Error(`Unknown keyword token kind ${_token}`);
+		}
 	}
 }
