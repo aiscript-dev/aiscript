@@ -1,7 +1,7 @@
 import { AiScriptSyntaxError, AiScriptUnexpectedEOFError } from '../../error.js';
 import { NODE, unexpectedTokenError } from '../utils.js';
 import { TokenStream } from '../streams/token-stream.js';
-import { TokenKind } from '../token.js';
+import { isKeywordTokenKind, keywordTokenKindToString, TokenKind } from '../token.js';
 import { parseBlock, parseLabel, parseOptionalSeparator, parseParams } from './common.js';
 import { parseBlockOrStatement } from './statements.js';
 import { parseType, parseTypeParams } from './types.js';
@@ -577,7 +577,7 @@ function parseReference(s: ITokenStream): Ast.Identifier {
 
 /**
  * ```abnf
- * Object = "{" [IDENT ":" Expr *(SEP IDENT ":" Expr) [SEP]] "}"
+ * Object = "{" [ObjectKey ":" Expr *(SEP IDENT ":" Expr) [SEP]] "}"
  * ```
 */
 function parseObject(s: ITokenStream, isStatic: boolean): Ast.Obj {
@@ -592,11 +592,7 @@ function parseObject(s: ITokenStream, isStatic: boolean): Ast.Obj {
 
 	const map = new Map<string, Ast.Expression>();
 	while (!s.is(TokenKind.CloseBrace)) {
-		const keyTokenKind = s.getTokenKind();
-		if (keyTokenKind !== TokenKind.Identifier && keyTokenKind !== TokenKind.StringLiteral) {
-			throw unexpectedTokenError(keyTokenKind, s.getPos());
-		}
-		const k = s.getTokenValue();
+		const k = parseObjectKey(s);
 		s.next();
 
 		s.expect(TokenKind.Colon);
@@ -632,6 +628,29 @@ function parseObject(s: ITokenStream, isStatic: boolean): Ast.Obj {
 	s.next();
 
 	return NODE('obj', { value: map }, startPos, s.getPos());
+}
+
+/**
+ * ```abnf
+ * ObjectKey = IDENT / StringLiteral / Keyword
+ * ```
+ */
+function parseObjectKey(s: ITokenStream): string {
+	const tokenKind = s.getTokenKind();
+
+	if (tokenKind === TokenKind.Identifier) {
+		return s.getTokenValue();
+	}
+
+	if (tokenKind === TokenKind.StringLiteral) {
+		return s.getTokenValue();
+	}
+
+	if (isKeywordTokenKind(tokenKind)) {
+		return keywordTokenKindToString(tokenKind);
+	}
+
+	throw unexpectedTokenError(tokenKind, s.getPos());
 }
 
 /**
