@@ -191,7 +191,7 @@ export function keywordTokenKindToString(token: KeywordTokenKind): string {
 		default: {
 			// exhaustiveness check
 			const _token: never = token;
-			throw new Error(`Unknown keyword token kind ${_token}`);
+			throw new TypeError(`Unknown keyword token kind ${_token}`);
 		}
 	}
 }
