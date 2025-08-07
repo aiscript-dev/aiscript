@@ -445,11 +445,11 @@ export class Scanner implements ITokenStream {
 			exponentIndicator = this.stream.char as string;
 			this.stream.next();
 			if (!this.stream.eof && (this.stream.char as string) === '-') {
-				this.stream.next();
 				exponentSign = '-';
-			} else if (!this.stream.eof && (this.stream.char as string) === '+') {
 				this.stream.next();
+			} else if (!this.stream.eof && (this.stream.char as string) === '+') {
 				exponentSign = '+';
+				this.stream.next();
 			}
 			while (!this.stream.eof && digit.test(this.stream.char)) {
 				exponentAbsolute += this.stream.char;
