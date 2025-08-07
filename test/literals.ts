@@ -58,6 +58,20 @@ describe('literal', () => {
 		eq(res, NUM(0.5));
 	});
 
+	test.concurrent('number (Float with integer zero omitted)', async () => {
+		const res = await exe(`
+		<: .5
+		`);
+		eq(res, NUM(0.5));
+	});
+
+	test.concurrent('number (Float with decimal zero omitted)', async () => {
+		const res = await exe(`
+		<: 5.
+		`);
+		eq(res, NUM(5));
+	});
+
 	test.concurrent('arr (separated by comma)', async () => {
 		const res = await exe(`
 		<: [1, 2, 3]
