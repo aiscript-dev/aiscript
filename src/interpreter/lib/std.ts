@@ -459,7 +459,8 @@ export const std: Record<string, Value> = {
 
 	'Math:gen_rng': FN_NATIVE(async ([seed, options]) => {
 		expectAny(seed);
-		let algo = 'chacha20';
+		const isSecureContext = 'subtle' in crypto;
+		let algo = isSecureContext ? 'chacha20' : 'rc4_legacy';
 		if (options?.type === 'obj') {
 			const v = options.value.get('algorithm');
 			if (v?.type !== 'str') throw new AiScriptRuntimeError('`options.algorithm` must be string.');
@@ -472,10 +473,14 @@ export const std: Record<string, Value> = {
 		switch (algo) {
 			case 'rc4_legacy':
 				return GenerateLegacyRandom(seed);
-			case 'rc4':
+			case 'rc4': {
+				if (!isSecureContext) throw new AiScriptRuntimeError(`The random algorithm ${algo} cannot be used because \`crypto.subtle\` is not available. Maybe in non-secure context?`);
 				return GenerateRC4Random(seed);
-			case 'chacha20':
+			}
+			case 'chacha20': {
+				if (!isSecureContext) throw new AiScriptRuntimeError(`The random algorithm ${algo} cannot be used because \`crypto.subtle\` is not available. Maybe in non-secure context?`);
 				return await GenerateChaCha20Random(seed);
+			}
 			default:
 				throw new AiScriptRuntimeError('`options.algorithm` must be one of these: `chacha20`, `rc4`, or `rc4_legacy`.');
 		}
