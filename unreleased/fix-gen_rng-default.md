@@ -1,1 +1,0 @@
-- Fix: `Math:gen_rng`のアルゴリズム`chacha20`および`rc4`が非セキュアコンテクスト下では動作しないため、そのような環境下では`options.algorithm`のデフォルトを`rc4_legacy`に変更
