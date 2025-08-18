@@ -4,11 +4,11 @@
 ## ブランチの運用
 ### masterブランチ
 デフォルトブランチであり、マイナーリリース用ブランチです。非破壊的変更のプルリクエストはここ向けに作成してください。  
-[publish-nightly](/.github/workflows/publish-nightly.yml)ワークフローにより、変更があると開発中バージョン(dev-<DATE>)がpublishされます。  
+[publish-nightly](/.github/workflows/publish-nightly.yml)ワークフローにより、変更があると開発中バージョン(`dev-<DATE>`)がpublishされます。  
 ### aiscript-nextブランチ
 メジャーリリース用ブランチで、破壊的変更のプルリクエストはここ向けに作成してください。  
 定期的にmasterブランチをマージします。（このときはsquashマージは使用しないでください）  
-[publish-nightly](/.github/workflows/publish-nightly.yml)ワークフローにより、変更があると開発中バージョン(next-<DATE>)がpublishされます。  
+[publish-nightly](/.github/workflows/publish-nightly.yml)ワークフローにより、変更があると開発中バージョン(`next-<DATE>`)がpublishされます。  
 メジャーリリースが近いときはmasterに合流されていることもあります。その場合は破壊的変更・非破壊的変更共にmasterにpushします。  
 ### gh-pagesブランチ
 [簡易playground](https://aiscript-dev.github.io/aiscript/)のデプロイ用です。  
