@@ -49,6 +49,7 @@
 		"vitest": "3.2.4"
 	},
 	"dependencies": {
+		"eslint-plugin-unused-imports": "4.2.0",
 		"seedrandom": "3.0.5",
 		"stringz": "2.1.0",
 		"uuid": "11.1.0"
