@@ -42,6 +42,7 @@
 		"chalk": "5.5.0",
 		"eslint": "9.32.0",
 		"eslint-plugin-import": "2.32.0",
+		"eslint-plugin-unused-imports": "4.2.0",
 		"semver": "7.7.2",
 		"ts-node": "10.9.2",
 		"typescript": "5.9.2",
