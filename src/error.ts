@@ -1,4 +1,3 @@
-import { TokenKind } from './parser/token.js';
 import type { Pos } from './node.js';
 
 export abstract class AiScriptError extends Error {

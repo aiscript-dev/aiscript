@@ -153,6 +153,47 @@ describe('literal', () => {
 		eq(res, OBJ(new Map([['藍', NUM(42)]])));
 	});
 
+	describe('obj (reserved word as key)', async () => {
+		test.each([
+			['null'],
+			['true'],
+			['false'],
+			['each'],
+			['for'],
+			['loop'],
+			['do'],
+			['while'],
+			['break'],
+			['continue'],
+			['match'],
+			['case'],
+			['default'],
+			['if'],
+			['elif'],
+			['else'],
+			['return'],
+			['eval'],
+			['var'],
+			['let'],
+			['exists'],
+		])('key "%s"', async (key) => {
+			const res = await exe(`
+			<: {
+				${key}: 42,
+			}
+			`);
+			eq(res, OBJ(new Map([[key, NUM(42)]])));
+		});
+	});
+
+	test.concurrent('obj (invalid key)', async () => {
+		assert.rejects(() => exe(`
+		<: {
+			42: 42,
+		}
+		`));
+	});
+
 	test.concurrent('obj and arr (separated by line break)', async () => {
 		const res = await exe(`
 		<: {
