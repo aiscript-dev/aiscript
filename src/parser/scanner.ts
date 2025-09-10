@@ -10,6 +10,7 @@ const spaceChars = [' ', '\t'];
 const lineBreakChars = ['\r', '\n'];
 const digit = /^[0-9]$/;
 const wordChar = /^[A-Za-z0-9_]$/;
+const exponentIndicatorPattern = /^[eE]$/;
 
 /**
  * 入力文字列からトークンを読み取るクラス
@@ -444,11 +445,37 @@ export class Scanner implements ITokenStream {
 				throw new AiScriptSyntaxError('digit expected', pos);
 			}
 		}
+
+		let exponentIndicator = '';
+		let exponentSign = '';
+		let exponentAbsolute = '';
+		if (!this.stream.eof && exponentIndicatorPattern.test(this.stream.char as string)) {
+			exponentIndicator = this.stream.char as string;
+			this.stream.next();
+			if (!this.stream.eof && (this.stream.char as string) === '-') {
+				exponentSign = '-';
+				this.stream.next();
+			} else if (!this.stream.eof && (this.stream.char as string) === '+') {
+				exponentSign = '+';
+				this.stream.next();
+			}
+			while (!this.stream.eof && digit.test(this.stream.char)) {
+				exponentAbsolute += this.stream.char;
+				this.stream.next();
+			}
+			if (exponentAbsolute.length === 0) {
+				throw new AiScriptSyntaxError('exponent expected', pos);
+			}
+		}
+
 		let value: string;
 		if (fractional.length > 0) {
 			value = wholeNumber + '.' + fractional;
 		} else {
 			value = wholeNumber;
+		}
+		if (exponentIndicator.length > 0) {
+			value += exponentIndicator + exponentSign + exponentAbsolute;
 		}
 		return TOKEN(TokenKind.NumberLiteral, pos, { hasLeftSpacing, value });
 	}
