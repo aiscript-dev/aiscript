@@ -34,6 +34,49 @@ describe('CharStream', () => {
 			stream.prev();
 			assert.strictEqual('a', stream.char);
 		});
+
+		test.concurrent('line break', async () => {
+			const source = 'a\nb';
+			const stream = new CharStream(source);
+			assert.strictEqual('a', stream.char);
+			stream.next();
+			assert.strictEqual('\n', stream.char);
+			stream.next();
+			assert.strictEqual('b', stream.char);
+			stream.prev();
+			assert.strictEqual('\n', stream.char);
+			assert.deepStrictEqual(stream.getPos(), { line: 1, column: 1 });
+		});
+
+		test.concurrent('line breaks', async () => {
+			const source = '\n\nc';
+			const stream = new CharStream(source);
+			stream.next();
+			stream.next();
+			assert.strictEqual('c', stream.char);
+			stream.prev();
+			assert.strictEqual('\n', stream.char);
+			assert.deepStrictEqual(stream.getPos(), { line: 2, column: 0 });
+		});
+
+		test.concurrent('CRは読み飛ばされる', async () => {
+			const source = 'a\r\nb';
+			const stream = new CharStream(source);
+			stream.next();
+			assert.strictEqual('\n', stream.char);
+			stream.prev();
+			assert.strictEqual('a', stream.char);
+		});
+
+		test.concurrent('surrogate pair', async () => {
+			const source = '\ud83e\udd2f';
+			const stream = new CharStream(source);
+			assert.strictEqual('\ud83e\udd2f', stream.char);
+			stream.next();
+			assert.strictEqual(true, stream.eof);
+			stream.prev();
+			assert.strictEqual('\ud83e\udd2f', stream.char);
+		});
 	});
 
 	test.concurrent('eof', async () => {
@@ -68,6 +111,14 @@ describe('CharStream', () => {
 		assert.strictEqual('\n', stream.char);
 		stream.next();
 		assert.strictEqual('b', stream.char);
+		stream.next();
+		assert.strictEqual(true, stream.eof);
+	});
+
+	test.concurrent('surrogate pair', async () => {
+		const source = '\ud83e\udd2f';
+		const stream = new CharStream(source);
+		assert.strictEqual('\ud83e\udd2f', stream.char);
 		stream.next();
 		assert.strictEqual(true, stream.eof);
 	});
