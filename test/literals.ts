@@ -241,6 +241,15 @@ describe('literal', () => {
 		});
 	});
 
+	test.concurrent('obj (escaped reserved word as key)', async () => {
+		const res = await exe(`
+		<: {
+			\\u0064\\u0065\\u0066\\u0061\\u0075\\u006c\\u0074: 42,
+		}
+		`);
+		eq(res, OBJ(new Map([['default', NUM(42)]])));
+	})
+
 	test.concurrent('obj (invalid key)', async () => {
 		assert.rejects(() => exe(`
 		<: {
