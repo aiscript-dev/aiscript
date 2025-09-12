@@ -7,6 +7,30 @@ import type * as Ast from '../../node.js';
 // - 文脈キーワードは識別子に利用できるため除外
 
 const reservedWord = [
+	// 使用中の語
+	'null',
+	'true',
+	'false',
+	'each',
+	'for',
+	'loop',
+	'do',
+	'while',
+	'break',
+	'continue',
+	'match',
+	'case',
+	'default',
+	'if',
+	'elif',
+	'else',
+	'return',
+	'eval',
+	'var',
+	'let',
+	'exists',
+
+	// 使用予定の語
 	'as',
 	'async',
 	'attr',
@@ -52,36 +76,9 @@ const reservedWord = [
 	'new',
 ];
 
-const keywords = [
-	'null',
-	'true',
-	'false',
-	'each',
-	'for',
-	'loop',
-	'do',
-	'while',
-	'break',
-	'continue',
-	'match',
-	'case',
-	'default',
-	'if',
-	'elif',
-	'else',
-	'return',
-	'eval',
-	'var',
-	'let',
-	'exists',
-];
-
 function validateName(name: string, pos: Ast.Pos): void {
 	if (reservedWord.includes(name)) {
-		throw new AiScriptSyntaxError(`Reserved word "${name}" cannot be used as identifier.`, pos);
-	}
-	if (keywords.includes(name)) {
-		throw new AiScriptSyntaxError(`Keyword "${name}" cannot be used as identifier.`, pos);
+		throwReservedWordError(name, pos);
 	}
 }
 
@@ -92,7 +89,7 @@ function validateTypeName(name: string, pos: Ast.Pos): void {
 	validateName(name, pos);
 }
 
-function throwReservedWordError(name: string, pos: Ast.Pos): void {
+function throwReservedWordError(name: string, pos: Ast.Pos): never {
 	throw new AiScriptSyntaxError(`Reserved word "${name}" cannot be used as variable name.`, pos);
 }
 
