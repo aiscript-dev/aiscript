@@ -3,7 +3,7 @@ import { visitNode } from '../visit.js';
 import type * as Ast from '../../node.js';
 
 // 予約語となっている識別子があるかを確認する。
-// - キーワードは字句解析の段階でそれぞれのKeywordトークンとなるため除外
+// - キーワードは字句解析の段階でそれぞれのKeywordトークンとなるが、エスケープシーケンスを含む場合はIdentifierトークンとなるので検証を行う。
 // - 文脈キーワードは識別子に利用できるため除外
 
 const reservedWord = [
@@ -52,25 +52,63 @@ const reservedWord = [
 	'new',
 ];
 
-function throwReservedWordError(name: string, loc: Ast.Loc): void {
-	throw new AiScriptSyntaxError(`Reserved word "${name}" cannot be used as variable name.`, loc.start);
+const keywords = [
+	'null',
+	'true',
+	'false',
+	'each',
+	'for',
+	'loop',
+	'do',
+	'while',
+	'break',
+	'continue',
+	'match',
+	'case',
+	'default',
+	'if',
+	'elif',
+	'else',
+	'return',
+	'eval',
+	'var',
+	'let',
+	'exists',
+];
+
+function validateName(name: string, pos: Ast.Pos): void {
+	if (reservedWord.includes(name)) {
+		throw new AiScriptSyntaxError(`Reserved word "${name}" cannot be used as identifier.`, pos);
+	}
+	if (keywords.includes(name)) {
+		throw new AiScriptSyntaxError(`Keyword "${name}" cannot be used as identifier.`, pos);
+	}
+}
+
+function validateTypeName(name: string, pos: Ast.Pos): void {
+	if (name === 'null') {
+		return;
+	}
+	validateName(name, pos);
+}
+
+function throwReservedWordError(name: string, pos: Ast.Pos): void {
+	throw new AiScriptSyntaxError(`Reserved word "${name}" cannot be used as variable name.`, pos);
 }
 
 function validateDest(node: Ast.Node): Ast.Node {
 	return visitNode(node, node => {
 		switch (node.type) {
 			case 'null': {
-				throwReservedWordError(node.type, node.loc);
+				throwReservedWordError(node.type, node.loc.start);
 				break;
 			}
 			case 'bool': {
-				throwReservedWordError(`${node.value}`, node.loc);
+				throwReservedWordError(`${node.value}`, node.loc.start);
 				break;
 			}
 			case 'identifier': {
-				if (reservedWord.includes(node.name)) {
-					throwReservedWordError(node.name, node.loc);
-				}
+				validateName(node.name, node.loc.start);
 				break;
 			}
 		}
@@ -81,9 +119,7 @@ function validateDest(node: Ast.Node): Ast.Node {
 
 function validateTypeParams(node: Ast.Fn | Ast.FnTypeSource): void {
 	for (const typeParam of node.typeParams) {
-		if (reservedWord.includes(typeParam.name)) {
-			throwReservedWordError(typeParam.name, node.loc);
-		}
+		validateTypeName(typeParam.name, node.loc.start);
 	}
 }
 
@@ -97,48 +133,46 @@ function validateNode(node: Ast.Node): Ast.Node {
 		case 'attr':
 		case 'identifier':
 		case 'prop': {
-			if (reservedWord.includes(node.name)) {
-				throwReservedWordError(node.name, node.loc);
-			}
+			validateName(node.name, node.loc.start);
 			break;
 		}
 		case 'meta': {
-			if (node.name != null && reservedWord.includes(node.name)) {
-				throwReservedWordError(node.name, node.loc);
+			if (node.name != null) {
+				validateName(node.name, node.loc.start);
 			}
 			break;
 		}
 		case 'each': {
-			if (node.label != null && reservedWord.includes(node.label)) {
-				throwReservedWordError(node.label, node.loc);
+			if (node.label != null) {
+				validateName(node.label, node.loc.start);
 			}
 			validateDest(node.var);
 			break;
 		}
 		case 'for': {
-			if (node.label != null && reservedWord.includes(node.label)) {
-				throwReservedWordError(node.label, node.loc);
+			if (node.label != null) {
+				validateName(node.label, node.loc.start);
 			}
-			if (node.var != null && reservedWord.includes(node.var)) {
-				throwReservedWordError(node.var, node.loc);
+			if (node.var != null) {
+				validateName(node.var, node.loc.start);
 			}
 			break;
 		}
 		case 'loop': {
-			if (node.label != null && reservedWord.includes(node.label)) {
-				throwReservedWordError(node.label, node.loc);
+			if (node.label != null) {
+				validateName(node.label, node.loc.start);
 			}
 			break;
 		}
 		case 'break': {
-			if (node.label != null && reservedWord.includes(node.label)) {
-				throwReservedWordError(node.label, node.loc);
+			if (node.label != null) {
+				validateName(node.label, node.loc.start);
 			}
 			break;
 		}
 		case 'continue': {
-			if (node.label != null && reservedWord.includes(node.label)) {
-				throwReservedWordError(node.label, node.loc);
+			if (node.label != null) {
+				validateName(node.label, node.loc.start);
 			}
 			break;
 		}
@@ -150,9 +184,7 @@ function validateNode(node: Ast.Node): Ast.Node {
 			break;
 		}
 		case 'namedTypeSource': {
-			if (reservedWord.includes(node.name)) {
-				throwReservedWordError(node.name, node.loc);
-			}
+			validateTypeName(node.name, node.loc.start);
 			break;
 		}
 		case 'fnTypeSource': {

@@ -153,7 +153,7 @@ describe('Scanner', () => {
 		next(stream, TokenKind.EOF, { line: 1, column: 4 }, { });
 	});
 	test.concurrent('invalid token', async () => {
-		const source = '$';
+		const source = '~';
 		try {
 			const stream = new Scanner(source);
 		} catch (e) {
