@@ -12,9 +12,9 @@ export class CharStream {
 	private address: number;
 	/** Unicode character */
 	private _char?: string;
-	/** zero-based number, based on Unicode code points */
+	/** zero-based number */
 	private line: number;
-	/** zero-based number, based on Unicode code points */
+	/** zero-based number, based on UTF-16 code unit */
 	private column: number;
 
 	constructor(source: string, opts?: { line?: number, column?: number }) {
@@ -64,7 +64,7 @@ export class CharStream {
 			this.line++;
 			this.column = 0;
 		} else {
-			this.column++;
+			this.column += this._char!.length;
 		}
 		this.incAddr();
 		this.moveNext();
@@ -82,9 +82,9 @@ export class CharStream {
 			const lastLineBreak = page.lastIndexOf('\n', this.address - 1);
 			const lineStart = lastLineBreak >= 0 ? lastLineBreak + 1 : 0;
 			const line = page.slice(lineStart, this.address);
-			this.column = [...line].length - 1;
+			this.column = line.length;
 		} else {
-			this.column--;
+			this.column -= this._char!.length;
 		}
 	}
 

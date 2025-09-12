@@ -45,7 +45,7 @@ describe('CharStream', () => {
 			assert.strictEqual('b', stream.char);
 			stream.prev();
 			assert.strictEqual('\n', stream.char);
-			assert.deepStrictEqual(stream.getPos(), { line: 1, column: 1 });
+			assert.deepStrictEqual(stream.getPos(), { line: 1, column: 2 });
 		});
 
 		test.concurrent('line breaks', async () => {
@@ -56,7 +56,7 @@ describe('CharStream', () => {
 			assert.strictEqual('c', stream.char);
 			stream.prev();
 			assert.strictEqual('\n', stream.char);
-			assert.deepStrictEqual(stream.getPos(), { line: 2, column: 0 });
+			assert.deepStrictEqual(stream.getPos(), { line: 2, column: 1 });
 		});
 
 		test.concurrent('CRは読み飛ばされる', async () => {
@@ -76,6 +76,26 @@ describe('CharStream', () => {
 			assert.strictEqual(true, stream.eof);
 			stream.prev();
 			assert.strictEqual('\ud83e\udd2f', stream.char);
+		});
+
+		test.concurrent('column is based on UTF-16 code unit', async () => {
+			const source = '\ud83e\udd2f!';
+			const stream = new CharStream(source);
+			stream.next();
+			stream.next();
+			stream.prev();
+			assert.strictEqual(stream.char, '!');
+			assert.deepStrictEqual(stream.getPos(), { line: 1, column: 3 });
+		});
+
+		test.concurrent('column is based on UTF-16 code unit, line break', async () => {
+			const source = '\ud83e\udd2f\n';
+			const stream = new CharStream(source);
+			stream.next();
+			stream.next();
+			stream.prev();
+			assert.strictEqual(stream.char, '\n');
+			assert.deepStrictEqual(stream.getPos(), { line: 1, column: 3 });
 		});
 	});
 
@@ -121,6 +141,13 @@ describe('CharStream', () => {
 		assert.strictEqual('\ud83e\udd2f', stream.char);
 		stream.next();
 		assert.strictEqual(true, stream.eof);
+	});
+
+	test.concurrent('column is based on UTF-16 code unit', async () => {
+		const source = '\ud83e\udd2f';
+		const stream = new CharStream(source);
+		stream.next();
+		assert.deepStrictEqual(stream.getPos(), { line: 1, column: 3 });
 	});
 });
 
