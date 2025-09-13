@@ -1,5 +1,5 @@
 import { AiScriptSyntaxError, AiScriptUnexpectedEOFError } from '../error.js';
-import { decodeUnicodeEscapeSequence, isIdentifierPart, isIdentifierStart } from '../utils/characters.js';
+import { decodeUnicodeEscapeSequence } from '../utils/characters.js';
 import { CharStream } from './streams/char-stream.js';
 import { TOKEN, TokenKind } from './token.js';
 import { unexpectedTokenError } from './utils.js';
@@ -10,6 +10,8 @@ import type { Token, TokenPosition } from './token.js';
 const spaceChars = [' ', '\t'];
 const lineBreakChars = ['\r', '\n'];
 const digit = /^[0-9]$/;
+const identifierStart = /^[\p{Lu}\p{Ll}\p{Lt}\p{Lm}\p{Lo}\p{Nl}$_]$/u;
+const identifierPart = /^[\p{Lu}\p{Ll}\p{Lt}\p{Lm}\p{Lo}\p{Nl}$_\p{Mn}\p{Mc}\p{Nd}\p{Pc}\u200c\u200d]$/u;
 const hexDigit = /^[0-9a-fA-F]$/;
 const exponentIndicatorPattern = /^[eE]$/;
 
@@ -358,11 +360,11 @@ export class Scanner implements ITokenStream {
 
 		const value = decodeUnicodeEscapeSequence(rawValue);
 		const [start, ...parts] = value;
-		if (!isIdentifierStart(start!)) {
+		if (!identifierStart.test(start!)) {
 			throw new AiScriptSyntaxError(`Invalid identifier: "${value}"`, pos);
 		}
 		for (const part of parts) {
-			if (!isIdentifierPart(part)) {
+			if (!identifierPart.test(part)) {
 				throw new AiScriptSyntaxError(`Invalid identifier: "${value}"`, pos);
 			}
 		}
@@ -446,7 +448,7 @@ export class Scanner implements ITokenStream {
 		if (this.stream.eof) {
 			return;
 		}
-		if (isIdentifierStart(this.stream.char)) {
+		if (identifierStart.test(this.stream.char)) {
 			const value = this.stream.char;
 			this.stream.next();
 			return value;
@@ -466,7 +468,7 @@ export class Scanner implements ITokenStream {
 		if (matchedIdentifierStart !== undefined) {
 			return matchedIdentifierStart;
 		}
-		if (isIdentifierPart(this.stream.char)) {
+		if (identifierPart.test(this.stream.char)) {
 			const value = this.stream.char;
 			this.stream.next();
 			return value;

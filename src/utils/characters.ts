@@ -2,8 +2,6 @@ const MIN_HIGH_SURROGATE = 0xD800;
 const MAX_HIGH_SURROGATE = 0xDBFF;
 const MIN_LOW_SURROGATE = 0xDC00;
 const MAX_LOW_SURROGATE = 0xDFFF;
-const IDENTIFIER_START_PATTERN = /^[\p{Lu}\p{Ll}\p{Lt}\p{Lm}\p{Lo}\p{Nl}$_]$/u;
-const IDENTIFIER_PART_PATTERN = /^[\p{Lu}\p{Ll}\p{Lt}\p{Lm}\p{Lo}\p{Nl}$_\p{Mn}\p{Mc}\p{Nd}\p{Pc}\u200c\u200d]$/u;
 const HEX_DIGIT = /^[0-9a-fA-F]$/;
 
 export function isHighSurrogate(string: string, index = 0): boolean {
@@ -24,14 +22,6 @@ export function isLowSurrogate(string: string, index = 0): boolean {
 
 export function isSurrogatePair(string: string, start = 0): boolean {
 	return isHighSurrogate(string, start) && isLowSurrogate(string, start + 1);
-}
-
-export function isIdentifierStart(char: string): boolean {
-	return IDENTIFIER_START_PATTERN.test(char);
-}
-
-export function isIdentifierPart(char: string): boolean {
-	return IDENTIFIER_PART_PATTERN.test(char);
 }
 
 export function decodeUnicodeEscapeSequence(string: string): string {
