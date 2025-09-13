@@ -10,8 +10,8 @@ import type { Token, TokenPosition } from './token.js';
 const spaceChars = [' ', '\t'];
 const lineBreakChars = ['\r', '\n'];
 const digit = /^[0-9]$/;
-const identifierStart = /^[\p{Lu}\p{Ll}\p{Lt}\p{Lm}\p{Lo}\p{Nl}$_]$/u;
-const identifierPart = /^[\p{Lu}\p{Ll}\p{Lt}\p{Lm}\p{Lo}\p{Nl}$_\p{Mn}\p{Mc}\p{Nd}\p{Pc}\u200c\u200d]$/u;
+const identifierStart = /^[A-Za-z_]$/u;
+const identifierPart = /^[A-Za-z0-9_]$/u;
 const hexDigit = /^[0-9a-fA-F]$/;
 const exponentIndicatorPattern = /^[eE]$/;
 
@@ -370,7 +370,7 @@ export class Scanner implements ITokenStream {
 		}
 
 		if (value !== rawValue) {
-			return TOKEN(TokenKind.Identifier, pos, { hasLeftSpacing, value });
+			throw new AiScriptSyntaxError(`Cannot use escape characters in identifier: "${rawValue}"`, pos);
 		}
 
 		// check word kind

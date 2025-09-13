@@ -75,102 +75,106 @@ const reservedWords = [
 	'new',
 ] as const;
 
-const validIdentifiers = [
+// ['識別子', 使用可否]
+const identifierCases: [string, boolean][] = [
+
 	// IdentifierStart
 	//   UnicodeLetter
 	//     Uppercase letter (Lu)
-	'A', // U+0041 (LATIN CAPITAL LETTER A)
-	'Ω', // U+03A9 (GREEK CAPITAL LETTER OMEGA)
+	['A', true], // U+0041 (LATIN CAPITAL LETTER A)
+	['Ω', false], // U+03A9 (GREEK CAPITAL LETTER OMEGA)
 
 	//     Lowercase letter (Ll)
-	'a', // U+0061 (LATIN SMALL LETTER A )
-	'β', // U+03B2 (GREEK SMALL LETTER BETA)
+	['a', true], // U+0061 (LATIN SMALL LETTER A )
+	['β', false], // U+03B2 (GREEK SMALL LETTER BETA)
 
 	//     Titlecase letter (Lt)
-	'ǅ', // U+01C5 (LATIN CAPITAL LETTER D WITH SMALL LETTER Z WITH CARON)
-	'ǈ', // U+01C8 (LATIN CAPITAL LETTER L WITH SMALL LETTER J)
+	['ǅ', false], // U+01C5 (LATIN CAPITAL LETTER D WITH SMALL LETTER Z WITH CARON)
+	['ǈ', false], // U+01C8 (LATIN CAPITAL LETTER L WITH SMALL LETTER J)
 
 	//     Modifier letter (Lm)
-	'ʰ', // U+02B0 (Modifier Letter Small H)
-	'々', // U+3005 (Ideographic Iteration Mark)
+	['ʰ', false], // U+02B0 (Modifier Letter Small H)
+	['々', false], // U+3005 (Ideographic Iteration Mark)
 
 	//     Other letter (Lo)
-	'あ', // U+3042 (HIRAGANA LETTER A)
-	'藍', // U+85CD (CJK Unified Ideograph-85CD)
-	'𠮷', // U+20BB7 (CJK Unified Ideograph-20BB7)
+	['あ', false], // U+3042 (HIRAGANA LETTER A)
+	['藍', false], // U+85CD (CJK Unified Ideograph-85CD)
+	['𠮷', false], // U+20BB7 (CJK Unified Ideograph-20BB7)
 
 	//     Letter number (Nl)
-	'ᛮ', // U+16EE (Runic Arlaug Symbol)
-	'Ⅳ', // U+2163 (Roman Numeral Four)
+	['ᛮ', false], // U+16EE (Runic Arlaug Symbol)
+	['Ⅳ', false], // U+2163 (Roman Numeral Four)
 
 	//   $
-	'$',
+	['$', false],
 
 	//   _
-	'_',
+	['_', true],
 
 	// IdentifierPart
 	//   IdentifierStart
-	'_A',
-	'_Ω',
-	'_a',
-	'_β',
-	'_ǅ',
-	'_ǈ',
-	'_ʰ',
-	'_々',
-	'_あ',
-	'_藍',
-	'_𠮷',
-	'_ᛮ',
-	'_Ⅳ',
-	'_$',
-	'__',
+	['_A', true],
+	['_Ω', false],
+	['_a', true],
+	['_β', false],
+	['_ǅ', false],
+	['_ǈ', false],
+	['_ʰ', false],
+	['_々', false],
+	['_あ', false],
+	['_藍', false],
+	['_𠮷', false],
+	['_ᛮ', false],
+	['_Ⅳ', false],
+	['_$', false],
+	['__', true],
 
 	//   UnicodeCombiningMark
 	//     Non-spacing mark (Mn)
-	'á', // U+0301 (Combining Acute Accent)
+	['á', false], // U+0301 (Combining Acute Accent)
 
 	//     Combining spacing mark (Mc)
-	'राम', // U+093E (Devanagari Vowel Sign Aa)
+	['राम', false], // U+093E (Devanagari Vowel Sign Aa)
 
 	//   UnicodeDigit
 	//     Decimal number (Nd)
-	'a0', // U+0030 (Digit Zero)
+	['a0', true], // U+0030 (Digit Zero)
+	['a๑', false], // U+0E51 (Thai Digit One)
 
 	//   UnicodeConnectorPunctuation
 	//     Connector punctuation (Pc)
-	'a‿b', // U+203F (Undertie)
+	['a‿b', false], // U+203F (Undertie)
 
 	// <ZWNJ>
-	'बि‌ना',
+	['बि‌ना', false],
 
 	// <ZWJ>
-	'क‍्',
+	['क‍्', false],
+
+	['\\u', false],
+	['\\u000x', false],
+	['\\u0021', false], // "!": Other Punctuation (Po)
+	['\\u0069\\u0066', false], // "if"
+	['\\ud83e\\udd2f', false], // U+1F92F (Shocked Face with Exploding Head): Other Symbol (So)
+	['\\uD83E\\uDD2F', false],
+	['_\\u', false],
+	['_\\u000x', false],
+	['_\\u0021', false],
+	['_\\ud83e\\udd2f', false],
+	['_\\uD83E\\uDD2F', false],
 ];
 
-const validEscapeIdentifiers: [string, string][] = [
+const escapeIdentifiers: [string, string][] = [
+	['\\u0041', 'A'],
 	['\\u85cd', '藍'],
 	['\\u85CD', '藍'],
 	['\\ud842\\udfb7', '𠮷'],
 	['\\uD842\\uDFB7', '𠮷'],
+	['_\\u0041', '_A'],
 	['_\\u85cd', '_藍'],
 	['_\\u85CD', '_藍'],
 	['_\\ud842\\udfb7', '_𠮷'],
 	['_\\uD842\\uDFB7', '_𠮷'],
-];
-
-const invalidIdentifiers = [
-	'\\u',
-	'\\u000x',
-	'\\u0021', // "!": Other Punctuation (Po)
-	'\\u0069\\u0066', // "if"
-	'\\ud83e\\udd2f', '\\uD83E\\uDD2F', // U+1F92F (Shocked Face with Exploding Head): Other Symbol (So)
-	'_\\u',
-	'_\\u000x',
-	'_\\u0021',
-	'_\\ud83e\\udd2f',
-	'_\\uD83E\\uDD2F',
 ];
 
 const sampleCodes = Object.entries<[(definedName: string, referredName: string) => string, Value]>({
@@ -281,27 +285,20 @@ describe.each(
 	});
 
 	test.concurrent.each(
-		validIdentifiers
-	)('%s must be allowed', (word) => {
-		parser.parse(sampleCode(word, word));
+		identifierCases
+	)('%s is allowed: %s', async (word, allowed) => {
+		expect.hasAssertions();
+		if (allowed) {
+			const res = await exe(sampleCode(word, word));
+			eq(res, expected);
+		} else {
+			expect(() => parser.parse(sampleCode(word, word))).toThrow(AiScriptSyntaxError);
+		}
 	});
 
 	test.concurrent.each(
-		validEscapeIdentifiers
-	)('$0 must be allowed (referred as $1)', (encoded, decoded) => {
-		parser.parse(sampleCode(encoded, decoded));
-	});
-
-	test.concurrent.each(
-		validEscapeIdentifiers
-	)('$1 must be allowed (referred as $0)', async (encoded, decoded) => {
-		const res = await exe(sampleCode(decoded, encoded));
-		eq(res, expected);
-	});
-
-	test.concurrent.each(
-		invalidIdentifiers
-	)('%s must be rejected', (word) => {
+		escapeIdentifiers
+	)('escape sequence is not allowed: %s', async (word) => {
 		expect(() => parser.parse(sampleCode(word, word))).toThrow(AiScriptSyntaxError);
 	});
 });

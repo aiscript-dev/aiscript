@@ -1,8 +1,8 @@
 import * as assert from 'assert';
-import { describe, test } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import { } from '../src';
 import { NUM, STR, NULL, ARR, OBJ, BOOL, TRUE, FALSE, ERROR ,FN_NATIVE } from '../src/interpreter/value';
-import { } from '../src/error';
+import { AiScriptSyntaxError } from '../src/error';
 import { exe, eq } from './testutils';
 
 describe('literal', () => {
@@ -242,12 +242,11 @@ describe('literal', () => {
 	});
 
 	test.concurrent('obj (escaped reserved word as key)', async () => {
-		const res = await exe(`
+		await expect(async () => await exe(`
 		<: {
 			\\u0064\\u0065\\u0066\\u0061\\u0075\\u006c\\u0074: 42,
 		}
-		`);
-		eq(res, OBJ(new Map([['default', NUM(42)]])));
+		`)).rejects.toThrow(AiScriptSyntaxError);
 	})
 
 	test.concurrent('obj (invalid key)', async () => {
