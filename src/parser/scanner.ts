@@ -359,18 +359,8 @@ export class Scanner implements ITokenStream {
 		}
 
 		const value = decodeUnicodeEscapeSequence(rawValue);
-		const [start, ...parts] = value;
-		if (!identifierStart.test(start!)) {
-			throw new AiScriptSyntaxError(`Invalid identifier: "${value}"`, pos);
-		}
-		for (const part of parts) {
-			if (!identifierPart.test(part)) {
-				throw new AiScriptSyntaxError(`Invalid identifier: "${value}"`, pos);
-			}
-		}
-
 		if (value !== rawValue) {
-			throw new AiScriptSyntaxError(`Cannot use escape characters in identifier: "${rawValue}"`, pos);
+			throw new AiScriptSyntaxError(`Invalid identifier: "${rawValue}"`, pos);
 		}
 
 		// check word kind
