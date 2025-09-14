@@ -265,7 +265,7 @@ export class Interpreter {
 					) {
 						value.name = nsScope.getNsPrefix() + node.dest.name;
 					}
-					await this.define(nsScope, node.dest, value, node.mut);
+					this.define(nsScope, node.dest, value, node.mut);
 
 					break;
 				}
