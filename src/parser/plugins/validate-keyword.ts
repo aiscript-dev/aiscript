@@ -1,78 +1,172 @@
-import * as aiscript from '../..';
-import { Node } from '../../node';
+import { AiScriptSyntaxError } from '../../error.js';
+import { visitNode } from '../visit.js';
+import type * as Ast from '../../node.js';
+
+// 予約語となっている識別子があるかを確認する。
+// - キーワードは字句解析の段階でそれぞれのKeywordトークンとなるため除外
+// - 文脈キーワードは識別子に利用できるため除外
 
 const reservedWord = [
-	'null',
-	'yes',
-	'no',
-	'true',
-	'false',
-	'each',
-	'for',
-	'loop',
-	'while',
-	'break',
-	'continue',
-	'match',
-	'if',
-	'elif',
-	'else',
-	'return',
-	// 'namespace',
-	// 'meta',
-	// 'attr',
-	// 'attribute',
-	// 'static',
+	'as',
+	'async',
+	'attr',
+	'attribute',
+	'await',
+	'catch',
+	'class',
 	// 'const',
-	// 'null',
-	// 'var',
+	'component',
+	'constructor',
 	// 'def',
-	// 'fn',
+	'dictionary',
+	'enum',
+	'export',
+	'finally',
+	'fn',
 	// 'func',
 	// 'function',
-	// 'class',
-	// 'module',
-	// 'ref',
-	// 'out',
+	'hash',
+	'in',
+	'interface',
+	'out',
+	'private',
+	'public',
+	'ref',
+	'static',
+	'struct',
+	'table',
+	'this',
+	'throw',
+	'trait',
+	'try',
+	'undefined',
+	'use',
+	'using',
+	'when',
+	'yield',
+	'import',
+	'is',
+	'meta',
+	'module',
+	'namespace',
+	'new',
 ];
 
-export function validateKeyword(nodes: Node[]): Node[] {
+function throwReservedWordError(name: string, loc: Ast.Loc): void {
+	throw new AiScriptSyntaxError(`Reserved word "${name}" cannot be used as variable name.`, loc.start);
+}
 
-	for (const node of nodes) {
+function validateDest(node: Ast.Node): Ast.Node {
+	return visitNode(node, node => {
 		switch (node.type) {
-			case 'def':
-			case 'assign':
-			case 'ns': {
+			case 'null': {
+				throwReservedWordError(node.type, node.loc);
+				break;
+			}
+			case 'bool': {
+				throwReservedWordError(`${node.value}`, node.loc);
+				break;
+			}
+			case 'identifier': {
 				if (reservedWord.includes(node.name)) {
-					throw new aiscript.SemanticError(`Reserved word "${node.name}" cannot be used as variable name.`);
+					throwReservedWordError(node.name, node.loc);
 				}
 				break;
 			}
-			case 'fn': {
-				validateKeyword(node.children);
-				break;
+		}
+
+		return node;
+	});
+}
+
+function validateTypeParams(node: Ast.Fn | Ast.FnTypeSource): void {
+	for (const typeParam of node.typeParams) {
+		if (reservedWord.includes(typeParam.name)) {
+			throwReservedWordError(typeParam.name, node.loc);
+		}
+	}
+}
+
+function validateNode(node: Ast.Node): Ast.Node {
+	switch (node.type) {
+		case 'def': {
+			validateDest(node.dest);
+			break;
+		}
+		case 'ns':
+		case 'attr':
+		case 'identifier':
+		case 'prop': {
+			if (reservedWord.includes(node.name)) {
+				throwReservedWordError(node.name, node.loc);
 			}
-			case 'block': {
-				validateKeyword(node.statements);
-				break;
+			break;
+		}
+		case 'meta': {
+			if (node.name != null && reservedWord.includes(node.name)) {
+				throwReservedWordError(node.name, node.loc);
 			}
-			case 'if': {
-				if (node.then.type == 'block') {
-					validateKeyword(node.then.statements);
-				}
-				for (const n of node.elseif) {
-					if (n.then.type == 'block') {
-						validateKeyword(n.then.statements);
-					}
-				}
-				if (node.else?.type == 'block') {
-					validateKeyword(node.else.statements);
-				}
-				break;
+			break;
+		}
+		case 'each': {
+			if (node.label != null && reservedWord.includes(node.label)) {
+				throwReservedWordError(node.label, node.loc);
 			}
-			// TODO: match
+			validateDest(node.var);
+			break;
+		}
+		case 'for': {
+			if (node.label != null && reservedWord.includes(node.label)) {
+				throwReservedWordError(node.label, node.loc);
+			}
+			if (node.var != null && reservedWord.includes(node.var)) {
+				throwReservedWordError(node.var, node.loc);
+			}
+			break;
+		}
+		case 'loop': {
+			if (node.label != null && reservedWord.includes(node.label)) {
+				throwReservedWordError(node.label, node.loc);
+			}
+			break;
+		}
+		case 'break': {
+			if (node.label != null && reservedWord.includes(node.label)) {
+				throwReservedWordError(node.label, node.loc);
+			}
+			break;
+		}
+		case 'continue': {
+			if (node.label != null && reservedWord.includes(node.label)) {
+				throwReservedWordError(node.label, node.loc);
+			}
+			break;
+		}
+		case 'fn': {
+			validateTypeParams(node);
+			for (const param of node.params) {
+				validateDest(param.dest);
+			}
+			break;
+		}
+		case 'namedTypeSource': {
+			if (reservedWord.includes(node.name)) {
+				throwReservedWordError(node.name, node.loc);
+			}
+			break;
+		}
+		case 'fnTypeSource': {
+			validateTypeParams(node);
+			break;
 		}
 	}
 
+	return node;
+}
+
+export function validateKeyword(nodes: Ast.Node[]): Ast.Node[] {
+	for (const inner of nodes) {
+		visitNode(inner, validateNode);
+	}
 	return nodes;
 }

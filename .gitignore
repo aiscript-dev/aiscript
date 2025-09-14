@@ -3,7 +3,10 @@
 /.vscode
 /coverage
 /temp
+/src/pkg.ts
 /src/parser/parser.js
 /src/parser/parser.mjs
 npm-debug.log
-test.is
+main.ais
+pnpm-lock.yaml
+tsdoc-metadata.json

@@ -1,0 +1,87 @@
+name: Publish nightly
+
+on:
+  schedule:
+    - cron: '50 18 * * *'
+  workflow_dispatch:
+
+jobs:
+  get-branches:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.getb.outputs.matrix }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
+        with:
+          fetch-depth: 0
+          
+      - id: getb
+        run: |
+          declare -A branches=(
+            ["dev"]="master"
+            ["next"]="aiscript-next"
+          )
+          matrix='{"include":['
+          sep=""
+          for tag in "${!branches[@]}"; do
+            branch=${branches[${tag}]}
+            if git show-ref --quiet refs/remotes/origin/${branch}; then
+              matrix="${matrix}${sep}{\"branch\":\"${branch}\",\"tag\":\"${tag}\"}"
+              sep=","
+            fi
+          done
+          matrix="${matrix}]}"
+          echo "matrix=$matrix" >> $GITHUB_OUTPUT
+
+
+  publish:
+    runs-on: ubuntu-latest
+    needs: get-branches
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.get-branches.outputs.matrix) }}
+    env:
+      NPM_SECRET: ${{ secrets.NPM_SECRET }}
+
+    steps:
+      - name: Checkout ${{ matrix.branch }}
+        uses: actions/checkout@v4.2.2
+        with:
+          ref: ${{ matrix.branch }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4.1.0
+        with:
+          node-version: 20.x
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: npm-${{ hashFiles('package-lock.json') }}
+          restore-keys: npm-
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Set Version
+        run: |
+          CURRENT_VER=$(npm view 'file:.' version)
+          TIME_STAMP=$( date +'%Y%m%d' )
+          echo 'NEWVERSION='$CURRENT_VER-${{ matrix.tag }}.$TIME_STAMP >> $GITHUB_ENV
+
+      - name: Check Commits
+        run: |
+          echo 'LAST_COMMITS='$( git log --since '24 hours ago' | wc -c ) >> $GITHUB_ENV
+
+      - name: Prepare Publish
+        run: npm run pre-release
+
+      - name: Publish
+        uses: JS-DevTools/npm-publish@v3
+        if: ${{ env.NPM_SECRET != '' && env.LAST_COMMITS != 0 }}
+        with:
+          token: ${{ env.NPM_SECRET }}
+          tag: ${{ matrix.tag }}
+          access: public

@@ -4,289 +4,67 @@
  */
 
 import * as assert from 'assert';
-import { parse, Parser, serialize, deserialize } from '../src';
-import { AiScript } from '../src/interpreter';
-import { NUM, STR, NULL, ARR, OBJ, BOOL } from '../src/interpreter/value';
-import { NAttr, Node } from '../src/node';
+import { describe, test } from 'vitest';
+import { Parser, Interpreter, Ast } from '../src';
+import { NUM, STR, NULL, ARR, OBJ, BOOL, TRUE, FALSE, ERROR ,FN_NATIVE } from '../src/interpreter/value';
+import { AiScriptSyntaxError, AiScriptRuntimeError, AiScriptIndexOutOfRangeError } from '../src/error';
+import { exe, eq } from './testutils';
 
-const exe = (program: string): Promise<any> => new Promise((ok, err) => {
-	const aiscript = new AiScript({}, {
-		out(value) {
-			ok(value);
-		},
-	});
 
-	const parser = new Parser();
-	const ast = parser.parse(program);
-
-	const _ast = deserialize(serialize(ast));
-
-	aiscript.exec(_ast).catch(err);
-});
-
-const getMeta = (program: string) => {
-	const parser = new Parser();
-	const ast = parser.parse(program);
-
-	const metadata = AiScript.collectMetadata(ast);
-
-	return metadata;
-};
-
-const eq = (a, b) => {
-	assert.deepEqual(a.type, b.type);
-	assert.deepEqual(a.value, b.value);
-};
-
-it('Hello, world!', async () => {
+test.concurrent('Hello, world!', async () => {
 	const res = await exe('<: "Hello, world!"');
 	eq(res, STR('Hello, world!'));
 });
 
-it('empty script', async () => {
+test.concurrent('empty script', async () => {
 	const parser = new Parser();
 	const ast = parser.parse('');
-	const _ast = deserialize(serialize(ast));
-	assert.deepEqual(_ast, []);
+	assert.deepEqual(ast, []);
 });
 
-it('legacy parser api', async () => {
-	const exeLegacy = (program: string): Promise<any> => new Promise((ok, err) => {
-		const aiscript = new AiScript({}, {
-			out(value) {
-				ok(value);
-			},
-		});
-
-		const ast = parse(program);
-		const _ast = deserialize(serialize(ast));
-
-		aiscript.exec(_ast).catch(err);
-	});
-
-	const res = await exeLegacy('<: "Hello, world!"');
-	eq(res, STR('Hello, world!'));
-});
-
-describe('ops', () => {
-	it('=', async () => {
-		eq(await exe('<: (1 = 1)'), BOOL(true));
-		eq(await exe('<: (1 = 2)'), BOOL(false));
-	});
-
-	it('!=', async () => {
-		eq(await exe('<: (1 != 2)'), BOOL(true));
-		eq(await exe('<: (1 != 1)'), BOOL(false));
-	});
-
-	it('&', async () => {
-		eq(await exe('<: (yes & yes)'), BOOL(true));
-		eq(await exe('<: (yes & no)'), BOOL(false));
-		eq(await exe('<: (no & yes)'), BOOL(false));
-		eq(await exe('<: (no & no)'), BOOL(false));
-	});
-
-	it('|', async () => {
-		eq(await exe('<: (yes | yes)'), BOOL(true));
-		eq(await exe('<: (yes | no)'), BOOL(true));
-		eq(await exe('<: (no | yes)'), BOOL(true));
-		eq(await exe('<: (no | no)'), BOOL(false));
-	});
-
-	it('+', async () => {
-		eq(await exe('<: (1 + 1)'), NUM(2));
-	});
-
-	it('-', async () => {
-		eq(await exe('<: (1 - 1)'), NUM(0));
-	});
-
-	it('*', async () => {
-		eq(await exe('<: (1 * 1)'), NUM(1));
-	});
-
-	it('/', async () => {
-		eq(await exe('<: (1 / 1)'), NUM(1));
-	});
-
-	it('%', async () => {
-		eq(await exe('<: (1 % 1)'), NUM(0));
-	});
-
-	it('>', async () => {
-		eq(await exe('<: (2 > 1)'), BOOL(true));
-		eq(await exe('<: (1 > 1)'), BOOL(false));
-		eq(await exe('<: (0 > 1)'), BOOL(false));
-	});
-
-	it('<', async () => {
-		eq(await exe('<: (2 < 1)'), BOOL(false));
-		eq(await exe('<: (1 < 1)'), BOOL(false));
-		eq(await exe('<: (0 < 1)'), BOOL(true));
-	});
-
-	it('>=', async () => {
-		eq(await exe('<: (2 >= 1)'), BOOL(true));
-		eq(await exe('<: (1 >= 1)'), BOOL(true));
-		eq(await exe('<: (0 >= 1)'), BOOL(false));
-	});
-
-	it('<=', async () => {
-		eq(await exe('<: (2 <= 1)'), BOOL(false));
-		eq(await exe('<: (1 <= 1)'), BOOL(true));
-		eq(await exe('<: (0 <= 1)'), BOOL(true));
-	});
-
-	it('precedence', async () => {
-		eq(await exe('<: 1 + 2 * 3 + 4'), NUM(11));
-		eq(await exe('<: 1 + 4 / 4 + 1'), NUM(3));
-		eq(await exe('<: 1 + 1 = 2 & 2 * 2 = 4'), BOOL(true));
-		eq(await exe('<: (1 + 1) * 2'), NUM(4));
-	});
-
-});
-
-describe('Infix expression', () => {
-	it('simple infix expression', async () => {
-		eq(await exe('<: 0 < 1'), BOOL(true));
-		eq(await exe('<: 1 + 1'), NUM(2));
-	});
-
-	it('combination', async () => {
-		eq(await exe('<: 1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9 + 10'), NUM(55));
-		eq(await exe('<: Core:add(1, 3) * Core:mul(2, 5)'), NUM(40));
-	});
-
-	it('use parentheses to distinguish expr', async () => {
-		eq(await exe('<: (1 + 10) * (2 + 5)'), NUM(77));
-	});
-
-	it('syntax symbols vs infix operators', async () => {
-		const res = await exe(`
-		<: match yes {
-			1 = 1 => "yes"
-			1 < 1 => "no"
-		}
-		`);
-		eq(res, STR('yes'));
-	});
-
-	it('number + if expression', async () => {
-		eq(await exe('<: 1 + if yes 1 else 2'), NUM(2));
-	});
-
-	it('number + match expression', async () => {
-		const res = await exe(`
-			<: 1 + match 2 = 2 {
-				yes => 3
-				no  => 4
-			}
-		`);
-		eq(res, NUM(4));
-	});
-
-	it('block + block', async () => {
-		eq(await exe('<: { 1 } + { 1 }'), NUM(2));
-	});
-
-	it('disallow line break', async () => {
-		try {
-			await exe(`
-			<: 1 +
-			1 + 1
-			`);
-		} catch (e) {
-			assert.ok(true);
-			return;
-		}
-		assert.fail();
-	});
-
-	it('escaped line break', async () => {
-		eq(await exe(`
-			<: 1 + \\
-			1 + 1
-		`), NUM(3));
-	});
-
-});
-
-it('Escaped double quote', async () => {
-	const res = await exe('<: "ai saw a note \\"bebeyo\\"."');
-	eq(res, STR('ai saw a note "bebeyo".'));
-});
-
-it('//', async () => {
-	const res = await exe('<: "//"');
-	eq(res, STR('//'));
-});
-
-it('式にコロンがあってもオブジェクトと判定されない', async () => {
+test.concurrent('式にコロンがあってもオブジェクトと判定されない', async () => {
 	const res = await exe(`
-	<: {
-		Str:incl("ai", "a")
+	<: eval {
+		Core:eq("ai", "ai")
 	}
 	`);
 	eq(res, BOOL(true));
 });
 
-it('inc', async () => {
+test.concurrent('inc', async () => {
 	const res = await exe(`
-	$a <- 0
-	a +<- 1
-	a +<- 2
-	a +<- 3
+	var a = 0
+	a += 1
+	a += 2
+	a += 3
 	<: a
 	`);
 	eq(res, NUM(6));
 });
 
-it('dec', async () => {
+test.concurrent('dec', async () => {
 	const res = await exe(`
-	$a <- 0
-	a -<- 1
-	a -<- 2
-	a -<- 3
+	var a = 0
+	a -= 1
+	a -= 2
+	a -= 3
 	<: a
 	`);
 	eq(res, NUM(-6));
 });
 
-it('var', async () => {
+test.concurrent('参照が繋がらない', async () => {
 	const res = await exe(`
-	#a = 42
-	<: a
+	var f = @() { "a" }
+	var g = f
+	f = @() { "b" }
+
+	<: g()
 	`);
-	eq(res, NUM(42));
+	eq(res, STR('a'));
 });
 
-describe('Cannot put multiple statements in a line', () => {
-	it('var def', async () => {
-		try {
-			await exe(`
-			#a = 42 #b = 11
-			`);
-		} catch (e) {
-			assert.ok(true);
-			return;
-		}
-		assert.fail();
-	});
-
-	it('var def (op)', async () => {
-		try {
-			await exe(`
-			#a = 13 + 75 #b = 24 + 146
-			`);
-		} catch (e) {
-			assert.ok(true);
-			return;
-		}
-		assert.fail();
-	});
-});
-
-it('empty function', async () => {
+test.concurrent('empty function', async () => {
 	const res = await exe(`
 	@hoge() { }
 	<: hoge()
@@ -294,41 +72,49 @@ it('empty function', async () => {
 	eq(res, NULL);
 });
 
-it('empty function (function object)', async () => {
+test.concurrent('empty lambda', async () => {
 	const res = await exe(`
-	#hoge = @() { }
+	let hoge = @() { }
 	<: hoge()
 	`);
 	eq(res, NULL);
 });
 
-it('Closure', async () => {
+test.concurrent('lambda that returns an object', async () => {
+	const res = await exe(`
+	let hoge = @() {{}}
+	<: hoge()
+	`);
+	eq(res, OBJ(new Map()));
+});
+
+test.concurrent('Closure', async () => {
 	const res = await exe(`
 	@store(v) {
-		#state = v
+		let state = v
 		@() {
 			state
 		}
 	}
-	#s = store("ai")
+	let s = store("ai")
 	<: s()
 	`);
 	eq(res, STR('ai'));
 });
 
-it('Closure (counter)', async () => {
+test.concurrent('Closure (counter)', async () => {
 	const res = await exe(`
 	@create_counter() {
-		$count <- 0
+		var count = 0
 		{
-			get_count: @() { count };
-			count: @() { count <- (count + 1) };
+			get_count: @() { count },
+			count: @() { count = (count + 1) },
 		}
 	}
 
-	#counter = create_counter()
-	#get_count = counter.get_count
-	#count = counter.count
+	let counter = create_counter()
+	let get_count = counter.get_count
+	let count = counter.count
 
 	count()
 	count()
@@ -339,10 +125,10 @@ it('Closure (counter)', async () => {
 	eq(res, NUM(3));
 });
 
-it('Recursion', async () => {
+test.concurrent('Recursion', async () => {
 	const res = await exe(`
 	@fact(n) {
-		if (n = 0) { 1 } else { (fact((n - 1)) * n) }
+		if (n == 0) { 1 } else { (fact((n - 1)) * n) }
 	}
 
 	<: fact(5)
@@ -350,24 +136,15 @@ it('Recursion', async () => {
 	eq(res, NUM(120));
 });
 
-it('Var name starts with \'no\'', async () => {
-	const res = await exe(`
-	#note = "ai"
-
-	<: note
-	`);
-	eq(res, STR('ai'));
-});
-
 describe('Object', () => {
-	it('property access', async () => {
+	test.concurrent('property access', async () => {
 		const res = await exe(`
-		#obj = {
+		let obj = {
 			a: {
 				b: {
-					c: 42;
-				};
-			};
+					c: 42,
+				},
+			},
 		}
 
 		<: obj.a.b.c
@@ -375,16 +152,16 @@ describe('Object', () => {
 		eq(res, NUM(42));
 	});
 
-	it('property access (fn call)', async () => {
+	test.concurrent('property access (fn call)', async () => {
 		const res = await exe(`
-		@fn() { 42 }
+		@f() { 42 }
 
-		#obj = {
+		let obj = {
 			a: {
 				b: {
-					c: fn;
-				};
-			};
+					c: f,
+				},
+			},
 		}
 
 		<: obj.a.b.c()
@@ -392,9 +169,9 @@ describe('Object', () => {
 		eq(res, NUM(42));
 	});
 
-	it('property assign', async () => {
+	test.concurrent('property assign', async () => {
 		const res = await exe(`
-		#obj = {
+		let obj = {
 			a: 1
 			b: {
 				c: 2
@@ -404,8 +181,8 @@ describe('Object', () => {
 			}
 		}
 
-		obj.a <- 24
-		obj.b.d.e <- 42
+		obj.a = 24
+		obj.b.d.e = 42
 
 		<: obj
 		`);
@@ -421,10 +198,12 @@ describe('Object', () => {
 	});
 
 	/* 未実装
-	it('string key', async () => {
+	 * see also: test/literals.ts > literal > obj (string key)
+	 * issue: https://github.com/aiscript-dev/aiscript/issues/62
+	test.concurrent('string key', async () => {
 		const res = await exe(`
-		#obj = {
-			"藍": 42;
+		let obj = {
+			"藍": 42,
 		}
 
 		<: obj."藍"
@@ -432,10 +211,10 @@ describe('Object', () => {
 		eq(res, NUM(42));
 	});
 
-	it('string key including colon and period', async () => {
+	test.concurrent('string key including colon and period', async () => {
 		const res = await exe(`
-		#obj = {
-			":.:": 42;
+		let obj = {
+			":.:": 42,
 		}
 
 		<: obj.":.:"
@@ -443,12 +222,12 @@ describe('Object', () => {
 		eq(res, NUM(42));
 	});
 
-	it('expression key', async () => {
+	test.concurrent('expression key', async () => {
 		const res = await exe(`
-		#key = "藍"
+		let key = "藍"
 
-		#obj = {
-			<key>: 42;
+		let obj = {
+			<key>: 42,
 		}
 
 		<: obj<key>
@@ -458,153 +237,320 @@ describe('Object', () => {
 	*/
 });
 
-it('Array item access', async () => {
-	const res = await exe(`
-	#arr = ["ai", "chan", "kawaii"]
-
-	<: arr[2]
-	`);
-	eq(res, STR('chan'));
-});
-
-it('Array item assign', async () => {
-	const res = await exe(`
-	#arr = ["ai", "chan", "kawaii"]
-
-	arr[2] <- "taso"
-
-	<: arr
-	`);
-	eq(res, ARR([STR('ai'), STR('taso'), STR('kawaii')]));
-});
-
-describe('Template syntax', () => {
-	it('Basic', async () => {
+describe('Array', () => {
+	test.concurrent('Array item access', async () => {
 		const res = await exe(`
-		#attr = "kawaii"
-		<: \`Ai is {attr}!\`
+		let arr = ["ai", "chan", "kawaii"]
+
+		<: arr[1]
 		`);
-		eq(res, STR('Ai is kawaii!'));
+		eq(res, STR('chan'));
 	});
 
-	it('convert to str', async () => {
+	test.concurrent('Array item assign', async () => {
 		const res = await exe(`
-		<: \`1 + 1 = {(1 + 1)}\`
+		let arr = ["ai", "chan", "kawaii"]
+
+		arr[1] = "taso"
+
+		<: arr
 		`);
-		eq(res, STR('1 + 1 = 2'));
+		eq(res, ARR([STR('ai'), STR('taso'), STR('kawaii')]));
 	});
 
-	it('Escape', async () => {
-		const res = await exe(`
-		#message = "Hello"
-		<: \`\\\`a\\{b\\}c\\\`\`
-		`);
-		eq(res, STR('`a{b}c`'));
+	test.concurrent('Assign array item to out of range', async () => {
+		assert.rejects(exe(`
+			let arr = [1, 2, 3]
+
+			arr[3] = 4
+
+			<: null
+		`), AiScriptIndexOutOfRangeError);
+
+		assert.rejects(exe(`
+			let arr = [1, 2, 3]
+
+			arr[9] = 10
+
+			<: null
+		`), AiScriptIndexOutOfRangeError)
+	});
+
+	test.concurrent('index out of range error', async () => {
+		try {
+			await exe(`
+			<: [42][1]
+			`);
+		} catch (e) {
+			assert.equal(e instanceof AiScriptIndexOutOfRangeError, true);
+			return;
+		}
+		assert.fail();
+	});
+
+	test.concurrent('index out of range on assignment', async () => {
+		try {
+			await exe(`
+			var a = []
+	 		a[2] = 'hoge'
+			`);
+		} catch (e) {
+			assert.equal(e instanceof AiScriptIndexOutOfRangeError, true);
+			return;
+		}
+		assert.fail();
+	});
+
+	test.concurrent('non-integer-indexed assignment', async () => {
+		try {
+			await exe(`
+			var a = []
+	 		a[6.21] = 'hoge'
+			`);
+		} catch (e) {
+			assert.equal(e instanceof AiScriptIndexOutOfRangeError, true);
+			return;
+		}
+		assert.fail();
 	});
 });
 
-it('Cannot access js native property via var', async () => {
-	try {
-		await exe(`
-		<: constructor
+describe('chain', () => {
+	test.concurrent('chain access (prop + index + call)', async () => {
+		const res = await exe(`
+		let obj = {
+			a: {
+				b: [@(name) { name }, @(str) { "chan" }, @() { "kawaii" }],
+			},
+		}
+
+		<: obj.a.b[0]("ai")
 		`);
-	} catch (e) {
-		assert.ok(true);
-		return;
-	}
-	assert.fail();
+		eq(res, STR('ai'));
+	});
+
+	test.concurrent('chained assign left side (prop + index)', async () => {
+		const res = await exe(`
+		let obj = {
+			a: {
+				b: ["ai", "chan", "kawaii"],
+			},
+		}
+
+		obj.a.b[1] = "taso"
+
+		<: obj
+		`);
+		eq(res, OBJ(new Map([
+			['a', OBJ(new Map([
+				['b', ARR([STR('ai'), STR('taso'), STR('kawaii')])]
+			]))]
+		])));
+	});
+
+	test.concurrent('chained assign right side (prop + index + call)', async () => {
+		const res = await exe(`
+		let obj = {
+			a: {
+				b: ["ai", "chan", "kawaii"],
+			},
+		}
+
+		var x = null
+		x = obj.a.b[1]
+
+		<: x
+		`);
+		eq(res, STR('chan'));
+	});
+
+	test.concurrent('chained inc/dec left side (index + prop)', async () => {
+		const res = await exe(`
+		let arr = [
+			{
+				a: 1,
+				b: 2,
+			}
+		]
+
+		arr[0].a += 1
+		arr[0].b -= 1
+
+		<: arr
+		`);
+		eq(res, ARR([
+			OBJ(new Map([
+				['a', NUM(2)],
+				['b', NUM(1)]
+			]))
+		]));
+	});
+
+	test.concurrent('chained inc/dec left side (prop + index)', async () => {
+		const res = await exe(`
+		let obj = {
+			a: {
+				b: [1, 2, 3],
+			},
+		}
+
+		obj.a.b[1] += 1
+		obj.a.b[2] -= 1
+
+		<: obj
+		`);
+		eq(res, OBJ(new Map([
+			['a', OBJ(new Map([
+				['b', ARR([NUM(1), NUM(3), NUM(2)])]
+			]))]
+		])));
+	});
+
+	test.concurrent('prop in def', async () => {
+		const res = await exe(`
+		let x = @() {
+			let obj = {
+				a: 1
+			}
+			obj.a
+		}
+
+		<: x()
+		`);
+		eq(res, NUM(1));
+	});
+
+	test.concurrent('prop in return', async () => {
+		const res = await exe(`
+		let x = @() {
+			let obj = {
+				a: 1
+			}
+			return obj.a
+			2
+		}
+
+		<: x()
+		`);
+		eq(res, NUM(1));
+	});
+
+	test.concurrent('prop in each', async () => {
+		const res = await exe(`
+		let msgs = []
+		let x = { a: ["ai", "chan", "kawaii"] }
+		each let item, x.a {
+			let y = { a: item }
+			msgs.push([y.a, "!"].join())
+		}
+		<: msgs
+		`);
+		eq(res, ARR([STR('ai!'), STR('chan!'), STR('kawaii!')]));
+	});
+
+	test.concurrent('prop in for', async () => {
+		const res = await exe(`
+		let x = { times: 10, count: 0 }
+		for (let i, x.times) {
+			x.count = (x.count + i)
+		}
+		<: x.count
+		`);
+		eq(res, NUM(45));
+	});
+
+	test.concurrent('object with index', async () => {
+		const res = await exe(`
+		let ai = {a: {}}['a']
+		ai['chan'] = 'kawaii'
+		<: ai[{a: 'chan'}['a']]
+		`);
+		eq(res, STR('kawaii'));
+	});
+
+	test.concurrent('property chain with parenthesis', async () => {
+		let ast = Parser.parse(`
+				(a.b).c
+			`);
+		const line = ast[0];
+		if (
+			line.type !== 'prop' ||
+			line.target.type !== 'prop' ||
+			line.target.target.type !== 'identifier'
+		)
+			assert.fail();
+		assert.equal(line.target.target.name, 'a');
+		assert.equal(line.target.name, 'b');
+		assert.equal(line.name, 'c');
+	});
+
+	test.concurrent('index chain with parenthesis', async () => {
+		let ast = Parser.parse(`
+				(a[42]).b
+			`);
+		const line = ast[0];
+		if (
+			line.type !== 'prop' ||
+			line.target.type !== 'index' ||
+			line.target.target.type !== 'identifier' ||
+			line.target.index.type !== 'num'
+		)
+			assert.fail();
+		assert.equal(line.target.target.name, 'a');
+		assert.equal(line.target.index.value, 42);
+		assert.equal(line.name, 'b');
+	});
+
+	test.concurrent('call chain with parenthesis', async () => {
+		let ast = Parser.parse(`
+				(foo(42, 57)).bar
+			`);
+		const line = ast[0];
+		if (
+			line.type !== 'prop' ||
+			line.target.type !== 'call' ||
+			line.target.target.type !== 'identifier' ||
+			line.target.args.length !== 2 ||
+			line.target.args[0].type !== 'num' ||
+			line.target.args[1].type !== 'num'
+		)
+			assert.fail();
+		assert.equal(line.target.target.name, 'foo');
+		assert.equal(line.target.args[0].value, 42);
+		assert.equal(line.target.args[1].value, 57);
+		assert.equal(line.name, 'bar');
+	});
+
+	test.concurrent('longer chain with parenthesis', async () => {
+		let ast = Parser.parse(`
+				(a.b.c).d.e
+			`);
+		const line = ast[0];
+		if (
+			line.type !== 'prop' ||
+			line.target.type !== 'prop' ||
+			line.target.target.type !== 'prop' ||
+			line.target.target.target.type !== 'prop' ||
+			line.target.target.target.target.type !== 'identifier'
+		)
+			assert.fail();
+		assert.equal(line.target.target.target.target.name, 'a');
+		assert.equal(line.target.target.target.name, 'b');
+		assert.equal(line.target.target.name, 'c');
+		assert.equal(line.target.name, 'd');
+		assert.equal(line.name, 'e');
+	});
 });
 
-it('Cannot access js native property via object', async () => {
+test.concurrent('Does not throw error when divided by zero', async () => {
 	const res = await exe(`
-	#obj = {}
-
-	<: obj.constructor
-	`);
-	eq(res, NULL);
-});
-
-it('Throws error when divied by zero', async () => {
-	try {
-		await exe(`
 		<: (0 / 0)
-		`);
-	} catch (e) {
-		assert.ok(true);
-		return;
-	}
-	assert.fail();
-});
-
-it('Fizz Buzz', async () => {
-	const res = await exe(`
-	#res = []
-	for (#i, 15) {
-		#msg =
-			if ((i % 15) = 0) "FizzBuzz"
-			elif ((i % 3) = 0) "Fizz"
-			elif ((i % 5) = 0) "Buzz"
-			else i
-		Arr:push(res msg)
-	}
-	<: res
 	`);
-	eq(res, ARR([
-		NUM(1),
-		NUM(2),
-		STR('Fizz'),
-		NUM(4),
-		STR('Buzz'),
-		STR('Fizz'),
-		NUM(7),
-		NUM(8),
-		STR('Fizz'),
-		STR('Buzz'),
-		NUM(11),
-		STR('Fizz'),
-		NUM(13),
-		NUM(14),
-		STR('FizzBuzz'),
-	]));
-});
-
-it('SKI', async () => {
-	const res = await exe(`
-	#s = @(x) { @(y) { @(z) {
-		//#f = x(z) f(@(a){ #g = y(z) g(a) })
-		#f = x(z)
-		f(y(z))
-	}}}
-	#k = @(x){ @(y) { x } }
-	#i = @(x){ x }
-
-	// combine
-	@c(l) {
-		#L = (Arr:len(l) + 1)
-
-		// extract
-		@x(v) {
-			if (Core:type(v) = "arr") { c(v) } else { v }
-		}
-
-		// rec
-		@r(f, n) {
-			if (n < L) {
-				r(f(x(l[n])), (n + 1))
-			} else { f }
-		}
-
-		r(x(l[1]), 2)
-	}
-
-	#sksik = [s, [k, [s, i]], k]
-	c([sksik, "foo", print])
-	`);
-	eq(res, STR('foo'));
+	eq(res, NUM(NaN));
 });
 
 describe('Function call', () => {
-	it('without args', async () => {
+	test.concurrent('without args', async () => {
 		const res = await exe(`
 		@f() {
 			42
@@ -614,7 +560,7 @@ describe('Function call', () => {
 		eq(res, NUM(42));
 	});
 
-	it('with args', async () => {
+	test.concurrent('with args', async () => {
 		const res = await exe(`
 		@f(x) {
 			x
@@ -624,7 +570,7 @@ describe('Function call', () => {
 		eq(res, NUM(42));
 	});
 
-	it('with args (separated by comma)', async () => {
+	test.concurrent('with args (separated by comma)', async () => {
 		const res = await exe(`
 		@f(x, y) {
 			(x + y)
@@ -634,22 +580,69 @@ describe('Function call', () => {
 		eq(res, NUM(2));
 	});
 
-	it('with args (separated by space)', async () => {
+	test.concurrent('optional args', async () => {
 		const res = await exe(`
-		@f(x y) {
-			(x + y)
+		@f(x, y?, z?) {
+			[x, y, z]
 		}
-		<: f(1 1)
+		<: f(true)
 		`);
-		eq(res, NUM(2));
+		eq(res, ARR([TRUE, NULL, NULL]));
+	});
+
+	test.concurrent('args with default value', async () => {
+		const res = await exe(`
+		@f(x, y=1, z=2) {
+			[x, y, z]
+		}
+		<: f(5, 3)
+		`);
+		eq(res, ARR([NUM(5), NUM(3), NUM(2)]));
+	});
+
+	test.concurrent('args must not be both optional and default-valued', async () => {
+		try {
+			Parser.parse(`
+			@func(a? = 1){}
+			`);
+		} catch (e) {
+			assert.ok(e instanceof AiScriptSyntaxError);
+			return;
+		}
+		assert.fail();
+	});
+
+	test.concurrent('missing arg', async () => {
+		try {
+			await exe(`
+			@func(a){}
+			func()
+			`);
+		} catch (e) {
+			assert.ok(e instanceof AiScriptRuntimeError);
+			return;
+		}
+		assert.fail();
+	});
+
+	test.concurrent('std: throw AiScript error when required arg missing', async () => {
+		try {
+			await exe(`
+			<: Core:eq(1)
+			`);
+		} catch (e) {
+			assert.ok(e instanceof AiScriptRuntimeError);
+			return;
+		}
+		assert.fail();
 	});
 });
 
 describe('Return', () => {
-	it('Early return', async () => {
+	test.concurrent('Early return', async () => {
 		const res = await exe(`
 		@f() {
-			if yes {
+			if true {
 				return "ai"
 			}
 
@@ -660,11 +653,11 @@ describe('Return', () => {
 		eq(res, STR('ai'));
 	});
 
-	it('Early return (nested)', async () => {
+	test.concurrent('Early return (nested)', async () => {
 		const res = await exe(`
 		@f() {
-			if yes {
-				if yes {
+			if true {
+				if true {
 					return "ai"
 				}
 			}
@@ -676,10 +669,10 @@ describe('Return', () => {
 		eq(res, STR('ai'));
 	});
 
-	it('Early return (nested) 2', async () => {
+	test.concurrent('Early return (nested) 2', async () => {
 		const res = await exe(`
 		@f() {
-			if yes {
+			if true {
 				return "ai"
 			}
 
@@ -687,7 +680,7 @@ describe('Return', () => {
 		}
 
 		@g() {
-			if (f() = "ai") {
+			if (f() == "ai") {
 				return "kawaii"
 			}
 
@@ -699,10 +692,10 @@ describe('Return', () => {
 		eq(res, STR('kawaii'));
 	});
 
-	it('Early return without block', async () => {
+	test.concurrent('Early return without block', async () => {
 		const res = await exe(`
 		@f() {
-			if yes return "ai"
+			if true return "ai"
 
 			"pope"
 		}
@@ -710,671 +703,143 @@ describe('Return', () => {
 		`);
 		eq(res, STR('ai'));
 	});
-});
 
-describe('Block', () => {
-	it('returns value', async () => {
+	test.concurrent('return inside for', async () => {
 		const res = await exe(`
-		#foo = {
-			#a = 1
-			#b = 2
-			(a + b)
+		@f() {
+			var count = 0
+			for (let i, 100) {
+				count += 1
+				if (i == 42) {
+					return count
+				}
+			}
 		}
-
-		<: foo
+		<: f()
 		`);
-		eq(res, NUM(3));
-	});
-});
-
-describe('if', () => {
-	it('if', async () => {
-		const res1 = await exe(`
-		$msg <- "ai"
-		if yes {
-			msg <- "kawaii"
-		}
-		<: msg
-		`);
-		eq(res1, STR('kawaii'));
-
-		const res2 = await exe(`
-		$msg <- "ai"
-		if no {
-			msg <- "kawaii"
-		}
-		<: msg
-		`);
-		eq(res2, STR('ai'));
+		eq(res, NUM(43));
 	});
 
-	it('else', async () => {
-		const res1 = await exe(`
-		$msg <- null
-		if yes {
-			msg <- "ai"
-		} else {
-			msg <- "kawaii"
+	test.concurrent('return inside for 2', async () => {
+		const res = await exe(`
+		@f() {
+			for (let i, 10) {
+				return 1
+			}
+			2
 		}
-		<: msg
+		<: f()
 		`);
-		eq(res1, STR('ai'));
-
-		const res2 = await exe(`
-		$msg <- null
-		if no {
-			msg <- "ai"
-		} else {
-			msg <- "kawaii"
-		}
-		<: msg
-		`);
-		eq(res2, STR('kawaii'));
+		eq(res, NUM(1));
 	});
 
-	it('elif', async () => {
-		const res1 = await exe(`
-		$msg <- "bebeyo"
-		if no {
-			msg <- "ai"
-		} elif yes {
-			msg <- "kawaii"
+	test.concurrent('return inside loop', async () => {
+		const res = await exe(`
+		@f() {
+			var count = 0
+			loop {
+				count += 1
+				if (count == 42) {
+					return count
+				}
+			}
 		}
-		<: msg
+		<: f()
 		`);
-		eq(res1, STR('kawaii'));
-
-		const res2 = await exe(`
-		$msg <- "bebeyo"
-		if no {
-			msg <- "ai"
-		} elif no {
-			msg <- "kawaii"
-		}
-		<: msg
-		`);
-		eq(res2, STR('bebeyo'));
+		eq(res, NUM(42));
 	});
 
-	it('if ~ elif ~ else', async () => {
-		const res1 = await exe(`
-		$msg <- null
-		if no {
-			msg <- "ai"
-		} elif yes {
-			msg <- "chan"
-		} else {
-			msg <- "kawaii"
+	test.concurrent('return inside loop 2', async () => {
+		const res = await exe(`
+		@f() {
+			loop {
+				return 1
+			}
+			2
 		}
-		<: msg
+		<: f()
 		`);
-		eq(res1, STR('chan'));
-
-		const res2 = await exe(`
-		$msg <- null
-		if no {
-			msg <- "ai"
-		} elif no {
-			msg <- "chan"
-		} else {
-			msg <- "kawaii"
-		}
-		<: msg
-		`);
-		eq(res2, STR('kawaii'));
+		eq(res, NUM(1));
 	});
 
-	it('expr', async () => {
-		const res1 = await exe(`
-		<: if yes "ai" else "kawaii"
+	test.concurrent('return inside each', async () =>
+	{
+		const res = await exe(`
+		@f() {
+			var count = 0
+			each (let item, ["ai", "chan", "kawaii"]) {
+				count += 1
+				if (item == "chan") {
+					return count
+				}
+			}
+		}
+		<: f()
 		`);
-		eq(res1, STR('ai'));
+		eq(res, NUM(2));
+	});
 
-		const res2 = await exe(`
-		<: if no "ai" else "kawaii"
+	test.concurrent('return inside each 2', async () =>
+	{
+		const res = await exe(`
+		@f() {
+			each (let item, ["ai", "chan", "kawaii"]) {
+				return 1
+			}
+			2
+		}
+		<: f()
 		`);
-		eq(res2, STR('kawaii'));
+		eq(res, NUM(1));
 	});
 });
 
-describe('match', () => {
-	it('Basic', async () => {
+describe('type declaration', () => {
+	test.concurrent('def', async () => {
 		const res = await exe(`
-		<: match 2 {
-			1 => "a"
-			2 => "b"
-			3 => "c"
-		}
+		let abc: num = 1
+		var xyz: str = "abc"
+		<: [abc, xyz]
 		`);
-		eq(res, STR('b'));
+		eq(res, ARR([NUM(1), STR('abc')]));
 	});
 
-	it('When default not provided, returns null', async () => {
+	test.concurrent('fn def', async () => {
 		const res = await exe(`
-		<: match 42 {
-			1 => "a"
-			2 => "b"
-			3 => "c"
+		@f(x: arr<num>, y: str, z: @(num) => bool): arr<num> {
+			x.push(0)
+			y = "abc"
+			var r: bool = z(x[0])
+			x.push(if r 5 else 10)
+			x
 		}
+
+		<: f([1, 2, 3], "a", @(n) { n == 1 })
+		`);
+		eq(res, ARR([NUM(1), NUM(2), NUM(3), NUM(0), NUM(5)]));
+	});
+
+	test.concurrent('def (null)', async () => {
+		const res = await exe(`
+		let a: null = null
+		<: a
 		`);
 		eq(res, NULL);
 	});
 
-	it('With default', async () => {
+	test.concurrent('fn def (null)', async () => {
 		const res = await exe(`
-		<: match 42 {
-			1 => "a"
-			2 => "b"
-			3 => "c"
-			* => "d"
-		}
+		@f(): null {}
+		<: f()
 		`);
-		eq(res, STR('d'));
-	});
-
-	it('With block', async () => {
-		const res = await exe(`
-		<: match 2 {
-			1 => 1
-			2 => {
-				#a = 1
-				#b = 2
-				(a + b)
-			}
-			3 => 3
-		}
-		`);
-		eq(res, NUM(3));
-	});
-
-	it('With return', async () => {
-		const res = await exe(`
-		@f(x) {
-			match x {
-				1 => {
-					return "ai"
-				}
-			}
-			"foo"
-		}
-		<: f(1)
-		`);
-		eq(res, STR('ai'));
-	});
-});
-
-describe('loop', () => {
-	it('Basic', async () => {
-		const res = await exe(`
-		$count <- 0
-		loop {
-			if (count = 10) break
-			count <- (count + 1)
-		}
-		<: count
-		`);
-		eq(res, NUM(10));
-	});
-
-	it('with continue', async () => {
-		const res = await exe(`
-		$a <- ["ai" "chan" "kawaii" "!"]
-		$b <- []
-		loop {
-			$x <- Arr:shift(a)
-			if (x = "chan") continue
-			if (x = "!") break
-			Arr:push(b, x)
-		}
-		<: b
-		`);
-		eq(res, ARR([STR('ai'), STR('kawaii')]));
-	});
-});
-
-describe('for', () => {
-	it('Basic', async () => {
-		const res = await exe(`
-		$count <- 0
-		for (#i, 10) {
-			count <- (count + i)
-		}
-		<: count
-		`);
-		eq(res, NUM(55));
-	});
-
-	it('wuthout iterator', async () => {
-		const res = await exe(`
-		$count <- 0
-		for (10) {
-			count <- (count + 1)
-		}
-		<: count
-		`);
-		eq(res, NUM(10));
-	});
-
-	it('without brackets', async () => {
-		const res = await exe(`
-		$count <- 0
-		for #i, 10 {
-			count <- (count + i)
-		}
-		<: count
-		`);
-		eq(res, NUM(55));
-	});
-
-	it('Break', async () => {
-		const res = await exe(`
-		$count <- 0
-		for (#i, 20) {
-			if (i = 11) break
-			count <- (count + i)
-		}
-		<: count
-		`);
-		eq(res, NUM(55));
-	});
-
-	it('continue', async () => {
-		const res = await exe(`
-		$count <- 0
-		for (#i, 10) {
-			if (i = 5) continue
-			count <- (count + 1)
-		}
-		<: count
-		`);
-		eq(res, NUM(9));
-	});
-
-	it('single statement', async () => {
-		const res = await exe(`
-		$count <- 0
-		for 10 count +<- 1
-		<: count
-		`);
-		eq(res, NUM(10));
-	});
-});
-
-describe('for of', () => {
-	it('standard', async () => {
-		const res = await exe(`
-		#msgs = []
-		each #item, ["ai", "chan", "kawaii"] {
-			Arr:push(msgs, Arr:join([item, "!"]))
-		}
-		<: msgs
-		`);
-		eq(res, ARR([STR('ai!'), STR('chan!'), STR('kawaii!')]));
-	});
-
-	it('Break', async () => {
-		const res = await exe(`
-		#msgs = []
-		each #item, ["ai", "chan", "kawaii"] {
-			if (item = "kawaii") break
-			Arr:push(msgs, Arr:join([item, "!"]))
-		}
-		<: msgs
-		`);
-		eq(res, ARR([STR('ai!'), STR('chan!')]));
-	});
-
-	it('single statement', async () => {
-		const res = await exe(`
-		#msgs = []
-		each #item, ["ai", "chan", "kawaii"] Arr:push(msgs, Arr:join([item, "!"]))
-		<: msgs
-		`);
-		eq(res, ARR([STR('ai!'), STR('chan!'), STR('kawaii!')]));
-	});
-});
-
-describe('namespace', () => {
-	it('standard', async () => {
-		const res = await exe(`
-		<: Foo:bar()
-
-		:: Foo {
-			@bar() { "ai" }
-		}
-		`);
-		eq(res, STR('ai'));
-	});
-
-	it('self ref', async () => {
-		const res = await exe(`
-		<: Foo:bar()
-
-		:: Foo {
-			#ai = "kawaii"
-			@bar() { ai }
-		}
-		`);
-		eq(res, STR('kawaii'));
-	});
-
-	it('assign variable', async () => {
-		const res = await exe(`
-		Foo:setMsg("hello")
-		<: Foo:getMsg()
-
-		:: Foo {
-			$msg <- "ai"
-			@setMsg(value) { Foo:msg <- value }
-			@getMsg() { Foo:msg }
-		}
-		`);
-		eq(res, STR('hello'));
-	});
-
-	it('increment', async () => {
-		const res = await exe(`
-		Foo:value +<- 10
-		Foo:value -<- 5
-		<: Foo:value
-
-		:: Foo {
-			$value <- 0
-		}
-		`);
-		eq(res, NUM(5));
-	});
-});
-
-describe('literal', () => {
-	it('bool (true)', async () => {
-		const res = await exe(`
-		<: yes
-		`);
-		eq(res, BOOL(true));
-	});
-
-	it('bool (false)', async () => {
-		const res = await exe(`
-		<: no
-		`);
-		eq(res, BOOL(false));
-	});
-
-	it('arr (separated by comma)', async () => {
-		const res = await exe(`
-		<: [1, 2, 3]
-		`);
-		eq(res, ARR([NUM(1), NUM(2), NUM(3)]));
-	});
-
-	it('arr (separated by comma) (with trailing comma)', async () => {
-		const res = await exe(`
-		<: [1, 2, 3,]
-		`);
-		eq(res, ARR([NUM(1), NUM(2), NUM(3)]));
-	});
-
-	it('arr (separated by line break)', async () => {
-		const res = await exe(`
-		<: [
-			1
-			2
-			3
-		]
-		`);
-		eq(res, ARR([NUM(1), NUM(2), NUM(3)]));
-	});
-
-	it('arr (separated by line break and comma)', async () => {
-		const res = await exe(`
-		<: [
-			1,
-			2,
-			3
-		]
-		`);
-		eq(res, ARR([NUM(1), NUM(2), NUM(3)]));
-	});
-
-	it('arr (separated by line break and comma) (with trailing comma)', async () => {
-		const res = await exe(`
-		<: [
-			1,
-			2,
-			3,
-		]
-		`);
-		eq(res, ARR([NUM(1), NUM(2), NUM(3)]));
-	});
-
-	it('obj (separated by comma)', async () => {
-		const res = await exe(`
-		<: { a: 1, b: 2, c: 3 }
-		`);
-		eq(res, OBJ(new Map([['a', NUM(1)], ['b', NUM(2)], ['c', NUM(3)]])));
-	});
-
-	it('obj (separated by comma) (with trailing comma)', async () => {
-		const res = await exe(`
-		<: { a: 1, b: 2, c: 3, }
-		`);
-		eq(res, OBJ(new Map([['a', NUM(1)], ['b', NUM(2)], ['c', NUM(3)]])));
-	});
-
-	it('obj (separated by semicolon)', async () => {
-		const res = await exe(`
-		<: { a: 1; b: 2; c: 3 }
-		`);
-		eq(res, OBJ(new Map([['a', NUM(1)], ['b', NUM(2)], ['c', NUM(3)]])));
-	});
-
-	it('obj (separated by semicolon) (with trailing semicolon)', async () => {
-		const res = await exe(`
-		<: { a: 1; b: 2; c: 3; }
-		`);
-		eq(res, OBJ(new Map([['a', NUM(1)], ['b', NUM(2)], ['c', NUM(3)]])));
-	});
-
-	it('obj (separated by line break)', async () => {
-		const res = await exe(`
-		<: {
-			a: 1
-			b: 2
-			c: 3
-		}
-		`);
-		eq(res, OBJ(new Map([['a', NUM(1)], ['b', NUM(2)], ['c', NUM(3)]])));
-	});
-
-	it('obj (separated by line break and semicolon)', async () => {
-		const res = await exe(`
-		<: {
-			a: 1;
-			b: 2;
-			c: 3
-		}
-		`);
-		eq(res, OBJ(new Map([['a', NUM(1)], ['b', NUM(2)], ['c', NUM(3)]])));
-	});
-
-	it('obj (separated by line break and semicolon) (with trailing semicolon)', async () => {
-		const res = await exe(`
-		<: {
-			a: 1;
-			b: 2;
-			c: 3;
-		}
-		`);
-		eq(res, OBJ(new Map([['a', NUM(1)], ['b', NUM(2)], ['c', NUM(3)]])));
-	});
-
-	it('obj and arr (separated by line break)', async () => {
-		const res = await exe(`
-		<: {
-			a: 1
-			b: [
-				1
-				2
-				3
-			]
-			c: 3
-		}
-		`);
-		eq(res, OBJ(new Map<string, any>([
-			['a', NUM(1)],
-			['b', ARR([NUM(1), NUM(2), NUM(3)])],
-			['c', NUM(3)]
-		])));
-	});
-});
-
-describe('meta', () => {
-	it('default meta', async () => {
-		const res = getMeta(`
-		### { a: 1; b: 2; c: 3; }
-		`);
-		eq(res, new Map([
-			[null, {
-				a: 1,
-				b: 2,
-				c: 3,
-			}]
-		]));
-		eq(res!.get(null), {
-			a: 1,
-			b: 2,
-			c: 3,
-		});
-	});
-
-	describe('String', () => {
-		it('valid', async () => {
-			const res = getMeta(`
-			### x "hoge"
-			`);
-			eq(res, new Map([
-				['x', 'hoge']
-			]));
-		});
-	});
-
-	describe('Number', () => {
-		it('valid', async () => {
-			const res = getMeta(`
-			### x 42
-			`);
-			eq(res, new Map([
-				['x', 42]
-			]));
-		});
-	});
-
-	describe('Boolean', () => {
-		it('valid', async () => {
-			const res = getMeta(`
-			### x yes
-			`);
-			eq(res, new Map([
-				['x', true]
-			]));
-		});
-	});
-
-	describe('Null', () => {
-		it('valid', async () => {
-			const res = getMeta(`
-			### x null
-			`);
-			eq(res, new Map([
-				['x', null]
-			]));
-		});
-	});
-
-	describe('Array', () => {
-		it('valid', async () => {
-			const res = getMeta(`
-			### x [1 2 3]
-			`);
-			eq(res, new Map([
-				['x', [1, 2, 3]]
-			]));
-		});
-
-		it('invalid', async () => {
-			try {
-				getMeta(`
-				### x [1 (2 + 2) 3]
-				`);
-			} catch (e) {
-				assert.ok(true);
-				return;
-			}
-			assert.fail();
-		});
-	});
-
-	describe('Object', () => {
-		it('valid', async () => {
-			const res = getMeta(`
-			### x { a: 1; b: 2; c: 3; }
-			`);
-			eq(res, new Map([
-				['x', {
-					a: 1,
-					b: 2,
-					c: 3,
-				}]
-			]));
-		});
-
-		it('invalid', async () => {
-			try {
-				getMeta(`
-				### x { a: 1; b: (2 + 2); c: 3; }
-				`);
-			} catch (e) {
-				assert.ok(true);
-				return;
-			}
-			assert.fail();
-		});
-	});
-
-	describe('Template', () => {
-		it('invalid', async () => {
-			try {
-				getMeta(`
-				### x \`foo {bar} baz\`
-				`);
-			} catch (e) {
-				assert.ok(true);
-				return;
-			}
-			assert.fail();
-		});
-	});
-
-	describe('Expression', () => {
-		it('invalid', async () => {
-			try {
-				getMeta(`
-				### x (1 + 1)
-				`);
-			} catch (e) {
-				assert.ok(true);
-				return;
-			}
-			assert.fail();
-		});
+		eq(res, NULL);
 	});
 });
 
 describe('Attribute', () => {
-	it('single attribute with function (str)', async () => {
-		let node: Node;
-		let attr: NAttr;
+	test.concurrent('single attribute with function (str)', async () => {
+		let node: Ast.Node;
+		let attr: Ast.Attribute;
 		const parser = new Parser();
 		const nodes = parser.parse(`
 		#[Event "Recieved"]
@@ -1384,43 +849,43 @@ describe('Attribute', () => {
 		`);
 		assert.equal(nodes.length, 1);
 		node = nodes[0];
-		if (node.type != 'def') assert.fail();
-		assert.equal(node.name, 'onRecieved');
+		if (node.type !== 'def' || node.dest.type !== 'identifier') assert.fail();
+		assert.equal(node.dest.name, 'onRecieved');
 		assert.equal(node.attr.length, 1);
 		// attribute 1
 		attr = node.attr[0];
-		if (attr.type != 'attr') assert.fail();
+		if (attr.type !== 'attr') assert.fail();
 		assert.equal(attr.name, 'Event');
-		if (attr.value.type != 'str') assert.fail();
+		if (attr.value.type !== 'str') assert.fail();
 		assert.equal(attr.value.value, 'Recieved');
 	});
 
-	it('multiple attributes with function (obj, str, bool)', async () => {
-		let node: Node;
-		let attr: NAttr;
+	test.concurrent('multiple attributes with function (obj, str, bool)', async () => {
+		let node: Ast.Node;
+		let attr: Ast.Attribute;
 		const parser = new Parser();
 		const nodes = parser.parse(`
-		#[Endpoint { path: "/notes/create"; }]
+		#[Endpoint { path: "/notes/create" }]
 		#[Desc "Create a note."]
-		#[Cat yes]
+		#[Cat true]
 		@createNote(text) {
 			<: text
 		}
 		`);
 		assert.equal(nodes.length, 1);
 		node = nodes[0];
-		if (node.type != 'def') assert.fail();
-		assert.equal(node.name, 'createNote');
+		if (node.type !== 'def' || node.dest.type !== 'identifier') assert.fail();
+		assert.equal(node.dest.name, 'createNote');
 		assert.equal(node.attr.length, 3);
 		// attribute 1
 		attr = node.attr[0];
-		if (attr.type != 'attr') assert.fail();
+		if (attr.type !== 'attr') assert.fail();
 		assert.equal(attr.name, 'Endpoint');
-		if (attr.value.type != 'obj') assert.fail();
+		if (attr.value.type !== 'obj') assert.fail();
 		assert.equal(attr.value.value.size, 1);
 		for (const [k, v] of attr.value.value) {
-			if (k == 'path') {
-				if (v.type != 'str') assert.fail();
+			if (k === 'path') {
+				if (v.type !== 'str') assert.fail();
 				assert.equal(v.value, '/notes/create');
 			}
 			else {
@@ -1429,124 +894,290 @@ describe('Attribute', () => {
 		}
 		// attribute 2
 		attr = node.attr[1];
-		if (attr.type != 'attr') assert.fail();
+		if (attr.type !== 'attr') assert.fail();
 		assert.equal(attr.name, 'Desc');
-		if (attr.value.type != 'str') assert.fail();
+		if (attr.value.type !== 'str') assert.fail();
 		assert.equal(attr.value.value, 'Create a note.');
 		// attribute 3
 		attr = node.attr[2];
-		if (attr.type != 'attr') assert.fail();
+		if (attr.type !== 'attr') assert.fail();
 		assert.equal(attr.name, 'Cat');
-		if (attr.value.type != 'bool') assert.fail();
+		if (attr.value.type !== 'bool') assert.fail();
 		assert.equal(attr.value.value, true);
 	});
 
 	// TODO: attributed function in block
 	// TODO: attribute target does not exist
+
+	test.concurrent('single attribute (no value)', async () => {
+		let node: Ast.Node;
+		let attr: Ast.Attribute;
+		const parser = new Parser();
+		const nodes = parser.parse(`
+		#[serializable]
+		let data = 1
+		`);
+		assert.equal(nodes.length, 1);
+		node = nodes[0];
+		if (node.type !== 'def' || node.dest.type !== 'identifier') assert.fail();
+		assert.equal(node.dest.name, 'data');
+		assert.equal(node.attr.length, 1);
+		// attribute 1
+		attr = node.attr[0];
+		assert.ok(attr.type === 'attr');
+		assert.equal(attr.name, 'serializable');
+		if (attr.value.type !== 'bool') assert.fail();
+		assert.equal(attr.value.value, true);
+	});
+
+	test.concurrent('attribute with statement under namespace', async () => {
+		const parser = new Parser();
+		const nodes = parser.parse(`
+		:: Tests {
+			#[test]
+			@assert_success() {
+				<: "Hello, world!"
+			}
+		}
+		`);
+		assert.equal(nodes.length, 1);
+		const ns = nodes[0];
+		assert.ok(ns.type === 'ns');
+		const member = ns.members[0];
+		assert.ok(member.type === 'def');
+		const attr = member.attr[0];
+		assert.equal(attr.name, 'test');
+	});
 });
 
 describe('Location', () => {
-	it('function', async () => {
-		let node: Node;
+	test.concurrent('function', async () => {
+		let node: Ast.Node;
 		const parser = new Parser();
 		const nodes = parser.parse(`
+			@f(a) { a }
+		`);
+		assert.equal(nodes.length, 1);
+		node = nodes[0];
+		if (!node.loc) assert.fail();
+		assert.deepEqual(node.loc, {
+			start: { line: 2, column: 4 },
+			end: { line: 2, column: 15 },
+		});
+	});
+	test.concurrent('comment', async () => {
+		let node: Ast.Node;
+		const parser = new Parser();
+		const nodes = parser.parse(`
+		/*
+		*/
+		// hoge
 		@f(a) { a }
 		`);
 		assert.equal(nodes.length, 1);
 		node = nodes[0];
 		if (!node.loc) assert.fail();
-		assert.deepEqual(node.loc, { start: 3, end: 13 });
+		assert.deepEqual(node.loc.start, { line: 5, column: 3 });
+	});
+	test.concurrent('template', async () => {
+		let node: Ast.Node;
+		const parser = new Parser();
+		const nodes = parser.parse(`
+			\`hoge{1}fuga\`
+		`);
+		assert.equal(nodes.length, 1);
+		node = nodes[0];
+		if (!node.loc || node.type !== "tmpl") assert.fail();
+		assert.deepEqual(node.loc, {
+			start: { line: 2, column: 4 },
+			end: { line: 2, column: 17 },
+		});
+		assert.equal(node.tmpl.length, 3);
+		const [elem1, elem2, elem3] = node.tmpl as Ast.Expression[];
+		assert.deepEqual(elem1.loc, {
+			start: { line: 2, column: 4 },
+			end: { line: 2, column: 10 },
+		});
+		assert.deepEqual(elem2.loc, {
+			start: { line: 2, column: 10 },
+			end: { line: 2, column: 11 },
+		});
+		assert.deepEqual(elem3.loc, {
+			start: { line: 2, column: 11 },
+			end: { line: 2, column: 17 },
+		});
 	});
 });
 
-describe('std', () => {
-	describe('Arr', () => {
-		it('map', async () => {
-			const res = await exe(`
-			#arr = ["ai", "chan", "kawaii"]
-
-			<: Arr:map(arr, @(item) { Arr:join([item, "!"]) })
-			`);
-			eq(res, ARR([STR('ai!'), STR('chan!'), STR('kawaii!')]));
-		});
-
-		it('filter', async () => {
-			const res = await exe(`
-			#arr = ["ai", "chan", "kawaii"]
-
-			<: Arr:filter(arr, @(item) { Str:incl(item, "ai") })
-			`);
-			eq(res, ARR([STR('ai'), STR('kawaii')]));
-		});
-
-		it('reduce', async () => {
-			const res = await exe(`
-			#arr = [1, 2, 3, 4]
-
-			<: Arr:reduce(arr, @(accumulator, currentValue) { (accumulator + currentValue) })
-			`);
-			eq(res, NUM(10));
-		});
+describe('Unicode', () => {
+	test.concurrent('len', async () => {
+		const res = await exe(`
+		<: "👍🏽🍆🌮".len
+		`);
+		eq(res, NUM(3));
 	});
 
-	describe('Obj', () => {
-		it('keys', async () => {
-			const res = await exe(`
-			#o = { a: 1; b: 2; c: 3; }
-
-			<: Obj:keys(o)
-			`);
-			eq(res, ARR([STR('a'), STR('b'), STR('c')]));
-		});
-
-		it('kvs', async () => {
-			const res = await exe(`
-			#o = { a: 1; b: 2; c: 3; }
-
-			<: Obj:kvs(o)
-			`);
-			eq(res, ARR([
-				ARR([STR('a'), NUM(1)]),
-				ARR([STR('b'), NUM(2)]),
-				ARR([STR('c'), NUM(3)])
-			]));
-		});
+	test.concurrent('pick', async () => {
+		const res = await exe(`
+		<: "👍🏽🍆🌮".pick(1)
+		`);
+		eq(res, STR('🍆'));
 	});
 
-	describe('Str', () => {
-		it('len', async () => {
-			const res = await exe(`
-			<: Str:len("👍🏽🍆🌮")
+	test.concurrent('slice', async () => {
+		const res = await exe(`
+		<: "Emojis 👍🏽 are 🍆 poison. 🌮s are bad.".slice(7, 14)
+		`);
+		eq(res, STR('👍🏽 are 🍆'));
+	});
+
+	test.concurrent('split', async () => {
+		const res = await exe(`
+		<: "👍🏽🍆🌮".split()
+		`);
+		eq(res, ARR([STR('👍🏽'), STR('🍆'), STR('🌮')]));
+	});
+});
+
+describe('Security', () => {
+	test.concurrent('Cannot access js native property via var', async () => {
+		try {
+			await exe(`
+			<: constructor
 			`);
-			eq(res, NUM(3));
-		});
+			assert.fail();
+		} catch (e) {
+			assert.ok(e instanceof AiScriptSyntaxError);
+		}
 
-		it('pick', async () => {
-			const res = await exe(`
-			<: Str:pick("👍🏽🍆🌮", 2)
+		try {
+			await exe(`
+			<: prototype
 			`);
-			eq(res, STR('🍆'));
-		});
+			assert.fail();
+		} catch (e) {
+			assert.ok(e instanceof AiScriptRuntimeError);
+		}
 
-		it('slice', async () => {
-			const res = await exe(`
-			<: Str:slice("Emojis 👍🏽 are 🍆 poison. 🌮s are bad.", 8, 15)
+		try {
+			await exe(`
+			<: __proto__
 			`);
-			eq(res, STR('👍🏽 are 🍆'));
-		});
+			assert.fail();
+		} catch (e) {
+			assert.ok(e instanceof AiScriptRuntimeError);
+		}
+	});
 
-		it('split', async () => {
-			const res = await exe(`
-			<: Str:split("👍🏽🍆🌮")
+	test.concurrent('Cannot access js native property via object', async () => {
+		const res2 = await exe(`
+		let obj = {}
+
+		<: obj.prototype
+		`);
+		eq(res2, NULL);
+
+		const res3 = await exe(`
+		let obj = {}
+
+		<: obj.__proto__
+		`);
+		eq(res3, NULL);
+	});
+
+	test.concurrent('Cannot access js native property via primitive prop', async () => {
+		try {
+			await exe(`
+			<: "".constructor
 			`);
-			eq(res, ARR([STR('👍🏽'), STR('🍆'), STR('🌮')]));
-		});
+			assert.fail();
+		} catch (e) {
+			assert.ok(e instanceof AiScriptSyntaxError);
+		}
 
+		try {
+			await exe(`
+			<: "".prototype
+			`);
+			assert.fail();
+		} catch (e) {
+			assert.ok(e instanceof AiScriptRuntimeError);
+		}
 
-		it('range', async () => {
-			eq(await exe('<: Core:range(1, 10)'), ARR([NUM(1), NUM(2), NUM(3), NUM(4), NUM(5), NUM(6), NUM(7), NUM(8), NUM(9), NUM(10)]));
-			eq(await exe('<: Core:range(1, 1)'), ARR([NUM(1)]));
-			eq(await exe('<: Core:range(9, 7)'), ARR([NUM(9), NUM(8), NUM(7)]));
-		});
+		try {
+			await exe(`
+			<: "".__proto__
+			`);
+			assert.fail();
+		} catch (e) {
+			assert.equal(e instanceof AiScriptRuntimeError, true);
+		}
+	});
+});
+
+describe('extra', () => {
+	test.concurrent('Fizz Buzz', async () => {
+		const res = await exe(`
+		let res = []
+		for (let i = 1, 15) {
+			let msg =
+				if (i % 15 == 0) "FizzBuzz"
+				elif (i % 3 == 0) "Fizz"
+				elif (i % 5 == 0) "Buzz"
+				else i
+			res.push(msg)
+		}
+		<: res
+		`);
+		eq(res, ARR([
+			NUM(1),
+			NUM(2),
+			STR('Fizz'),
+			NUM(4),
+			STR('Buzz'),
+			STR('Fizz'),
+			NUM(7),
+			NUM(8),
+			STR('Fizz'),
+			STR('Buzz'),
+			NUM(11),
+			STR('Fizz'),
+			NUM(13),
+			NUM(14),
+			STR('FizzBuzz'),
+		]));
+	});
+
+	test.concurrent('SKI', async () => {
+		const res = await exe(`
+		let s = @(x) { @(y) { @(z) {
+			//let f = x(z) f(@(a){ let g = y(z) g(a) })
+			let f = x(z)
+			f(y(z))
+		}}}
+		let k = @(x){ @(y) { x } }
+		let i = @(x){ x }
+
+		// combine
+		@c(l) {
+			// extract
+			@x(v) {
+				if (Core:type(v) == "arr") { c(v) } else { v }
+			}
+
+			// rec
+			@r(f, n) {
+				if (n < l.len) {
+					r(f(x(l[n])), (n + 1))
+				} else { f }
+			}
+
+			r(x(l[0]), 1)
+		}
+
+		let sksik = [s, [k, [s, i]], k]
+		c([sksik, "foo", print])
+		`);
+		eq(res, STR('foo'));
 	});
 });

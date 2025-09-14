@@ -1,165 +1,285 @@
-export type TNull = {
-	name: 'null';
-};
+import { AiScriptSyntaxError } from './error.js';
+import type * as Ast from './node.js';
 
-export function T_NULL(): TNull {
+// Type (Semantic analyzed)
+
+export type TSimple<N extends string = string> = {
+	type: 'simple';
+	name: N;
+}
+
+export function T_SIMPLE<T extends string>(name: T): TSimple<T> {
 	return {
-		name: 'null' as const
+		type: 'simple',
+		name: name,
 	};
 }
 
-export type TBool = {
-	name: 'bool';
-};
-
-export function T_BOOL(): TBool {
-	return {
-		name: 'bool' as const
-	};
+export function isAny(x: Type): x is TSimple<'any'> {
+	return x.type === 'simple' && x.name === 'any';
 }
 
-export type TNum = {
-	name: 'num';
-};
-
-export function T_NUM(): TNum {
-	return {
-		name: 'num' as const
-	};
+export interface TGeneric<N extends string = string, I extends Type[] = Type[]> {
+	type: 'generic';
+	name: N;
+	inners: I;
 }
 
-export type TStr = {
-	name: 'str';
-};
-
-export function T_STR(): TStr {
+export function T_GENERIC<N extends string>(name: N, inners: Type[]): TGeneric<N> {
 	return {
-		name: 'str' as const
-	};
-}
-
-export type TArr = {
-	name: 'arr';
-	item: Type;
-};
-
-export function T_ARR(item: Type): TArr {
-	return {
-		name: 'arr' as const,
-		item: item
-	};
-}
-
-export type TObj = {
-	name: 'obj';
-	value: Type;
-};
-
-export function T_OBJ(value: Type): TObj {
-	return {
-		name: 'obj' as const,
-		value: value
+		type: 'generic',
+		name: name,
+		inners: inners,
 	};
 }
 
 export type TFn = {
-	name: 'fn';
-	args: Type[];
+	type: 'fn';
+	params: Type[];
 	result: Type;
 };
 
-export function T_FN(args: Type[], result: Type): TFn {
+export function T_FN(params: Type[], result: Type): TFn {
 	return {
-		name: 'fn' as const,
-		args,
-		result
+		type: 'fn',
+		params,
+		result,
 	};
 }
 
-export type TAny = {
-	name: 'any';
-};
+export type TParam = {
+	type: 'param';
+	name: string;
+}
+
+export function T_PARAM(name: string): TParam {
+	return {
+		type: 'param',
+		name,
+	};
+}
+
+export type TUnion = {
+	type: 'union';
+	inners: Type[];
+}
+
+export function T_UNION(inners: Type[]): TUnion {
+	return {
+		type: 'union',
+		inners,
+	};
+}
+
+export type TNull = TSimple<'null'>;
+
+export function T_NULL(): TNull {
+	return {
+		type: 'simple',
+		name: 'null',
+	};
+}
+
+export type TBool = TSimple<'bool'>;
+
+export function T_BOOL(): TBool {
+	return {
+		type: 'simple',
+		name: 'bool',
+	};
+}
+
+export type TNum = TSimple<'num'>;
+
+export function T_NUM(): TNum {
+	return {
+		type: 'simple',
+		name: 'num',
+	};
+}
+
+export type TStr = TSimple<'str'>;
+
+export function T_STR(): TStr {
+	return {
+		type: 'simple',
+		name: 'str',
+	};
+}
+
+export type TError = TSimple<'error'>;
+
+export type TNever = TSimple<'never'>;
+
+export type TArr = TGeneric<'arr', [Type]>;
+
+export function T_ARR(item: Type): TArr {
+	return {
+		type: 'generic',
+		name: 'arr',
+		inners: [item],
+	};
+}
+
+export type TObj = TGeneric<'obj', [Type]>;
+
+export function T_OBJ(value: Type): TObj {
+	return {
+		type: 'generic',
+		name: 'obj',
+		inners: [value],
+	};
+}
+
+export type TAny = TSimple<'any'>;
 
 export function T_ANY(): TAny {
 	return {
-		name: 'any' as const
+		type: 'simple',
+		name: 'any',
 	};
 }
 
-export type Type = TNull | TBool | TNum | TStr | TArr | TObj | TFn | TAny;
+export type TVoid = TSimple<'void'>;
 
-export function getTypeByName(x: string) {
-	switch (x) {
-		case 'null':
-			return T_NULL();
-		case 'bool':
-			return T_BOOL();
-		case 'num':
-			return T_NUM();
-		case 'str':
-			return T_STR();
-		case 'obj':
-			return T_OBJ(T_ANY());
-		case 'arr':
-			return T_ARR(T_ANY());
-		case 'fn':
-			return T_FN([], T_ANY());
-		case 'any':
-			return T_ANY();
-	}
-	return null;
-}
+export type Type = TNull | TBool | TNum | TStr | TArr | TObj | TFn | TError | TNever | TAny | TVoid | TParam | TUnion;
 
-export function compatibleType(a: Type, b: Type): boolean {
-	if (a.name == 'any' || b.name == 'any') return true;
-	if (a.name != b.name) return false;
+function assertTSimple(t: Type): asserts t is Type & TSimple { if (t.type !== 'simple') { throw new TypeError('assertTSimple failed.'); } }
+function assertTGeneric(t: Type): asserts t is Type & TGeneric { if (t.type !== 'generic') { throw new TypeError('assertTGeneric failed.'); } }
+function assertTFn(t: Type): asserts t is TFn { if (t.type !== 'fn') { throw new TypeError('assertTFn failed.'); } }
 
-	switch (a.name) {
+// Utility
 
-		case 'arr': {
-			b = (b as TArr); // NOTE: TypeGuardが効かない
-			return compatibleType(a.item, b.item);
-		}
+export function isCompatibleType(a: Type, b: Type): boolean {
+	if (isAny(a) || isAny(b)) return true;
+	if (a.type !== b.type) return false;
 
-		case 'fn': {
-			b = (b as TFn); // NOTE: TypeGuardが効かない
-			// fn result
-			if (!compatibleType(a.result, b.result)) return false;
-			// fn args
-			if (a.args.length != b.args.length) return false;
-			for (let i = 0; i < a.args.length; i++) {
-				if (!compatibleType(a.args[i], b.args[i])) return false;
-			}
-			return true;
-		}
-
-		case 'obj': {
+	switch (a.type) {
+		case 'simple': {
+			assertTSimple(b); // NOTE: TypeGuardが効かない
+			if (a.name !== b.name) return false;
 			break;
 		}
-
+		case 'generic': {
+			assertTGeneric(b); // NOTE: TypeGuardが効かない
+			// name
+			if (a.name !== b.name) return false;
+			// inners
+			if (a.inners.length !== b.inners.length) return false;
+			for (let i = 0; i < a.inners.length; i++) {
+				if (!isCompatibleType(a.inners[i]!, b.inners[i]!)) return false;
+			}
+			break;
+		}
+		case 'fn': {
+			assertTFn(b); // NOTE: TypeGuardが効かない
+			// fn result
+			if (!isCompatibleType(a.result, b.result)) return false;
+			// fn parameters
+			if (a.params.length !== b.params.length) return false;
+			for (let i = 0; i < a.params.length; i++) {
+				if (!isCompatibleType(a.params[i]!, b.params[i]!)) return false;
+			}
+			break;
+		}
+		case 'param': {
+			// TODO
+			break;
+		}
+		case 'union': {
+			// TODO
+			break;
+		}
 	}
 
 	return true;
 }
 
 export function getTypeName(type: Type): string {
-
-	switch (type.name) {
-
-		case 'arr': {
-			if (type.item.name != 'any') {
-				return `arr<${type.item.name}>`;
-			}
-			break;
+	switch (type.type) {
+		case 'simple': {
+			return type.name;
 		}
-
+		case 'generic': {
+			return `${type.name}<${type.inners.map(inner => getTypeName(inner)).join(', ')}>`;
+		}
 		case 'fn': {
-			const args = type.args.map(arg => getTypeName(arg)).join(', ');
-			const result = getTypeName(type.result);
-			return `@(${args}) => ${result}`;
+			return `@(${type.params.map(param => getTypeName(param)).join(', ')}) { ${getTypeName(type.result)} }`;
+		}
+		case 'param': {
+			return type.name;
+		}
+		case 'union': {
+			return type.inners.join(' | ');
+		}
+	}
+}
+
+export function getTypeNameBySource(typeSource: Ast.TypeSource): string {
+	switch (typeSource.type) {
+		case 'namedTypeSource': {
+			if (typeSource.inner) {
+				const inner = getTypeNameBySource(typeSource.inner);
+				return `${typeSource.name}<${inner}>`;
+			} else {
+				return typeSource.name;
+			}
+		}
+		case 'fnTypeSource': {
+			const params = typeSource.params.map(param => getTypeNameBySource(param)).join(', ');
+			const result = getTypeNameBySource(typeSource.result);
+			return `@(${params}) { ${result} }`;
+		}
+		case 'unionTypeSource': {
+			return typeSource.inners.map(inner => getTypeBySource(inner)).join(' | ');
+		}
+	}
+}
+
+export function getTypeBySource(typeSource: Ast.TypeSource, typeParams?: readonly Ast.TypeParam[]): Type {
+	if (typeSource.type === 'namedTypeSource') {
+		const typeParam = typeParams?.find((param) => param.name === typeSource.name);
+		if (typeParam != null) {
+			return T_PARAM(typeParam.name);
 		}
 
+		switch (typeSource.name) {
+			// simple types
+			case 'null':
+			case 'bool':
+			case 'num':
+			case 'str':
+			case 'error':
+			case 'never':
+			case 'any':
+			case 'void': {
+				if (typeSource.inner == null) {
+					return T_SIMPLE(typeSource.name) as TNull | TBool | TNum | TStr | TError | TNever | TAny | TVoid;
+				}
+				break;
+			}
+			// alias for Generic types
+			case 'arr':
+			case 'obj': {
+				let innerType: Type;
+				if (typeSource.inner != null) {
+					innerType = getTypeBySource(typeSource.inner, typeParams);
+				} else {
+					innerType = T_SIMPLE('any');
+				}
+				return T_GENERIC(typeSource.name, [innerType]) as TArr | TObj;
+			}
+		}
+		throw new AiScriptSyntaxError(`Unknown type: '${getTypeNameBySource(typeSource)}'`, typeSource.loc.start);
+	} else if (typeSource.type === 'fnTypeSource') {
+		let fnTypeParams = typeSource.typeParams;
+		if (typeParams != null) {
+			fnTypeParams = fnTypeParams.concat(typeParams);
+		}
+		const paramTypes = typeSource.params.map(param => getTypeBySource(param, fnTypeParams));
+		return T_FN(paramTypes, getTypeBySource(typeSource.result, fnTypeParams));
+	} else {
+		const innerTypes = typeSource.inners.map(inner => getTypeBySource(inner, typeParams));
+		return T_UNION(innerTypes);
 	}
-
-	return type.name;
 }

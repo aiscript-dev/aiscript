@@ -4,80 +4,322 @@
 
 ```ts
 
+// Warning: (ae-forgotten-export) The symbol "NodeBase" needs to be exported by the entry point index.d.ts
+//
 // @public (undocumented)
-export class AiScript {
-    constructor(vars: AiScript['vars'], opts?: AiScript['opts']);
-    // (undocumented)
-    abort(): void;
-    // (undocumented)
-    static collectMetadata(script?: Node_2[]): Map<any, any> | undefined;
-    // Warning: (ae-forgotten-export) The symbol "Node" needs to be exported by the entry point index.d.ts
-    //
-    // (undocumented)
-    exec(script?: Node_2[]): Promise<void>;
-    // (undocumented)
-    execFn(fn: VFn, args: Value[]): Promise<Value>;
-    // (undocumented)
-    registerAbortHandler(handler: () => void): void;
-    // Warning: (ae-forgotten-export) The symbol "Scope" needs to be exported by the entry point index.d.ts
-    //
-    // (undocumented)
-    scope: Scope;
-    // (undocumented)
-    stepCount: number;
-    // (undocumented)
-    unregisterAbortHandler(handler: () => void): void;
-}
-
-// @public (undocumented)
-const ARR: (arr: VArr['value']) => {
-    type: "arr";
-    value: Value[];
+type Add = NodeBase & {
+    type: 'add';
+    left: Expression;
+    right: Expression;
 };
 
 // @public (undocumented)
-function assertArray(val: Value): asserts val is VArr;
+type AddAssign = NodeBase & {
+    type: 'addAssign';
+    dest: Expression;
+    expr: Expression;
+};
 
 // @public (undocumented)
-function assertBoolean(val: Value): asserts val is VBool;
+export const AISCRIPT_VERSION: "1.2.0";
 
 // @public (undocumented)
-function assertFunction(val: Value): asserts val is VFn;
+abstract class AiScriptError extends Error {
+    constructor(message: string, info?: unknown);
+    // (undocumented)
+    info: unknown;
+    // (undocumented)
+    name: string;
+    // (undocumented)
+    pos?: Pos;
+}
+
+// @public
+class AiScriptHostsideError extends AiScriptError {
+    constructor(message: string, info?: unknown);
+    // (undocumented)
+    name: string;
+}
+
+// @public
+class AiScriptIndexOutOfRangeError extends AiScriptRuntimeError {
+    constructor(message: string, info?: unknown);
+}
+
+// @public
+class AiScriptNamespaceError extends AiScriptError {
+    constructor(message: string, pos: Pos, info?: unknown);
+    // (undocumented)
+    name: string;
+    // (undocumented)
+    pos: Pos;
+}
+
+// @public
+class AiScriptRuntimeError extends AiScriptError {
+    constructor(message: string, info?: unknown);
+    // (undocumented)
+    name: string;
+}
+
+// @public
+class AiScriptSyntaxError extends AiScriptError {
+    constructor(message: string, pos: Pos, info?: unknown);
+    // (undocumented)
+    name: string;
+    // (undocumented)
+    pos: Pos;
+}
+
+// @public
+class AiScriptTypeError extends AiScriptError {
+    constructor(message: string, pos: Pos, info?: unknown);
+    // (undocumented)
+    name: string;
+    // (undocumented)
+    pos: Pos;
+}
+
+// @public
+class AiScriptUnexpectedEOFError extends AiScriptSyntaxError {
+    constructor(pos: Pos, info?: unknown);
+}
+
+// @public
+class AiScriptUserError extends AiScriptRuntimeError {
+    constructor(message: string, info?: unknown);
+    // (undocumented)
+    name: string;
+}
 
 // @public (undocumented)
-function assertNumber(val: Value): asserts val is VNum;
+export class AiSON {
+    // (undocumented)
+    static parse(input: string): JsValue;
+}
 
 // @public (undocumented)
-function assertObject(val: Value): asserts val is VObj;
+type And = NodeBase & {
+    type: 'and';
+    left: Expression;
+    right: Expression;
+};
 
 // @public (undocumented)
-function assertString(val: Value): asserts val is VStr;
+const ARR: (arr: VArr["value"]) => VArr;
 
 // @public (undocumented)
-const BOOL: (bool: VBool['value']) => {
-    type: "bool";
+type Arr = NodeBase & {
+    type: 'arr';
+    value: Expression[];
+};
+
+// @public (undocumented)
+function assertArray(val: Value | null | undefined): asserts val is VArr;
+
+// @public (undocumented)
+function assertBoolean(val: Value | null | undefined): asserts val is VBool;
+
+// @public (undocumented)
+function assertFunction(val: Value | null | undefined): asserts val is VFn;
+
+// @public (undocumented)
+function assertNumber(val: Value | null | undefined): asserts val is VNum;
+
+// @public (undocumented)
+function assertObject(val: Value | null | undefined): asserts val is VObj;
+
+// @public (undocumented)
+function assertString(val: Value | null | undefined): asserts val is VStr;
+
+// @public (undocumented)
+type Assign = NodeBase & {
+    type: 'assign';
+    dest: Expression;
+    expr: Expression;
+};
+
+declare namespace Ast {
+    export {
+        isStatement,
+        isExpression,
+        Pos,
+        Loc,
+        Node_2 as Node,
+        Namespace,
+        Meta,
+        Statement,
+        Definition,
+        Attribute,
+        Return,
+        Each,
+        For,
+        Loop,
+        Break,
+        Continue,
+        AddAssign,
+        SubAssign,
+        Assign,
+        Expression,
+        Plus,
+        Minus,
+        Not,
+        Pow,
+        Mul,
+        Div,
+        Rem,
+        Add,
+        Sub,
+        Lt,
+        Lteq,
+        Gt,
+        Gteq,
+        Eq,
+        Neq,
+        And,
+        Or,
+        If,
+        Fn,
+        Match,
+        Block,
+        Exists,
+        Tmpl,
+        Str,
+        Num,
+        Bool,
+        Null,
+        Obj,
+        Arr,
+        Identifier,
+        Call,
+        Index,
+        Prop,
+        TypeSource,
+        NamedTypeSource,
+        FnTypeSource,
+        UnionTypeSource,
+        TypeParam
+    }
+}
+export { Ast }
+
+// @public (undocumented)
+type Attr_2 = {
+    attr?: {
+        name: string;
+        value: Value;
+    }[];
+};
+
+// @public (undocumented)
+type Attribute = NodeBase & {
+    type: 'attr';
+    name: string;
+    value: Expression;
+};
+
+// @public (undocumented)
+type Block = NodeBase & {
+    type: 'block';
+    label?: string;
+    statements: (Statement | Expression)[];
+};
+
+// @public (undocumented)
+const BOOL: (bool: VBool["value"]) => VBool;
+
+// @public (undocumented)
+type Bool = NodeBase & {
+    type: 'bool';
     value: boolean;
 };
 
 // @public (undocumented)
-const BREAK: () => {
-    type: "break";
-    value: null;
+type Break = NodeBase & {
+    type: 'break';
+    label?: string;
+    expr?: Expression;
 };
 
 // @public (undocumented)
-const CONTINUE: () => {
-    type: "continue";
-    value: null;
+type Call = NodeBase & {
+    type: 'call';
+    target: Expression;
+    args: Expression[];
 };
 
-// Warning: (ae-forgotten-export) The symbol "Bin" needs to be exported by the entry point index.d.ts
-//
 // @public (undocumented)
-export function deserialize(bin: Bin[]): Node_2[];
+type Continue = NodeBase & {
+    type: 'continue';
+    label?: string;
+};
+
+// @public (undocumented)
+type Definition = NodeBase & {
+    type: 'def';
+    dest: Expression;
+    varType?: TypeSource;
+    expr: Expression;
+    mut: boolean;
+    attr: Attribute[];
+};
+
+// @public (undocumented)
+type Div = NodeBase & {
+    type: 'div';
+    left: Expression;
+    right: Expression;
+};
+
+// @public (undocumented)
+type Each = NodeBase & {
+    type: 'each';
+    label?: string;
+    var: Expression;
+    items: Expression;
+    for: Statement | Expression;
+};
+
+// @public (undocumented)
+type Eq = NodeBase & {
+    type: 'eq';
+    left: Expression;
+    right: Expression;
+};
 
 // @public (undocumented)
 function eq(a: Value, b: Value): boolean;
+
+// @public (undocumented)
+const ERROR: (name: string, info?: Value) => Value;
+
+declare namespace errors {
+    export {
+        AiScriptError,
+        NonAiScriptError,
+        AiScriptSyntaxError,
+        AiScriptUnexpectedEOFError,
+        AiScriptTypeError,
+        AiScriptNamespaceError,
+        AiScriptRuntimeError,
+        AiScriptIndexOutOfRangeError,
+        AiScriptUserError,
+        AiScriptHostsideError
+    }
+}
+export { errors }
+
+// @public (undocumented)
+type Exists = NodeBase & {
+    type: 'exists';
+    identifier: Identifier;
+};
+
+// @public (undocumented)
+function expectAny(val: Value | null | undefined): asserts val is Value;
+
+// @public (undocumented)
+type Expression = If | Fn | Match | Block | Exists | Tmpl | Str | Num | Bool | Null | Obj | Arr | Plus | Minus | Not | Pow | Mul | Div | Rem | Add | Sub | Lt | Lteq | Gt | Gteq | Eq | Neq | And | Or | Identifier | Call | Index | Prop;
 
 // @public (undocumented)
 const FALSE: {
@@ -86,28 +328,259 @@ const FALSE: {
 };
 
 // @public (undocumented)
-const FN: (args: VFn['args'], statements: VFn['statements'], scope: VFn['scope']) => {
-    type: "fn";
-    args: string[] | undefined;
-    statements: Node_2[] | undefined;
-    scope: Scope | undefined;
+const FN: (params: VUserFn["params"], statements: VUserFn["statements"], scope: VUserFn["scope"]) => VUserFn;
+
+// @public (undocumented)
+type Fn = NodeBase & {
+    type: 'fn';
+    typeParams: TypeParam[];
+    params: {
+        dest: Expression;
+        optional: boolean;
+        default?: Expression;
+        argType?: TypeSource;
+    }[];
+    retType?: TypeSource;
+    children: (Statement | Expression)[];
 };
 
 // @public (undocumented)
-const FN_NATIVE: (fn: VFn['native']) => {
-    type: "fn";
-    native: ((args: Value[], opts: {
-        call: (fn: VFn, args: Value[]) => Promise<Value>;
-        registerAbortHandler: (handler: () => void) => void;
-        unregisterAbortHandler: (handler: () => void) => void;
-    }) => Value | Promise<Value> | void) | undefined;
+const FN_NATIVE: (fn: VNativeFn["native"], fnSync?: VNativeFn["nativeSync"]) => VNativeFn;
+
+// @public (undocumented)
+type FnTypeSource = NodeBase & {
+    type: 'fnTypeSource';
+    typeParams: TypeParam[];
+    params: TypeSource[];
+    result: TypeSource;
 };
 
 // @public (undocumented)
-function jsToVal(val: any): Value;
+type For = NodeBase & {
+    type: 'for';
+    label?: string;
+    var?: string;
+    from?: Expression;
+    to?: Expression;
+    times?: Expression;
+    for: Statement | Expression;
+};
 
 // @public (undocumented)
-function nodeToString(node: Node_2): string;
+function getLangVersion(input: string): string | null;
+
+// @public (undocumented)
+type Gt = NodeBase & {
+    type: 'gt';
+    left: Expression;
+    right: Expression;
+};
+
+// @public (undocumented)
+type Gteq = NodeBase & {
+    type: 'gteq';
+    left: Expression;
+    right: Expression;
+};
+
+// @public (undocumented)
+type Identifier = NodeBase & {
+    type: 'identifier';
+    name: string;
+};
+
+// @public (undocumented)
+type If = NodeBase & {
+    type: 'if';
+    label?: string;
+    cond: Expression;
+    then: Statement | Expression;
+    elseif: {
+        cond: Expression;
+        then: Statement | Expression;
+    }[];
+    else?: Statement | Expression;
+};
+
+// @public (undocumented)
+type Index = NodeBase & {
+    type: 'index';
+    target: Expression;
+    index: Expression;
+};
+
+// @public (undocumented)
+export class Interpreter {
+    constructor(consts: Record<string, Value>, opts?: {
+        in?(q: string): Promise<string>;
+        out?(value: Value): void;
+        err?(e: AiScriptError): void;
+        log?(type: string, params: LogObject): void;
+        maxStep?: number;
+        abortOnError?: boolean;
+        irqRate?: number;
+        irqSleep?: number | (() => Promise<void>);
+    });
+    // (undocumented)
+    abort(): void;
+    // (undocumented)
+    static collectMetadata(script?: Ast.Node[]): Map<string | null, JsValue> | undefined;
+    // (undocumented)
+    exec(script?: Ast.Node[]): Promise<void>;
+    execFn(fn: VFn, args: Value[]): Promise<Value>;
+    execFnSimple(fn: VFn, args: Value[]): Promise<Value>;
+    execFnSync(fn: VFn, args: Value[]): Value;
+    // (undocumented)
+    execSync(script?: Ast.Node[]): Value | undefined;
+    // (undocumented)
+    pause(): void;
+    // (undocumented)
+    registerAbortHandler(handler: () => void): void;
+    // (undocumented)
+    registerPauseHandler(handler: () => void): void;
+    // (undocumented)
+    registerUnpauseHandler(handler: () => void): void;
+    // (undocumented)
+    scope: Scope;
+    // (undocumented)
+    stepCount: number;
+    // (undocumented)
+    unpause(): void;
+    // (undocumented)
+    unregisterAbortHandler(handler: () => void): void;
+    // (undocumented)
+    unregisterPauseHandler(handler: () => void): void;
+    // (undocumented)
+    unregisterUnpauseHandler(handler: () => void): void;
+}
+
+// @public (undocumented)
+function isArray(val: Value): val is VArr;
+
+// @public (undocumented)
+function isBoolean(val: Value): val is VBool;
+
+// @public (undocumented)
+function isExpression(x: Node_2): x is Expression;
+
+// @public (undocumented)
+function isFunction(val: Value): val is VFn;
+
+// @public (undocumented)
+function isNumber(val: Value): val is VNum;
+
+// @public (undocumented)
+function isObject(val: Value): val is VObj;
+
+// @public (undocumented)
+function isStatement(x: Node_2): x is Statement;
+
+// @public (undocumented)
+function isString(val: Value): val is VStr;
+
+// @public (undocumented)
+function jsToVal(val: unknown): Value;
+
+// @public (undocumented)
+type JsValue = {
+    [key: string]: JsValue;
+} | JsValue[] | string | number | boolean | null | undefined;
+
+// @public (undocumented)
+type Loc = {
+    start: Pos;
+    end: Pos;
+};
+
+// @public (undocumented)
+type Loop = NodeBase & {
+    type: 'loop';
+    label?: string;
+    statements: (Statement | Expression)[];
+};
+
+// @public (undocumented)
+type Lt = NodeBase & {
+    type: 'lt';
+    left: Expression;
+    right: Expression;
+};
+
+// @public (undocumented)
+type Lteq = NodeBase & {
+    type: 'lteq';
+    left: Expression;
+    right: Expression;
+};
+
+// @public (undocumented)
+type Match = NodeBase & {
+    type: 'match';
+    label?: string;
+    about: Expression;
+    qs: {
+        q: Expression;
+        a: Statement | Expression;
+    }[];
+    default?: Statement | Expression;
+};
+
+// @public (undocumented)
+type Meta = NodeBase & {
+    type: 'meta';
+    name: string | null;
+    value: Expression;
+};
+
+// @public (undocumented)
+type Minus = NodeBase & {
+    type: 'minus';
+    expr: Expression;
+};
+
+// @public (undocumented)
+type Mul = NodeBase & {
+    type: 'mul';
+    left: Expression;
+    right: Expression;
+};
+
+// @public (undocumented)
+type NamedTypeSource = NodeBase & {
+    type: 'namedTypeSource';
+    name: string;
+    inner?: TypeSource;
+};
+
+// @public (undocumented)
+type Namespace = NodeBase & {
+    type: 'ns';
+    name: string;
+    members: (Definition | Namespace)[];
+};
+
+// @public (undocumented)
+type Neq = NodeBase & {
+    type: 'neq';
+    left: Expression;
+    right: Expression;
+};
+
+// @public (undocumented)
+type Node_2 = Namespace | Meta | Statement | Expression | TypeSource | Attribute;
+
+// @public
+class NonAiScriptError extends AiScriptError {
+    constructor(error: unknown);
+    // (undocumented)
+    name: string;
+}
+
+// @public (undocumented)
+type Not = NodeBase & {
+    type: 'not';
+    expr: Expression;
+};
 
 // @public (undocumented)
 const NULL: {
@@ -115,59 +588,151 @@ const NULL: {
 };
 
 // @public (undocumented)
-const NUM: (num: VNum['value']) => {
-    type: "num";
+type Null = NodeBase & {
+    type: 'null';
+};
+
+// @public (undocumented)
+const NUM: (num: VNum["value"]) => VNum;
+
+// @public (undocumented)
+type Num = NodeBase & {
+    type: 'num';
     value: number;
 };
 
 // @public (undocumented)
-const OBJ: (obj: VObj['value']) => {
-    type: "obj";
-    value: Map<string, Value>;
+const OBJ: (obj: VObj["value"]) => VObj;
+
+// @public (undocumented)
+type Obj = NodeBase & {
+    type: 'obj';
+    value: Map<string, Expression>;
 };
 
 // @public (undocumented)
-export function parse(input: string): Node_2[];
+type Or = NodeBase & {
+    type: 'or';
+    left: Expression;
+    right: Expression;
+};
 
 // @public (undocumented)
 export class Parser {
     constructor();
     // (undocumented)
-    addPlugin(plugin: ParserPlugin): void;
+    addPlugin(type: PluginType, plugin: ParserPlugin): void;
     // (undocumented)
-    static parse(input: string): Node_2[];
+    static parse(input: string): Ast.Node[];
     // (undocumented)
-    parse(input: string): Node_2[];
+    parse(input: string): Ast.Node[];
 }
 
 // @public (undocumented)
-export type ParserPlugin = (nodes: Node_2[]) => Node_2[];
+export type ParserPlugin = (nodes: Ast.Node[]) => Ast.Node[];
 
 // @public (undocumented)
-const RETURN: (v: VReturn['value']) => {
-    type: "return";
-    value: Value;
+export type PluginType = 'validate' | 'transform';
+
+// @public (undocumented)
+type Plus = NodeBase & {
+    type: 'plus';
+    expr: Expression;
+};
+
+// @public
+type Pos = {
+    line: number;
+    column: number;
 };
 
 // @public (undocumented)
-export class SemanticError extends Error {
-    constructor(details?: string);
+type Pow = NodeBase & {
+    type: 'pow';
+    left: Expression;
+    right: Expression;
+};
+
+// @public (undocumented)
+type Prop = NodeBase & {
+    type: 'prop';
+    target: Expression;
+    name: string;
+};
+
+// @public (undocumented)
+type Rem = NodeBase & {
+    type: 'rem';
+    left: Expression;
+    right: Expression;
+};
+
+// @public (undocumented)
+function reprValue(value: Value, literalLike?: boolean, processedObjects?: Set<object>): string;
+
+// @public (undocumented)
+type Return = NodeBase & {
+    type: 'return';
+    expr: Expression;
+};
+
+// @public (undocumented)
+export class Scope {
+    constructor(layerdStates?: Scope['layerdStates'], parent?: Scope, name?: Scope['name'], nsName?: string);
+    add(name: string, variable: Variable): void;
+    assign(name: string, val: Value): void;
+    // (undocumented)
+    createChildNamespaceScope(nsName: string, states?: Map<string, Variable>, name?: Scope['name']): Scope;
+    // Warning: (ae-forgotten-export) The symbol "Variable" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    createChildScope(states?: Map<string, Variable>, name?: Scope['name']): Scope;
+    exists(name: string): boolean;
+    get(name: string): Value;
+    getAll(): Map<string, Variable>;
+    getNsPrefix(): string;
+    // (undocumented)
+    name: string;
+    // (undocumented)
+    nsName?: string;
+    // (undocumented)
+    opts: {
+        log?(type: string, params: LogObject): void;
+        onUpdated?(name: string, value: Value): void;
+    };
 }
 
 // @public (undocumented)
-export function serialize(ast: Node_2[]): Bin[];
+type Statement = Definition | Return | Each | For | Loop | Break | Continue | Assign | AddAssign | SubAssign;
 
 // @public (undocumented)
-const STR: (str: VStr['value']) => {
-    type: "str";
+const STR: (str: VStr["value"]) => VStr;
+
+// @public (undocumented)
+type Str = NodeBase & {
+    type: 'str';
     value: string;
 };
 
 // @public (undocumented)
-class SyntaxError_2 extends Error {
-    constructor(details?: string);
-}
-export { SyntaxError_2 as SyntaxError }
+type Sub = NodeBase & {
+    type: 'sub';
+    left: Expression;
+    right: Expression;
+};
+
+// @public (undocumented)
+type SubAssign = NodeBase & {
+    type: 'subAssign';
+    dest: Expression;
+    expr: Expression;
+};
+
+// @public (undocumented)
+type Tmpl = NodeBase & {
+    type: 'tmpl';
+    tmpl: Expression[];
+};
 
 // @public (undocumented)
 const TRUE: {
@@ -175,34 +740,54 @@ const TRUE: {
     value: boolean;
 };
 
+// @public
+type TypeParam = {
+    name: string;
+};
+
 // @public (undocumented)
-const unWrapRet: (v: Value) => Value;
+type TypeSource = NamedTypeSource | FnTypeSource | UnionTypeSource;
+
+// @public (undocumented)
+type UnionTypeSource = NodeBase & {
+    type: 'unionTypeSource';
+    inners: TypeSource[];
+};
 
 declare namespace utils {
     export {
+        expectAny,
         assertBoolean,
         assertFunction,
         assertString,
         assertNumber,
         assertObject,
         assertArray,
+        isBoolean,
+        isFunction,
+        isString,
+        isNumber,
+        isObject,
+        isArray,
         eq,
         valToString,
-        nodeToString,
         valToJs,
-        jsToVal
+        jsToVal,
+        getLangVersion,
+        reprValue,
+        JsValue
     }
 }
 export { utils }
 
 // @public (undocumented)
-function valToJs(val: Value): any;
+function valToJs(val: Value): JsValue;
 
 // @public (undocumented)
-function valToString(val: Value, simple?: boolean): any;
+function valToString(val: Value, simple?: boolean): string;
 
 // @public (undocumented)
-type Value = VNull | VBool | VNum | VStr | VArr | VObj | VFn | VReturn | VBreak | VContinue;
+type Value = (VNull | VBool | VNum | VStr | VArr | VObj | VFn | VError) & Attr_2;
 
 declare namespace values {
     export {
@@ -213,9 +798,11 @@ declare namespace values {
         VArr,
         VObj,
         VFn,
-        VReturn,
-        VBreak,
-        VContinue,
+        VUserFn,
+        VFnParam,
+        VNativeFn,
+        VError,
+        Attr_2 as Attr,
         Value,
         NULL,
         TRUE,
@@ -227,10 +814,7 @@ declare namespace values {
         ARR,
         FN,
         FN_NATIVE,
-        RETURN,
-        BREAK,
-        CONTINUE,
-        unWrapRet
+        ERROR
     }
 }
 export { values }
@@ -248,28 +832,44 @@ type VBool = {
 };
 
 // @public (undocumented)
-type VBreak = {
-    type: 'break';
-    value: null;
+type VError = {
+    type: 'error';
+    value: string;
+    info?: Value;
 };
 
 // @public (undocumented)
-type VContinue = {
-    type: 'continue';
-    value: null;
-};
+type VFn = VUserFn | VNativeFn;
 
 // @public (undocumented)
-type VFn = {
-    type: 'fn';
-    args?: string[];
-    statements?: Node_2[];
-    native?: (args: Value[], opts: {
+type VFnParam = {
+    dest: Expression;
+    type?: Type;
+    default?: Value;
+};
+
+// @public
+type VNativeFn = VFnBase & {
+    native: (args: (Value | undefined)[], opts: {
         call: (fn: VFn, args: Value[]) => Promise<Value>;
+        topCall: (fn: VFn, args: Value[]) => Promise<Value>;
         registerAbortHandler: (handler: () => void) => void;
+        registerPauseHandler: (handler: () => void) => void;
+        registerUnpauseHandler: (handler: () => void) => void;
         unregisterAbortHandler: (handler: () => void) => void;
+        unregisterPauseHandler: (handler: () => void) => void;
+        unregisterUnpauseHandler: (handler: () => void) => void;
     }) => Value | Promise<Value> | void;
-    scope?: Scope;
+    nativeSync?: (args: (Value | undefined)[], opts: {
+        call: (fn: VFn, args: Value[]) => Value;
+        topCall: (fn: VFn, args: Value[]) => Value;
+        registerAbortHandler: (handler: () => void) => void;
+        registerPauseHandler: (handler: () => void) => void;
+        registerUnpauseHandler: (handler: () => void) => void;
+        unregisterAbortHandler: (handler: () => void) => void;
+        unregisterPauseHandler: (handler: () => void) => void;
+        unregisterUnpauseHandler: (handler: () => void) => void;
+    }) => Value | void;
 };
 
 // @public (undocumented)
@@ -290,16 +890,26 @@ type VObj = {
 };
 
 // @public (undocumented)
-type VReturn = {
-    type: 'return';
-    value: Value;
-};
-
-// @public (undocumented)
 type VStr = {
     type: 'str';
     value: string;
 };
+
+// Warning: (ae-forgotten-export) The symbol "VFnBase" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+type VUserFn = VFnBase & {
+    native?: undefined;
+    name?: string;
+    params: VFnParam[];
+    statements: Node_2[];
+    scope: Scope;
+};
+
+// Warnings were encountered during analysis:
+//
+// src/interpreter/index.ts:49:4 - (ae-forgotten-export) The symbol "LogObject" needs to be exported by the entry point index.d.ts
+// src/interpreter/value.ts:47:2 - (ae-forgotten-export) The symbol "Type" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

@@ -1,276 +1,403 @@
+/**
+ * ASTノード
+*/
+
+export type Pos = {
+	line: number;
+	column: number;
+};
+
 export type Loc = {
-	start: number;
-	end: number;
+	start: Pos;
+	end: Pos;
 };
 
-export type NDef = {
-	type: 'def'; // 変数宣言
-	loc?: Loc; // コード位置
-	name: string; // 変数名
-	expr: Node; // 式
+export type Node = Namespace | Meta | Statement | Expression | TypeSource | Attribute;
+
+type NodeBase = {
+	loc: Loc; // コード位置
+};
+
+export type Namespace = NodeBase & {
+	type: 'ns'; // 名前空間
+	name: string; // 空間名
+	members: (Definition | Namespace)[]; // メンバー
+};
+
+export type Meta = NodeBase & {
+	type: 'meta'; // メタデータ定義
+	name: string | null; // 名
+	value: Expression; // 値
+};
+
+// statement
+
+export type Statement =
+	Definition |
+	Return |
+	Each |
+	For |
+	Loop |
+	Break |
+	Continue |
+	Assign |
+	AddAssign |
+	SubAssign;
+
+const statementTypes = [
+	'def', 'return', 'each', 'for', 'loop', 'break', 'continue', 'assign', 'addAssign', 'subAssign',
+];
+export function isStatement(x: Node): x is Statement {
+	return statementTypes.includes(x.type);
+}
+
+export type Definition = NodeBase & {
+	type: 'def'; // 変数宣言文
+	dest: Expression; // 宣言式
+	varType?: TypeSource; // 変数の型
+	expr: Expression; // 式
 	mut: boolean; // ミュータブルか否か
-	attr: NAttr[]; // 付加された属性
+	attr: Attribute[]; // 付加された属性
 };
 
-export type NAssign = {
-	type: 'assign'; // 再代入
-	loc?: Loc; // コード位置
-	name: string; // 変数名
-	expr: Node; // 式
+export type Attribute = NodeBase & {
+	type: 'attr'; // 属性
+	name: string; // 属性名
+	value: Expression; // 値
 };
 
-export type NPropAssign = {
-	type: 'propAssign'; // プロパティ再代入
-	loc?: Loc; // コード位置
-	obj: string; // オブジェクト変数名
-	path: string[]; // プロパティパス
-	expr: Node; // 式
+export type Return = NodeBase & {
+	type: 'return'; // return文
+	expr: Expression; // 式
 };
 
-export type NIndexAssign = {
-	type: 'indexAssign'; // 配列要素再代入
-	loc?: Loc; // コード位置
-	arr: string; // 配列変数名
-	i: Node; // インデックス
-	expr: Node; // 式
+export type Each = NodeBase & {
+	type: 'each'; // each文
+	label?: string; // ラベル
+	var: Expression; // イテレータ宣言
+	items: Expression; // 配列
+	for: Statement | Expression; // 本体処理
 };
 
-export type NInc = {
-	type: 'inc'; // インクリメント
-	loc?: Loc; // コード位置
-	name: string; // 変数名
-	expr: Node; // 式
-};
-
-export type NDec = {
-	type: 'dec'; // デクリメント
-	loc?: Loc; // コード位置
-	name: string; // 変数名
-	expr: Node; // 式
-};
-
-export type NCall = {
-	type: 'call'; // 関数呼び出し
-	loc?: Loc; // コード位置
-	name: string; // 関数名
-	args: Node[]; // 引数(式の配列)
-};
-
-export type NReturn = {
-	type: 'return'; // return
-	loc?: Loc; // コード位置
-	expr: Node; // 式
-};
-
-export type NBreak = {
-	type: 'break'; // break
-	loc?: Loc; // コード位置
-};
-
-export type NContinue = {
-	type: 'continue'; // continue
-	loc?: Loc; // コード位置
-};
-
-export type NIf = {
-	type: 'if'; // if文
-	loc?: Loc; // コード位置
-	cond: Node; // 条件式
-	then: Node; // then節
-	elseif: {
-		cond: Node;
-		then: Node;
-	}[]; // elseif節
-	else: Node; // else節
-};
-
-export type NLoop = {
-	type: 'loop'; // loop文
-	loc?: Loc; // コード位置
-	statements: Node[]; // 処理
-};
-
-export type NFor = {
+export type For = NodeBase & {
 	type: 'for'; // for文
-	loc?: Loc; // コード位置
+	label?: string; // ラベル
 	var?: string; // イテレータ変数名
-	from?: Node; // 開始値
-	to?: Node; // 終値
-	times?: Node; // 回数
-	for: Node; // 本体処理
+	from?: Expression; // 開始値
+	to?: Expression; // 終値
+	times?: Expression; // 回数
+	for: Statement | Expression; // 本体処理
 };
 
-export type NForOf = {
-	type: 'forOf'; // for of文
-	loc?: Loc; // コード位置
-	var: string; // イテレータ変数名
-	items: Node; // 配列
-	for: Node; // 本体処理
+export type Loop = NodeBase & {
+	type: 'loop'; // loop文
+	label?: string; // ラベル
+	statements: (Statement | Expression)[]; // 処理
 };
 
-export type NVar = {
-	type: 'var'; // 変数
-	loc?: Loc; // コード位置
-	name: string; // 変数名
+export type Break = NodeBase & {
+	type: 'break'; // break文
+	label?: string; // ラベル
+	expr?: Expression; // 式
 };
 
-export type NNull = {
-	type: 'null'; // nullリテラル
-	loc?: Loc; // コード位置
+export type Continue = NodeBase & {
+	type: 'continue'; // continue文
+	label?: string; // ラベル
 };
 
-export type NBool = {
-	type: 'bool'; // 真理値リテラル
-	loc?: Loc; // コード位置
-	value: boolean; // 真理値
+export type AddAssign = NodeBase & {
+	type: 'addAssign'; // 加算代入文
+	dest: Expression; // 代入先
+	expr: Expression; // 式
 };
 
-export type NNum = {
-	type: 'num'; // 数値リテラル
-	loc?: Loc; // コード位置
-	value: number; // 数値
+export type SubAssign = NodeBase & {
+	type: 'subAssign'; // 減算代入文
+	dest: Expression; // 代入先
+	expr: Expression; // 式
 };
 
-export type NStr = {
+export type Assign = NodeBase & {
+	type: 'assign'; // 代入文
+	dest: Expression; // 代入先
+	expr: Expression; // 式
+};
+
+// expressions
+
+export type Expression =
+	If |
+	Fn |
+	Match |
+	Block |
+	Exists |
+	Tmpl |
+	Str |
+	Num |
+	Bool |
+	Null |
+	Obj |
+	Arr |
+	Plus |
+	Minus |
+	Not |
+	Pow |
+	Mul |
+	Div |
+	Rem |
+	Add |
+	Sub |
+	Lt |
+	Lteq |
+	Gt |
+	Gteq |
+	Eq |
+	Neq |
+	And |
+	Or |
+	Identifier |
+	Call |
+	Index |
+	Prop;
+
+const expressionTypes = [
+	'if', 'fn', 'match', 'block', 'exists', 'tmpl', 'str', 'num', 'bool', 'null', 'obj', 'arr',
+	'not', 'pow', 'mul', 'div', 'rem', 'add', 'sub', 'lt', 'lteq', 'gt', 'gteq', 'eq', 'neq', 'and', 'or',
+	'identifier', 'call', 'index', 'prop',
+];
+export function isExpression(x: Node): x is Expression {
+	return expressionTypes.includes(x.type);
+}
+
+export type Plus = NodeBase & {
+	type: 'plus'; // 正号
+	expr: Expression; // 式
+};
+
+export type Minus = NodeBase & {
+	type: 'minus'; // 負号
+	expr: Expression; // 式
+};
+
+export type Not = NodeBase & {
+	type: 'not'; // 否定
+	expr: Expression; // 式
+};
+
+export type Pow = NodeBase & {
+	type: 'pow';
+	left: Expression;
+	right: Expression;
+}
+
+export type Mul = NodeBase & {
+	type: 'mul';
+	left: Expression;
+	right: Expression;
+}
+
+export type Div = NodeBase & {
+	type: 'div';
+	left: Expression;
+	right: Expression;
+}
+
+export type Rem = NodeBase & {
+	type: 'rem';
+	left: Expression;
+	right: Expression;
+}
+
+export type Add = NodeBase & {
+	type: 'add';
+	left: Expression;
+	right: Expression;
+}
+
+export type Sub = NodeBase & {
+	type: 'sub';
+	left: Expression;
+	right: Expression;
+}
+
+export type Lt = NodeBase & {
+	type: 'lt';
+	left: Expression;
+	right: Expression;
+}
+
+export type Lteq = NodeBase & {
+	type: 'lteq';
+	left: Expression;
+	right: Expression;
+}
+
+export type Gt = NodeBase & {
+	type: 'gt';
+	left: Expression;
+	right: Expression;
+}
+
+export type Gteq = NodeBase & {
+	type: 'gteq';
+	left: Expression;
+	right: Expression;
+}
+
+export type Eq = NodeBase & {
+	type: 'eq';
+	left: Expression;
+	right: Expression;
+}
+
+export type Neq = NodeBase & {
+	type: 'neq';
+	left: Expression;
+	right: Expression;
+}
+
+export type And = NodeBase & {
+	type: 'and';
+	left: Expression;
+	right: Expression;
+}
+
+export type Or = NodeBase & {
+	type: 'or';
+	left: Expression;
+	right: Expression;
+}
+
+export type If = NodeBase & {
+	type: 'if'; // if式
+	label?: string; // ラベル
+	cond: Expression; // 条件式
+	then: Statement | Expression; // then節
+	elseif: {
+		cond: Expression; // elifの条件式
+		then: Statement | Expression;// elif節
+	}[];
+	else?: Statement | Expression; // else節
+};
+
+export type Fn = NodeBase & {
+	type: 'fn'; // 関数
+	typeParams: TypeParam[]; // 型パラメータ
+	params: {
+		dest: Expression; // 引数名
+		optional: boolean;
+		default?: Expression; // 引数の初期値
+		argType?: TypeSource; // 引数の型
+	}[];
+	retType?: TypeSource; // 戻り値の型
+	children: (Statement | Expression)[]; // 本体処理
+};
+
+export type Match = NodeBase & {
+	type: 'match'; // パターンマッチ
+	label?: string; // ラベル
+	about: Expression; // 対象
+	qs: {
+		q: Expression; // 条件
+		a: Statement | Expression; // 結果
+	}[];
+	default?: Statement | Expression; // デフォルト値
+};
+
+export type Block = NodeBase & {
+	type: 'block'; // ブロックまたはeval式
+	label?: string; // ラベル
+	statements: (Statement | Expression)[]; // 処理
+};
+
+export type Exists = NodeBase & {
+	type: 'exists'; // 変数の存在判定
+	identifier: Identifier; // 変数名
+};
+
+export type Tmpl = NodeBase & {
+	type: 'tmpl'; // テンプレート
+	tmpl: Expression[]; // 処理
+};
+
+export type Str = NodeBase & {
 	type: 'str'; // 文字列リテラル
-	loc?: Loc; // コード位置
 	value: string; // 文字列
 };
 
-export type NArr = {
-	type: 'arr'; // 配列リテラル
-	loc?: Loc; // コード位置
-	value: Node[]; // アイテム
+export type Num = NodeBase & {
+	type: 'num'; // 数値リテラル
+	value: number; // 数値
 };
 
-export type NFn = {
-	type: 'fn'; // 関数リテラル
-	loc?: Loc; // コード位置
-	args: {
-		name: string; // 引数名
-		type?: string; // 引数の型
-	}[];
-	ret?: string; // 戻り値の型
-	children: Node[]; // 関数の本体処理
+export type Bool = NodeBase & {
+	type: 'bool'; // 真理値リテラル
+	value: boolean; // 真理値
 };
 
-export type NObj = {
-	type: 'obj'; // オブジェクトリテラル
-	loc?: Loc; // コード位置
-	value: Map<string, Node>; // オブジェクト
+export type Null = NodeBase & {
+	type: 'null'; // nullリテラル
 };
 
-export type NProp = {
-	type: 'prop'; // プロパティアクセス
-	loc?: Loc; // コード位置
-	obj: string; // オブジェクト変数名
-	path: string[]; // プロパティパス
+export type Obj = NodeBase & {
+	type: 'obj'; // オブジェクト
+	value: Map<string, Expression>; // プロパティ
 };
 
-export type NPropCall = {
-	type: 'propCall'; // プロパティアクセス(関数呼び出し)
-	loc?: Loc; // コード位置
-	obj: string; // オブジェクト変数名
-	path: string[]; // プロパティパス
-	args: Node[]; // 引数(式の配列)
+export type Arr = NodeBase & {
+	type: 'arr'; // 配列
+	value: Expression[]; // アイテム
 };
 
-export type NIndex = {
+export type Identifier = NodeBase & {
+	type: 'identifier'; // 変数などの識別子
+	name: string; // 変数名
+};
+
+export type Call = NodeBase & {
+	type: 'call'; // 関数呼び出し
+	target: Expression; // 対象
+	args: Expression[]; // 引数
+};
+
+export type Index = NodeBase & {
 	type: 'index'; // 配列要素アクセス
-	loc?: Loc; // コード位置
-	arr: string; // 配列変数名
-	i: Node; // インデックス
+	target: Expression; // 対象
+	index: Expression; // インデックス
 };
 
-export type NBlock = {
-	type: 'block'; // ブロック
-	loc?: Loc; // コード位置
-	statements: Node[]; // 処理
+export type Prop = NodeBase & {
+	type: 'prop'; // プロパティアクセス
+	target: Expression; // 対象
+	name: string; // プロパティ名
 };
 
-export type NTmpl = {
-	type: 'tmpl'; // テンプレート
-	loc?: Loc; // コード位置
-	tmpl: (string | Node)[]; // 処理
+// Type source
+
+export type TypeSource = NamedTypeSource | FnTypeSource | UnionTypeSource;
+
+export type NamedTypeSource = NodeBase & {
+	type: 'namedTypeSource'; // 名前付き型
+	name: string; // 型名
+	inner?: TypeSource; // 内側の型
 };
 
-export type NNs = {
-	type: 'ns'; // 名前空間
-	loc?: Loc; // コード位置
-	name: string; // 空間名
-	members: Node[]; // メンバー
+export type FnTypeSource = NodeBase & {
+	type: 'fnTypeSource'; // 関数の型
+	typeParams: TypeParam[]; // 型パラメータ
+	params: TypeSource[]; // 引数の型
+	result: TypeSource; // 戻り値の型
 };
 
-export type NMatch = {
-	type: 'match'; // パターンマッチ
-	loc?: Loc; // コード位置
-	about: Node; // 対象
-	qs: {
-		q: Node; // 条件
-		a: Node; // 結果
-	}[];
-	default?: Node; // デフォルト値
+export type UnionTypeSource = NodeBase & {
+	type: 'unionTypeSource'; // ユニオン型
+	inners: TypeSource[]; // 含まれる型
 };
 
-export type NMeta = {
-	type: 'meta'; // メタデータ定義
-	loc?: Loc; // コード位置
-	name: string | null; // 名
-	value: Node; // 値
-};
-
-export type NAttr = {
-	type: 'attr'; // 属性
-	loc?: Loc; // コード位置
-	name: string; // 属性名
-	value: Node; // 値
-};
-
-export type NInfix = {
-	type: 'infix'; // 中置演算子式
-	loc?: Loc; // コード位置
-	operands: Node[]; // 項
-	operators: NOperator[]; // 演算子
-};
-
-export type NOperator = {
-	type: 'operator'; // 中置演算子
-	loc?: Loc; // コード位置
-	op: string; // 実際の記号列
+/**
+ * 型パラメータ
+ */
+export type TypeParam = {
+	name: string; // パラメータ名
 }
-
-// TODO: analyze前のNodeとanalyze後のNodeが区別されておらず気持ち悪いのをなんとかしたい
-export type Node =
-	NDef |
-	NAssign |
-	NPropAssign |
-	NIndexAssign |
-	NInc |
-	NDec |
-	NCall |
-	NReturn |
-	NBreak |
-	NContinue |
-	NIf |
-	NLoop |
-	NFor |
-	NForOf |
-	NVar |
-	NNull |
-	NBool |
-	NNum |
-	NStr |
-	NArr |
-	NFn |
-	NObj |
-	NProp |
-	NPropCall |
-	NIndex |
-	NBlock |
-	NTmpl |
-	NMatch |
-	NNs |
-	NMeta |
-	NAttr |
-	NInfix |
-	NOperator;

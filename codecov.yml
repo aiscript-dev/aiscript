@@ -1,2 +1,4 @@
-codecov:
-  token: c4e840fa-ff9e-48d5-b408-14e07d415743
+coverage:
+  status:
+    project: false
+    patch: false

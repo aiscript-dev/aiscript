@@ -1,6 +1,7 @@
 <template>
 <div id="root">
-	<h1>AiScript (v0.11.1) Playground</h1>
+	<Settings v-if="showSettings" @exit="showSettings = false" />
+	<h1>AiScript (v{{ AISCRIPT_VERSION }}) Playground<button id="show-settings-button" @click="showSettings = true">Settings</button></h1>
 	<div id="grid1">
 		<div id="editor" class="container">
 			<header>Input<div class="actions"><button @click="setCode">FizzBuzz</button></div></header>
@@ -8,12 +9,16 @@
 				<PrismEditor class="code" v-model="script" :highlight="highlighter" :line-numbers="false"/>
 			</div>
 			<footer>
-				<span v-if="isSyntaxError" class="syntaxError">Syntax Error!</span>
+				<span v-if="syntaxErrorMessage" class="syntaxError">{{ syntaxErrorMessage }}</span>
 				<div class="actions"><button @click="run">RUN</button></div>
 			</footer>
 		</div>
 		<div id="logs" class="container">
-			<header>Output</header>
+			<header>
+				Output
+				<div v-if="paused" class="actions"><button @click="interpreter.unpause(), paused = false">Unpause</button></div>
+				<div v-else class="actions"><button @click="interpreter.pause(), paused = true">Pause</button></div>
+			</header>
 			<div>
 				<div v-for="log in logs" class="log" :key="log.id" :class="[{ print: log.print }, log.type]"><span class="type">{{ log.type }}</span> {{ log.text }}</div>
 			</div>
@@ -23,13 +28,17 @@
 		<div id="ast" class="container">
 			<header>AST</header>
 			<div>
-				<pre>{{ JSON.stringify(ast, null, '\t') }}</pre>
+				<pre>{{ JSON.stringify(ast, (_key, value) => {
+					if (value instanceof Map) {
+						return Object.fromEntries(value);
+					}
+					return value;
+				}, '\t') }}</pre>
 			</div>
 		</div>
 		<div id="bin" class="container">
 			<header>Bytecode</header>
 			<div>
-				<code>{{ JSON.stringify(bytecode) }}</code>
 			</div>
 		</div>
 		<div id="debugger" class="container">
@@ -43,7 +52,8 @@
 
 <script setup>
 import { ref, watch } from 'vue';
-import { AiScript, Parser, utils, serialize } from '../../src';
+import { AISCRIPT_VERSION, Interpreter, Parser, utils } from '@syuilo/aiscript';
+import { std } from '@syuilo/aiscript/interpreter/lib/std';
 
 import { PrismEditor } from 'vue-prism-editor';
 import 'vue-prism-editor/dist/prismeditor.min.css';
@@ -52,42 +62,46 @@ import { highlight, languages } from 'prismjs/components/prism-core';
 import 'prismjs/components/prism-clike';
 import 'prismjs/components/prism-javascript';
 import 'prismjs/themes/prism-okaidia.css';
+import Settings, { settings } from './Settings.vue';
 
 const script = ref(window.localStorage.getItem('script') || '<: "Hello, AiScript!"');
 
 const ast = ref(null);
-const bytecode = ref(null);
 const logs = ref([]);
-const isSyntaxError = ref(false);
+const syntaxErrorMessage = ref(null);
+const showSettings = ref(false);
+const paused = ref(false);
 
 watch(script, () => {
 	window.localStorage.setItem('script', script.value);
 	try {
 		ast.value = Parser.parse(script.value);
-		isSyntaxError.value = false;
+		syntaxErrorMessage.value = null;
 	} catch (e) {
-		isSyntaxError.value = true;
-		console.error(e);
+		syntaxErrorMessage.value = e.message;
+		console.error(e.info);
 		return;
 	}
-	bytecode.value = serialize(ast.value);
 }, {
 	immediate: true
 });
 
 const setCode = () => {
-	script.value = `for (#i, 100) {
-  <: if ((i % 15) = 0) "FizzBuzz"
-    elif ((i % 3) = 0) "Fizz"
-    elif ((i % 5) = 0) "Buzz"
+	script.value = `for (let i, 100) {
+  <: if (i % 15 == 0) "FizzBuzz"
+    elif (i % 3 == 0) "Fizz"
+    elif (i % 5 == 0) "Buzz"
     else i
 }`;
 };
 
+let interpreter = null;
 const run = async () => {
 	logs.value = [];
 
-	const aiscript = new AiScript({}, {
+	interpreter?.abort();
+	paused.value = false;
+	interpreter = new Interpreter({}, {
 		in: (q) => {
 			return new Promise(ok => {
 				const res = window.prompt(q);
@@ -102,6 +116,9 @@ const run = async () => {
 				print: true
 			});
 		},
+		err: (e) => {
+			window.alert(e.toString());
+		},
 		log: (type, params) => {
 			switch (type) {
 				case 'end': logs.value.push({
@@ -111,14 +128,16 @@ const run = async () => {
 				}); break;
 				default: break;
 			}
-		}
+		},
+		irqRate: settings.value.irqRate,
+		irqSleep: settings.value.irqSleep,
 	});
 
 	try {
-		await aiscript.exec(ast.value);
+		await interpreter.exec(ast.value);
 	} catch (e) {
 		console.error(e);
-		window.alert('Error: ' + e);
+		window.alert('Internal Error: ' + e);
 	}
 }
 
@@ -159,6 +178,11 @@ pre {
 #root > h1 {
 	font-size: 1.5em;
 	margin: 16px 16px 0 16px;
+	display: flex;
+}
+
+#show-settings-button {
+	margin-left: auto;
 }
 
 #grid1 {

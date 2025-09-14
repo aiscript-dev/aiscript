@@ -1,5 +1,6 @@
-import { Scope } from './scope';
-import { Node } from '../node';
+import type { Expression, Node } from '../node.js';
+import type { Type } from '../type.js';
+import type { Scope } from './scope.js';
 
 export type VNull = {
 	type: 'null';
@@ -30,34 +31,62 @@ export type VObj = {
 	value: Map<string, Value>;
 };
 
-export type VFn = {
+export type VFn = VUserFn | VNativeFn;
+type VFnBase = {
 	type: 'fn';
-	args?: string[];
-	statements?: Node[];
-	native?: (args: Value[], opts: {
+};
+export type VUserFn = VFnBase & {
+	native?: undefined; // if (vfn.native) で型アサーション出来るように
+	name?: string;
+	params: VFnParam[];
+	statements: Node[];
+	scope: Scope;
+};
+export type VFnParam = {
+	dest: Expression;
+	type?: Type;
+	default?: Value;
+}
+/**
+ * When your AiScript NATIVE function passes VFn.call to other caller(s) whose error thrown outside the scope, use VFn.topCall instead to keep it under AiScript error control system.
+ */
+export type VNativeFn = VFnBase & {
+	native: (args: (Value | undefined)[], opts: {
 		call: (fn: VFn, args: Value[]) => Promise<Value>;
+		topCall: (fn: VFn, args: Value[]) => Promise<Value>;
 		registerAbortHandler: (handler: () => void) => void;
+		registerPauseHandler: (handler: () => void) => void;
+		registerUnpauseHandler: (handler: () => void) => void;
 		unregisterAbortHandler: (handler: () => void) => void;
+		unregisterPauseHandler: (handler: () => void) => void;
+		unregisterUnpauseHandler: (handler: () => void) => void;
 	}) => Value | Promise<Value> | void;
-	scope?: Scope;
+	nativeSync?: (args: (Value | undefined)[], opts: {
+		call: (fn: VFn, args: Value[]) => Value;
+		topCall: (fn: VFn, args: Value[]) => Value;
+		registerAbortHandler: (handler: () => void) => void;
+		registerPauseHandler: (handler: () => void) => void;
+		registerUnpauseHandler: (handler: () => void) => void;
+		unregisterAbortHandler: (handler: () => void) => void;
+		unregisterPauseHandler: (handler: () => void) => void;
+		unregisterUnpauseHandler: (handler: () => void) => void;
+	}) => Value | void;
 };
 
-export type VReturn = {
-	type: 'return';
-	value: Value;
+export type VError = {
+	type: 'error';
+	value: string;
+	info?: Value;
 };
 
-export type VBreak = {
-	type: 'break';
-	value: null;
+export type Attr = {
+	attr?: {
+		name: string;
+		value: Value;
+	}[];
 };
 
-export type VContinue = {
-	type: 'continue';
-	value: null;
-};
-
-export type Value = VNull | VBool | VNum | VStr | VArr | VObj | VFn | VReturn | VBreak | VContinue;
+export type Value = (VNull | VBool | VNum | VStr | VArr | VObj | VFn | VError) & Attr;
 
 export const NULL = {
 	type: 'null' as const,
@@ -65,65 +94,54 @@ export const NULL = {
 
 export const TRUE = {
 	type: 'bool' as const,
-	value: true
+	value: true,
 };
 
 export const FALSE = {
 	type: 'bool' as const,
-	value: false
+	value: false,
 };
 
-export const NUM = (num: VNum['value']) => ({
+export const NUM = (num: VNum['value']): VNum => ({
 	type: 'num' as const,
-	value: num
+	value: num,
 });
 
-export const STR = (str: VStr['value']) => ({
+export const STR = (str: VStr['value']): VStr => ({
 	type: 'str' as const,
-	value: str
+	value: str,
 });
 
-export const BOOL = (bool: VBool['value']) => ({
+export const BOOL = (bool: VBool['value']): VBool => ({
 	type: 'bool' as const,
-	value: bool
+	value: bool,
 });
 
-export const OBJ = (obj: VObj['value']) => ({
+export const OBJ = (obj: VObj['value']): VObj => ({
 	type: 'obj' as const,
-	value: obj
+	value: obj,
 });
 
-export const ARR = (arr: VArr['value']) => ({
+export const ARR = (arr: VArr['value']): VArr => ({
 	type: 'arr' as const,
-	value: arr
+	value: arr,
 });
 
-export const FN = (args: VFn['args'], statements: VFn['statements'], scope: VFn['scope']) => ({
+export const FN = (params: VUserFn['params'], statements: VUserFn['statements'], scope: VUserFn['scope']): VUserFn => ({
 	type: 'fn' as const,
-	args: args,
+	params: params,
 	statements: statements,
-	scope: scope
+	scope: scope,
 });
 
-export const FN_NATIVE = (fn: VFn['native']) => ({
+export const FN_NATIVE = (fn: VNativeFn['native'], fnSync?: VNativeFn['nativeSync']): VNativeFn => ({
 	type: 'fn' as const,
-	native: fn
+	native: fn,
+	nativeSync: fnSync,
 });
 
-// Return文で値が返されたことを示すためのラッパー
-export const RETURN = (v: VReturn['value']) => ({
-	type: 'return' as const,
-	value: v
+export const ERROR = (name: string, info?: Value): Value => ({
+	type: 'error' as const,
+	value: name,
+	info: info,
 });
-
-export const BREAK = () => ({
-	type: 'break' as const,
-	value: null
-});
-
-export const CONTINUE = () => ({
-	type: 'continue' as const,
-	value: null
-});
-
-export const unWrapRet = (v: Value) => v.type === 'return' ? v.value : v;

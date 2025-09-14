@@ -2,6 +2,9 @@
 /src
 /test
 /coverage
+/.github
+/playground
+/temp
 .gitignore
 npm-debug.log
 gulpfile.js
@@ -9,3 +12,4 @@ tsconfig.json
 .editorconfig
 .travis.yml
 test.is
+tsdoc-metadata.json

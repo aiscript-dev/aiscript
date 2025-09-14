@@ -1,60 +1,70 @@
-import * as aiscript from '..';
-import { Node } from '../node';
-import * as parser from './parser.js';
+import { Scanner } from './scanner.js';
+import { parseTopLevel } from './syntaxes/toplevel.js';
 
-import { validateKeyword } from './plugins/validate-keyword';
-import { setAttribute } from './plugins/set-attribute';
-import { staticAnalysis } from './plugins/static-analysis';
+import { validateJumpStatements } from './plugins/validate-jump-statements.js';
+import { validateKeyword } from './plugins/validate-keyword.js';
+import { validateType } from './plugins/validate-type.js';
 
-export type ParserPlugin = (nodes: Node[]) => Node[];
+import type * as Ast from '../node.js';
+
+export type ParserPlugin = (nodes: Ast.Node[]) => Ast.Node[];
+export type PluginType = 'validate' | 'transform';
 
 export class Parser {
 	private static instance?: Parser;
-	private plugins: ParserPlugin[];
+	private plugins: {
+		validate: ParserPlugin[];
+		transform: ParserPlugin[];
+	};
 
 	constructor() {
-		this.plugins = [
-			validateKeyword,
-			setAttribute,
-			staticAnalysis,
-		];
+		this.plugins = {
+			validate: [
+				validateKeyword,
+				validateType,
+				validateJumpStatements,
+			],
+			transform: [
+			],
+		};
 	}
 
-	public static parse(input: string): Node[] {
+	public static parse(input: string): Ast.Node[] {
 		if (Parser.instance == null) {
 			Parser.instance = new Parser();
 		}
 		return Parser.instance.parse(input);
 	}
 
-	public addPlugin(plugin: ParserPlugin) {
-		this.plugins.push(plugin);
+	public addPlugin(type: PluginType, plugin: ParserPlugin): void {
+		switch (type) {
+			case 'validate':
+				this.plugins.validate.push(plugin);
+				break;
+			case 'transform':
+				this.plugins.transform.push(plugin);
+				break;
+			default:
+				throw new Error('unknown plugin type');
+		}
 	}
 
-	public parse(input: string): Node[] {
-		let nodes: Node[];
+	public parse(input: string): Ast.Node[] {
+		let nodes: Ast.Node[];
 
-		// generate a node tree
-		try {
-			nodes = parser.parse(input);
-		} catch (e) {
-			if (e.location) {
-				throw new aiscript.SyntaxError(`Line ${e.location.start.line}:${e.location.start.column}`);
-			}
-			throw e;
+		const scanner = new Scanner(input);
+		nodes = parseTopLevel(scanner);
+
+		// validate the node tree
+		for (const plugin of this.plugins.validate) {
+			nodes = plugin(nodes);
 		}
 
-		// validate and transform the node tree
-		for (const plugin of this.plugins) {
+		// transform the node tree
+		for (const plugin of this.plugins.transform) {
 			nodes = plugin(nodes);
 		}
 
 		return nodes;
 	}
-}
-
-// alias of legacy api
-
-export function parse(input: string): Node[] {
-	return Parser.parse(input);
 }
