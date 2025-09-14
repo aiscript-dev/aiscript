@@ -1,6 +1,6 @@
-import autobind from 'autobind-decorator';
-import { Loc } from '../../node';
-import { Type } from '../../type';
+import { autobind } from '../../utils/mini-autobind.js';
+import type { Loc } from '../../node.js';
+import type { Type } from '../../type.js';
 
 export type AiSymbol = {
 	type: Type;
@@ -28,7 +28,7 @@ export class SymbolTable {
 	}
 
 	@autobind
-	public set(key: string, value: AiSymbol) {
+	public set(key: string, value: AiSymbol): void {
 		this.map.set(key, value);
 	}
 
@@ -39,6 +39,7 @@ export class SymbolTable {
 				return this.map.get(key)!;
 			}
 		} else {
+			// eslint-disable-next-line @typescript-eslint/no-this-alias
 			let table: SymbolTable['parent'] = this;
 			do {
 				if (table.map.has(key)) {
@@ -55,6 +56,7 @@ export class SymbolTable {
 		if (top) {
 			return this.map.has(key);
 		} else {
+			// eslint-disable-next-line @typescript-eslint/no-this-alias
 			let table: SymbolTable['parent'] = this;
 			do {
 				if (table.map.has(key)) {

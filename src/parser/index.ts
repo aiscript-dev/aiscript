@@ -1,6 +1,7 @@
 import { Scanner } from './scanner.js';
 import { parseTopLevel } from './syntaxes/toplevel.js';
 
+import { staticAnalysis } from './plugins/static-analysis.js';
 import { validateJumpStatements } from './plugins/validate-jump-statements.js';
 import { validateKeyword } from './plugins/validate-keyword.js';
 import { validateType } from './plugins/validate-type.js';
@@ -10,6 +11,14 @@ import type * as Ast from '../node.js';
 export type ParserPlugin = (nodes: Ast.Node[]) => Ast.Node[];
 export type PluginType = 'validate' | 'transform';
 
+export type ParserConfig = {
+	readonly staticAnalysis: boolean;
+}
+
+const configDefaults: ParserConfig = {
+	staticAnalysis: false,
+};
+
 export class Parser {
 	private static instance?: Parser;
 	private plugins: {
@@ -17,7 +26,7 @@ export class Parser {
 		transform: ParserPlugin[];
 	};
 
-	constructor() {
+	constructor(config: ParserConfig = configDefaults) {
 		this.plugins = {
 			validate: [
 				validateKeyword,
@@ -27,6 +36,9 @@ export class Parser {
 			transform: [
 			],
 		};
+		if (config.staticAnalysis) {
+			this.plugins.validate.push(staticAnalysis);
+		}
 	}
 
 	public static parse(input: string): Ast.Node[] {
