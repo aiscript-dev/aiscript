@@ -149,14 +149,6 @@ function validateNode(node: Ast.Node): Ast.Node {
 			}
 			break;
 		}
-		case 'obj': {
-			for (const name of node.value.keys()) {
-				if (reservedWord.includes(name)) {
-					throwReservedWordError(name, node.loc);
-				}
-			}
-			break;
-		}
 		case 'namedTypeSource': {
 			if (reservedWord.includes(node.name)) {
 				throwReservedWordError(node.name, node.loc);

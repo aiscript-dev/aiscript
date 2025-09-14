@@ -1,4 +1,5 @@
 import importPlugin from "eslint-plugin-import";
+import unusedImports from "eslint-plugin-unused-imports";
 import js from "@eslint/js";
 import ts from 'typescript-eslint';
 
@@ -13,6 +14,9 @@ export default ts.config({
 		importPlugin.flatConfigs.recommended,
 		importPlugin.flatConfigs.typescript,
 	],
+	plugins: {
+		"unused-imports": unusedImports,
+	},
 
 	languageOptions: {
 		ecmaVersion: 5,
@@ -116,10 +120,15 @@ export default ts.config({
 			],
 		}],
 
-		"@typescript-eslint/no-unused-vars": ["warn", {
-			argsIgnorePattern: "^_",
+		"@typescript-eslint/no-unused-vars": "off",
+		"unused-imports/no-unused-imports": "warn",
+		"unused-imports/no-unused-vars": ["warn", {
+			vars: "all",
 			varsIgnorePattern: "^_",
-			caughtErrorsIgnorePattern: "^_",
+			args: "after-used",
+			argsIgnorePattern: "^_",
+			caughtErrors: "none",
+			// caughtErrorsIgnorePattern: "^_",
 			destructuredArrayIgnorePattern: "^_",
 		}],
 	},

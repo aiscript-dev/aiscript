@@ -58,6 +58,33 @@ describe('literal', () => {
 		eq(res, NUM(0.5));
 	});
 
+	test.concurrent('number (positive exponent without plus sign)', async () => {
+		const res = await exe(`
+		<: 1.2e3
+		`);
+		eq(res, NUM(1200));
+	});
+
+	test.concurrent('number (positive exponent with plus sign)', async () => {
+		const res = await exe(`
+		<: 1.2e+3
+		`);
+		eq(res, NUM(1200));
+	});
+
+	test.concurrent('number (negative exponent)', async () => {
+		const res = await exe(`
+		<: 1.2e-3
+		`);
+		eq(res, NUM(0.0012));
+	});
+
+	test.concurrent('number (missing exponent)', async () => {
+		assert.rejects(() => exe(`
+		<: 1.2e+
+		`), 'exponent expected');
+	});
+
 	test.concurrent('arr (separated by comma)', async () => {
 		const res = await exe(`
 		<: [1, 2, 3]
@@ -137,6 +164,89 @@ describe('literal', () => {
 		}
 		`);
 		eq(res, OBJ(new Map([['藍', NUM(42)]])));
+	});
+
+	describe('obj (reserved word as key)', async () => {
+		test.each([
+			['null'],
+			['true'],
+			['false'],
+			['each'],
+			['for'],
+			['loop'],
+			['do'],
+			['while'],
+			['break'],
+			['continue'],
+			['match'],
+			['case'],
+			['default'],
+			['if'],
+			['elif'],
+			['else'],
+			['return'],
+			['eval'],
+			['var'],
+			['let'],
+			['exists'],
+
+			// unused keywords
+			['as'],
+			['async'],
+			['attr'],
+			['attribute'],
+			['await'],
+			['catch'],
+			['class'],
+			['component'],
+			['constructor'],
+			['dictionary'],
+			['enum'],
+			['export'],
+			['finally'],
+			['fn'],
+			['hash'],
+			['in'],
+			['interface'],
+			['out'],
+			['private'],
+			['public'],
+			['ref'],
+			['static'],
+			['struct'],
+			['table'],
+			['this'],
+			['throw'],
+			['trait'],
+			['try'],
+			['undefined'],
+			['use'],
+			['using'],
+			['when'],
+			['while'],
+			['yield'],
+			['import'],
+			['is'],
+			['meta'],
+			['module'],
+			['namespace'],
+			['new']
+		])('key "%s"', async (key) => {
+			const res = await exe(`
+			<: {
+				${key}: 42,
+			}
+			`);
+			eq(res, OBJ(new Map([[key, NUM(42)]])));
+		});
+	});
+
+	test.concurrent('obj (invalid key)', async () => {
+		assert.rejects(() => exe(`
+		<: {
+			42: 42,
+		}
+		`));
 	});
 
 	test.concurrent('obj and arr (separated by line break)', async () => {
