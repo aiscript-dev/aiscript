@@ -208,6 +208,15 @@ describe('Obj', () => {
 		`);
 		eq(res, utils.jsToVal({ b: 2, d: null }));
 	});
+
+	test.concurrent('from_kvs', async () => {
+		const res = await exe(`
+		let kvs = [['a', 1], ['b', 2], ['c', 3]]
+
+		<: Obj:from_kvs(kvs)
+		`);
+		eq(res, utils.jsToVal({ a: 1, b: 2, c: 3 }));
+	});
 });
 
 describe('Str', () => {
