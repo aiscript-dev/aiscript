@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import { describe, test } from 'vitest';
-import { utils } from '../src';
+import { errors, utils } from '../src';
 import { NUM, STR, NULL, ARR, OBJ, BOOL, TRUE, FALSE, ERROR ,FN_NATIVE } from '../src/interpreter/value';
 import { AiScriptRuntimeError, AiScriptSyntaxError } from '../src/error';
 import { exe, getMeta, eq } from './testutils';
@@ -481,7 +481,8 @@ describe('return', () => {
 		<: f()
 		`);
 		eq(res, NUM(1));
-		await assert.rejects(() => exe('<: @(x = eval { return 1 }){}'));
+		await assert.rejects(() => exe('<: @(x = eval { return 1 }){}'), errors.AiScriptSyntaxError);
+		await assert.rejects(() => exe('<: @(a = @(b = eval { return 0 }){}){}'), errors.AiScriptSyntaxError);
 	});
 
 	test.concurrent('in template', async () => {
