@@ -1,5 +1,9 @@
 [Read translated version (en)](./translations/en/CHANGELOG.md)
 
+# 1.1.2
+
+- Fix: 関数の引数の初期値内に不正なreturn文がある場合に文法エラーにならない問題を修正
+
 # 1.1.1
 
 - Fix: オブジェクトリテラルのプロパティ名に一部の予約語を記述できなかった問題を修正
