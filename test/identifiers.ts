@@ -334,6 +334,30 @@ describe('identifier validation on obj key', () => {
 	});
 });
 
+describe('reserved word validation on string obj key', () => {
+	const codes: [string, (definedName: string, referredName: string) => string][] = [
+		['literal', (definedName: string, referredName: string) => `
+		let x = { "${definedName}": 1 }
+		<: x["${referredName}"]
+		`],
+
+		['prop', (definedName: string, referredName: string) => `
+		let x = {}
+		x."${definedName}" = 1
+		<: x."${referredName}"
+		`],
+	]
+
+	describe.each(codes)('%s', (_, code) => {
+		test.concurrent.each(
+			reservedWords
+		)('reserved word %s must be allowed', async (word) => {
+			const res = await exe(code(word, word));
+			eq(res, NUM(1));
+		});
+	});
+});
+
 test.concurrent('Keyword cannot contain escape characters', async () => {
 	await expect(async () => await exe(`
 	\\u0069\\u0066 true {
