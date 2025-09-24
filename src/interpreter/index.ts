@@ -265,7 +265,7 @@ export class Interpreter {
 					) {
 						value.name = nsScope.getNsPrefix() + node.dest.name;
 					}
-					await this.define(nsScope, node.dest, value, node.mut);
+					this.define(nsScope, node.dest, value, node.mut);
 
 					break;
 				}
@@ -309,7 +309,7 @@ export class Interpreter {
 					) {
 						value.name = nsScope.getNsPrefix() + node.dest.name;
 					}
-					this.defineSync(nsScope, node.dest, value, node.mut);
+					this.define(nsScope, node.dest, value, node.mut);
 
 					break;
 				}
@@ -668,7 +668,7 @@ export class Interpreter {
 				) {
 					value.name = node.dest.name;
 				}
-				await this.define(scope, node.dest, value, node.mut);
+				this.define(scope, node.dest, value, node.mut);
 				return NULL;
 			}
 
@@ -1212,7 +1212,7 @@ export class Interpreter {
 				) {
 					value.name = node.dest.name;
 				}
-				this.defineSync(scope, node.dest, value, node.mut);
+				this.define(scope, node.dest, value, node.mut);
 				return NULL;
 			}
 
@@ -1667,34 +1667,7 @@ export class Interpreter {
 	}
 
 	@autobind
-	private async define(scope: Scope, dest: Ast.Expression, value: Value, isMutable: boolean): Promise<void> {
-		switch (dest.type) {
-			case 'identifier': {
-				scope.add(dest.name, { isMutable, value });
-				break;
-			}
-			case 'arr': {
-				assertArray(value);
-				await Promise.all(dest.value.map(
-					(item, index) => this.define(scope, item, value.value[index] ?? NULL, isMutable),
-				));
-				break;
-			}
-			case 'obj': {
-				assertObject(value);
-				await Promise.all([...dest.value].map(
-					([key, item]) => this.define(scope, item, value.value.get(key) ?? NULL, isMutable),
-				));
-				break;
-			}
-			default: {
-				throw new AiScriptRuntimeError('The left-hand side of an definition expression must be a variable.');
-			}
-		}
-	}
-
-	@autobind
-	private defineSync(scope: Scope, dest: Ast.Expression, value: Value, isMutable: boolean): void {
+	private define(scope: Scope, dest: Ast.Expression, value: Value, isMutable: boolean): void {
 		switch (dest.type) {
 			case 'identifier': {
 				scope.add(dest.name, { isMutable, value });
@@ -1703,14 +1676,14 @@ export class Interpreter {
 			case 'arr': {
 				assertArray(value);
 				dest.value.map(
-					(item, index) => this.defineSync(scope, item, value.value[index] ?? NULL, isMutable),
+					(item, index) => this.define(scope, item, value.value[index] ?? NULL, isMutable),
 				);
 				break;
 			}
 			case 'obj': {
 				assertObject(value);
 				[...dest.value].map(
-					([key, item]) => this.defineSync(scope, item, value.value.get(key) ?? NULL, isMutable),
+					([key, item]) => this.define(scope, item, value.value.get(key) ?? NULL, isMutable),
 				);
 				break;
 			}

@@ -1,4 +1,5 @@
 import { AiScriptSyntaxError, AiScriptUnexpectedEOFError } from '../error.js';
+import { decodeUnicodeEscapeSequence } from '../utils/characters.js';
 import { CharStream } from './streams/char-stream.js';
 import { TOKEN, TokenKind } from './token.js';
 import { unexpectedTokenError } from './utils.js';
@@ -9,7 +10,9 @@ import type { Token, TokenPosition } from './token.js';
 const spaceChars = [' ', '\t'];
 const lineBreakChars = ['\r', '\n'];
 const digit = /^[0-9]$/;
-const wordChar = /^[A-Za-z0-9_]$/;
+const identifierStart = /^[A-Za-z_]$/u;
+const identifierPart = /^[A-Za-z0-9_]$/u;
+const hexDigit = /^[0-9a-fA-F]$/;
 const exponentIndicatorPattern = /^[eE]$/;
 
 /**
@@ -286,6 +289,11 @@ export class Scanner implements ITokenStream {
 				}
 				case '\\': {
 					this.stream.next();
+					if (!this.stream.eof && (this.stream.char as string) === 'u') {
+						this.stream.prev();
+						const wordToken = this.tryReadWord(hasLeftSpacing);
+						if (wordToken) return wordToken;
+					}
 					return TOKEN(TokenKind.BackSlash, pos, { hasLeftSpacing });
 				}
 				case ']': {
@@ -336,17 +344,29 @@ export class Scanner implements ITokenStream {
 
 	private tryReadWord(hasLeftSpacing: boolean): Token | undefined {
 		// read a word
-		let value = '';
+		if (this.stream.eof) {
+			return;
+		}
 
 		const pos = this.stream.getPos();
 
-		while (!this.stream.eof && wordChar.test(this.stream.char)) {
-			value += this.stream.char;
-			this.stream.next();
-		}
-		if (value.length === 0) {
+		let rawValue = this.tryReadIdentifierStart();
+		if (rawValue === undefined) {
 			return;
 		}
+		while (!(this.stream.eof as boolean)) {
+			const matchedIdentifierPart = this.tryReadIdentifierPart();
+			if (matchedIdentifierPart === undefined) {
+				break;
+			}
+			rawValue += matchedIdentifierPart;
+		}
+
+		const value = decodeUnicodeEscapeSequence(rawValue);
+		if (value !== rawValue) {
+			throw new AiScriptSyntaxError(`Invalid identifier: "${rawValue}"`, pos);
+		}
+
 		// check word kind
 		switch (value) {
 			case 'null': {
@@ -416,6 +436,56 @@ export class Scanner implements ITokenStream {
 				return TOKEN(TokenKind.Identifier, pos, { hasLeftSpacing, value });
 			}
 		}
+	}
+
+	private tryReadIdentifierStart(): string | undefined {
+		if (this.stream.eof) {
+			return;
+		}
+		if (identifierStart.test(this.stream.char)) {
+			const value = this.stream.char;
+			this.stream.next();
+			return value;
+		}
+		if (this.stream.char === '\\') {
+			this.stream.next();
+			return '\\' + this.readUnicodeEscapeSequence();
+		}
+		return;
+	}
+
+	private tryReadIdentifierPart(): string | undefined {
+		if (this.stream.eof) {
+			return;
+		}
+		const matchedIdentifierStart = this.tryReadIdentifierStart();
+		if (matchedIdentifierStart !== undefined) {
+			return matchedIdentifierStart;
+		}
+		if (identifierPart.test(this.stream.char)) {
+			const value = this.stream.char;
+			this.stream.next();
+			return value;
+		}
+		return;
+	}
+
+	private readUnicodeEscapeSequence(): `u${string}` {
+		if (this.stream.eof || (this.stream.char as string) !== 'u') {
+			throw new AiScriptSyntaxError('character "u" expected', this.stream.getPos());
+		}
+		this.stream.next();
+
+		let code = '';
+		for (let i = 0; i < 4; i++) {
+			if (this.stream.eof || !hexDigit.test(this.stream.char)) {
+				throw new AiScriptSyntaxError('hexadecimal digit expected', this.stream.getPos());
+			}
+			code += this.stream.char;
+			this.stream.next();
+		}
+
+		return `u${code}`;
 	}
 
 	private tryReadDigits(
