@@ -204,12 +204,6 @@ const sampleCodes = Object.entries<[(definedName: string, referredName: string) 
 	<: ${referredName}:f()
 	`, NUM(1)],
 
-	prop: [(definedName, referredName) =>
-	`
-	let x = { ${definedName}: 1 }
-	x.${referredName}
-	`, NUM(1)],
-
 	meta: [(definedName) =>
 	`
 	### ${definedName} 1
@@ -300,6 +294,43 @@ describe.each(
 		escapeIdentifiers
 	)('escape sequence is not allowed: %s', async (word) => {
 		expect(() => parser.parse(sampleCode(word, word))).toThrow(AiScriptSyntaxError);
+	});
+});
+
+describe('identifier validation on obj key', () => {
+	const codes: [string, (definedName: string, referredName: string) => string][] = [
+		['literal', (definedName: string, referredName: string) => `
+		let x = { ${definedName}: 1 }
+		<: x["${referredName}"]
+		`],
+
+		['prop', (definedName: string, referredName: string) => `
+		let x = {}
+		x.${definedName} = 1
+		<: x.${referredName}
+		`],
+	]
+
+	describe.each(codes)('%s', (_, code) => {
+		test.concurrent.each(
+			reservedWords
+		)('reserved word %s must be allowed', async (word) => {
+			const res = await exe(code(word, word));
+			eq(res, NUM(1));
+		});
+
+		test.concurrent.each(
+			identifierCases
+		)('%s is allowed: %s', async (word, allowed) => {
+			expect.hasAssertions();
+			if (allowed) {
+				const res = await exe(code(word, word));
+				eq(res, NUM(1));
+			} else {
+				expect(() => parser.parse(code(word, word))).toThrow(AiScriptSyntaxError);
+				await Promise.resolve(); // https://github.com/vitest-dev/vitest/issues/4750
+			}
+		});
 	});
 });
 

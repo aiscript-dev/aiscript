@@ -197,9 +197,7 @@ describe('Object', () => {
 		])));
 	});
 
-	/* 未実装
-	 * see also: test/literals.ts > literal > obj (string key)
-	 * issue: https://github.com/aiscript-dev/aiscript/issues/62
+	// see also: test/literals.ts > literal > obj (string key)
 	test.concurrent('string key', async () => {
 		const res = await exe(`
 		let obj = {
@@ -222,7 +220,10 @@ describe('Object', () => {
 		eq(res, NUM(42));
 	});
 
-	test.concurrent('expression key', async () => {
+	// 未実装
+	// issues: https://github.com/aiscript-dev/aiscript/issues/62
+	//         https://github.com/aiscript-dev/aiscript/issues/225
+	test.concurrent.skip('expression key', async () => {
 		const res = await exe(`
 		let key = "藍"
 
@@ -234,7 +235,6 @@ describe('Object', () => {
 		`);
 		eq(res, NUM(42));
 	});
-	*/
 });
 
 describe('Array', () => {
@@ -1092,7 +1092,7 @@ describe('Security', () => {
 			`);
 			assert.fail();
 		} catch (e) {
-			assert.ok(e instanceof AiScriptSyntaxError);
+			assert.ok(e instanceof AiScriptRuntimeError);
 		}
 
 		try {

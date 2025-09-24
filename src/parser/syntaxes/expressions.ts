@@ -103,8 +103,7 @@ function parseInfix(s: ITokenStream, left: Ast.Expression, minBp: number): Ast.E
 	}
 
 	if (op === TokenKind.Dot) {
-		s.expect(TokenKind.Identifier);
-		const name = s.getTokenValue();
+		const name = parseObjectKey(s);
 		s.next();
 
 		return NODE('prop', {
