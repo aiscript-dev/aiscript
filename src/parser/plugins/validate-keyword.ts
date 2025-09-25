@@ -128,8 +128,7 @@ function validateNode(node: Ast.Node): Ast.Node {
 		}
 		case 'ns':
 		case 'attr':
-		case 'identifier':
-		case 'prop': {
+		case 'identifier': {
 			validateName(node.name, node.loc.start);
 			break;
 		}
