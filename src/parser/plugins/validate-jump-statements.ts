@@ -3,6 +3,19 @@ import { AiScriptSyntaxError } from '../../error.js';
 
 import type * as Ast from '../../node.js';
 
+function getClosestAncestorFunction(node: Ast.Return, ancestors: Ast.Node[]): Ast.Fn | undefined {
+	let child: Ast.Node = node;
+	for (let i = ancestors.length - 1; i >= 0; i--) {
+		const ancestor = ancestors[i]!;
+		// return文が関数のデフォルト引数の中にある場合は、今見つかった関数ではなくさらに上の関数がこのreturn文に対応する。
+		if (ancestor.type === 'fn' && !ancestor.params.some((param) => param.default != null && param.default === child)) {
+			return ancestor;
+		}
+		child = ancestor;
+	}
+	return;
+}
+
 function getCorrespondingBlock(ancestors: Ast.Node[], label?: string): Ast.Each | Ast.For | Ast.Loop | Ast.If | Ast.Match | Ast.Block | undefined {
 	for (let i = ancestors.length - 1; i >= 0; i--) {
 		const ancestor = ancestors[i]!;
@@ -33,7 +46,8 @@ function getCorrespondingBlock(ancestors: Ast.Node[], label?: string): Ast.Each 
 function validateNode(node: Ast.Node, ancestors: Ast.Node[]): Ast.Node {
 	switch (node.type) {
 		case 'return': {
-			if (!ancestors.some(({ type }) => type === 'fn')) {
+			const closestAncestorFunction = getClosestAncestorFunction(node, ancestors);
+			if (closestAncestorFunction === undefined) {
 				throw new AiScriptSyntaxError('return must be inside function', node.loc.start);
 			}
 			break;
