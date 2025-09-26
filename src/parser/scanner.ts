@@ -507,6 +507,9 @@ export class Scanner implements ITokenStream {
 		}
 		const decimalPoint = this.tryReadDecimalPoint(hasLeadingDot);
 		if (decimalPoint) {
+			if (this.stream.char === '.') {
+				throw new AiScriptSyntaxError('dot cannot follow a decimal point', this.stream.getPos());
+			}
 			while (!this.stream.eof as boolean && digit.test(this.stream.char as string)) {
 				fractional += this.stream.char;
 				this.stream.next();
