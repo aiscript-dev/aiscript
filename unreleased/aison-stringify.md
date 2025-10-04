@@ -1,0 +1,1 @@
+- `AiSON.stringify` を実装しました。`JSON.stringify`と同じ形式の引数を取ります。
