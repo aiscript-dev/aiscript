@@ -34,24 +34,24 @@
 		"prepublishOnly": "node scripts/check-release.mjs"
 	},
 	"devDependencies": {
-		"@eslint/js": "9.32.0",
-		"@microsoft/api-extractor": "7.52.10",
-		"@types/node": "24.2.0",
+		"@eslint/js": "9.37.0",
+		"@microsoft/api-extractor": "7.53.0",
+		"@types/node": "24.7.0",
 		"@types/seedrandom": "3.0.8",
 		"@vitest/coverage-v8": "3.2.4",
-		"chalk": "5.5.0",
-		"eslint": "9.32.0",
+		"chalk": "5.6.2",
+		"eslint": "9.37.0",
 		"eslint-plugin-import": "2.32.0",
 		"eslint-plugin-unused-imports": "4.2.0",
-		"semver": "7.7.2",
+		"semver": "7.7.3",
 		"ts-node": "10.9.2",
-		"typescript": "5.9.2",
-		"typescript-eslint": "8.39.0",
+		"typescript": "5.9.3",
+		"typescript-eslint": "8.46.0",
 		"vitest": "3.2.4"
 	},
 	"dependencies": {
 		"seedrandom": "3.0.5",
 		"stringz": "2.1.0",
-		"uuid": "11.1.0"
+		"uuid": "13.0.0"
 	}
 }
