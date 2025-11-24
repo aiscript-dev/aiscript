@@ -1,0 +1,1 @@
+- null値のアサーション関数（`isNull`, `assertNull`）を追加しました。
