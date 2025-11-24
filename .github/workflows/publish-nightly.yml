@@ -12,7 +12,7 @@ jobs:
       matrix: ${{ steps.getb.outputs.matrix }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v6.0.0
         with:
           fetch-depth: 0
           
@@ -46,12 +46,12 @@ jobs:
 
     steps:
       - name: Checkout ${{ matrix.branch }}
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v6.0.0
         with:
           ref: ${{ matrix.branch }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4.1.0
+        uses: actions/setup-node@v6.0.0
         with:
           node-version: 20.x
 
@@ -79,7 +79,7 @@ jobs:
         run: npm run pre-release
 
       - name: Publish
-        uses: JS-DevTools/npm-publish@v3
+        uses: JS-DevTools/npm-publish@v4
         if: ${{ env.NPM_SECRET != '' && env.LAST_COMMITS != 0 }}
         with:
           token: ${{ env.NPM_SECRET }}
