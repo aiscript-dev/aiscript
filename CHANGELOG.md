@@ -1,5 +1,13 @@
 [Read translated version (en)](./translations/en/CHANGELOG.md)
 
+# 1.2.0
+
+- 関数`Obj:from_kvs`を追加
+- プロパティアクセスのドット記法に予約語を記述できるようになりました。
+- プロパティアクセスのドット記法に文字列リテラルを記述できるようになりました。
+- null値のアサーション関数（`isNull`, `assertNull`）を追加しました。
+- `AiSON.stringify` を実装しました。`JSON.stringify`と互換性のあるかたちで引数を取りますが、`JSON.stringify`のようにAiSONに直接変換できない値を含むオブジェクトを渡すことはできません。
+
 # 1.1.2
 
 - Fix: 関数の引数の初期値内に不正なreturn文がある場合に文法エラーにならない問題を修正

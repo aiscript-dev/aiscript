@@ -1,1 +1,0 @@
-- `AiSON.stringify` を実装しました。`JSON.stringify`と互換性のあるかたちで引数を取りますが、`JSON.stringify`のようにAiSONに直接変換できない値を含むオブジェクトを渡すことはできません。
