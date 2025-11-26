@@ -78,3 +78,78 @@ greet()`)).toThrow();
 {foo: "bar"}`)).toThrow();
 	});
 });
+
+describe('stringify', () => {
+	test.concurrent('str', () => {
+		expect(AiSON.stringify('Ai-chan kawaii')).toEqual('"Ai-chan kawaii"');
+	});
+
+	test.concurrent('number', () => {
+		expect(AiSON.stringify(42)).toEqual('42');
+	});
+
+	test.concurrent('bool', () => {
+		expect(AiSON.stringify(true)).toEqual('true');
+	});
+
+	test.concurrent('null', () => {
+		expect(AiSON.stringify(null)).toEqual('null');
+	});
+
+	test.concurrent('array', () => {
+		expect(AiSON.stringify([1, 2, 3])).toEqual('[1, 2, 3]');
+	});
+
+	test.concurrent('object', () => {
+		expect(AiSON.stringify({ key: 'value' })).toEqual('{key: "value"}');
+	});
+
+	test.concurrent('nested', () => {
+		expect(AiSON.stringify([{ key: 'value' }])).toEqual('[{key: "value"}]');
+	});
+
+	test.concurrent('pretty print: array', () => {
+		expect(AiSON.stringify([1, 2, 3], null, 2)).toEqual(`[
+  1,
+  2,
+  3
+]`);
+	});
+
+	test.concurrent('pretty print: object', () => {
+		expect(AiSON.stringify({ key: 'value', foo: 'bar' }, null, 2)).toEqual(`{
+  key: "value",
+  foo: "bar"
+}`);
+	});
+
+	test.concurrent('pretty print: nested', () => {
+		expect(AiSON.stringify({ arr: [1, 2, { key: 'value' }] }, null, 2)).toEqual(`{
+  arr: [
+    1,
+    2,
+    {
+      key: "value"
+    }
+  ]
+}`);
+	});
+	
+	test.concurrent('custom indent', () => {
+		expect(AiSON.stringify({ key: 'value', foo: 'bar' }, null, '\t')).toEqual(`{
+\tkey: "value",
+\tfoo: "bar"
+}`);
+	});
+	
+	test.concurrent('no indent when indent is 0', () => {
+		expect(AiSON.stringify({ key: 'value', foo: 'bar' }, null, 0)).toEqual('{key: "value", foo: "bar"}');
+	});
+
+	test.concurrent('can parse generated aison', () => {
+		const obj = { arr: [1, 2, { key: 'value' }] };
+		const aison = AiSON.stringify(obj);
+		const parsed = AiSON.parse(aison);
+		expect(parsed).toStrictEqual(obj);
+	});
+});

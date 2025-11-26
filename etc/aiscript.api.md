@@ -96,6 +96,8 @@ class AiScriptUserError extends AiScriptRuntimeError {
 export class AiSON {
     // (undocumented)
     static parse(input: string): JsValue;
+    // (undocumented)
+    static stringify(value: JsValue, _unused?: null, indent?: number | string): string;
 }
 
 // @public (undocumented)
