@@ -258,6 +258,9 @@ export class Interpreter {
 
 					const value = await this._eval(node.expr, nsScope, []);
 					assertValue(value);
+
+					await this.evalAndSetAttr(node.attr, value, scope, []);
+
 					if (
 						node.expr.type === 'fn'
 						&& isFunction(value)
@@ -302,6 +305,9 @@ export class Interpreter {
 
 					const value = this._evalSync(node.expr, nsScope, []);
 					assertValue(value);
+
+					this.evalAndSetAttrSync(node.attr, value, scope, []);
+
 					if (
 						node.expr.type === 'fn'
 						&& isFunction(value)
@@ -648,18 +654,7 @@ export class Interpreter {
 				if (isControl(value)) {
 					return value;
 				}
-				if (node.attr.length > 0) {
-					const attrs: Value['attr'] = [];
-					for (const nAttr of node.attr) {
-						const value = await this._eval(nAttr.value, scope, callStack);
-						assertValue(value);
-						attrs.push({
-							name: nAttr.name,
-							value,
-						});
-					}
-					value.attr = attrs;
-				}
+				await this.evalAndSetAttr(node.attr, value, scope, callStack);
 				if (
 					node.expr.type === 'fn'
 					&& node.dest.type === 'identifier'
@@ -1192,18 +1187,7 @@ export class Interpreter {
 				if (isControl(value)) {
 					return value;
 				}
-				if (node.attr.length > 0) {
-					const attrs: Value['attr'] = [];
-					for (const nAttr of node.attr) {
-						const value = this._evalSync(nAttr.value, scope, callStack);
-						assertValue(value);
-						attrs.push({
-							name: nAttr.name,
-							value,
-						});
-					}
-					value.attr = attrs;
-				}
+				this.evalAndSetAttrSync(node.attr, value, scope, callStack);
 				if (
 					node.expr.type === 'fn'
 					&& node.dest.type === 'identifier'
@@ -1664,6 +1648,38 @@ export class Interpreter {
 			handler();
 		}
 		this.unpauseHandlers = [];
+	}
+
+	@autobind
+	private async evalAndSetAttr(attr: Ast.Attribute[], value: Value, scope: Scope, callStack: readonly CallInfo[]): Promise<void> {
+		if (attr.length > 0) {
+			const attrs: Value['attr'] = [];
+			for (const nAttr of attr) {
+				const value = await this._eval(nAttr.value, scope, callStack);
+				assertValue(value);
+				attrs.push({
+					name: nAttr.name,
+					value,
+				});
+			}
+			value.attr = attrs;
+		}
+	}
+
+	@autobind
+	private evalAndSetAttrSync(attr: Ast.Attribute[], value: Value, scope: Scope, callStack: readonly CallInfo[]): void {
+		if (attr.length > 0) {
+			const attrs: Value['attr'] = [];
+			for (const nAttr of attr) {
+				const value = this._evalSync(nAttr.value, scope, callStack);
+				assertValue(value);
+				attrs.push({
+					name: nAttr.name,
+					value,
+				});
+			}
+			value.attr = attrs;
+		}
 	}
 
 	@autobind
