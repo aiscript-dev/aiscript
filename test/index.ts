@@ -4,7 +4,7 @@
  */
 
 import * as assert from 'assert';
-import { describe, test } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import { Parser, Interpreter, Ast } from '../src';
 import { NUM, STR, NULL, ARR, OBJ, BOOL, TRUE, FALSE, ERROR ,FN_NATIVE } from '../src/interpreter/value';
 import { AiScriptSyntaxError, AiScriptRuntimeError, AiScriptIndexOutOfRangeError } from '../src/error';
@@ -947,6 +947,16 @@ describe('Attribute', () => {
 		assert.ok(member.type === 'def');
 		const attr = member.attr[0];
 		assert.equal(attr.name, 'test');
+	});
+
+	test.concurrent('non-static expression is not allowed', async () => {
+		const parser = new Parser();
+		expect(() => {
+			parser.parse(`
+			#[x #label: eval { 1 }]
+			@f() {}
+			`);
+		}).toThrow();
 	});
 });
 

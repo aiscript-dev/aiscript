@@ -62,6 +62,10 @@ greet()`)).toThrow();
 		expect(() => AiSON.parse('{key: (3 + 5)}')).toThrow();
 	});
 
+	test.concurrent('not allowed: labeled expression', () => {
+		expect(() => AiSON.parse('#label: eval { 1 }')).toThrow();
+	});
+
 	test.concurrent('not allowed: multiple statements (string)', () => {
 		expect(() => AiSON.parse(`"hello"
 

@@ -288,6 +288,7 @@ function parseAtom(s: ITokenStream, isStatic: boolean): Ast.Expression {
 			return expr;
 		}
 		case TokenKind.Sharp: {
+			if (isStatic) break;
 			return parseExprWithLabel(s);
 		}
 	}

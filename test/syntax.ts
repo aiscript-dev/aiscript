@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import { describe, test } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import { utils } from '../src';
 import { NUM, STR, NULL, ARR, OBJ, BOOL, TRUE, FALSE, ERROR ,FN_NATIVE } from '../src/interpreter/value';
 import { AiScriptRuntimeError, AiScriptUnexpectedEOFError } from '../src/error';
@@ -1113,6 +1113,14 @@ describe('meta', () => {
 				return;
 			}
 			assert.fail();
+		});
+	});
+
+	describe('Labeled expression', () => {
+		test.concurrent('invalid', async () => {
+			expect(() => getMeta(`
+			### x #label: eval { 1 }
+			`)).toThrow();
 		});
 	});
 });
