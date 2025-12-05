@@ -1,17 +1,21 @@
 import { getTypeBySource } from '../../type.js';
 import { visitNode } from '../visit.js';
+import { AiScriptTypeError } from '../../error.js';
 import type * as Ast from '../../node.js';
+
+function validateTypeParams(node: Ast.Fn): void {
+	const typeParamNames = new Set<string>();
+	for (const typeParam of node.typeParams) {
+		if (typeParamNames.has(typeParam.name)) {
+			throw new AiScriptTypeError(`type parameter name ${typeParam.name} is duplicate`, node.loc.start);
+		}
+		typeParamNames.add(typeParam.name);
+	}
+}
 
 function collectTypeParams(node: Ast.Node, ancestors: Ast.Node[]): Ast.TypeParam[] {
 	const items = [];
 	if (node.type === 'fn') {
-		const typeParamNames = new Set<string>();
-		for (const typeParam of node.typeParams) {
-			if (typeParamNames.has(typeParam.name)) {
-				throw new Error(`type parameter name ${typeParam.name} is duplicate`);
-			}
-			typeParamNames.add(typeParam.name);
-		}
 		items.push(...node.typeParams);
 	}
 	for (let i = ancestors.length - 1; i >= 0; i--) {
@@ -32,6 +36,7 @@ function validateNode(node: Ast.Node, ancestors: Ast.Node[]): Ast.Node {
 			break;
 		}
 		case 'fn': {
+			validateTypeParams(node);
 			for (const param of node.params) {
 				if (param.argType != null) {
 					getTypeBySource(param.argType, collectTypeParams(node, ancestors));
