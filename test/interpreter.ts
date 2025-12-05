@@ -1,6 +1,7 @@
 import * as assert from 'assert';
 import { describe, expect, test, vi, beforeEach, afterEach } from 'vitest';
 import { Parser, Interpreter, values, errors, utils, Ast } from '../src';
+import { FALSE, NUM, OBJ, STR, TRUE, Value } from '../src/interpreter/value';
 
 let { FN_NATIVE } = values;
 let { AiScriptRuntimeError, AiScriptIndexOutOfRangeError, AiScriptHostsideError } = errors;
@@ -322,5 +323,63 @@ describe('pause', () => {
 			}
 			return expect(p.getCount()).toEqual(answer);
 		});
+	});
+});
+
+describe('Attribute', () => {
+	const getAttr = async (name: string, script: string): Promise<Value['attr']> => {
+		const parser = new Parser();
+		const interpreter = new Interpreter({});
+		const ast = parser.parse(script);
+		await interpreter.exec(ast);
+		const value = interpreter.scope.get(name);
+		return value.attr;
+	};
+
+	test.concurrent('no attribute', async () => {
+		const attr = await getAttr('f', `
+		@f() {}
+		`);
+		expect(attr).toBeUndefined();
+	});
+
+	test.concurrent('single attribute', async () => {
+		const attr = await getAttr('f', `
+		#[x 42]
+		@f() {}
+		`);
+		expect(attr).toStrictEqual([{ name: 'x', value: NUM(42) }]);
+	});
+
+	test.concurrent('multiple attributes', async () => {
+		const attr = await getAttr('f', `
+		#[o { a: 1, b: 2 }]
+		#[s "ai"]
+		#[b false]
+		@f() {}
+		`);
+		expect(attr).toStrictEqual([
+			{ name: 'o', value: OBJ(new Map([['a', NUM(1)], ['b', NUM(2)]])) },
+			{ name: 's', value: STR('ai') },
+			{ name: 'b', value: FALSE },
+		]);
+	});
+
+	test.concurrent('single attribute without value', async () => {
+		const attr = await getAttr('f', `
+		#[x]
+		@f() {}
+		`);
+		expect(attr).toStrictEqual([{ name: 'x', value: TRUE }]);
+	});
+
+	test.concurrent('attribute under namespace', async () => {
+		const attr = await getAttr('Ns:f', `
+		:: Ns {
+			#[x 42]
+			@f() {}
+		}
+		`);
+		expect(attr).toStrictEqual([{ name: 'x', value: NUM(42) }]);
 	});
 });
