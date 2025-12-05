@@ -2,7 +2,7 @@ import * as assert from 'assert';
 import { describe, expect, test } from 'vitest';
 import { utils } from '../src';
 import { NUM, STR, NULL, ARR, OBJ, BOOL, TRUE, FALSE, ERROR ,FN_NATIVE } from '../src/interpreter/value';
-import { AiScriptRuntimeError, AiScriptTypeError } from '../src/error';
+import { AiScriptRuntimeError, AiScriptSyntaxError } from '../src/error';
 import { exe, getMeta, eq } from './testutils';
 
 describe('function types', () => {
@@ -100,13 +100,13 @@ describe('generics', () => {
 		test.concurrent('duplicate', async () => {
 			await expect(() => exe(`
 			@f<T, T>(v: T) {}
-			`)).rejects.toThrow(AiScriptTypeError);
+			`)).rejects.toThrow(AiScriptSyntaxError);
 		});
 
 		test.concurrent('duplicate (no param and ret types)', async () => {
 			await expect(() => exe(`
 			@f<T, T>() {}
-			`)).rejects.toThrow(AiScriptTypeError);
+			`)).rejects.toThrow(AiScriptSyntaxError);
 		});
 
 		test.concurrent('empty', async () => {

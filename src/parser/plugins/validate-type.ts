@@ -1,13 +1,13 @@
 import { getTypeBySource } from '../../type.js';
 import { visitNode } from '../visit.js';
-import { AiScriptTypeError } from '../../error.js';
+import { AiScriptSyntaxError } from '../../error.js';
 import type * as Ast from '../../node.js';
 
 function validateTypeParams(node: Ast.Fn): void {
 	const typeParamNames = new Set<string>();
 	for (const typeParam of node.typeParams) {
 		if (typeParamNames.has(typeParam.name)) {
-			throw new AiScriptTypeError(`type parameter name ${typeParam.name} is duplicate`, node.loc.start);
+			throw new AiScriptSyntaxError(`type parameter name ${typeParam.name} is duplicate`, node.loc.start);
 		}
 		typeParamNames.add(typeParam.name);
 	}
