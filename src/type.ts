@@ -168,7 +168,7 @@ export function getTypeNameBySource(typeSource: Ast.TypeSource): string {
 export function getTypeBySource(typeSource: Ast.TypeSource, typeParams?: readonly Ast.TypeParam[]): Type {
 	if (typeSource.type === 'namedTypeSource') {
 		const typeParam = typeParams?.find((param) => param.name === typeSource.name);
-		if (typeParam != null) {
+		if (typeParam != null && typeSource.inner == null) {
 			return T_PARAM(typeParam.name);
 		}
 
