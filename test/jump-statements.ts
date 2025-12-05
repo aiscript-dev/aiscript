@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import { describe, test } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import { errors, utils } from '../src';
 import { NUM, STR, NULL, ARR, OBJ, BOOL, TRUE, FALSE, ERROR ,FN_NATIVE } from '../src/interpreter/value';
 import { AiScriptRuntimeError, AiScriptSyntaxError } from '../src/error';
@@ -507,21 +507,26 @@ describe('return', () => {
 		await assert.rejects(() => exe('return eval { return 1 } + 2'));
 	});
 
-	test.concurrent('in break', async () => {
-		const res = await exe(`
-		@f() {
+	describe('in break', () => {
+		test.concurrent('valid', async () => {
+			const res = await exe(`
+			@f() {
+				#l: eval {
+					break #l eval { return 1 }
+				}
+			}
+			<: f()
+			`);
+			eq(res, NUM(1));
+		});
+
+		test.concurrent('invalid', async () => {
+			await expect(() => exe(`
 			#l: eval {
 				break #l eval { return 1 }
 			}
-		}
-		<: f()
-		`);
-		eq(res, NUM(1));
-		await assert.rejects(() => exe(`
-		#l: eval {
-			break #l eval { return 1 }
-		}
-		`));
+			`)).rejects.toThrow(AiScriptSyntaxError);
+		});
 	});
 
 	describe('in and', async () => {

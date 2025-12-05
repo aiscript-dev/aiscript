@@ -1,5 +1,6 @@
-import * as assert from 'assert';
+import { expect as globalExpect } from 'vitest';
 import { Parser, Interpreter } from '../src';
+import { Value } from '../src/interpreter/value';
 
 export async function exe(script: string): Promise<Value | undefined> {
 	const parser = new Parser();
@@ -42,8 +43,15 @@ export const getMeta = (script: string) => {
 	return metadata;
 };
 
-export const eq = (a, b) => {
-	assert.deepEqual(a.type, b.type);
-	assert.deepEqual(a.value, b.value);
+export const eq = (a: Value | undefined, b: Value | undefined, expect = globalExpect) => {
+	expect(a).not.toBeUndefined();
+	expect(b).not.toBeUndefined();
+	expect(a!.type).toEqual(b!.type);
+	if ('value' in a!) {
+		expect('value' in b!).toBe(true);
+		expect(a.value).toEqual((b as { value: unknown }).value);
+	} else {
+		expect('value' in b!).toBe(false);
+	}
 };
 

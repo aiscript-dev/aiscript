@@ -152,6 +152,12 @@ function visitNodeInner(node: Ast.Node, fn: (node: Ast.Node, ancestors: Ast.Node
 			result.target = visitNodeInner(result.target, fn, ancestors) as Ast.Prop['target'];
 			break;
 		}
+		case 'break': {
+			if (result.expr != null) {
+				result.expr = visitNodeInner(result.expr, fn, ancestors) as Ast.Break['expr'];
+			}
+			break;
+		}
 		case 'ns': {
 			for (let i = 0; i < result.members.length; i++) {
 				result.members[i] = visitNodeInner(result.members[i]!, fn, ancestors) as (typeof result.members)[number];
@@ -208,10 +214,17 @@ function visitNodeInner(node: Ast.Node, fn: (node: Ast.Node, ancestors: Ast.Node
 			break;
 		}
 
+		case 'namedTypeSource': {
+			if (result.inner != null) {
+				result.inner = visitNodeInner(result.inner, fn, ancestors) as Ast.NamedTypeSource['inner'];
+			}
+			break;
+		}
 		case 'fnTypeSource': {
 			for (let i = 0; i < result.params.length; i++) {
 				result.params[i] = visitNodeInner(result.params[i]!, fn, ancestors) as Ast.FnTypeSource['params'][number];
 			}
+			result.result = visitNodeInner(result.result, fn, ancestors) as Ast.FnTypeSource['result'];
 			break;
 		}
 		case 'unionTypeSource': {
@@ -219,6 +232,23 @@ function visitNodeInner(node: Ast.Node, fn: (node: Ast.Node, ancestors: Ast.Node
 				result.inners[i] = visitNodeInner(result.inners[i]!, fn, ancestors) as Ast.UnionTypeSource['inners'][number];
 			}
 			break;
+		}
+
+		case 'str':
+		case 'num':
+		case 'bool':
+		case 'null':
+		case 'identifier':
+		case 'attr':
+		case 'continue':
+		case 'meta': {
+			break; // nop
+		}
+
+		default: {
+			// exhaustiveness check
+			result satisfies never;
+			throw new Error('invalid node type');
 		}
 	}
 
