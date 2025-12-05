@@ -1,8 +1,8 @@
 import * as assert from 'assert';
-import { describe, test } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import { utils } from '../src';
 import { NUM, STR, NULL, ARR, OBJ, BOOL, TRUE, FALSE, ERROR ,FN_NATIVE } from '../src/interpreter/value';
-import { AiScriptRuntimeError } from '../src/error';
+import { AiScriptRuntimeError, AiScriptSyntaxError } from '../src/error';
 import { exe, getMeta, eq } from './testutils';
 
 describe('function types', () => {
@@ -197,4 +197,14 @@ describe('simple', () => {
 		`);
 		eq(res, NUM(1));
 	});
+});
+
+test.concurrent('in break', async () => {
+	await expect(() => exe(`
+	#l: eval {
+		break #l eval {
+			let x: invalid = 0
+		}
+	}
+	`)).rejects.toThrow(AiScriptSyntaxError);
 });
