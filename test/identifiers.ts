@@ -298,7 +298,7 @@ describe.each(
 		parser.parse(sampleCode(wordCat, wordCat));
 	});
 
-	// グローバルの expect を使用すると expect.hasAssertions() が失敗するときがあるので，
+	// グローバルの expect を使用すると expect.hasAssertions() が失敗するときがあるので、
 	// ローカルの expect を使用する
 	test.concurrent.for(
 		identifierCases
