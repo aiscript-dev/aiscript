@@ -5,7 +5,10 @@
 	"description": "AiScript implementation",
 	"author": "syuilo <syuilotan@yahoo.co.jp>",
 	"license": "MIT",
-	"repository": "https://github.com/syuilo/aiscript.git",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/syuilo/aiscript.git"
+	},
 	"homepage": "https://aiscript-dev.github.io/",
 	"bugs": "https://github.com/syuilo/aiscript/issues",
 	"exports": {
