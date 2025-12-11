@@ -209,6 +209,10 @@ export class Scanner implements ITokenStream {
 				}
 				case '.': {
 					this.stream.next();
+					if (!this.stream.eof && digit.test(this.stream.char as string)) {
+						const digitToken = this.tryReadDigits(hasLeftSpacing, pos, true);
+						if (digitToken) return digitToken;
+					}
 					return TOKEN(TokenKind.Dot, pos, { hasLeftSpacing });
 				}
 				case '/': {
@@ -321,7 +325,7 @@ export class Scanner implements ITokenStream {
 					return TOKEN(TokenKind.CloseBrace, pos, { hasLeftSpacing });
 				}
 				default: {
-					const digitToken = this.tryReadDigits(hasLeftSpacing);
+					const digitToken = this.tryReadDigits(hasLeftSpacing, pos, false);
 					if (digitToken) return digitToken;
 
 					const wordToken = this.tryReadWord(hasLeftSpacing);
@@ -481,26 +485,33 @@ export class Scanner implements ITokenStream {
 		return `u${code}`;
 	}
 
-	private tryReadDigits(hasLeftSpacing: boolean): Token | undefined {
+	private tryReadDigits(
+		hasLeftSpacing: boolean,
+		pos: { line: number, column: number },
+		hasLeadingDot: boolean,
+	): Token | undefined {
 		let wholeNumber = '';
 		let fractional = '';
 
-		const pos = this.stream.getPos();
-
-		while (!this.stream.eof && digit.test(this.stream.char)) {
-			wholeNumber += this.stream.char;
-			this.stream.next();
+		if (!hasLeadingDot) {
+			while (!this.stream.eof && digit.test(this.stream.char)) {
+				wholeNumber += this.stream.char;
+				this.stream.next();
+			}
+			if (wholeNumber.length === 0) {
+				return;
+			}
 		}
-		if (wholeNumber.length === 0) {
-			return;
-		}
-		if (!this.stream.eof && this.stream.char === '.') {
-			this.stream.next();
+		const decimalPoint = this.tryReadDecimalPoint(hasLeadingDot);
+		if (decimalPoint) {
+			if (this.stream.char === '.') {
+				throw new AiScriptSyntaxError('dot cannot follow a decimal point', this.stream.getPos());
+			}
 			while (!this.stream.eof as boolean && digit.test(this.stream.char as string)) {
 				fractional += this.stream.char;
 				this.stream.next();
 			}
-			if (fractional.length === 0) {
+			if (wholeNumber.length === 0 && fractional.length === 0) {
 				throw new AiScriptSyntaxError('digit expected', pos);
 			}
 		}
@@ -538,6 +549,17 @@ export class Scanner implements ITokenStream {
 		//	value += exponentIndicator + exponentSign + exponentAbsolute;
 		//}
 		return TOKEN(TokenKind.NumberLiteral, pos, { hasLeftSpacing, value });
+	}
+
+	private tryReadDecimalPoint(hasLeadingDot: boolean): boolean {
+		if (hasLeadingDot) {
+			return true;
+		}
+		if (!this.stream.eof && this.stream.char === '.') {
+			this.stream.next();
+			return true;
+		}
+		return false;
 	}
 
 	private readStringLiteral(hasLeftSpacing: boolean): Token {
