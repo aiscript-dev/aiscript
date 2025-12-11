@@ -210,3 +210,13 @@ describe('simple', () => {
 		eq(res, NUM(1));
 	});
 });
+
+test.concurrent('in break', async () => {
+	await expect(() => exe(`
+	#l: eval {
+		break #l eval {
+			let x: invalid = 0
+		}
+	}
+	`)).rejects.toThrow(AiScriptSyntaxError);
+});
