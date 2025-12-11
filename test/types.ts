@@ -98,9 +98,15 @@ describe('generics', () => {
 		});
 
 		test.concurrent('duplicate', async () => {
-			await assert.rejects(() => exe(`
+			await expect(() => exe(`
 			@f<T, T>(v: T) {}
-			`));
+			`)).rejects.toThrow(AiScriptSyntaxError);
+		});
+
+		test.concurrent('duplicate (no param and ret types)', async () => {
+			await expect(() => exe(`
+			@f<T, T>() {}
+			`)).rejects.toThrow(AiScriptSyntaxError);
 		});
 
 		test.concurrent('empty', async () => {
