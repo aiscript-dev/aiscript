@@ -253,9 +253,29 @@ const sampleCodes = Object.entries<[(definedName: string, referredName: string) 
 	}
 	`, NULL],
 
+	break: [(definedName, referredName) =>
+	`
+	<: #label: eval {
+		break #label eval {
+			let ${definedName} = "ai"
+			${referredName}
+		}
+	}
+	`, STR('ai')],
+
 	typeParam: [(definedName, referredName) =>
 	`
 	@f<${definedName}>(x): ${referredName} { x }
+	`, NULL],
+
+	innerType: [(definedName, referredName) =>
+	`
+	let x: arr<@<${definedName}>() => ${referredName}> = []
+	`, NULL],
+
+	returnType: [(definedName, referredName) =>
+	`
+	let x: @() => @<${definedName}>() => ${referredName} = @() {}
 	`, NULL],
 });
 
@@ -278,15 +298,18 @@ describe.each(
 		parser.parse(sampleCode(wordCat, wordCat));
 	});
 
-	test.concurrent.each(
+	// グローバルの expect を使用すると expect.hasAssertions() が失敗するときがあるので、
+	// ローカルの expect を使用する
+	test.concurrent.for(
 		identifierCases
-	)('%s is allowed: %s', async (word, allowed) => {
+	)('%s is allowed: %s', async ([word, allowed], { expect }) => {
 		expect.hasAssertions();
 		if (allowed) {
 			const res = await exe(sampleCode(word, word));
-			eq(res, expected);
+			eq(res, expected, expect);
 		} else {
 			expect(() => parser.parse(sampleCode(word, word))).toThrow(AiScriptSyntaxError);
+			await Promise.resolve(); // https://github.com/vitest-dev/vitest/issues/4750
 		}
 	});
 
