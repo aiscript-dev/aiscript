@@ -980,14 +980,14 @@ describe('meta', () => {
 		const res = getMeta(`
 		### { a: 1, b: 2, c: 3, }
 		`);
-		eq(res, new Map([
+		expect(res).toStrictEqual(new Map([
 			[null, {
 				a: 1,
 				b: 2,
 				c: 3,
 			}]
 		]));
-		eq(res!.get(null), {
+		expect(res!.get(null)).toStrictEqual({
 			a: 1,
 			b: 2,
 			c: 3,
@@ -999,7 +999,7 @@ describe('meta', () => {
 			const res = getMeta(`
 			### x "hoge"
 			`);
-			eq(res, new Map([
+			expect(res).toStrictEqual(new Map([
 				['x', 'hoge']
 			]));
 		});
@@ -1010,7 +1010,7 @@ describe('meta', () => {
 			const res = getMeta(`
 			### x 42
 			`);
-			eq(res, new Map([
+			expect(res).toStrictEqual(new Map([
 				['x', 42]
 			]));
 		});
@@ -1021,7 +1021,7 @@ describe('meta', () => {
 			const res = getMeta(`
 			### x true
 			`);
-			eq(res, new Map([
+			expect(res).toStrictEqual(new Map([
 				['x', true]
 			]));
 		});
@@ -1032,7 +1032,7 @@ describe('meta', () => {
 			const res = getMeta(`
 			### x null
 			`);
-			eq(res, new Map([
+			expect(res).toStrictEqual(new Map([
 				['x', null]
 			]));
 		});
@@ -1043,7 +1043,7 @@ describe('meta', () => {
 			const res = getMeta(`
 			### x [1, 2, 3]
 			`);
-			eq(res, new Map([
+			expect(res).toStrictEqual(new Map([
 				['x', [1, 2, 3]]
 			]));
 		});
@@ -1066,7 +1066,7 @@ describe('meta', () => {
 			const res = getMeta(`
 			### x { a: 1, b: 2, c: 3, }
 			`);
-			eq(res, new Map([
+			expect(res).toStrictEqual(new Map([
 				['x', {
 					a: 1,
 					b: 2,
