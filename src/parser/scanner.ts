@@ -1,5 +1,5 @@
 import { AiScriptSyntaxError, AiScriptUnexpectedEOFError } from '../error.js';
-import { decodeUnicodeEscapeSequence } from '../utils/characters.js';
+import { decodeUnicodeEscapeSequence, tryDecodeSingleEscapeCharacter } from '../utils/characters.js';
 import { CharStream } from './streams/char-stream.js';
 import { TOKEN, TokenKind } from './token.js';
 import { unexpectedTokenError } from './utils.js';
@@ -463,6 +463,25 @@ export class Scanner implements ITokenStream {
 		return;
 	}
 
+	private decodeEscapeSequence(): string {
+		if (this.stream.eof) {
+			throw new AiScriptUnexpectedEOFError(this.stream.getPos());
+		}
+
+		if (this.stream.char === 'u') {
+			const unicodeEscapeSequence = this.readUnicodeEscapeSequence();
+			return String.fromCharCode(Number.parseInt(unicodeEscapeSequence.slice(1), 16));
+		}
+
+		const decodedSingleEscapeCharacter = tryDecodeSingleEscapeCharacter(this.stream.char);
+		if (decodedSingleEscapeCharacter != null) {
+			this.stream.next();
+			return decodedSingleEscapeCharacter;
+		}
+
+		throw new AiScriptSyntaxError(`invalid escape character: "${this.stream.char}"`, this.stream.getPos());
+	}
+
 	private readUnicodeEscapeSequence(): `u${string}` {
 		if (this.stream.eof || (this.stream.char as string) !== 'u') {
 			throw new AiScriptSyntaxError('character "u" expected', this.stream.getPos());
@@ -569,11 +588,7 @@ export class Scanner implements ITokenStream {
 					break;
 				}
 				case 'escape': {
-					if (this.stream.eof) {
-						throw new AiScriptUnexpectedEOFError(pos);
-					}
-					value += this.stream.char;
-					this.stream.next();
+					value += this.decodeEscapeSequence();
 					state = 'string';
 					break;
 				}
@@ -632,13 +647,7 @@ export class Scanner implements ITokenStream {
 					break;
 				}
 				case 'escape': {
-					// エスケープ対象の文字が無いままEOFに達した
-					if (this.stream.eof) {
-						throw new AiScriptUnexpectedEOFError(pos);
-					}
-					// 普通の文字として取り込み
-					buf += this.stream.char;
-					this.stream.next();
+					buf += this.decodeEscapeSequence();
 					// 通常の文字列に戻る
 					state = 'string';
 					break;
