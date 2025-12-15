@@ -406,8 +406,21 @@ export const std: Record<string, Value> = {
 			})
 		));
 	}),
+
+	'Obj:from_kvs': FN_NATIVE(([kvs]) => {
+		assertArray(kvs);
+		return OBJ(new Map(
+			kvs.value.map((kv) => {
+				assertArray(kv);
+				const [key, value] = kv.value;
+				assertString(key);
+				expectAny(value);
+				return [key.value, value];
+			}),
+		));
+	}),
 	//#endregion
-	
+
 	//#region Error
 	'Error:create': FN_NATIVE(([name, info]) => {
 		assertString(name);

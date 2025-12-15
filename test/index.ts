@@ -4,7 +4,7 @@
  */
 
 import * as assert from 'assert';
-import { describe, test } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import { Parser, Interpreter, Ast } from '../src';
 import { NUM, STR, NULL, ARR, OBJ, BOOL, TRUE, FALSE, ERROR ,FN_NATIVE } from '../src/interpreter/value';
 import { AiScriptSyntaxError, AiScriptRuntimeError, AiScriptIndexOutOfRangeError } from '../src/error';
@@ -197,9 +197,7 @@ describe('Object', () => {
 		])));
 	});
 
-	/* 未実装
-	 * see also: test/literals.ts > literal > obj (string key)
-	 * issue: https://github.com/aiscript-dev/aiscript/issues/62
+	// see also: test/literals.ts > literal > obj (string key)
 	test.concurrent('string key', async () => {
 		const res = await exe(`
 		let obj = {
@@ -222,7 +220,10 @@ describe('Object', () => {
 		eq(res, NUM(42));
 	});
 
-	test.concurrent('expression key', async () => {
+	// 未実装
+	// issues: https://github.com/aiscript-dev/aiscript/issues/62
+	//         https://github.com/aiscript-dev/aiscript/issues/225
+	test.concurrent.skip('expression key', async () => {
 		const res = await exe(`
 		let key = "藍"
 
@@ -234,7 +235,6 @@ describe('Object', () => {
 		`);
 		eq(res, NUM(42));
 	});
-	*/
 });
 
 describe('Array', () => {
@@ -948,6 +948,16 @@ describe('Attribute', () => {
 		const attr = member.attr[0];
 		assert.equal(attr.name, 'test');
 	});
+
+	test.concurrent('non-static expression is not allowed', async () => {
+		const parser = new Parser();
+		expect(() => {
+			parser.parse(`
+			#[x #label: eval { 1 }]
+			@f() {}
+			`);
+		}).toThrow();
+	});
 });
 
 describe('Location', () => {
@@ -1092,7 +1102,7 @@ describe('Security', () => {
 			`);
 			assert.fail();
 		} catch (e) {
-			assert.ok(e instanceof AiScriptSyntaxError);
+			assert.ok(e instanceof AiScriptRuntimeError);
 		}
 
 		try {

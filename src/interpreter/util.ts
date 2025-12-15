@@ -1,64 +1,10 @@
 import { AiScriptRuntimeError } from '../error.js';
 import { STR, NUM, ARR, OBJ, NULL, BOOL } from './value.js';
-import type { Value, VStr, VNum, VBool, VFn, VObj, VArr } from './value.js';
+import type { Value, VStr, VNum, VBool, VFn, VObj, VArr, VNull } from './value.js';
 
 export function expectAny(val: Value | null | undefined): asserts val is Value {
 	if (val == null) {
 		throw new AiScriptRuntimeError('Expect anything, but got nothing.');
-	}
-}
-
-export function assertBoolean(val: Value | null | undefined): asserts val is VBool {
-	if (val == null) {
-		throw new AiScriptRuntimeError('Expect boolean, but got nothing.');
-	}
-	if (val.type !== 'bool') {
-		throw new AiScriptRuntimeError(`Expect boolean, but got ${val.type}.`);
-	}
-}
-
-export function assertFunction(val: Value | null | undefined): asserts val is VFn {
-	if (val == null) {
-		throw new AiScriptRuntimeError('Expect function, but got nothing.');
-	}
-	if (val.type !== 'fn') {
-		throw new AiScriptRuntimeError(`Expect function, but got ${val.type}.`);
-	}
-}
-
-export function assertString(val: Value | null | undefined): asserts val is VStr {
-	if (val == null) {
-		throw new AiScriptRuntimeError('Expect string, but got nothing.');
-	}
-	if (val.type !== 'str') {
-		throw new AiScriptRuntimeError(`Expect string, but got ${val.type}.`);
-	}
-}
-
-export function assertNumber(val: Value | null | undefined): asserts val is VNum {
-	if (val == null) {
-		throw new AiScriptRuntimeError('Expect number, but got nothing.');
-	}
-	if (val.type !== 'num') {
-		throw new AiScriptRuntimeError(`Expect number, but got ${val.type}.`);
-	}
-}
-
-export function assertObject(val: Value | null | undefined): asserts val is VObj {
-	if (val == null) {
-		throw new AiScriptRuntimeError('Expect object, but got nothing.');
-	}
-	if (val.type !== 'obj') {
-		throw new AiScriptRuntimeError(`Expect object, but got ${val.type}.`);
-	}
-}
-
-export function assertArray(val: Value | null | undefined): asserts val is VArr {
-	if (val == null) {
-		throw new AiScriptRuntimeError('Expect array, but got nothing.');
-	}
-	if (val.type !== 'arr') {
-		throw new AiScriptRuntimeError(`Expect array, but got ${val.type}.`);
 	}
 }
 
@@ -84,6 +30,73 @@ export function isObject(val: Value): val is VObj {
 
 export function isArray(val: Value): val is VArr {
 	return val.type === 'arr';
+}
+
+export function isNull(val: Value): val is VNull {
+	return val.type === 'null';
+}
+
+export function assertBoolean(val: Value | null | undefined): asserts val is VBool {
+	if (val == null) {
+		throw new AiScriptRuntimeError('Expect boolean, but got nothing.');
+	}
+	if (!isBoolean(val)) {
+		throw new AiScriptRuntimeError(`Expect boolean, but got ${val.type}.`);
+	}
+}
+
+export function assertFunction(val: Value | null | undefined): asserts val is VFn {
+	if (val == null) {
+		throw new AiScriptRuntimeError('Expect function, but got nothing.');
+	}
+	if (!isFunction(val)) {
+		throw new AiScriptRuntimeError(`Expect function, but got ${val.type}.`);
+	}
+}
+
+export function assertString(val: Value | null | undefined): asserts val is VStr {
+	if (val == null) {
+		throw new AiScriptRuntimeError('Expect string, but got nothing.');
+	}
+	if (!isString(val)) {
+		throw new AiScriptRuntimeError(`Expect string, but got ${val.type}.`);
+	}
+}
+
+export function assertNumber(val: Value | null | undefined): asserts val is VNum {
+	if (val == null) {
+		throw new AiScriptRuntimeError('Expect number, but got nothing.');
+	}
+	if (!isNumber(val)) {
+		throw new AiScriptRuntimeError(`Expect number, but got ${val.type}.`);
+	}
+}
+
+export function assertObject(val: Value | null | undefined): asserts val is VObj {
+	if (val == null) {
+		throw new AiScriptRuntimeError('Expect object, but got nothing.');
+	}
+	if (!isObject(val)) {
+		throw new AiScriptRuntimeError(`Expect object, but got ${val.type}.`);
+	}
+}
+
+export function assertArray(val: Value | null | undefined): asserts val is VArr {
+	if (val == null) {
+		throw new AiScriptRuntimeError('Expect array, but got nothing.');
+	}
+	if (!isArray(val)) {
+		throw new AiScriptRuntimeError(`Expect array, but got ${val.type}.`);
+	}
+}
+
+export function assertNull(val: Value | null | undefined): asserts val is VNull {
+	if (val == null) {
+		throw new AiScriptRuntimeError('Expect null, but got nothing.');
+	}
+	if (!isNull(val)) {
+		throw new AiScriptRuntimeError(`Expect null, but got ${val.type}.`);
+	}
 }
 
 export function eq(a: Value, b: Value): boolean {

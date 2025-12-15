@@ -96,6 +96,8 @@ class AiScriptUserError extends AiScriptRuntimeError {
 export class AiSON {
     // (undocumented)
     static parse(input: string): JsValue;
+    // (undocumented)
+    static stringify(value: JsValue, _unused?: null, indent?: number | string): string;
 }
 
 // @public (undocumented)
@@ -122,6 +124,9 @@ function assertBoolean(val: Value | null | undefined): asserts val is VBool;
 
 // @public (undocumented)
 function assertFunction(val: Value | null | undefined): asserts val is VFn;
+
+// @public (undocumented)
+function assertNull(val: Value | null | undefined): asserts val is VNull;
 
 // @public (undocumented)
 function assertNumber(val: Value | null | undefined): asserts val is VNum;
@@ -467,6 +472,9 @@ function isExpression(x: Node_2): x is Expression;
 function isFunction(val: Value): val is VFn;
 
 // @public (undocumented)
+function isNull(val: Value): val is VNull;
+
+// @public (undocumented)
 function isNumber(val: Value): val is VNum;
 
 // @public (undocumented)
@@ -757,18 +765,20 @@ type UnionTypeSource = NodeBase & {
 declare namespace utils {
     export {
         expectAny,
-        assertBoolean,
-        assertFunction,
-        assertString,
-        assertNumber,
-        assertObject,
-        assertArray,
         isBoolean,
         isFunction,
         isString,
         isNumber,
         isObject,
         isArray,
+        isNull,
+        assertBoolean,
+        assertFunction,
+        assertString,
+        assertNumber,
+        assertObject,
+        assertArray,
+        assertNull,
         eq,
         valToString,
         valToJs,

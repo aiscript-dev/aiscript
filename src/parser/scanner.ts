@@ -1,4 +1,5 @@
 import { AiScriptSyntaxError, AiScriptUnexpectedEOFError } from '../error.js';
+import { decodeUnicodeEscapeSequence } from '../utils/characters.js';
 import { CharStream } from './streams/char-stream.js';
 import { TOKEN, TokenKind } from './token.js';
 import { unexpectedTokenError } from './utils.js';
@@ -9,8 +10,10 @@ import type { Token, TokenPosition } from './token.js';
 const spaceChars = [' ', '\t'];
 const lineBreakChars = ['\r', '\n'];
 const digit = /^[0-9]$/;
-const wordChar = /^[A-Za-z0-9_]$/;
-const exponentIndicatorPattern = /^[eE]$/;
+const identifierStart = /^[A-Za-z_]$/u;
+const identifierPart = /^[A-Za-z0-9_]$/u;
+const hexDigit = /^[0-9a-fA-F]$/;
+//const exponentIndicatorPattern = /^[eE]$/;
 
 /**
  * 入力文字列からトークンを読み取るクラス
@@ -282,6 +285,11 @@ export class Scanner implements ITokenStream {
 				}
 				case '\\': {
 					this.stream.next();
+					if (!this.stream.eof && (this.stream.char as string) === 'u') {
+						this.stream.prev();
+						const wordToken = this.tryReadWord(hasLeftSpacing);
+						if (wordToken) return wordToken;
+					}
 					return TOKEN(TokenKind.BackSlash, pos, { hasLeftSpacing });
 				}
 				case ']': {
@@ -322,9 +330,6 @@ export class Scanner implements ITokenStream {
 					throw new AiScriptSyntaxError(`invalid character: "${this.stream.char}"`, pos);
 				}
 			}
-			// Use `return` or `continue` before reaching this line.
-			// Do not add any more code here. This line should be unreachable.
-			break;
 		}
 		// Use `return` or `continue` before reaching this line.
 		// Do not add any more code here. This line should be unreachable.
@@ -332,17 +337,29 @@ export class Scanner implements ITokenStream {
 
 	private tryReadWord(hasLeftSpacing: boolean): Token | undefined {
 		// read a word
-		let value = '';
+		if (this.stream.eof) {
+			return;
+		}
 
 		const pos = this.stream.getPos();
 
-		while (!this.stream.eof && wordChar.test(this.stream.char)) {
-			value += this.stream.char;
-			this.stream.next();
-		}
-		if (value.length === 0) {
+		let rawValue = this.tryReadIdentifierStart();
+		if (rawValue === undefined) {
 			return;
 		}
+		while (!(this.stream.eof as boolean)) {
+			const matchedIdentifierPart = this.tryReadIdentifierPart();
+			if (matchedIdentifierPart === undefined) {
+				break;
+			}
+			rawValue += matchedIdentifierPart;
+		}
+
+		const value = decodeUnicodeEscapeSequence(rawValue);
+		if (value !== rawValue) {
+			throw new AiScriptSyntaxError(`Invalid identifier: "${rawValue}"`, pos);
+		}
+
 		// check word kind
 		switch (value) {
 			case 'null': {
@@ -414,6 +431,56 @@ export class Scanner implements ITokenStream {
 		}
 	}
 
+	private tryReadIdentifierStart(): string | undefined {
+		if (this.stream.eof) {
+			return;
+		}
+		if (identifierStart.test(this.stream.char)) {
+			const value = this.stream.char;
+			this.stream.next();
+			return value;
+		}
+		if (this.stream.char === '\\') {
+			this.stream.next();
+			return '\\' + this.readUnicodeEscapeSequence();
+		}
+		return;
+	}
+
+	private tryReadIdentifierPart(): string | undefined {
+		if (this.stream.eof) {
+			return;
+		}
+		const matchedIdentifierStart = this.tryReadIdentifierStart();
+		if (matchedIdentifierStart !== undefined) {
+			return matchedIdentifierStart;
+		}
+		if (identifierPart.test(this.stream.char)) {
+			const value = this.stream.char;
+			this.stream.next();
+			return value;
+		}
+		return;
+	}
+
+	private readUnicodeEscapeSequence(): `u${string}` {
+		if (this.stream.eof || (this.stream.char as string) !== 'u') {
+			throw new AiScriptSyntaxError('character "u" expected', this.stream.getPos());
+		}
+		this.stream.next();
+
+		let code = '';
+		for (let i = 0; i < 4; i++) {
+			if (this.stream.eof || !hexDigit.test(this.stream.char)) {
+				throw new AiScriptSyntaxError('hexadecimal digit expected', this.stream.getPos());
+			}
+			code += this.stream.char;
+			this.stream.next();
+		}
+
+		return `u${code}`;
+	}
+
 	private tryReadDigits(hasLeftSpacing: boolean): Token | undefined {
 		let wholeNumber = '';
 		let fractional = '';
@@ -438,27 +505,28 @@ export class Scanner implements ITokenStream {
 			}
 		}
 
-		let exponentIndicator = '';
-		let exponentSign = '';
-		let exponentAbsolute = '';
-		if (!this.stream.eof && exponentIndicatorPattern.test(this.stream.char as string)) {
-			exponentIndicator = this.stream.char as string;
-			this.stream.next();
-			if (!this.stream.eof && (this.stream.char as string) === '-') {
-				exponentSign = '-';
-				this.stream.next();
-			} else if (!this.stream.eof && (this.stream.char as string) === '+') {
-				exponentSign = '+';
-				this.stream.next();
-			}
-			while (!this.stream.eof && digit.test(this.stream.char)) {
-				exponentAbsolute += this.stream.char;
-				this.stream.next();
-			}
-			if (exponentAbsolute.length === 0) {
-				throw new AiScriptSyntaxError('exponent expected', pos);
-			}
-		}
+		// 指数表記仕様が必要になった段階で有効化する
+		//let exponentIndicator = '';
+		//let exponentSign = '';
+		//let exponentAbsolute = '';
+		//if (!this.stream.eof && exponentIndicatorPattern.test(this.stream.char as string)) {
+		//	exponentIndicator = this.stream.char as string;
+		//	this.stream.next();
+		//	if (!this.stream.eof && (this.stream.char as string) === '-') {
+		//		exponentSign = '-';
+		//		this.stream.next();
+		//	} else if (!this.stream.eof && (this.stream.char as string) === '+') {
+		//		exponentSign = '+';
+		//		this.stream.next();
+		//	}
+		//	while (!this.stream.eof && digit.test(this.stream.char)) {
+		//		exponentAbsolute += this.stream.char;
+		//		this.stream.next();
+		//	}
+		//	if (exponentAbsolute.length === 0) {
+		//		throw new AiScriptSyntaxError('exponent expected', pos);
+		//	}
+		//}
 
 		let value: string;
 		if (fractional.length > 0) {
@@ -466,9 +534,9 @@ export class Scanner implements ITokenStream {
 		} else {
 			value = wholeNumber;
 		}
-		if (exponentIndicator.length > 0) {
-			value += exponentIndicator + exponentSign + exponentAbsolute;
-		}
+		//if (exponentIndicator.length > 0) {
+		//	value += exponentIndicator + exponentSign + exponentAbsolute;
+		//}
 		return TOKEN(TokenKind.NumberLiteral, pos, { hasLeftSpacing, value });
 	}
 

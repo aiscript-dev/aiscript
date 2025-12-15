@@ -25,6 +25,7 @@ dependabotのPRや古いプロジェクトのアーカイブなどがありま�
 - bugfix用のブランチを作成。前回リリース時のコミットから分岐する。
   - master（マイナーリリース用ブランチ）ではないので注意。
 - bugfixブランチに修正用PRをマージ/コミットをプッシュ。
+- bugfixブランチで`npm i && npm run build && npm run test`を実行し、テストが問題なく通るか念のため最終確認。
 - bugfixブランチで`npm version patch && npm run pre-release`を実行し、結果をプッシュ。
 - bugfixブランチで`npm publish`。
 - bugfixブランチで`git tag <バージョン名> && git push --tag`。
@@ -33,6 +34,7 @@ dependabotのPRや古いプロジェクトのアーカイブなどがありま�
 ### マイナーリリース
 非破壊的変更。バージョンx.y.zのyを一つ上げ、zを0にする。
 - 事前にdependabotの更新があれば極力マージする。
+- masterブランチで`npm i && npm run build && npm run test`を実行し、テストが問題なく通るか念のため最終確認。
 - masterブランチで`npm run pre-release`を実行し、結果をプッシュ。
 - masterブランチで`npm publish`。
 - masterブランチで`git tag <バージョン名> && git push --tag`。
@@ -43,6 +45,7 @@ dependabotのPRや古いプロジェクトのアーカイブなどがありま�
   - package.jsonなどのバージョンにコンフリクトが生じた場合、aiscript-nextのものを反映。
   - この合流は、次回リリースがメジャーリリースになると決まった段階でいつでもおこなってよい。
 - dependabotの更新があれば極力マージする。
+- masterブランチで`npm i && npm run build && npm run test`を実行し、テストが問題なく通るか念のため最終確認。
 - masterブランチで`npm run pre-release`を実行し、結果をプッシュ。
 - masterブランチで`npm publish`。
 - masterブランチで`git tag <バージョン名> && git push --tag`。
