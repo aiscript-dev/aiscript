@@ -3,10 +3,9 @@ import { FN_NATIVE, NULL, NUM } from '../../interpreter/value.js';
 import { textEncoder } from '../../const.js';
 import { SeedRandomWrapper } from './seedrandom.js';
 import { ChaCha20 } from './chacha20.js';
-import type { VNativeFn, VNull, Value } from '../../interpreter/value.js';
+import type { VNativeFn, VNull, VNum, VStr } from '../../interpreter/value.js';
 
-export function GenerateLegacyRandom(seed: Value | undefined) : VNativeFn | VNull {
-	if (!seed || seed.type !== 'num' && seed.type !== 'str') return NULL;
+export function GenerateLegacyRandom(seed: VNum | VStr) : VNativeFn | VNull {
 	const rng = seedrandom(seed.value.toString());
 	return FN_NATIVE(([min, max]) => {
 		if (min && min.type === 'num' && max && max.type === 'num') {
@@ -16,8 +15,7 @@ export function GenerateLegacyRandom(seed: Value | undefined) : VNativeFn | VNul
 	});
 }
 
-export function GenerateRC4Random(seed: Value | undefined) : VNativeFn | VNull {
-	if (!seed || seed.type !== 'num' && seed.type !== 'str') return NULL;
+export function GenerateRC4Random(seed: VNum | VStr) : VNativeFn | VNull {
 	const rng = new SeedRandomWrapper(seed.value);
 	return FN_NATIVE(([min, max]) => {
 		if (min && min.type === 'num' && max && max.type === 'num') {
@@ -28,13 +26,12 @@ export function GenerateRC4Random(seed: Value | undefined) : VNativeFn | VNull {
 	});
 }
 
-export async function GenerateChaCha20Random(seed: Value | undefined) : Promise<VNativeFn | VNull> {
-	if (!seed || seed.type !== 'num' && seed.type !== 'str' && seed.type !== 'null') return NULL;
-	let actualSeed : Uint8Array | undefined = undefined;
+export async function GenerateChaCha20Random(seed: VNum | VStr) : Promise<VNativeFn | VNull> {
+	let actualSeed: Uint8Array;
 	if (seed.type === 'num')
 	{
 		actualSeed = new Uint8Array(await crypto.subtle.digest('SHA-384', new Uint8Array(new Float64Array([seed.value]))));
-	} else if (seed.type === 'str') {
+	} else {
 		actualSeed = new Uint8Array(await crypto.subtle.digest('SHA-384', new Uint8Array(textEncoder.encode(seed.value))));
 	}
 	const rng = new ChaCha20(actualSeed);

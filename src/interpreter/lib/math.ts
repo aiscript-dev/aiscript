@@ -218,7 +218,7 @@ export const stdMath: Record<`Math:${string}`, Value> = {
 		else if (options?.type !== undefined) {
 			throw new AiScriptRuntimeError('`options` must be an object if specified.');
 		}
-		if (seed.type !== 'num' && seed.type !== 'str' && seed.type !== 'null') throw new AiScriptRuntimeError('`seed` must be either number or string if specified.');
+		if (seed.type !== 'num' && seed.type !== 'str') throw new AiScriptRuntimeError('`seed` must be either number or string.');
 		switch (algo) {
 			case 'rc4_legacy':
 				return GenerateLegacyRandom(seed);
