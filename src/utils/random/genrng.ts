@@ -3,9 +3,9 @@ import { FN_NATIVE, NULL, NUM } from '../../interpreter/value.js';
 import { textEncoder } from '../../const.js';
 import { SeedRandomWrapper } from './seedrandom.js';
 import { ChaCha20 } from './chacha20.js';
-import type { VNativeFn, VNull, VNum, VStr } from '../../interpreter/value.js';
+import type { VNativeFn, VNum, VStr } from '../../interpreter/value.js';
 
-export function GenerateLegacyRandom(seed: VNum | VStr) : VNativeFn | VNull {
+export function GenerateLegacyRandom(seed: VNum | VStr): VNativeFn {
 	const rng = seedrandom(seed.value.toString());
 	return FN_NATIVE(([min, max]) => {
 		if (min && min.type === 'num' && max && max.type === 'num') {
@@ -15,7 +15,7 @@ export function GenerateLegacyRandom(seed: VNum | VStr) : VNativeFn | VNull {
 	});
 }
 
-export function GenerateRC4Random(seed: VNum | VStr) : VNativeFn | VNull {
+export function GenerateRC4Random(seed: VNum | VStr): VNativeFn {
 	const rng = new SeedRandomWrapper(seed.value);
 	return FN_NATIVE(([min, max]) => {
 		if (min && min.type === 'num' && max && max.type === 'num') {
@@ -26,7 +26,7 @@ export function GenerateRC4Random(seed: VNum | VStr) : VNativeFn | VNull {
 	});
 }
 
-export async function GenerateChaCha20Random(seed: VNum | VStr) : Promise<VNativeFn | VNull> {
+export async function GenerateChaCha20Random(seed: VNum | VStr): Promise<VNativeFn> {
 	let actualSeed: Uint8Array;
 	if (seed.type === 'num')
 	{
