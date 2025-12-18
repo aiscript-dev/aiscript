@@ -1,9 +1,9 @@
 import * as assert from 'assert';
 import { describe, expect, test } from 'vitest';
 import { utils } from '../src';
+import { AiScriptRuntimeError } from '../src/error';
 import { NUM, STR, NULL, ARR, OBJ, BOOL, TRUE, FALSE, ERROR ,FN_NATIVE } from '../src/interpreter/value';
 import { exe, eq } from './testutils';
-import { AiScriptRuntimeError } from '../src/error';
 
 
 describe('Core', () => {
