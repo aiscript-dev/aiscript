@@ -1,6 +1,7 @@
 import * as assert from 'assert';
-import { describe, test } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import { utils } from '../src';
+import { AiScriptRuntimeError } from '../src/error';
 import { NUM, STR, NULL, ARR, OBJ, BOOL, TRUE, FALSE, ERROR ,FN_NATIVE } from '../src/interpreter/value';
 import { exe, eq } from './testutils';
 
@@ -155,6 +156,10 @@ describe('Math', () => {
 		]
 		`)
 		eq(res, ARR([BOOL(true), BOOL(true)]));
+	});
+
+	test.concurrent('gen_rng should reject when null is provided as a seed', async () => {
+		await expect(() => exe('Math:gen_rng(null)')).rejects.toThrow(AiScriptRuntimeError);
 	});
 });
 
