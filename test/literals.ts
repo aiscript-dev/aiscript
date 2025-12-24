@@ -251,6 +251,12 @@ describe('literal', () => {
 		`)).rejects.toThrow(AiScriptSyntaxError);
 	})
 
+	test.concurrent('obj (duplicate key)', async () => {
+		await expect(() => exe(`
+			<: { hoge: 1, hoge: 2 }
+		`)).rejects.toThrow(AiScriptSyntaxError);
+	});
+
 	test.concurrent('obj (invalid key)', async () => {
 		assert.rejects(() => exe(`
 		<: {

@@ -593,6 +593,9 @@ function parseObject(s: ITokenStream, isStatic: boolean): Ast.Obj {
 	const map = new Map<string, Ast.Expression>();
 	while (!s.is(TokenKind.CloseBrace)) {
 		const k = parseObjectKey(s);
+		if (map.has(k)) {
+			throw new AiScriptSyntaxError(`Key ${k} is duplicated.`, s.getPos());
+		}
 		s.next();
 
 		s.expect(TokenKind.Colon);
