@@ -72,3 +72,21 @@ export function decodeUnicodeEscapeSequence(string: string): string {
 
 	return result;
 }
+
+export function tryDecodeSingleEscapeCharacter(s: string): string | null {
+	switch (s) {
+		// case 'b': return '\b';
+		case 't': return '\t';
+		case 'n': return '\n';
+		// case 'v': return '\v';
+		// case 'f': return '\f';
+		case 'r': return '\r';
+		case '"': return '"';
+		case '\'': return '\'';
+		case '\\': return '\\';
+		case '`': return '`';
+		case '{': return '{';
+		case '}': return '}';
+		default: return null;
+	}
+}
