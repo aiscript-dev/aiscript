@@ -29,13 +29,13 @@ export function GenerateRC4Random(seed: VNum | VStr): VNativeFn {
 export async function GenerateChaCha20Random(seed: VNum | VStr, options: Map<string, Value> | undefined): Promise<VNativeFn> {
 	let actualSeed: Uint8Array;
 	if (seed.type === 'num') {
-		let float64Array = new Float64Array([seed.value]);
-		let numberAsIntegerOptionValue = options?.get("chacha20NumberSeedLegacyBehaviour");
+		const float64Array = new Float64Array([seed.value]);
+		const numberAsIntegerOptionValue = options?.get('chacha20NumberSeedLegacyBehaviour');
 		let numberAsInteger = false;
-		if (numberAsIntegerOptionValue?.type === "bool") {
+		if (numberAsIntegerOptionValue?.type === 'bool') {
 			numberAsInteger = numberAsIntegerOptionValue.value;
 		}
-		let seedToDigest = numberAsInteger ? new Uint8Array(float64Array) : new Uint8Array(float64Array.buffer);
+		const seedToDigest = numberAsInteger ? new Uint8Array(float64Array) : new Uint8Array(float64Array.buffer);
 		actualSeed = new Uint8Array(await crypto.subtle.digest('SHA-384', seedToDigest));
 	} else {
 		actualSeed = new Uint8Array(await crypto.subtle.digest('SHA-384', new Uint8Array(textEncoder.encode(seed.value))));
