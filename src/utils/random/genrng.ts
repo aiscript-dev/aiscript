@@ -3,7 +3,7 @@ import { FN_NATIVE, NULL, NUM } from '../../interpreter/value.js';
 import { textEncoder } from '../../const.js';
 import { SeedRandomWrapper } from './seedrandom.js';
 import { ChaCha20 } from './chacha20.js';
-import type { VNativeFn, VNum, VStr } from '../../interpreter/value.js';
+import type { Value, VNativeFn, VNum, VStr } from '../../interpreter/value.js';
 
 export function GenerateLegacyRandom(seed: VNum | VStr): VNativeFn {
 	const rng = seedrandom(seed.value.toString());
@@ -26,11 +26,17 @@ export function GenerateRC4Random(seed: VNum | VStr): VNativeFn {
 	});
 }
 
-export async function GenerateChaCha20Random(seed: VNum | VStr): Promise<VNativeFn> {
+export async function GenerateChaCha20Random(seed: VNum | VStr, options: Map<string, Value> | undefined): Promise<VNativeFn> {
 	let actualSeed: Uint8Array;
-	if (seed.type === 'num')
-	{
-		actualSeed = new Uint8Array(await crypto.subtle.digest('SHA-384', new Uint8Array(new Float64Array([seed.value]))));
+	if (seed.type === 'num') {
+		let float64Array = new Float64Array([seed.value]);
+		let numberAsIntegerOptionValue = options?.get("chacha20NumberSeedLegacyBehaviour");
+		let numberAsInteger = false;
+		if (numberAsIntegerOptionValue?.type === "bool") {
+			numberAsInteger = numberAsIntegerOptionValue.value;
+		}
+		let seedToDigest = numberAsInteger ? new Uint8Array(float64Array) : new Uint8Array(float64Array.buffer);
+		actualSeed = new Uint8Array(await crypto.subtle.digest('SHA-384', seedToDigest));
 	} else {
 		actualSeed = new Uint8Array(await crypto.subtle.digest('SHA-384', new Uint8Array(textEncoder.encode(seed.value))));
 	}

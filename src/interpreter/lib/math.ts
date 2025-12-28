@@ -228,7 +228,7 @@ export const stdMath: Record<`Math:${string}`, Value> = {
 			}
 			case 'chacha20': {
 				if (!isSecureContext) throw new AiScriptRuntimeError(`The random algorithm ${algo} cannot be used because \`crypto.subtle\` is not available. Maybe in non-secure context?`);
-				return await GenerateChaCha20Random(seed);
+				return await GenerateChaCha20Random(seed, options?.value);
 			}
 			default:
 				throw new AiScriptRuntimeError('`options.algorithm` must be one of these: `chacha20`, `rc4`, or `rc4_legacy`.');
