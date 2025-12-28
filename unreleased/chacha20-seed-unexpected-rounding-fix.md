@@ -1,0 +1,3 @@
+- Fix: **Breaking Change** `Math:gen_rng`の`seed`に`num`を与え、`options.algorithm`に`chacha20`を指定した或いは何も指定しなかった場合、`seed`の小数点以下を切り捨てた上で 256 で割った余りを内部的に`seed`としてしまう問題を修正。
+  - 関数`Math:gen_rng`の`options.chacha20NumberSeedLegacyBehaviour`に`true`を指定した場合、修正前の動作をする機能を追加(デフォルト:`false`)。
+  - これらの修正により、同じ`seed`でも修正前と修正後で生成される値が異なるようになります。
