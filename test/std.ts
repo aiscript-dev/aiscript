@@ -2,7 +2,7 @@ import * as assert from 'assert';
 import { describe, expect, test } from 'vitest';
 import { utils } from '../src';
 import { AiScriptRuntimeError } from '../src/error';
-import { NUM, STR, NULL, ARR, OBJ, BOOL, TRUE, FALSE, ERROR ,FN_NATIVE } from '../src/interpreter/value';
+import { NUM, STR, NULL, ARR, OBJ, BOOL, TRUE, FALSE, ERROR, FN_NATIVE } from '../src/interpreter/value';
 import { exe, eq } from './testutils';
 
 
@@ -88,7 +88,7 @@ describe('Math', () => {
 	test.concurrent('max', async () => {
 		eq(await exe("<: Math:max(-2, -3)"), NUM(-2));
 	});
-	
+
 	/* flaky
 	test.concurrent('rnd', async () => {
 		const steps = 512;
@@ -158,6 +158,35 @@ describe('Math', () => {
 		eq(res, ARR([BOOL(true), BOOL(true)]));
 	});
 
+	test.concurrent('gen_rng number seed', async () => {
+		// 2つのシード値から1~maxの乱数をn回生成して一致率を見る(numがシード値として指定された場合)
+		const res = await exe(`
+		@test(seed1, seed2) {
+			let n = 100
+			let max = 100000
+			let threshold = 0.05
+			let random1 = Math:gen_rng(seed1)
+			let random2 = Math:gen_rng(seed2)
+			var same = 0
+			for n {
+				if random1(1, max) == random2(1, max) {
+					same += 1
+				}
+			}
+			let rate = same / n
+			if seed1 == seed2 { rate == 1 }
+			else { rate < threshold }
+		}
+		let seed1 = 3.0
+		let seed2 = 3.0000000000000004
+		<: [
+			test(seed1, seed1)
+			test(seed1, seed2)
+		]
+		`)
+		eq(res, ARR([BOOL(true), BOOL(true)]));
+	});
+
 	test.concurrent('gen_rng should reject when null is provided as a seed', async () => {
 		await expect(() => exe('Math:gen_rng(null)')).rejects.toThrow(AiScriptRuntimeError);
 	});
@@ -202,7 +231,7 @@ describe('Obj', () => {
 
 		<: Obj:merge(o1, o2)
 		`);
-		eq(res, utils.jsToVal({ a: 1, b: 3, c: 4}));
+		eq(res, utils.jsToVal({ a: 1, b: 3, c: 4 }));
 	});
 
 	test.concurrent('pick', async () => {
