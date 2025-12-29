@@ -341,3 +341,83 @@ describe('Template syntax', () => {
 	});
 });
 
+describe('Escape sequence', () => {
+	describe('valid', () => {
+		const cases: [string, string][] = [
+			['\\t', '\t'],  // horizontal tab
+			['\\n', '\n'],  // line feed
+			['\\r', '\r'],  // carriage return
+			['\\"', '"'],
+			['\\\'', '\''],
+			['\\\\', '\\'],
+			['\\`', '`'],
+			['\\{', '{'],
+			['\\}', '}'],
+			['\\u0041', 'A'],
+			['\\u85cd', '藍'],
+			['\\u85CD', '藍'],
+			['\\ud842\\udfb7', '𠮷'],
+			['\\uD842\\uDFB7', '𠮷'],
+		];
+
+		describe('double quote', () => {
+			test.each(cases)('value of escape sequence "%s" must be "%s"', async (char, expected) => {
+				const res = await exe(`
+				<: "${char}"
+				`);
+				eq(res, STR(expected));
+			});
+		});
+
+		describe('single quote', () => {
+			test.each(cases)('value of escape sequence "%s" must be "%s"', async (char, expected) => {
+				const res = await exe(`
+				<: '${char}'
+				`);
+				eq(res, STR(expected));
+			});
+		});
+
+		describe('template', () => {
+			test.each(cases)('value of escape sequence "%s" must be "%s"', async (string, expected) => {
+				const res = await exe(`
+				<: \`${string}\`
+				`);
+				eq(res, STR(expected));
+			});
+		});
+	});
+
+	describe('invalid', () => {
+		const cases: [string][] = [
+			['\\x'],
+			['\\b'],
+			['\\v'],
+			['\\f'],
+		];
+
+		describe('double quote', () => {
+			test.each(cases)('value of escape sequence "%s" must not be allowed', async (char) => {
+				await expect(async () => await exe(`
+				<: "${char}"
+				`)).rejects.toThrow(AiScriptSyntaxError);
+			});
+		});
+
+		describe('single quote', () => {
+			test.each(cases)('value of escape sequence "%s" must not be allowed', async (char) => {
+				await expect(async () => await exe(`
+				<: '${char}'
+				`)).rejects.toThrow(AiScriptSyntaxError);
+			});
+		});
+
+		describe('template', () => {
+			test.each(cases)('value of escape sequence "%s" must not be allowed', async (string) => {
+				await expect(async () => await exe(`
+				<: \`${string}\`
+				`)).rejects.toThrow(AiScriptSyntaxError);
+			});
+		});
+	});
+});
