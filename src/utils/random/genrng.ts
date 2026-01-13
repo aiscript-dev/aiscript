@@ -30,7 +30,7 @@ export async function GenerateChaCha20Random(seed: VNum | VStr, options: Map<str
 	let actualSeed: Uint8Array;
 	if (seed.type === 'num') {
 		const float64Array = new Float64Array([seed.value]);
-		const numberAsIntegerOptionValue = options?.get('chacha20NumberSeedLegacyBehaviour');
+		const numberAsIntegerOptionValue = options?.get('chacha20_number_seed_legacy_behavior');
 		let numberAsInteger = false;
 		if (numberAsIntegerOptionValue?.type === 'bool') {
 			numberAsInteger = numberAsIntegerOptionValue.value;
