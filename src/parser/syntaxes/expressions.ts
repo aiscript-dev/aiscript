@@ -577,7 +577,7 @@ function parseReference(s: ITokenStream): Ast.Identifier {
 
 /**
  * ```abnf
- * Object = "{" [ObjectKey ":" Expr *(SEP IDENT ":" Expr) [SEP]] "}"
+ * Object = "{" [ObjectKey [":" Expr] *(SEP ObjectKey [":" Expr]) [SEP]] "}"
  * ```
 */
 function parseObject(s: ITokenStream, isStatic: boolean): Ast.Obj {
@@ -592,16 +592,23 @@ function parseObject(s: ITokenStream, isStatic: boolean): Ast.Obj {
 
 	const map = new Map<string, Ast.Expression>();
 	while (!s.is(TokenKind.CloseBrace)) {
+		const startPos = s.getPos();
+
 		const k = parseObjectKey(s);
 		if (map.has(k)) {
 			throw new AiScriptSyntaxError(`Key ${k} is duplicated.`, s.getPos());
 		}
 		s.next();
 
-		s.expect(TokenKind.Colon);
-		s.next();
+		let v: Ast.Expression;
 
-		const v = parseExpr(s, isStatic);
+		if (s.is(TokenKind.Colon)){
+			s.next();
+
+			v = parseExpr(s, isStatic);
+		} else {
+			v = NODE("identifier", { name: k }, startPos, s.getPos());
+		}
 
 		map.set(k, v);
 

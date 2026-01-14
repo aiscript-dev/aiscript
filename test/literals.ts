@@ -243,6 +243,14 @@ describe('literal', () => {
 		});
 	});
 
+	test.concurrent('obj (shorthand)', async () => {
+		const res = await exe(`
+		let a = 1
+		<: { a }
+		`);
+		eq(res, OBJ(new Map([['a', NUM(1)]])));
+	});
+
 	test.concurrent('obj (escaped reserved word as key)', async () => {
 		await expect(async () => await exe(`
 		<: {
