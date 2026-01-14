@@ -7,7 +7,6 @@ import { AiScriptError, NonAiScriptError, AiScriptNamespaceError, AiScriptIndexO
 import * as Ast from '../node.js';
 import { nodeToJs } from '../utils/node-to-js.js';
 import { Scope } from './scope.js';
-import { std } from './lib/std.js';
 import { RETURN, unWrapRet, BREAK, CONTINUE, assertValue, isControl, type Control, unWrapLabeledBreak } from './control.js';
 import { assertNumber, assertString, assertFunction, assertBoolean, assertObject, assertArray, eq, isObject, isArray, expectAny, reprValue, isFunction } from './util.js';
 import { NULL, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, ERROR } from './value.js';
@@ -36,12 +35,11 @@ export class Interpreter {
 	private abortHandlers: (() => void)[] = [];
 	private pauseHandlers: (() => void)[] = [];
 	private unpauseHandlers: (() => void)[] = [];
-	private vars: Record<string, Variable> = {};
 	private irqRate: number;
 	private irqSleep: () => Promise<void>;
 
 	constructor(
-		consts: Record<string, Value>,
+		globals: Record<string, Value>,
 		private opts: {
 			in?(q: string): Promise<string>;
 			out?(value: Value): void;
@@ -67,13 +65,12 @@ export class Interpreter {
 			}),
 		};
 
-		this.vars = Object.fromEntries(Object.entries({
-			...consts,
-			...std,
-			...io,
-		}).map(([k, v]) => [k, Variable.const(v)]));
-
-		this.scope = new Scope([new Map(Object.entries(this.vars))]);
+		this.scope = new Scope([
+			new Map(
+				Object.entries({ ...globals, ...io })
+					.map(([k, v]) => [k, Variable.const(v)]),
+			),
+		]);
 		this.scope.opts.log = (type, params): void => {
 			switch (type) {
 				case 'add': this.log('var:add', params); break;
