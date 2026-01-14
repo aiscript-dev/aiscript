@@ -251,6 +251,18 @@ describe('literal', () => {
 		eq(res, OBJ(new Map([['a', NUM(1)]])));
 	});
 
+	test.concurrent('obj (reserved word as shorthand)', async () => {
+		await expect(() => exe(`
+			<: { exists }
+		`)).rejects.toThrow(AiScriptSyntaxError);
+	});
+
+	test.concurrent('obj (string as shorthand)', async () => {
+		await expect(() => exe(`
+			<: { "hoge" }
+		`)).rejects.toThrow(AiScriptSyntaxError);
+	});
+
 	test.concurrent('obj (escaped reserved word as key)', async () => {
 		await expect(async () => await exe(`
 		<: {
