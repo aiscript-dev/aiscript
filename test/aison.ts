@@ -62,6 +62,10 @@ greet()`)).toThrow();
 		expect(() => AiSON.parse('{key: (3 + 5)}')).toThrow();
 	});
 
+	test.concurrent('not allowed: object shorthand', () => {
+		expect(() => AiSON.parse('{key}')).toThrow();
+	});
+
 	test.concurrent('not allowed: labeled expression', () => {
 		expect(() => AiSON.parse('#label: eval { 1 }')).toThrow();
 	});

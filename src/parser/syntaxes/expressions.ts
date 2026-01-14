@@ -602,6 +602,7 @@ function parseObject(s: ITokenStream, isStatic: boolean): Ast.Obj {
 
 		let v: Ast.Expression;
 
+		if (isStatic) s.expect(TokenKind.Colon);
 		if (s.is(TokenKind.Colon)){
 			s.next();
 
