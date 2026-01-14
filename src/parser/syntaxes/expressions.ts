@@ -604,12 +604,12 @@ function parseObject(s: ITokenStream, isStatic: boolean): Ast.Obj {
 		let v: Ast.Expression;
 
 		if (!isIdentifierKey || isStatic) s.expect(TokenKind.Colon);
-		if (s.is(TokenKind.Colon)){
+		if (s.is(TokenKind.Colon)) {
 			s.next();
 
 			v = parseExpr(s, isStatic);
 		} else {
-			v = NODE("identifier", { name: k }, startPos, s.getPos());
+			v = NODE('identifier', { name: k }, startPos, s.getPos());
 		}
 
 		map.set(k, v);
