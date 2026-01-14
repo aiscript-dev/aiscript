@@ -16,6 +16,8 @@ import { Reference } from './reference.js';
 import type { JsValue } from './util.js';
 import type { Value, VFn, VUserFn } from './value.js';
 
+export { std } from './lib/std.js';
+
 export type LogObject = {
 	scope?: string;
 	var?: string;

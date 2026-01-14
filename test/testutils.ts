@@ -1,7 +1,6 @@
 import { expect as globalExpect } from 'vitest';
-import { Parser, Interpreter } from '../src';
+import { Parser, Interpreter, std } from '../src';
 import { Value } from '../src/interpreter/value';
-import { std } from '../src/interpreter/lib/std';
 
 export async function exe(script: string): Promise<Value | undefined> {
 	const parser = new Parser();

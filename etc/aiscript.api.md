@@ -416,7 +416,7 @@ type Index = NodeBase & {
 
 // @public (undocumented)
 export class Interpreter {
-    constructor(consts: Record<string, Value>, opts?: {
+    constructor(globals: Record<string, Value>, opts?: {
         in?(q: string): Promise<string>;
         out?(value: Value): void;
         err?(e: AiScriptError): void;
@@ -712,6 +712,9 @@ export class Scope {
 
 // @public (undocumented)
 type Statement = Definition | Return | Each | For | Loop | Break | Continue | Assign | AddAssign | SubAssign;
+
+// @public (undocumented)
+export const std: Record<string, Value>;
 
 // @public (undocumented)
 const STR: (str: VStr["value"]) => VStr;
