@@ -13,6 +13,7 @@ import { NULL, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, ERROR } from './value.js
 import { getPrimProp } from './primitive-props.js';
 import { Variable } from './variable.js';
 import { Reference } from './reference.js';
+import { stdCore } from './lib/core.js';
 import type { JsValue } from './util.js';
 import type { Value, VFn, VUserFn } from './value.js';
 
@@ -69,7 +70,7 @@ export class Interpreter {
 
 		this.scope = new Scope([
 			new Map(
-				Object.entries({ ...globals, ...io })
+				Object.entries({ ...globals,...stdCore, ...io })
 					.map(([k, v]) => [k, Variable.const(v)]),
 			),
 		]);
