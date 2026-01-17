@@ -635,6 +635,13 @@ describe('Variable declaration', () => {
 		`);
 		eq(res, ARR([NUM(1), NUM(2)]));
 	});
+	test.concurrent('destructuring declaration with shorthand', async () => {
+		const res = await exe(`
+			let { value } = { value: 1 }
+			<: value
+		`);
+		eq(res, NUM(1));
+	});
 	test.concurrent('empty function', async () => {
 		const res = await exe(`
 			@hoge() { }
