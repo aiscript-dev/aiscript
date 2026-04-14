@@ -11,7 +11,7 @@ import type { Value } from '../value.js';
 export const std: Record<string, Value> = {
 	...stdMath,
 
-	'help': STR('SEE: https://github.com/syuilo/aiscript/blob/master/docs/get-started.md'),
+	'help': STR('SEE: https://aiscript-dev.github.io/guides/get-started.html'),
 
 	//#region Core
 	'Core:v': STR(AISCRIPT_VERSION),
