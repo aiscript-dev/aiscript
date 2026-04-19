@@ -29,6 +29,86 @@ describe('Scope', () => {
 	});
 });
 
+describe('ExecResult', () => {
+	describe('value', () => {
+		const script = Parser.parse('"ai"; 42');
+
+		test.concurrent('true', async () => {
+			const aiscript = new Interpreter({});
+			const result = await aiscript.exec(script, { value: true });
+			assert.ok(result != null);
+			expect(result.value).toStrictEqual(NUM(42));
+		});
+
+		test.concurrent('false', async () => {
+			const aiscript = new Interpreter({});
+			const result = await aiscript.exec(script, { value: false });
+			assert.ok(result != null);
+			expect(result.value).toBeUndefined();
+		});
+
+		test.concurrent('undefined', async () => {
+			const aiscript = new Interpreter({});
+			const result = await aiscript.exec(script, {});
+			assert.ok(result != null);
+			expect(result.value).toBeUndefined();
+		});
+	});
+
+	describe('variables', () => {
+		const script = Parser.parse(`
+		let a = 1
+		@b() {
+			let x = a + 1
+			x
+		}
+		if true {
+			var y = 2
+		}
+		var c = true
+		`);
+
+		test.concurrent('all', async () => {
+			const aiscript = new Interpreter({});
+			const result = await aiscript.exec(script, { variables: true });
+			assert.ok(result != null);
+			const vars = result.variables;
+			expect(vars.get('a')).not.toBeUndefined();
+			expect(vars.get('b')).not.toBeUndefined();
+			expect(vars.get('c')).not.toBeUndefined();
+			expect(vars.get('x')).toBeUndefined();
+			expect(vars.get('y')).toBeUndefined();
+		});
+
+		test.concurrent('some', async () => {
+			const aiscript = new Interpreter({});
+			const result = await aiscript.exec(script, { variables: ['a', 'b', 'x'] });
+			assert.ok(result != null);
+			const vars = result.variables;
+			expect(new Set(vars.keys())).toStrictEqual(new Set(['a', 'b']))
+		});
+
+		test.concurrent('empty', async () => {
+			const aiscript = new Interpreter({});
+			const result = await aiscript.exec(script, { variables: [] });
+			assert.ok(result != null);
+			const vars = result.variables;
+			expect(vars.size).toBe(0);
+		});
+
+		test.each([
+			['false', { variables: false }],
+			['undefined', {}],
+		])('none (%s)', async (_, opts) => {
+			const aiscript = new Interpreter({});
+			const result = await aiscript.exec(script, opts);
+			assert.ok(result != null);
+			const vars = result.variables;
+			expect(vars).toBeUndefined();
+		});
+	});
+});
+
 describe('error handler', () => {
 	test.concurrent('error from outside caller', async () => {
 		let outsideCaller: () => Promise<void> = async () => {};

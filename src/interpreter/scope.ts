@@ -1,5 +1,6 @@
 import { autobind } from '../utils/mini-autobind.js';
 import { AiScriptRuntimeError } from '../error.js';
+import { filter } from '../utils/iterator.js';
 import type { Value } from './value.js';
 import type { Variable } from './variable.js';
 import type { LogObject } from './index.js';
@@ -103,6 +104,14 @@ export class Scope {
 	public getAll(): Map<string, Variable> {
 		const vars = this.layerdStates.reduce((arr, layer) => {
 			return [...arr, ...layer];
+		}, [] as [string, Variable][]);
+		return new Map(vars);
+	}
+
+	@autobind
+	public getByNames(names: string[]): Map<string, Variable> {
+		const vars = this.layerdStates.reduce((arr, layer) => {
+			return [...arr, ...filter(layer, ([name, _]) => names.includes(name))];
 		}, [] as [string, Variable][]);
 		return new Map(vars);
 	}

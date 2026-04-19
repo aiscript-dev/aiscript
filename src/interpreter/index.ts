@@ -14,6 +14,7 @@ import { NULL, FN_NATIVE, BOOL, NUM, STR, ARR, OBJ, FN, ERROR } from './value.js
 import { getPrimProp } from './primitive-props.js';
 import { Variable } from './variable.js';
 import { Reference } from './reference.js';
+import { constructResult, type ExecResult, type ExecResultOptions } from './exec-result.js';
 import type { JsValue } from './util.js';
 import type { Value, VFn, VUserFn } from './value.js';
 
@@ -103,25 +104,35 @@ export class Interpreter {
 		}
 	}
 
+	public async exec(script?: Ast.Node[]): Promise<void>;
+	public async exec<T extends ExecResultOptions>(script: Ast.Node[], resultOpts: T): Promise<ExecResult<T> | void>;
 	@autobind
-	public async exec(script?: Ast.Node[]): Promise<void> {
+	public async exec(script?: Ast.Node[], resultOpts?: ExecResultOptions): Promise<ExecResult | void> {
 		if (script == null || script.length === 0) return;
 		try {
 			await this.collectNs(script);
 			const result = await this._run(script, this.scope, []);
 			assertValue(result);
 			this.log('end', { val: result });
+			if (resultOpts != null) {
+				return constructResult(resultOpts, result, this.scope);
+			}
 		} catch (e) {
 			this.handleError(e);
 		}
 	}
 
+	public execSync(script?: Ast.Node[]): Value | undefined;
+	public execSync<T extends ExecResultOptions>(script: Ast.Node[], resultOpts: T): ExecResult<T>;
 	@autobind
-	public execSync(script?: Ast.Node[]): Value | undefined {
+	public execSync(script?: Ast.Node[], resultOpts?: ExecResultOptions): Value | undefined | ExecResult {
 		if (script == null || script.length === 0) return;
 		this.collectNsSync(script);
 		const result = this._runSync(script, this.scope, []);
 		assertValue(result);
+		if (resultOpts != null) {
+			return constructResult(resultOpts, result, this.scope);
+		}
 		return result;
 	}
 
