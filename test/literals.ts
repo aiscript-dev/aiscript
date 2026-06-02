@@ -243,6 +243,26 @@ describe('literal', () => {
 		});
 	});
 
+	test.concurrent('obj (shorthand)', async () => {
+		const res = await exe(`
+		let a = 1
+		<: { a }
+		`);
+		eq(res, OBJ(new Map([['a', NUM(1)]])));
+	});
+
+	test.concurrent('obj (reserved word as shorthand)', async () => {
+		await expect(() => exe(`
+			<: { exists }
+		`)).rejects.toThrow(AiScriptSyntaxError);
+	});
+
+	test.concurrent('obj (string as shorthand)', async () => {
+		await expect(() => exe(`
+			<: { "hoge" }
+		`)).rejects.toThrow(AiScriptSyntaxError);
+	});
+
 	test.concurrent('obj (escaped reserved word as key)', async () => {
 		await expect(async () => await exe(`
 		<: {
@@ -250,6 +270,12 @@ describe('literal', () => {
 		}
 		`)).rejects.toThrow(AiScriptSyntaxError);
 	})
+
+	test.concurrent('obj (duplicate key)', async () => {
+		await expect(() => exe(`
+			<: { hoge: 1, hoge: 2 }
+		`)).rejects.toThrow(AiScriptSyntaxError);
+	});
 
 	test.concurrent('obj (invalid key)', async () => {
 		assert.rejects(() => exe(`

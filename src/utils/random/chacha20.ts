@@ -53,20 +53,15 @@ export class ChaCha20 extends RandomBase {
 	private buffer: Uint8Array;
 	private filledBuffer: Uint8Array;
 	private counter: bigint;
-	constructor(seed?: Uint8Array | undefined) {
+	constructor(seed: Uint8Array) {
 		const keyNonceBytes = CHACHA_IVSIZE + CHACHA_KEYSIZE;
 		super();
-		let keynonce: Uint8Array;
-		if (typeof seed === 'undefined') {
-			keynonce = crypto.getRandomValues(new Uint8Array(keyNonceBytes));
-		} else {
-			keynonce = seed;
-			if (keynonce.byteLength > keyNonceBytes) keynonce = seed.subarray(0, keyNonceBytes);
-			if (keynonce.byteLength < keyNonceBytes) {
-				const y = new Uint8Array(keyNonceBytes);
-				y.set(keynonce);
-				keynonce = y;
-			}
+		let keynonce = seed;
+		if (keynonce.byteLength > keyNonceBytes) keynonce = seed.subarray(0, keyNonceBytes);
+		if (keynonce.byteLength < keyNonceBytes) {
+			const y = new Uint8Array(keyNonceBytes);
+			y.set(keynonce);
+			keynonce = y;
 		}
 		const key = keynonce.subarray(0, CHACHA_KEYSIZE);
 		const nonce = keynonce.subarray(CHACHA_KEYSIZE, CHACHA_KEYSIZE + CHACHA_IVSIZE);
