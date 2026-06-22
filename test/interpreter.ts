@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import { describe, expect, test, vi, beforeEach, afterEach } from 'vitest';
-import { Parser, Interpreter, values, errors, utils, Ast } from '../src';
+import { Parser, Interpreter, std, values, errors, utils, Ast } from '../src';
 import { FALSE, NUM, OBJ, STR, TRUE, Value } from '../src/interpreter/value';
 
 let { FN_NATIVE } = values;
@@ -261,6 +261,7 @@ describe('pause', () => {
 		let count = 0;
 		
 		const interpreter = new Interpreter({
+			...std,
 			count: values.FN_NATIVE(() => { count++; }),
 		}, {});
 

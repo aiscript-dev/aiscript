@@ -1,11 +1,11 @@
 import { expect as globalExpect } from 'vitest';
-import { Parser, Interpreter } from '../src';
+import { Parser, Interpreter, std } from '../src';
 import { Value } from '../src/interpreter/value';
 
 export async function exe(script: string): Promise<Value | undefined> {
 	const parser = new Parser();
 	let result = undefined;
-	const interpreter = new Interpreter({}, {
+	const interpreter = new Interpreter(std, {
 		out(value) {
 			if (!result) result = value;
 			else if (!Array.isArray(result)) result = [result, value];
@@ -23,7 +23,7 @@ export async function exe(script: string): Promise<Value | undefined> {
 
 export function exeSync(script: string): Value | undefined {
 	const parser = new Parser();
-	const interpreter = new Interpreter({}, {
+	const interpreter = new Interpreter(std, {
 		out(value) {
 		},
 		log(type, {val}) {

@@ -416,7 +416,7 @@ type Index = NodeBase & {
 
 // @public (undocumented)
 export class Interpreter {
-    constructor(consts: Record<string, Value>, opts?: {
+    constructor(globals: Record<string, Value>, opts?: {
         in?(q: string): Promise<string>;
         out?(value: Value): void;
         err?(e: AiScriptError): void;
@@ -714,6 +714,9 @@ export class Scope {
 type Statement = Definition | Return | Each | For | Loop | Break | Continue | Assign | AddAssign | SubAssign;
 
 // @public (undocumented)
+export const std: Record<string, Value>;
+
+// @public (undocumented)
 const STR: (str: VStr["value"]) => VStr;
 
 // @public (undocumented)
@@ -918,7 +921,7 @@ type VUserFn = VFnBase & {
 
 // Warnings were encountered during analysis:
 //
-// src/interpreter/index.ts:49:4 - (ae-forgotten-export) The symbol "LogObject" needs to be exported by the entry point index.d.ts
+// src/interpreter/index.ts:50:4 - (ae-forgotten-export) The symbol "LogObject" needs to be exported by the entry point index.d.ts
 // src/interpreter/value.ts:47:2 - (ae-forgotten-export) The symbol "Type" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
