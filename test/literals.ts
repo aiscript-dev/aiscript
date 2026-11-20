@@ -87,6 +87,62 @@ describe('literal', () => {
 	});
 	*/
 
+	test.concurrent('number (Float with integer zero omitted)', async () => {
+		const res = await exe(`
+		<: .5
+		`);
+		eq(res, NUM(0.5));
+	});
+
+	test.concurrent('number (Float with decimal zero omitted)', async () => {
+		const res = await exe(`
+		<: 5.
+		`);
+		eq(res, NUM(5));
+	});
+
+	test.concurrent('number (integer zero omitted, positive exponent without plus sign)', async () => {
+		const res = await exe(`
+		<: .5e3
+		`);
+		eq(res, NUM(500));
+	});
+
+	test.concurrent('number (integer zero omitted, positive exponent with plus sign)', async () => {
+		const res = await exe(`
+		<: .5e+3
+		`);
+		eq(res, NUM(500));
+	});
+
+	test.concurrent('number (integer zero omitted, negative exponent)', async () => {
+		const res = await exe(`
+		<: .5e-3
+		`);
+		eq(res, NUM(0.0005));
+	});
+
+	test.concurrent('number (decimal zero omitted, positive exponent without plus sign)', async () => {
+		const res = await exe(`
+		<: 5.e3
+		`);
+		eq(res, NUM(5000));
+	});
+
+	test.concurrent('number (decimal zero omitted, positive exponent with plus sign)', async () => {
+		const res = await exe(`
+		<: 5.e+3
+		`);
+		eq(res, NUM(5000));
+	});
+
+	test.concurrent('number (decimal zero omitted, negative exponent)', async () => {
+		const res = await exe(`
+		<: 5.e-3
+		`);
+		eq(res, NUM(0.005));
+	});
+
 	test.concurrent('arr (separated by comma)', async () => {
 		const res = await exe(`
 		<: [1, 2, 3]
