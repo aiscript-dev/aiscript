@@ -434,7 +434,7 @@ export const std: Record<string, Value> = {
 		assertFunction(callback);
 		if (immediate) {
 			assertBoolean(immediate);
-			if (immediate.value) opts.call(callback, []);
+			if (immediate.value) opts.topCall(callback, []);
 		}
 
 		let id: ReturnType<typeof setInterval>;

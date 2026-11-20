@@ -1,0 +1,1 @@
+- fix: abortOnError時に空の無限ループが発生する
