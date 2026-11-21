@@ -146,6 +146,35 @@ describe('error handler', () => {
 	});
 });
 
+describe('abort', () => {
+	const repetitions = [
+		['loop', 'loop { abort() }'],
+		['while', 'while true { abort() }'],
+		['do-while', 'do { abort() } while true'],
+		['for times', 'for Math:Infinity { abort() }'],
+		['for range', 'for let i, Math:Infinity { abort() }'],
+		['each', 'each let item, [1, 2, 3] { abort() }'],
+	];
+
+	test.each(repetitions)('stops %s during async evaluation', async (_name, source) => {
+		let interpreter: Interpreter;
+		interpreter = new Interpreter({
+			abort: FN_NATIVE(() => interpreter.abort()),
+		});
+
+		await interpreter.exec(Parser.parse(source));
+	});
+
+	test.each(repetitions)('stops %s during sync evaluation', (_name, source) => {
+		let interpreter: Interpreter;
+		interpreter = new Interpreter({
+			abort: FN_NATIVE(() => interpreter.abort()),
+		});
+
+		interpreter.execSync(Parser.parse(source));
+	});
+});
+
 describe('error location', () => {
 	const exeAndGetErrPos = (src: string): Promise<Ast.Pos|undefined> => new Promise((ok, ng) => {
 		const aiscript = new Interpreter({

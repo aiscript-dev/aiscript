@@ -558,8 +558,7 @@ export class Interpreter {
 			}
 
 			case 'loop': {
-				// eslint-disable-next-line no-constant-condition
-				while (true) {
+				while (!this.stop) {
 					const v = await this._run(node.statements, scope.createChildScope(), callStack);
 					if (v.type === 'break') {
 						if (v.label != null && v.label !== node.label) {
@@ -584,7 +583,7 @@ export class Interpreter {
 						return times;
 					}
 					assertNumber(times);
-					for (let i = 0; i < times.value; i++) {
+					for (let i = 0; i < times.value && !this.stop; i++) {
 						const v = await this._evalClause(node.for, scope, callStack);
 						if (v.type === 'break') {
 							if (v.label != null && v.label !== node.label) {
@@ -610,7 +609,7 @@ export class Interpreter {
 					}
 					assertNumber(from);
 					assertNumber(to);
-					for (let i = from.value; i < from.value + to.value; i++) {
+					for (let i = from.value; i < from.value + to.value && !this.stop; i++) {
 						const v = await this._eval(node.for, scope.createChildScope(new Map([
 							[node.var!, {
 								isMutable: false,
@@ -641,6 +640,7 @@ export class Interpreter {
 				}
 				assertArray(items);
 				for (const item of items.value) {
+					if (this.stop) break;
 					const eachScope = scope.createChildScope();
 					this.define(eachScope, node.var, item, false);
 					const v = await this._eval(node.for, eachScope, callStack);
@@ -1091,8 +1091,7 @@ export class Interpreter {
 			}
 
 			case 'loop': {
-				// eslint-disable-next-line no-constant-condition
-				while (true) {
+				while (!this.stop) {
 					const v = this._runSync(node.statements, scope.createChildScope(), callStack);
 					if (v.type === 'break') {
 						if (v.label != null && v.label !== node.label) {
@@ -1117,7 +1116,7 @@ export class Interpreter {
 						return times;
 					}
 					assertNumber(times);
-					for (let i = 0; i < times.value; i++) {
+					for (let i = 0; i < times.value && !this.stop; i++) {
 						const v = this._evalClauseSync(node.for, scope, callStack);
 						if (v.type === 'break') {
 							if (v.label != null && v.label !== node.label) {
@@ -1143,7 +1142,7 @@ export class Interpreter {
 					}
 					assertNumber(from);
 					assertNumber(to);
-					for (let i = from.value; i < from.value + to.value; i++) {
+					for (let i = from.value; i < from.value + to.value && !this.stop; i++) {
 						const v = this._evalSync(node.for, scope.createChildScope(new Map([
 							[node.var!, {
 								isMutable: false,
@@ -1174,6 +1173,7 @@ export class Interpreter {
 				}
 				assertArray(items);
 				for (const item of items.value) {
+					if (this.stop) break;
 					const eachScope = scope.createChildScope();
 					this.define(eachScope, node.var, item, false);
 					const v = this._evalSync(node.for, eachScope, callStack);
