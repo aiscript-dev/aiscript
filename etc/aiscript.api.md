@@ -315,6 +315,12 @@ declare namespace errors {
 export { errors }
 
 // @public (undocumented)
+export type ExecResultOptions = {
+    value?: boolean;
+    variables?: boolean | string[];
+};
+
+// @public (undocumented)
 type Exists = NodeBase & {
     type: 'exists';
     identifier: Identifier;
@@ -432,11 +438,17 @@ export class Interpreter {
     static collectMetadata(script?: Ast.Node[]): Map<string | null, JsValue> | undefined;
     // (undocumented)
     exec(script?: Ast.Node[]): Promise<void>;
+    // Warning: (ae-forgotten-export) The symbol "ExecResult" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    exec<T extends ExecResultOptions>(script: Ast.Node[], resultOpts: T): Promise<ExecResult<T> | void>;
     execFn(fn: VFn, args: Value[]): Promise<Value>;
     execFnSimple(fn: VFn, args: Value[]): Promise<Value>;
     execFnSync(fn: VFn, args: Value[]): Value;
     // (undocumented)
     execSync(script?: Ast.Node[]): Value | undefined;
+    // (undocumented)
+    execSync<T extends ExecResultOptions>(script: Ast.Node[], resultOpts: T): ExecResult<T>;
     // (undocumented)
     pause(): void;
     // (undocumented)
@@ -698,6 +710,8 @@ export class Scope {
     exists(name: string): boolean;
     get(name: string): Value;
     getAll(): Map<string, Variable>;
+    // (undocumented)
+    getByNames(names: string[]): Map<string, Variable>;
     getNsPrefix(): string;
     // (undocumented)
     name: string;
@@ -918,7 +932,7 @@ type VUserFn = VFnBase & {
 
 // Warnings were encountered during analysis:
 //
-// src/interpreter/index.ts:49:4 - (ae-forgotten-export) The symbol "LogObject" needs to be exported by the entry point index.d.ts
+// src/interpreter/index.ts:50:4 - (ae-forgotten-export) The symbol "LogObject" needs to be exported by the entry point index.d.ts
 // src/interpreter/value.ts:47:2 - (ae-forgotten-export) The symbol "Type" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
