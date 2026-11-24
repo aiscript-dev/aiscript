@@ -359,7 +359,7 @@ export class Interpreter {
 				unregisterPauseHandler: this.unregisterPauseHandler,
 				unregisterUnpauseHandler: this.unregisterUnpauseHandler,
 			});
-			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+			 
 			return result ?? NULL;
 		} else {
 			const fnScope = fn.scope!.createChildScope();
@@ -400,7 +400,7 @@ export class Interpreter {
 			if (result instanceof Promise) {
 				throw new AiScriptHostsideError('Native function must not return a Promise in sync mode.');
 			}
-			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+			 
 			return result ?? NULL;
 		} else {
 			const fnScope = fn.scope!.createChildScope();

@@ -2,9 +2,9 @@
  * AiSON: AiScript Object Notation
  */
 import { nodeToJs } from '../utils/node-to-js.js';
+import { jsToVal } from '../interpreter/util.js';
 import { Scanner } from './scanner.js';
 import { parseAiSonTopLevel } from './syntaxes/aison.js';
-import { jsToVal } from '../interpreter/util.js';
 import type { JsValue } from '../interpreter/util.js';
 import type { Value } from '../interpreter/value.js';
 

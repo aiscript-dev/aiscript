@@ -23,7 +23,7 @@ export default ts.config({
 		sourceType: "script",
 
 		parserOptions: {
-			tsconfigRootDir: ".",
+			tsconfigRootDir: import.meta.dirname,
 			project: ["./tsconfig.json"],
 		},
 	},
