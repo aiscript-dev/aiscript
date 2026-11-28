@@ -14,14 +14,14 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [20.x]
+        node-version: [22.x, 24.x]
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6.0.0
+        uses: actions/checkout@v7.0.1
 
       - name: Setup Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v6.0.0
+        uses: actions/setup-node@v7.1.0
         with:
           node-version: ${{ matrix.node-version }}
 
@@ -37,4 +37,4 @@ jobs:
           CI: true
 
       - name: Upload Coverage
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v7
